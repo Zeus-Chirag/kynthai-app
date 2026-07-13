@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+Disallow: /dashboard/
+
+# Role-specific internal routes — not for public indexing
+Disallow: /patient/
+Disallow: /doctor/
+Disallow: /lab/
+Disallow: /caretaker/
+Disallow: /admin/
+
+Sitemap: https://kyntha.app/sitemap.xml

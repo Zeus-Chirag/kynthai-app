@@ -1,0 +1,41 @@
+{
+	# Security headers for all sites
+	headers {
+		# HSTS - force HTTPS for 1 year with preload
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		# Prevent MIME type sniffing
+		X-Content-Type-Options "nosniff"
+		# Prevent clickjacking
+		X-Frame-Options "DENY"
+		# XSS Protection
+		X-XSS-Protection "1; mode=block"
+		# Referrer policy
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Permissions policy
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		# Remove server signature
+		-Server
+	}
+}
+
+# Production domain - HTTPS enabled
+# Replace kyntha.app and www.kyntha.app with your actual domains
+kyntha.app, www.kyntha.app {
+	reverse_proxy app:3000 {
+		# Preserve client IP for accurate rate limiting and audit logs
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+	}
+}
+
+# Development / localhost - no TLS
+:80 {
+	reverse_proxy localhost:3000 {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+	}
+}

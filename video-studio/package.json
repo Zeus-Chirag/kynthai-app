@@ -1,0 +1,26 @@
+{
+  "name": "kyntha-video-studio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "remotion studio --port 5002",
+    "render": "remotion render DbzFight out/dbz-fight.mp4",
+    "build": "remotion bundle"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.488",
+    "@remotion/media": "4.0.488",
+    "@remotion/three": "4.0.488",
+    "@react-three/fiber": "9.6.1",
+    "@react-three/drei": "10.7.7",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.488",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.488",
+    "@types/react": "19.2.7",
+    "typescript": "5.9.3"
+  }
+}

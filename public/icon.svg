@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kyntha app icon">
+  <defs>
+    <linearGradient id="kyntha-main" x1="128" y1="128" x2="384" y2="384" gradientUnits="userSpaceOnUse">
+      <stop stopColor="#34d399"/>
+      <stop offset="0.5" stopColor="#10b981"/>
+      <stop offset="1" stopColor="#059669"/>
+    </linearGradient>
+    <linearGradient id="kyntha-pulse" x1="128" y1="256" x2="384" y2="256" gradientUnits="userSpaceOnUse">
+      <stop stopColor="#6ee7b7"/>
+      <stop offset="1" stopColor="#34d399"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="128" fill="#0f172a"/>
+  
+  <!-- Subtle radial glow -->
+  <circle cx="256" cy="240" r="180" fill="url(#kyntha-main)" opacity="0.08"/>
+  
+  <!-- Heart shape (health symbol) -->
+  <path d="M256 380 
+           C200 340, 120 280, 120 200 
+           C120 140, 160 100, 210 100 
+           C240 100, 256 130, 256 130 
+           C256 130, 272 100, 302 100 
+           C352 100, 392 140, 392 200 
+           C392 280, 312 340, 256 380Z" 
+        fill="url(#kyntha-main)" filter="url(#glow)"/>
+  
+  <!-- Pulse line (heartbeat) -->
+  <path d="M140 256 L190 256 L210 200 L230 310 L256 180 L282 310 L302 200 L322 256 L372 256" 
+        stroke="url(#kyntha-pulse)" 
+        stroke-width="8" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"
+        opacity="0.9"/>
+  
+  <!-- Small cross (medical symbol) -->
+  <rect x="240" y="320" width="32" height="8" rx="4" fill="white" opacity="0.9"/>
+  <rect x="252" y="308" width="8" height="32" rx="4" fill="white" opacity="0.9"/>
+  
+  <!-- Bottom accent line -->
+  <line x1="160" y1="400" x2="352" y2="400" stroke="url(#kyntha-main)" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+</svg>

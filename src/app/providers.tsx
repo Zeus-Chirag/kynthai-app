@@ -1,0 +1,66 @@
+'use client'
+
+import { ThemeProvider } from '@/components/theme-provider'
+import { ServiceWorkerRegister } from '@/components/service-worker-register'
+import { AuthGuard } from '@/components/kyntha/auth-guard'
+import { Toaster } from '@/components/ui/toaster'
+import { CookieConsent, hasConsented } from '@/components/kyntha/cookie-consent'
+import { runWhenIdle } from '@/components/performance-wrapper'
+import { useEffect, useState } from 'react'
+import { GlobalErrorCatcher } from '@/components/kyntha/global-error-catcher'
+import { initConsentAwareTelemetry } from '@/lib/analytics-consent'
+
+function DeferredAuthGuard() {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    const id =
+      typeof window !== 'undefined' && (window as any).requestIdleCallback
+        ? (window as any).requestIdleCallback(() => setReady(true), { timeout: 200 })
+        : setTimeout(() => setReady(true), 50)
+    return () => {
+      if (typeof id === 'number') {
+        if (typeof window !== 'undefined' && (window as any).cancelIdleCallback) {
+          ;(window as any).cancelIdleCallback(id)
+        } else {
+          clearTimeout(id)
+        }
+      }
+    }
+  }, [])
+  if (!ready) return null
+  return <AuthGuard />
+}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+      <GlobalErrorCatcher />
+      <ServiceWorkerRegister />
+      <DeferredAuthGuard />
+      {children}
+      <CookieConsent />
+      <TelemetryBootstrap />
+      <Toaster />
+    </ThemeProvider>
+  )
+}
+
+function TelemetryBootstrap() {
+  useEffect(() => {
+    if (hasConsented()) {
+      initConsentAwareTelemetry()
+      return
+    }
+
+    const onChange = () => {
+      if (hasConsented()) {
+        initConsentAwareTelemetry()
+      }
+    }
+
+    window.addEventListener('kyntha-consent-change', onChange)
+    return () => window.removeEventListener('kyntha-consent-change', onChange)
+  }, [])
+
+  return null
+}

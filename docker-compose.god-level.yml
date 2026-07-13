@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  openhands:
+    build:
+      context: .
+      dockerfile: Dockerfile.god-level
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./workspace:/app/workspace
+      - ./trajectories:/app/trajectories
+      - ./.openhands:/app/.openhands
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=https://zenmux.com/v1
+      - LLM_MODEL=stepfun/stepfun-3.7-free
+      - LLM_TEMPERATURE=0.7
+      - LLM_MAX_INPUT_TOKENS=128000
+      - LLM_MAX_OUTPUT_TOKENS=8192
+      - ENABLE_BROWSER=true
+      - ENABLE_JUPYTER=true
+    restart: unless-stopped
+    networks:
+      - openhands-network
+
+volumes:
+  redis_data:
+
+networks:
+  openhands-network:
+    driver: bridge
