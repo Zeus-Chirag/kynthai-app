@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,27 +16,27 @@ import {
   Banknote,
   Trophy,
   Info,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { EarlyAdopterCard } from './early-adopter-card'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { EarlyAdopterCard } from './early-adopter-card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useAppStore } from '@/lib/store'
-import { cn } from '@/lib/utils'
-import { KynthaBrand } from './logo'
-import { Reveal, StaggerGroup, StaggerItem, Magnetic } from './animations'
-import { useRouter } from 'next/navigation'
+} from '@/components/ui/select';
+import { useAppStore } from '@/lib/store';
+import { cn } from '@/lib/utils';
+import { KynthaBrand } from './logo';
+import { Reveal, StaggerGroup, StaggerItem, Magnetic } from './animations';
+import { useRouter } from 'next/navigation';
 import {
   DOCTOR_BASE_FEE_PCT,
   LAB_BASE_FEE_PCT,
@@ -46,28 +46,22 @@ import {
   platformFee,
   partnerKeeps,
   PAYOUT_POLICY,
-} from '@/lib/commission'
-import {
-  type Currency,
-  CURRENCIES,
-  PRICING,
-  formatPrice,
-  yearlySavingsPct,
-} from '@/lib/currency'
+} from '@/lib/commission';
+import { type Currency, CURRENCIES, PRICING, formatPrice, yearlySavingsPct } from '@/lib/currency';
 
-type BillingCycle = 'monthly' | 'yearly'
+type BillingCycle = 'monthly' | 'yearly';
 
 interface Tier {
-  id: 'free' | 'plus' | 'family_pro' | 'professional' | 'enterprise'
-  name: string
-  tagline: string
-  icon: React.ComponentType<{ className?: string }>
-  accent: string
-  cta: string
-  featured?: boolean
-  commissionOnly?: boolean
-  enterprise?: boolean
-  features: string[]
+  id: 'free' | 'plus' | 'family_pro' | 'professional' | 'enterprise';
+  name: string;
+  tagline: string;
+  icon: React.ComponentType<{ className?: string }>;
+  accent: string;
+  cta: string;
+  featured?: boolean;
+  commissionOnly?: boolean;
+  enterprise?: boolean;
+  features: string[];
 }
 
 const TIERS: Tier[] = [
@@ -179,42 +173,43 @@ const TIERS: Tier[] = [
       'Priority 24/7 support for all employees',
     ],
   },
-]
+];
 
 export function PricingPage() {
-  const { setScreen, setCheckoutTier, currency } = useAppStore()
-  const router = useRouter()
-  const [cycle, setCycle] = React.useState<BillingCycle>('monthly')
+  const { setScreen, setCheckoutTier, currency } = useAppStore();
+  const router = useRouter();
+  const [cycle, setCycle] = React.useState<BillingCycle>('monthly');
 
   // US launch — pricing is in USD.
 
   // Get dynamic prices for the selected currency
-  const plusPrice = PRICING[currency].plus
-  const familyProPrice = PRICING[currency].family_pro
-  const savingsPlus = yearlySavingsPct(currency, 'plus')
-  const savingsFamily = yearlySavingsPct(currency, 'family_pro')
-  const savingsLabel = Math.min(savingsPlus, savingsFamily)
+  const plusPrice = PRICING[currency].plus;
+  const familyProPrice = PRICING[currency].family_pro;
+  const savingsPlus = yearlySavingsPct(currency, 'plus');
+  const savingsFamily = yearlySavingsPct(currency, 'family_pro');
+  const savingsLabel = Math.min(savingsPlus, savingsFamily);
 
   function startCheckout(tier: 'plus' | 'family_pro') {
-    setCheckoutTier(tier)
-    router.push('/checkout')
+    setCheckoutTier(tier);
+    router.push('/checkout');
   }
 
   /** Resolve the price for a tier given the current billing cycle + currency. */
   function tierPrice(tierId: string): number | null {
-    if (tierId === 'free') return 0
-    if (tierId === 'plus') return cycle === 'monthly' ? plusPrice.monthly : plusPrice.yearly
-    if (tierId === 'family_pro') return cycle === 'monthly' ? familyProPrice.monthly : familyProPrice.yearly
-    return null // professional / enterprise
+    if (tierId === 'free') return 0;
+    if (tierId === 'plus') return cycle === 'monthly' ? plusPrice.monthly : plusPrice.yearly;
+    if (tierId === 'family_pro')
+      return cycle === 'monthly' ? familyProPrice.monthly : familyProPrice.yearly;
+    return null; // professional / enterprise
   }
 
   /** Subtle USD subtitle, e.g. "$9/mo · cancel anytime". */
-  function usdSubtitle(tierId: string, billingCycle: 'monthly' | 'yearly'): string {
-    const price = tierPrice(tierId) ?? 0
+  function inrSubtitle(tierId: string, billingCycle: 'monthly' | 'yearly'): string {
+    const price = tierPrice(tierId) ?? 0;
     if (billingCycle === 'yearly' && tierId !== 'free') {
-      return `${formatPrice(price, 'USD')}/year · cancel anytime`
+      return `${formatPrice(price, currency)}/year · cancel anytime`;
     }
-    return `${formatPrice(price, 'USD')}/mo · cancel anytime`
+    return `${formatPrice(price, currency)}/mo · cancel anytime`;
   }
 
   return (
@@ -248,8 +243,7 @@ export function PricingPage() {
           <div
             className="absolute -top-40 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full opacity-40 blur-3xl"
             style={{
-              background:
-                'radial-gradient(closest-side, rgba(16,185,129,0.35), transparent 70%)',
+              background: 'radial-gradient(closest-side, rgba(16,185,129,0.35), transparent 70%)',
             }}
           />
         </div>
@@ -267,8 +261,8 @@ export function PricingPage() {
               Pricing that scales with your care
             </h1>
             <p className="mt-4 text-pretty text-sm text-muted-foreground sm:text-base">
-              Start free, upgrade when you need more. Cancel anytime. Doctors and
-              labs pay no monthly fee — just a fair platform fee on each fulfilled order.
+              Start free, upgrade when you need more. Cancel anytime. Doctors and labs pay no
+              monthly fee — just a fair platform fee on each fulfilled order.
             </p>
           </Reveal>
 
@@ -285,7 +279,7 @@ export function PricingPage() {
               </span>
               <Switch
                 checked={cycle === 'yearly'}
-                onCheckedChange={(c) => setCycle(c ? 'yearly' : 'monthly')}
+                onCheckedChange={c => setCycle(c ? 'yearly' : 'monthly')}
                 aria-label="Toggle yearly billing"
               />
               <span
@@ -307,140 +301,147 @@ export function PricingPage() {
       {/* GST note */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-center text-xs text-muted-foreground">
-          Prices are shown in USD. No surprise taxes at checkout. Doctor
-          consultation fees are charged separately by the doctor.
+          Prices are shown in your selected currency. GST included at checkout. Doctor consultation
+          fees are charged separately by the doctor.
         </p>
       </div>
 
       {/* Early Adopter Card */}
       <section className="mx-auto max-w-3xl px-4 pb-8 sm:px-6 lg:px-8">
-        <EarlyAdopterCard onSelect={(type) => startCheckout(type === 'family' ? 'family_pro' : 'plus')} />
+        <EarlyAdopterCard
+          onSelect={type => startCheckout(type === 'family' ? 'family_pro' : 'plus')}
+        />
       </section>
 
       {/* Tiers */}
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <StaggerGroup className="grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {TIERS.map((tier) => (
+          {TIERS.map(tier => (
             <StaggerItem key={tier.id}>
               <Card
-                  className={cn(
-                    'relative flex h-full flex-col overflow-hidden transition-all',
-                    tier.featured
-                      ? 'border-emerald-500/40 shadow-xl shadow-emerald-600/10'
-                      : 'hover:border-emerald-500/30'
-                  )}
-                >
-                  {tier.featured && (
-                    <div className="absolute left-1/2 top-0 -translate-x-1/2">
-                      <div className="-mt-3 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow-md">
-                        Most popular
-                      </div>
+                className={cn(
+                  'relative flex h-full flex-col overflow-hidden transition-all',
+                  tier.featured
+                    ? 'border-emerald-500/40 shadow-xl shadow-emerald-600/10'
+                    : 'hover:border-emerald-500/30'
+                )}
+              >
+                {tier.featured && (
+                  <div className="absolute left-1/2 top-0 -translate-x-1/2">
+                    <div className="-mt-3 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow-md">
+                      Most popular
                     </div>
-                  )}
-                  <CardContent className="flex flex-1 flex-col p-5 sm:p-6">
-                    <div
-                      className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow',
-                        tier.accent
-                      )}
-                    >
-                      <tier.icon className="h-5 w-5" />
-                    </div>
+                  </div>
+                )}
+                <CardContent className="flex flex-1 flex-col p-5 sm:p-6">
+                  <div
+                    className={cn(
+                      'flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow',
+                      tier.accent
+                    )}
+                  >
+                    <tier.icon className="h-5 w-5" />
+                  </div>
 
-                    <h3 className="mt-4 text-lg font-semibold">{tier.name}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">{tier.tagline}</p>
+                  <h3 className="mt-4 text-lg font-semibold">{tier.name}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{tier.tagline}</p>
 
-                    <div className="mt-5 flex items-baseline gap-1">
-                      {tier.enterprise ? (
-                        <span className="text-3xl font-bold">Custom</span>
-                      ) : tier.commissionOnly ? (
-                        <span className="text-3xl font-bold">
-                          {DOCTOR_BASE_FEE_PCT}%
-                          <span className="text-base font-medium text-muted-foreground">/{LAB_BASE_FEE_PCT}%</span>
+                  <div className="mt-5 flex items-baseline gap-1">
+                    {tier.enterprise ? (
+                      <span className="text-3xl font-bold">Custom</span>
+                    ) : tier.commissionOnly ? (
+                      <span className="text-3xl font-bold">
+                        {DOCTOR_BASE_FEE_PCT}%
+                        <span className="text-base font-medium text-muted-foreground">
+                          /{LAB_BASE_FEE_PCT}%
                         </span>
-                      ) : (
-                        <>
-                          <span className="text-4xl font-bold">
-                            {formatPrice(tierPrice(tier.id) ?? 0, currency)}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {cycle === 'monthly' ? '/mo' : '/yr'}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {tier.enterprise
-                        ? `Starting at $9/employee/mo · min 50 employees`
-                        : tier.commissionOnly
-                          ? `Platform fee · doctor / lab · no monthly fee`
-                          : cycle === 'yearly' && tier.id !== 'free'
-                            ? `Billed ${formatPrice(tierPrice(tier.id) ?? 0, currency)} once a year · cancel anytime`
-                            : `Billed monthly · cancel anytime`}
-                    </p>
+                      </span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-bold">
+                          {formatPrice(tierPrice(tier.id) ?? 0, currency)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {cycle === 'monthly' ? '/mo' : '/yr'}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {tier.enterprise
+                      ? `Starting at $9/employee/mo · min 50 employees`
+                      : tier.commissionOnly
+                        ? `Platform fee · doctor / lab · no monthly fee`
+                        : cycle === 'yearly' && tier.id !== 'free'
+                          ? `Billed ${formatPrice(tierPrice(tier.id) ?? 0, currency)} once a year · cancel anytime`
+                          : `Billed monthly · cancel anytime`}
+                  </p>
 
-                    <Separator className="my-5" />
+                  <Separator className="my-5" />
 
-                    <ul className="flex-1 space-y-2.5">
-                      {tier.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-sm">
-                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                          <span className="text-muted-foreground">{f}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <ul className="flex-1 space-y-2.5">
+                    {tier.features.map(f => (
+                      <li key={f} className="flex items-start gap-2 text-sm">
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                        <span className="text-muted-foreground">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                    <div className="mt-6">
-                      {tier.id === 'free' && (
+                  <div className="mt-6">
+                    {tier.id === 'free' && (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => router.push('/login')}
+                      >
+                        {tier.cta}
+                      </Button>
+                    )}
+                    {(tier.id === 'plus' || tier.id === 'family_pro') && (
+                      <Magnetic strength={0.2}>
                         <Button
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => router.push('/login')}
-                        >
-                          {tier.cta}
-                        </Button>
-                      )}
-                      {(tier.id === 'plus' || tier.id === 'family_pro') && (
-                        <Magnetic strength={0.2}>
-                          <Button
-                            className={cn(
-                              'w-full gap-2',
-                              tier.featured
-                                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25'
-                                : ''
-                            )}
-                            variant={tier.featured ? 'default' : 'outline'}
-                            onClick={() => startCheckout(tier.id as 'plus' | 'family_pro')}
-                          >
-                            {tier.cta}
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </Magnetic>
-                      )}
-                      {tier.commissionOnly && !tier.enterprise && (
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => router.push('/login')}
-                        >
-                          {tier.cta}
-                        </Button>
-                      )}
-                      {tier.enterprise && (
-                        <Button
-                          className="w-full gap-2 bg-gradient-to-r from-teal-500 to-emerald-700 text-white"
-                          onClick={() => window.location.href = 'mailto:enterprise@kyntha.app?subject=Enterprise%20Inquiry&body=Company%20name%3A%0AEmployee%20count%3A%0AContact%20name%3A%0AContact%20email%3A'}
+                          className={cn(
+                            'w-full gap-2',
+                            tier.featured
+                              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25'
+                              : ''
+                          )}
+                          variant={tier.featured ? 'default' : 'outline'}
+                          onClick={() => startCheckout(tier.id as 'plus' | 'family_pro')}
                         >
                           {tier.cta}
                           <ArrowRight className="h-4 w-4" />
                         </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
+                      </Magnetic>
+                    )}
+                    {tier.commissionOnly && !tier.enterprise && (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => router.push('/login')}
+                      >
+                        {tier.cta}
+                      </Button>
+                    )}
+                    {tier.enterprise && (
+                      <Button
+                        className="w-full gap-2 bg-gradient-to-r from-teal-500 to-emerald-700 text-white"
+                        onClick={() =>
+                          (window.location.href =
+                            'mailto:enterprise@kyntha.app?subject=Enterprise%20Inquiry&body=Company%20name%3A%0AEmployee%20count%3A%0AContact%20name%3A%0AContact%20email%3A')
+                        }
+                      >
+                        {tier.cta}
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
 
         {/* Platform fee transparency cards */}
         <Reveal>
@@ -453,12 +454,16 @@ export function PricingPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-baseline gap-x-2">
-                      <h3 className="text-sm font-semibold">Doctors — {DOCTOR_BASE_FEE_PCT}% platform fee</h3>
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">keep 85%</span>
+                      <h3 className="text-sm font-semibold">
+                        Doctors — {DOCTOR_BASE_FEE_PCT}% platform fee
+                      </h3>
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                        keep 85%
+                      </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Charged on every consult and medicine order routed through your
-                      practice. Loyalty tier discounts reduce it by up to 3%.
+                      Charged on every consult and medicine order routed through your practice.
+                      Loyalty tier discounts reduce it by up to 3%.
                     </p>
                   </div>
                 </div>
@@ -472,12 +477,16 @@ export function PricingPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-baseline gap-x-2">
-                      <h3 className="text-sm font-semibold">Labs — {LAB_BASE_FEE_PCT}% platform fee</h3>
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">keep 82%</span>
+                      <h3 className="text-sm font-semibold">
+                        Labs — {LAB_BASE_FEE_PCT}% platform fee
+                      </h3>
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                        keep 82%
+                      </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Charged on every test booking fulfilled through Kyntha&apos;s
-                      network. Loyalty tier discounts reduce it by up to 3%.
+                      Charged on every test booking fulfilled through Kyntha&apos;s network. Loyalty
+                      tier discounts reduce it by up to 3%.
                     </p>
                   </div>
                 </div>
@@ -495,7 +504,9 @@ export function PricingPage() {
                   <Trophy className="h-4 w-4" />
                 </span>
                 <div>
-                  <h3 className="text-sm font-semibold">Loyalty tiers — your fee shrinks as you grow</h3>
+                  <h3 className="text-sm font-semibold">
+                    Loyalty tiers — your fee shrinks as you grow
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Tier is calculated from lifetime fulfilled orders and re-evaluated every Monday.
                   </p>
@@ -504,9 +515,14 @@ export function PricingPage() {
 
               {/* Desktop table */}
               <div className="hidden sm:grid sm:grid-cols-4 gap-3">
-                {(Object.entries(LOYALTY_TIERS) as [LoyaltyTier, typeof LOYALTY_TIERS[LoyaltyTier]][]).map(([name, cfg]) => {
-                  const docFee = effectiveFeePct(DOCTOR_BASE_FEE_PCT, name)
-                  const labFee = effectiveFeePct(LAB_BASE_FEE_PCT, name)
+                {(
+                  Object.entries(LOYALTY_TIERS) as [
+                    LoyaltyTier,
+                    (typeof LOYALTY_TIERS)[LoyaltyTier],
+                  ][]
+                ).map(([name, cfg]) => {
+                  const docFee = effectiveFeePct(DOCTOR_BASE_FEE_PCT, name);
+                  const labFee = effectiveFeePct(LAB_BASE_FEE_PCT, name);
                   return (
                     <div
                       key={name}
@@ -522,19 +538,28 @@ export function PricingPage() {
                       <p className="text-[10px] text-muted-foreground">{cfg.min}+ orders</p>
                       <Separator className="my-2" />
                       <p className="text-[11px] text-muted-foreground">Doctor fee</p>
-                      <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">{docFee}%</p>
+                      <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                        {docFee}%
+                      </p>
                       <p className="text-[11px] text-muted-foreground mt-1">Lab fee</p>
-                      <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">{labFee}%</p>
+                      <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                        {labFee}%
+                      </p>
                     </div>
-                  )
+                  );
                 })}
               </div>
 
               {/* Mobile collapsible list */}
               <div className="sm:hidden space-y-2">
-                {(Object.entries(LOYALTY_TIERS) as [LoyaltyTier, typeof LOYALTY_TIERS[LoyaltyTier]][]).map(([name, cfg]) => {
-                  const docFee = effectiveFeePct(DOCTOR_BASE_FEE_PCT, name)
-                  const labFee = effectiveFeePct(LAB_BASE_FEE_PCT, name)
+                {(
+                  Object.entries(LOYALTY_TIERS) as [
+                    LoyaltyTier,
+                    (typeof LOYALTY_TIERS)[LoyaltyTier],
+                  ][]
+                ).map(([name, cfg]) => {
+                  const docFee = effectiveFeePct(DOCTOR_BASE_FEE_PCT, name);
+                  const labFee = effectiveFeePct(LAB_BASE_FEE_PCT, name);
                   return (
                     <div
                       key={name}
@@ -552,19 +577,30 @@ export function PricingPage() {
                           <p className="text-[10px] text-muted-foreground">{cfg.min}+ orders</p>
                         </div>
                         <div className="flex items-center gap-3 mt-1 text-[11px]">
-                          <span className="text-muted-foreground">Doc <span className="font-bold text-emerald-600 dark:text-emerald-400">{docFee}%</span></span>
-                          <span className="text-muted-foreground">Lab <span className="font-bold text-emerald-600 dark:text-emerald-400">{labFee}%</span></span>
+                          <span className="text-muted-foreground">
+                            Doc{' '}
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                              {docFee}%
+                            </span>
+                          </span>
+                          <span className="text-muted-foreground">
+                            Lab{' '}
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                              {labFee}%
+                            </span>
+                          </span>
                         </div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
 
               <div className="mt-4 flex items-start gap-2 text-[11px] text-muted-foreground">
                 <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                 <p>
-                  Example: a Gold doctor (150+ orders) pays a 13% fee instead of 15% — saving $200 on every $10,000 of consults.
+                  Example: a Gold doctor (150+ orders) pays a 13% fee instead of 15% — saving $200
+                  on every $10,000 of consults.
                 </p>
               </div>
             </CardContent>
@@ -589,11 +625,15 @@ export function PricingPage() {
                   <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                     <div>
                       <p className="text-muted-foreground">Schedule</p>
-                      <p className="font-semibold mt-0.5">{PAYOUT_POLICY.cadence} (15 days after month-end)</p>
+                      <p className="font-semibold mt-0.5">
+                        {PAYOUT_POLICY.cadence} (15 days after month-end)
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Minimum payout</p>
-                      <p className="font-semibold mt-0.5">${PAYOUT_POLICY.minPayoutUsd} ({PAYOUT_POLICY.currency})</p>
+                      <p className="font-semibold mt-0.5">
+                        {formatPrice(PAYOUT_POLICY.minPayoutUsd, currency)} min payout
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Methods</p>
@@ -601,8 +641,8 @@ export function PricingPage() {
                     </div>
                   </div>
                   <p className="mt-3 text-[11px] text-muted-foreground">
-                    Refunds, chargebacks, and cancelled orders are excluded from earnings.
-                    Withholding tax deducted at source per US tax law.
+                    Refunds, chargebacks, and cancelled orders are excluded from earnings. HIPAA
+                    compliant with full audit trail.
                   </p>
                 </div>
               </div>
@@ -614,7 +654,7 @@ export function PricingPage() {
         <Reveal>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-x-6 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" /> HIPAA-aligned
+              <ShieldCheck className="h-4 w-4 text-emerald-600" /> DPDP-compliant
             </span>
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-600" /> Built for US families
@@ -629,26 +669,26 @@ export function PricingPage() {
         </Reveal>
       </section>
     </div>
-  )
+  );
 }
 
 /* ----------------------------- Earnings calculator ----------------------------- */
 
 function EarningsCalculator() {
-  const { currency } = useAppStore()
-  const [role, setRole] = React.useState<'doctor' | 'lab'>('doctor')
-  const [tier, setTierName] = React.useState<LoyaltyTier>('Bronze')
-  const [amount, setAmount] = React.useState<string>('10000')
-  const [orders, setOrders] = React.useState<string>('20')
+  const { currency } = useAppStore();
+  const [role, setRole] = React.useState<'doctor' | 'lab'>('doctor');
+  const [tier, setTierName] = React.useState<LoyaltyTier>('Bronze');
+  const [amount, setAmount] = React.useState<string>('10000');
+  const [orders, setOrders] = React.useState<string>('20');
 
-  const baseFee = role === 'doctor' ? DOCTOR_BASE_FEE_PCT : LAB_BASE_FEE_PCT
-  const feePct = effectiveFeePct(baseFee, tier)
-  const gross = Math.max(0, parseFloat(amount) || 0) * Math.max(0, parseInt(orders) || 0)
-  const fee = platformFee(gross, feePct)
-  const keeps = partnerKeeps(gross, feePct)
-  const savingVsBronze = platformFee(gross, baseFee) - fee
+  const baseFee = role === 'doctor' ? DOCTOR_BASE_FEE_PCT : LAB_BASE_FEE_PCT;
+  const feePct = effectiveFeePct(baseFee, tier);
+  const gross = Math.max(0, parseFloat(amount) || 0) * Math.max(0, parseInt(orders) || 0);
+  const fee = platformFee(gross, feePct);
+  const keeps = partnerKeeps(gross, feePct);
+  const savingVsBronze = platformFee(gross, baseFee) - fee;
 
-  const currencySymbol = CURRENCIES[currency]?.symbol ?? '$'
+  const currencySymbol = CURRENCIES[currency]?.symbol ?? '$';
 
   return (
     <>
@@ -668,9 +708,13 @@ function EarningsCalculator() {
 
           <div className="grid gap-4 sm:grid-cols-4">
             <div className="space-y-1.5">
-              <Label htmlFor="calc-role" className="text-xs">I am a</Label>
-              <Select value={role} onValueChange={(v) => setRole(v as 'doctor' | 'lab')}>
-                <SelectTrigger id="calc-role" className="h-9"><SelectValue /></SelectTrigger>
+              <Label htmlFor="calc-role" className="text-xs">
+                I am a
+              </Label>
+              <Select value={role} onValueChange={v => setRole(v as 'doctor' | 'lab')}>
+                <SelectTrigger id="calc-role" className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="doctor">Doctor</SelectItem>
                   <SelectItem value="lab">Lab</SelectItem>
@@ -678,11 +722,15 @@ function EarningsCalculator() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="calc-tier" className="text-xs">Loyalty tier</Label>
-              <Select value={tier} onValueChange={(v) => setTierName(v as LoyaltyTier)}>
-                <SelectTrigger id="calc-tier" className="h-9"><SelectValue /></SelectTrigger>
+              <Label htmlFor="calc-tier" className="text-xs">
+                Loyalty tier
+              </Label>
+              <Select value={tier} onValueChange={v => setTierName(v as LoyaltyTier)}>
+                <SelectTrigger id="calc-tier" className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {(Object.keys(LOYALTY_TIERS) as LoyaltyTier[]).map((t) => (
+                  {(Object.keys(LOYALTY_TIERS) as LoyaltyTier[]).map(t => (
                     <SelectItem key={t} value={t}>
                       {LOYALTY_TIERS[t].icon} {t}
                     </SelectItem>
@@ -691,23 +739,27 @@ function EarningsCalculator() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="calc-amount" className="text-xs">Avg. order value ({currencySymbol})</Label>
+              <Label htmlFor="calc-amount" className="text-xs">
+                Avg. order value ({currencySymbol})
+              </Label>
               <Input
                 id="calc-amount"
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={e => setAmount(e.target.value)}
                 className="h-9"
                 min={0}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="calc-orders" className="text-xs">Orders per month</Label>
+              <Label htmlFor="calc-orders" className="text-xs">
+                Orders per month
+              </Label>
               <Input
                 id="calc-orders"
                 type="number"
                 value={orders}
-                onChange={(e) => setOrders(e.target.value)}
+                onChange={e => setOrders(e.target.value)}
                 className="h-9"
                 min={0}
               />
@@ -722,23 +774,29 @@ function EarningsCalculator() {
             </div>
             <div className="rounded-xl border border-border/60 p-3">
               <p className="text-[11px] text-muted-foreground">Platform fee ({feePct}%)</p>
-              <p className="text-lg font-bold mt-0.5 text-rose-600 dark:text-rose-400">−{formatPrice(fee, currency)}</p>
+              <p className="text-lg font-bold mt-0.5 text-rose-600 dark:text-rose-400">
+                −{formatPrice(fee, currency)}
+              </p>
             </div>
             <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-3">
               <p className="text-[11px] text-muted-foreground">You receive</p>
-              <p className="text-lg font-bold mt-0.5 text-emerald-600 dark:text-emerald-400">{formatPrice(keeps, currency)}</p>
+              <p className="text-lg font-bold mt-0.5 text-emerald-600 dark:text-emerald-400">
+                {formatPrice(keeps, currency)}
+              </p>
             </div>
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
               <p className="text-[11px] text-muted-foreground">Loyalty saving / mo</p>
-              <p className="text-lg font-bold mt-0.5 text-emerald-600 dark:text-emerald-400">+{formatPrice(savingVsBronze, currency)}</p>
+              <p className="text-lg font-bold mt-0.5 text-emerald-600 dark:text-emerald-400">
+                +{formatPrice(savingVsBronze, currency)}
+              </p>
             </div>
           </div>
 
           <div className="mt-4 flex items-start gap-2 text-[11px] text-muted-foreground">
             <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             <p>
-              Projection only. Actual earnings depend on case mix and cancellations.
-              Payouts are {PAYOUT_POLICY.cadence}; minimum {formatPrice(PAYOUT_POLICY.minPayoutUsd, currency)}.
+              Projection only. Actual earnings depend on case mix and cancellations. Payouts are{' '}
+              {PAYOUT_POLICY.cadence}; minimum {formatPrice(PAYOUT_POLICY.minPayoutUsd, currency)}.
             </p>
           </div>
         </CardContent>
@@ -748,16 +806,25 @@ function EarningsCalculator() {
       <div className="mt-8 border-t border-border/60 pt-5">
         <p className="text-center text-xs text-muted-foreground">
           Questions about billing or cancellations? See our{' '}
-          <a href="/refund-cancellation" className="text-emerald-600 underline hover:text-emerald-700">
+          <a
+            href="/refund-cancellation"
+            className="text-emerald-600 underline hover:text-emerald-700"
+          >
             Refund &amp; Cancellation Policy
           </a>{' '}
           or email{' '}
-          <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline hover:text-emerald-700">privacy@kyntha.app</a>.
-          <br />Registered Office:{' '}
-          1600 Pennsylvania Avenue NW, Suite 500, Washington, DC 20500, United States.
+          <a
+            href="mailto:privacy@kyntha.app"
+            className="text-emerald-600 underline hover:text-emerald-700"
+          >
+            privacy@kyntha.app
+          </a>
+          .
+          <br />
+          Registered Office: 1600 Pennsylvania Avenue NW, Suite 500, Washington, DC 20500, United
+          States.
         </p>
       </div>
     </>
-  )
+  );
 }
-

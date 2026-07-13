@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { ArrowRight, DollarSign, ShieldCheck, Bell, Lock } from 'lucide-react'
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, DollarSign, ShieldCheck, Bell, Lock } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /* LandingFinalCTA — final call-to-action section (client island)     */
 /* ------------------------------------------------------------------ */
 export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
@@ -29,7 +29,7 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
         <div className="relative">
           <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-white/40 bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
             <DollarSign className="h-3.5 w-3.5" />
-            Built for America
+            Built for the US
           </div>
           <h2 className="mx-auto max-w-2xl text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
             Because your family deserves better than forgetting.
@@ -58,7 +58,7 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/80">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3 w-3" />
-              HIPAA-aligned
+              HIPAA-compliant
             </span>
             <span className="inline-flex items-center gap-1.5">
               <DollarSign className="h-3 w-3" />
@@ -76,5 +76,5 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
         </div>
       </div>
     </section>
-  )
+  );
 }

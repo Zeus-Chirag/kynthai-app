@@ -555,7 +555,7 @@ export function LoginPage() {
                         />
                         <span className="text-xs text-muted-foreground">
                           I consent to processing of my personal and health data under US health data laws.{' '}
-                          <span className="font-medium text-foreground">HIPAA-aligned</span>.
+                          <span className="font-medium text-foreground">DPDP-compliant</span>.
                         </span>
                       </label>
                       <label className="flex items-start gap-2.5">
@@ -595,7 +595,7 @@ export function LoginPage() {
 
                 <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  Data encrypted in transit &amp; at rest · HIPAA-aligned
+                  Data encrypted in transit &amp; at rest · DPDP-compliant
                 </div>
               </CardContent>
             </Card>

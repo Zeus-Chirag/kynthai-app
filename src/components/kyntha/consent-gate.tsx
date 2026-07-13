@@ -62,7 +62,7 @@ export function ConsentGate({ consentAccepted, dataProcessingConsent, userName }
           </div>
 
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Your data is protected under HIPAA and US privacy law. We only process your health
+            Your data is protected under HIPAA and Indian privacy law. We only process your health
             information to provide care services. You can withdraw consent at any time from your
             profile settings.
           </p>

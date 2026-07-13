@@ -1,8 +1,9 @@
-import { NextRequest } from 'next/server'
-import { db } from '@/lib/db'
-import { rateLimit } from '@/lib/security'
-import { jsonError, jsonOk, parseJsonCol } from '@/lib/api-helpers'
-export const dynamic = 'force-dynamic'
+import { NextRequest } from 'next/server';
+import { db } from '@/lib/db';
+import { rateLimit } from '@/lib/security';
+import { jsonError, jsonOk, parseJsonCol } from '@/lib/api-helpers';
+import { logger } from '@/lib/logger';
+export const dynamic = 'force-dynamic';
 
 // GET /api/labs/[id] — public lab profile
 //
@@ -12,16 +13,16 @@ export const dynamic = 'force-dynamic'
 // who enumerates profile IDs can't harvest pending applicants' PII.
 // Verified labs expose the full public profile.
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const limited = rateLimit(req)
-  if (limited) return limited
-  const { id } = await params
+  const limited = rateLimit(req);
+  if (limited) return limited;
+  const { id } = await params;
 
   // HIPAA: audit public lab profile access (no user - rate-limited, public data)
-  const labReqIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  console.info(JSON.stringify({ level: 'audit', event: 'lab.profile.public_access', resourceId: id, ip: labReqIp, ts: new Date().toISOString() }))
+  const labReqIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  logger.info('lab.profile.public_access', JSON.stringify({ resourceId: id, ip: labReqIp }));
 
-  const profile = await db.labProfile.findUnique({ where: { id }, include: { user: true } })
-  if (!profile) return jsonError('Lab not found', 404)
+  const profile = await db.labProfile.findUnique({ where: { id }, include: { user: true } });
+  if (!profile) return jsonError('Lab not found', 404);
 
   if (!profile.verified) {
     return jsonOk({
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       verificationStatus: profile.verificationStatus,
       rating: profile.rating,
       reviewCount: profile.reviewCount,
-    })
+    });
   }
 
   return jsonOk({
@@ -51,5 +52,5 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     verificationStatus: profile.verificationStatus,
     rating: profile.rating,
     reviewCount: profile.reviewCount,
-  })
+  });
 }

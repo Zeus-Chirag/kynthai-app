@@ -153,6 +153,7 @@ model DoctorProfile {
   verificationStatus String   @default("pending")
   rejectionReason   String?
   rejectionReason_enc String? @map("rejectionReason_enc")
+  npiNumber          String?
   submittedAt       DateTime?
   // US compliance: doctor SSN and federal Tax ID (EIN), encrypted at rest.
   ssn               String?
@@ -414,15 +415,18 @@ model ChatMessage {
 }
 
 model Family {
-  id        String    @id @default(cuid())
-  name      String
-  ownerId   String
-  owner     User      @relation("FamilyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  members   FamilyMember[]
-  alerts    EmergencyAlert[]
+  id          String    @id @default(cuid())
+  name        String
+  joinCode    String?   @unique // optional shareable code for easy family joining
+  ownerId     String
+  owner       User      @relation("FamilyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  members     FamilyMember[]
+  alerts      EmergencyAlert[]
+  videoCalls  VideoCall[]
 
+  @@index([joinCode])
 }
 
 model FamilyMember {
@@ -707,4 +711,47 @@ model PrescriptionTemplate {
 
   @@index([doctorId])
   @@map("prescription_templates")
+}
+
+// ── Video Consultation ────────────────────────────────────────────────
+
+model VideoCall {
+  id           String   @id @default(cuid())
+  familyId     String
+  family       Family   @relation(fields: [familyId], references: [id])
+  appointmentId String? // optional link to an Appointment
+  roomName     String
+  initiatedBy  String // userId who started the call
+  status       String   @default("ringing") // ringing | active | ended | missed | failed
+  startedAt    DateTime?
+  endedAt      DateTime?
+  durationSec  Int?     // calculated on end
+  recordingUrl String?  // HIPAA-compliant encrypted recording (if enabled)
+  qualityScore Int?     // optional self-reported or metric score 1-5
+  notes        String?  // optional clinical notes post-call
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  participants VideoCallParticipant[]
+
+  @@index([familyId])
+  @@index([appointmentId])
+  @@index([initiatedBy])
+  @@map("video_calls")
+}
+
+model VideoCallParticipant {
+  id           String   @id @default(cuid())
+  videoCallId  String
+  videoCall    VideoCall @relation(fields: [videoCallId], references: [id], onDelete: Cascade)
+  userId       String
+  userRole     String   // patient | doctor | caretaker
+  displayName  String?
+  joinedAt     DateTime @default(now())
+  leftAt       DateTime?
+  connectionQuality String? // excellent | good | fair | poor
+  iceCandidateType  String? // host | srflx | relay
+
+  @@index([videoCallId])
+  @@index([userId])
+  @@map("video_call_participants")
 }

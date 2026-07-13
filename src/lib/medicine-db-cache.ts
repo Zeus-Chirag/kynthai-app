@@ -10,16 +10,16 @@
  */
 
 interface MedicineInfo {
-  name: string
-  genericName?: string
-  category: string
-  commonUses: string[]
-  dosage: string
-  sideEffects: string[]
-  foodInteractions: string[]
-  timing: string
-  pregnancySafety: string
-  storage: string
+  name: string;
+  genericName?: string;
+  category: string;
+  commonUses: string[];
+  dosage: string;
+  sideEffects: string[];
+  foodInteractions: string[];
+  timing: string;
+  pregnancySafety: string;
+  storage: string;
 }
 
 const MEDICINE_DB: Record<string, MedicineInfo> = {
@@ -29,10 +29,22 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     category: 'Antidiabetic (Biguanide)',
     commonUses: ['Type 2 diabetes', 'PCOS', 'Insulin resistance', 'Weight management in diabetes'],
     dosage: '500mg twice daily with meals. May increase to 1000mg twice daily. Max: 2550mg/day.',
-    sideEffects: ['Nausea', 'Diarrhea', 'Stomach upset', 'Metallic taste', 'Vitamin B12 deficiency (long-term)', 'Rare: Lactic acidosis'],
-    foodInteractions: ['Take WITH food to reduce stomach upset', 'Avoid alcohol (increases lactic acidosis risk)', 'Limit grapefruit juice'],
+    sideEffects: [
+      'Nausea',
+      'Diarrhea',
+      'Stomach upset',
+      'Metallic taste',
+      'Vitamin B12 deficiency (long-term)',
+      'Rare: Lactic acidosis',
+    ],
+    foodInteractions: [
+      'Take WITH food to reduce stomach upset',
+      'Avoid alcohol (increases lactic acidosis risk)',
+      'Limit grapefruit juice',
+    ],
     timing: 'Take with breakfast and dinner. Space doses 8-12 hours apart.',
-    pregnancySafety: 'Category B — generally safe but consult doctor. Often switched to insulin during pregnancy.',
+    pregnancySafety:
+      'Category B — generally safe but consult doctor. Often switched to insulin during pregnancy.',
     storage: 'Store at room temperature (15-30°C). Protect from moisture.',
   },
   atorvastatin: {
@@ -41,8 +53,18 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     category: 'Lipid-lowering (Statin)',
     commonUses: ['High cholesterol', 'Heart disease prevention', 'Stroke prevention'],
     dosage: '10-80mg once daily. Start at 10-20mg. Take at the same time each day.',
-    sideEffects: ['Muscle pain', 'Headache', 'Digestive issues', 'Elevated liver enzymes', 'Rare: Rhabdomyolysis'],
-    foodInteractions: ['Can take with or without food', 'Avoid grapefruit juice (increases drug levels)', 'Limit alcohol (liver strain)'],
+    sideEffects: [
+      'Muscle pain',
+      'Headache',
+      'Digestive issues',
+      'Elevated liver enzymes',
+      'Rare: Rhabdomyolysis',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid grapefruit juice (increases drug levels)',
+      'Limit alcohol (liver strain)',
+    ],
     timing: 'Take at bedtime (cholesterol production peaks at night).',
     pregnancySafety: 'Category X — DO NOT use during pregnancy or breastfeeding.',
     storage: 'Store at room temperature (20-25°C). Protect from light.',
@@ -51,130 +73,258 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     name: 'Amoxicillin',
     genericName: 'Amoxicillin Trihydrate',
     category: 'Antibiotic (Penicillin class)',
-    commonUses: ['Bacterial infections', 'Ear infections', 'Throat infections', 'UTI', 'Dental infections'],
-    dosage: '250-500mg every 8 hours, or 500-875mg every 12 hours. Complete full course even if feeling better.',
-    sideEffects: ['Nausea', 'Diarrhea', 'Rash', 'Yeast infections', 'Allergic reactions (seek emergency if difficulty breathing)'],
-    foodInteractions: ['Can take with or without food', 'Take with food if stomach upset occurs', 'Probiotics help restore gut bacteria'],
+    commonUses: [
+      'Bacterial infections',
+      'Ear infections',
+      'Throat infections',
+      'UTI',
+      'Dental infections',
+    ],
+    dosage:
+      '250-500mg every 8 hours, or 500-875mg every 12 hours. Complete full course even if feeling better.',
+    sideEffects: [
+      'Nausea',
+      'Diarrhea',
+      'Rash',
+      'Yeast infections',
+      'Allergic reactions (seek emergency if difficulty breathing)',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Take with food if stomach upset occurs',
+      'Probiotics help restore gut bacteria',
+    ],
     timing: 'Space doses evenly throughout the day (every 8 or 12 hours).',
     pregnancySafety: 'Category B — generally considered safe during pregnancy.',
-    storage: 'Store capsules at room temperature. Liquid form must be refrigerated and discarded after 14 days.',
+    storage:
+      'Store capsules at room temperature. Liquid form must be refrigerated and discarded after 14 days.',
   },
-  'omeprazole': {
+  omeprazole: {
     name: 'Omeprazole',
     genericName: 'Omeprazole',
     category: 'Proton Pump Inhibitor (PPI)',
     commonUses: ['GERD', 'Acid reflux', 'Stomach ulcers', 'H. pylori treatment'],
     dosage: '20-40mg once daily, 30-60 minutes before breakfast. Course: 4-8 weeks.',
-    sideEffects: ['Headache', 'Diarrhea', 'Stomach pain', 'Long-term: B12 deficiency, bone fractures, magnesium deficiency'],
-    foodInteractions: ['Take 30 min BEFORE breakfast', 'Avoid taking with food (reduces effectiveness)', 'Limit caffeine and spicy foods'],
+    sideEffects: [
+      'Headache',
+      'Diarrhea',
+      'Stomach pain',
+      'Long-term: B12 deficiency, bone fractures, magnesium deficiency',
+    ],
+    foodInteractions: [
+      'Take 30 min BEFORE breakfast',
+      'Avoid taking with food (reduces effectiveness)',
+      'Limit caffeine and spicy foods',
+    ],
     timing: 'Morning, 30-60 minutes before first meal of the day.',
     pregnancySafety: 'Category C — use only if clearly needed. Consult doctor.',
     storage: 'Store at room temperature (15-30°C). Protect from moisture.',
   },
-  'losartan': {
+  losartan: {
     name: 'Losartan',
     genericName: 'Losartan Potassium',
     category: 'Angiotensin II Receptor Blocker (ARB)',
-    commonUses: ['High blood pressure', 'Heart failure', 'Kidney protection in diabetes', 'Stroke prevention'],
+    commonUses: [
+      'High blood pressure',
+      'Heart failure',
+      'Kidney protection in diabetes',
+      'Stroke prevention',
+    ],
     dosage: '25-100mg once daily. Start at 50mg. May split into two doses.',
-    sideEffects: ['Dizziness', 'Fatigue', 'Low blood pressure', 'High potassium', 'Rare: Angioedema'],
-    foodInteractions: ['Can take with or without food', 'Avoid potassium supplements and salt substitutes', 'Limit alcohol'],
+    sideEffects: [
+      'Dizziness',
+      'Fatigue',
+      'Low blood pressure',
+      'High potassium',
+      'Rare: Angioedema',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid potassium supplements and salt substitutes',
+      'Limit alcohol',
+    ],
     timing: 'Take at the same time each day, preferably morning.',
     pregnancySafety: 'Category D — DO NOT use during pregnancy (can harm fetus).',
     storage: 'Store at room temperature (20-25°C). Protect from light.',
   },
-  'aspirin': {
+  aspirin: {
     name: 'Aspirin',
     genericName: 'Acetylsalicylic Acid',
     category: 'NSAID / Antiplatelet',
-    commonUses: ['Heart attack prevention (low dose)', 'Stroke prevention', 'Pain relief', 'Fever', 'Inflammation'],
+    commonUses: [
+      'Heart attack prevention (low dose)',
+      'Stroke prevention',
+      'Pain relief',
+      'Fever',
+      'Inflammation',
+    ],
     dosage: 'Cardio: 75-150mg once daily. Pain: 325-650mg every 4-6 hours (max 4g/day).',
-    sideEffects: ['Stomach irritation', 'Bleeding risk', 'Heartburn', 'Tinnitus (at high doses)', 'Allergic reactions'],
-    foodInteractions: ['Take WITH food to protect stomach', 'Avoid alcohol (bleeding risk)', 'Avoid other NSAIDs (ibuprofen, naproxen)'],
+    sideEffects: [
+      'Stomach irritation',
+      'Bleeding risk',
+      'Heartburn',
+      'Tinnitus (at high doses)',
+      'Allergic reactions',
+    ],
+    foodInteractions: [
+      'Take WITH food to protect stomach',
+      'Avoid alcohol (bleeding risk)',
+      'Avoid other NSAIDs (ibuprofen, naproxen)',
+    ],
     timing: 'Low-dose aspirin: morning with breakfast. Pain relief: as needed with food.',
-    pregnancySafety: 'Category C (1st/2nd trimester), Category D (3rd trimester) — avoid in 3rd trimester.',
+    pregnancySafety:
+      'Category C (1st/2nd trimester), Category D (3rd trimester) — avoid in 3rd trimester.',
     storage: 'Store at room temperature. Keep dry (decomposes in moisture).',
   },
-  'levothyroxine': {
+  levothyroxine: {
     name: 'Levothyroxine',
     genericName: 'Levothyroxine Sodium',
     category: 'Thyroid hormone replacement',
     commonUses: ['Hypothyroidism', 'Goiter', 'Thyroid cancer management'],
     dosage: '25-200mcg once daily. Start low (25-50mcg), titrate every 4-6 weeks based on TSH.',
-    sideEffects: ['Usually none at correct dose', 'Overdose: palpitations, weight loss, anxiety, heat intolerance'],
-    foodInteractions: ['Take on EMPTY STOMACH (30-60 min before breakfast)', 'Wait 4 hours before calcium/iron supplements', 'Avoid soy, coffee, fiber within 1 hour'],
+    sideEffects: [
+      'Usually none at correct dose',
+      'Overdose: palpitations, weight loss, anxiety, heat intolerance',
+    ],
+    foodInteractions: [
+      'Take on EMPTY STOMACH (30-60 min before breakfast)',
+      'Wait 4 hours before calcium/iron supplements',
+      'Avoid soy, coffee, fiber within 1 hour',
+    ],
     timing: 'First thing in morning, 30-60 minutes before any food or drink (water only).',
     pregnancySafety: 'Category A — safe and often needs dose increase during pregnancy.',
     storage: 'Store at room temperature (15-30°C). Protect from light and moisture.',
   },
-  'amlodipine': {
+  amlodipine: {
     name: 'Amlodipine',
     genericName: 'Amlodipine Besylate',
     category: 'Calcium Channel Blocker',
     commonUses: ['High blood pressure', 'Angina (chest pain)', 'Coronary artery disease'],
     dosage: '2.5-10mg once daily. Start at 5mg. Max: 10mg/day.',
     sideEffects: ['Ankle swelling (edema)', 'Headache', 'Dizziness', 'Flushing', 'Fatigue'],
-    foodInteractions: ['Can take with or without food', 'Avoid grapefruit juice (increases drug levels)', 'Limit alcohol'],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid grapefruit juice (increases drug levels)',
+      'Limit alcohol',
+    ],
     timing: 'Take at the same time each day. Morning preferred.',
     pregnancySafety: 'Category C — use only if clearly needed.',
     storage: 'Store at room temperature (20-25°C). Protect from light.',
   },
-  'pantoprazole': {
+  pantoprazole: {
     name: 'Pantoprazole',
     genericName: 'Pantoprazole Sodium',
     category: 'Proton Pump Inhibitor (PPI)',
     commonUses: ['GERD', 'Erosive esophagitis', 'Stomach ulcers', 'H. pylori eradication'],
     dosage: '20-40mg once daily for 4-8 weeks. Maintenance: 20mg daily.',
     sideEffects: ['Headache', 'Diarrhea', 'Nausea', 'Long-term: B12 deficiency, bone fractures'],
-    foodInteractions: ['Take 30 min BEFORE breakfast', 'May take with antacids if needed', 'Limit spicy/acidic foods'],
+    foodInteractions: [
+      'Take 30 min BEFORE breakfast',
+      'May take with antacids if needed',
+      'Limit spicy/acidic foods',
+    ],
     timing: 'Morning, 30 minutes before first meal.',
     pregnancySafety: 'Category B — animal studies show no risk, human data limited.',
     storage: 'Store at room temperature (15-30°C). Protect from moisture.',
   },
-  'rosuvastatin': {
+  rosuvastatin: {
     name: 'Rosuvastatin',
     genericName: 'Rosuvastatin Calcium',
     category: 'Lipid-lowering (Statin)',
     commonUses: ['High cholesterol', 'Cardiovascular disease prevention', 'Atherosclerosis'],
     dosage: '5-40mg once daily. Start at 10-20mg. Asian patients: start at 5mg.',
-    sideEffects: ['Muscle pain', 'Headache', 'Nausea', 'Elevated liver enzymes', 'Rare: Rhabdomyolysis'],
-    foodInteractions: ['Can take with or without food', 'No grapefruit interaction (unlike atorvastatin)', 'Limit alcohol'],
+    sideEffects: [
+      'Muscle pain',
+      'Headache',
+      'Nausea',
+      'Elevated liver enzymes',
+      'Rare: Rhabdomyolysis',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'No grapefruit interaction (unlike atorvastatin)',
+      'Limit alcohol',
+    ],
     timing: 'Take at the same time each day. Can be taken morning or evening.',
     pregnancySafety: 'Category X — DO NOT use during pregnancy or breastfeeding.',
     storage: 'Store at room temperature (20-25°C). Protect from moisture.',
   },
-  'azithromycin': {
+  azithromycin: {
     name: 'Azithromycin',
     genericName: 'Azithromycin',
     category: 'Antibiotic (Macrolide)',
-    commonUses: ['Respiratory infections', 'Skin infections', 'Ear infections', 'STI treatment', 'COVID-19 (controversial)'],
+    commonUses: [
+      'Respiratory infections',
+      'Skin infections',
+      'Ear infections',
+      'STI treatment',
+      'COVID-19 (controversial)',
+    ],
     dosage: '500mg day 1, then 250mg days 2-5. OR 500mg daily for 3 days. Complete full course.',
-    sideEffects: ['Nausea', 'Diarrhea', 'Stomach pain', 'Headache', 'Rare: QT prolongation, liver issues'],
-    foodInteractions: ['Can take with or without food', 'Take with food if stomach upset', 'Antacids: wait 2 hours before/after'],
+    sideEffects: [
+      'Nausea',
+      'Diarrhea',
+      'Stomach pain',
+      'Headache',
+      'Rare: QT prolongation, liver issues',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Take with food if stomach upset',
+      'Antacids: wait 2 hours before/after',
+    ],
     timing: 'Once daily, at the same time each day.',
     pregnancySafety: 'Category B — generally considered safe during pregnancy.',
     storage: 'Store at room temperature. Liquid form: refrigerate, discard after 10 days.',
   },
-  'cetirizine': {
+  cetirizine: {
     name: 'Cetirizine',
     genericName: 'Cetirizine Hydrochloride',
     category: 'Antihistamine (Second-generation)',
     commonUses: ['Allergic rhinitis', 'Hay fever', 'Hives', 'Skin allergies', 'Dust/pet allergies'],
     dosage: 'Adults: 10mg once daily. Children 6-12: 5-10mg daily. Max: 10mg/day.',
-    sideEffects: ['Drowsiness (less than older antihistamines)', 'Dry mouth', 'Headache', 'Stomach pain'],
-    foodInteractions: ['Can take with or without food', 'Take with water', 'No major food interactions'],
+    sideEffects: [
+      'Drowsiness (less than older antihistamines)',
+      'Dry mouth',
+      'Headache',
+      'Stomach pain',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Take with water',
+      'No major food interactions',
+    ],
     timing: 'Evening preferred (if drowsiness occurs). Otherwise any time.',
     pregnancySafety: 'Category B — generally safe but consult doctor.',
     storage: 'Store at room temperature (20-25°C). Protect from moisture.',
   },
-  'metoprolol': {
+  metoprolol: {
     name: 'Metoprolol',
     genericName: 'Metoprolol Succinate/Tartrate',
     category: 'Beta-blocker',
-    commonUses: ['High blood pressure', 'Heart failure', 'Angina', 'After heart attack', 'Arrhythmia', 'Migraine prevention'],
-    dosage: 'Succinate (ER): 25-200mg once daily. Tartrate (IR): 25-100mg twice daily. Do NOT stop suddenly.',
-    sideEffects: ['Fatigue', 'Dizziness', 'Slow heart rate', 'Cold hands/feet', 'Depression', 'Erectile dysfunction'],
-    foodInteractions: ['Take with or without food (food improves absorption)', 'Limit alcohol', 'Avoid abrupt cessation'],
+    commonUses: [
+      'High blood pressure',
+      'Heart failure',
+      'Angina',
+      'After heart attack',
+      'Arrhythmia',
+      'Migraine prevention',
+    ],
+    dosage:
+      'Succinate (ER): 25-200mg once daily. Tartrate (IR): 25-100mg twice daily. Do NOT stop suddenly.',
+    sideEffects: [
+      'Fatigue',
+      'Dizziness',
+      'Slow heart rate',
+      'Cold hands/feet',
+      'Depression',
+      'Erectile dysfunction',
+    ],
+    foodInteractions: [
+      'Take with or without food (food improves absorption)',
+      'Limit alcohol',
+      'Avoid abrupt cessation',
+    ],
     timing: 'Succinate: morning, once daily. Tartrate: morning and evening.',
     pregnancySafety: 'Category C — use only if clearly needed. Monitor fetal heart rate.',
     storage: 'Store at room temperature (15-30°C). Protect from moisture.',
@@ -183,22 +333,45 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     name: 'Vitamin D3',
     genericName: 'Cholecalciferol',
     category: 'Vitamin Supplement',
-    commonUses: ['Vitamin D deficiency', 'Bone health', 'Calcium absorption', 'Immune support', 'Osteoporosis prevention'],
-    dosage: 'Deficiency: 60,000 IU weekly for 8 weeks, then 1000-2000 IU daily. Maintenance: 600-2000 IU daily.',
-    sideEffects: ['Usually none at recommended doses', 'Overdose: nausea, vomiting, weakness, kidney stones'],
-    foodInteractions: ['Take WITH food (fat-soluble vitamin)', 'Take with milk or fatty foods for better absorption', 'Can take with calcium'],
+    commonUses: [
+      'Vitamin D deficiency',
+      'Bone health',
+      'Calcium absorption',
+      'Immune support',
+      'Osteoporosis prevention',
+    ],
+    dosage:
+      'Deficiency: 60,000 IU weekly for 8 weeks, then 1000-2000 IU daily. Maintenance: 600-2000 IU daily.',
+    sideEffects: [
+      'Usually none at recommended doses',
+      'Overdose: nausea, vomiting, weakness, kidney stones',
+    ],
+    foodInteractions: [
+      'Take WITH food (fat-soluble vitamin)',
+      'Take with milk or fatty foods for better absorption',
+      'Can take with calcium',
+    ],
     timing: 'Morning or afternoon with breakfast (may affect sleep if taken at night).',
     pregnancySafety: 'Category A — safe at recommended doses during pregnancy.',
     storage: 'Store at room temperature. Protect from light and moisture.',
   },
-  'iron': {
+  iron: {
     name: 'Iron Supplement',
     genericName: 'Ferrous Sulfate/Fumarate/Gluconate',
     category: 'Mineral Supplement',
-    commonUses: ['Iron deficiency anemia', 'Pregnancy supplementation', 'Heavy menstrual bleeding', 'Post-surgery recovery'],
+    commonUses: [
+      'Iron deficiency anemia',
+      'Pregnancy supplementation',
+      'Heavy menstrual bleeding',
+      'Post-surgery recovery',
+    ],
     dosage: 'Elemental iron: 30-100mg daily. Take with Vitamin C for better absorption.',
     sideEffects: ['Constipation', 'Dark stools (normal)', 'Nausea', 'Stomach cramps', 'Heartburn'],
-    foodInteractions: ['Take on empty stomach (best absorption)', 'Take with orange juice (Vitamin C helps)', 'Avoid dairy, tea, coffee, calcium within 2 hours'],
+    foodInteractions: [
+      'Take on empty stomach (best absorption)',
+      'Take with orange juice (Vitamin C helps)',
+      'Avoid dairy, tea, coffee, calcium within 2 hours',
+    ],
     timing: 'Morning, 30 min before breakfast. If stomach upset: take with meals.',
     pregnancySafety: 'Category A — often recommended during pregnancy.',
     storage: 'Store at room temperature. Keep away from children (overdose is dangerous).',
@@ -207,103 +380,181 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     name: 'Folic Acid',
     genericName: 'Folic Acid (Vitamin B9)',
     category: 'Vitamin Supplement',
-    commonUses: ['Pregnancy (prevents neural tube defects)', 'Folate deficiency', 'Anemia', 'Methotrexate supplementation'],
+    commonUses: [
+      'Pregnancy (prevents neural tube defects)',
+      'Folate deficiency',
+      'Anemia',
+      'Methotrexate supplementation',
+    ],
     dosage: 'Pregnancy: 400-800mcg daily. Deficiency: 1-5mg daily. Maintenance: 400mcg daily.',
-    sideEffects: ['Usually none', 'Rare: nausea, bloating, rash', 'Very high doses may mask B12 deficiency'],
+    sideEffects: [
+      'Usually none',
+      'Rare: nausea, bloating, rash',
+      'Very high doses may mask B12 deficiency',
+    ],
     foodInteractions: ['Can take with or without food', 'Take with food if nausea occurs'],
     timing: 'Any time of day, with or without food.',
     pregnancySafety: 'Category A — strongly recommended before and during pregnancy.',
     storage: 'Store at room temperature. Protect from light.',
   },
-  'ciprofloxacin': {
+  ciprofloxacin: {
     name: 'Ciprofloxacin',
     genericName: 'Ciprofloxacin Hydrochloride',
     category: 'Antibiotic (Fluoroquinolone)',
-    commonUses: ['UTI', 'Respiratory infections', 'Skin infections', 'Bone infections', 'Traveler\'s diarrhea'],
+    commonUses: [
+      'UTI',
+      'Respiratory infections',
+      'Skin infections',
+      'Bone infections',
+      "Traveler's diarrhea",
+    ],
     dosage: '250-750mg twice daily for 3-14 days depending on infection. Complete full course.',
-    sideEffects: ['Nausea', 'Diarrhea', 'Headache', 'Dizziness', 'WARNING: Tendon rupture, nerve damage (rare but serious)'],
-    foodInteractions: ['Take 2 hours before/after dairy, calcium, iron, zinc', 'Take with plenty of water', 'Avoid caffeine (potentiates effects)'],
+    sideEffects: [
+      'Nausea',
+      'Diarrhea',
+      'Headache',
+      'Dizziness',
+      'WARNING: Tendon rupture, nerve damage (rare but serious)',
+    ],
+    foodInteractions: [
+      'Take 2 hours before/after dairy, calcium, iron, zinc',
+      'Take with plenty of water',
+      'Avoid caffeine (potentiates effects)',
+    ],
     timing: 'Twice daily, spaced 12 hours apart. Avoid taking with dairy/calcium.',
     pregnancySafety: 'Category C — avoid during pregnancy and breastfeeding. Not for children.',
     storage: 'Store at room temperature. Liquid: refrigerate.',
   },
-  'diclofenac': {
+  diclofenac: {
     name: 'Diclofenac',
     genericName: 'Diclofenac Sodium/Potassium',
     category: 'NSAID',
     commonUses: ['Pain relief', 'Arthritis', 'Joint pain', 'Back pain', 'Menstrual cramps'],
     dosage: '50mg 2-3 times daily. Max: 150mg/day. Use lowest effective dose for shortest time.',
-    sideEffects: ['Stomach pain', 'Heartburn', 'Nausea', 'WARNING: Heart attack/stroke risk (long-term use)', 'Liver/kidney issues'],
-    foodInteractions: ['Take WITH food to protect stomach', 'Avoid alcohol', 'Do not combine with other NSAIDs'],
+    sideEffects: [
+      'Stomach pain',
+      'Heartburn',
+      'Nausea',
+      'WARNING: Heart attack/stroke risk (long-term use)',
+      'Liver/kidney issues',
+    ],
+    foodInteractions: [
+      'Take WITH food to protect stomach',
+      'Avoid alcohol',
+      'Do not combine with other NSAIDs',
+    ],
     timing: 'With meals. Space doses evenly throughout the day.',
-    pregnancySafety: 'Category C (1st/2nd trimester), Category D (3rd trimester) — avoid in 3rd trimester.',
+    pregnancySafety:
+      'Category C (1st/2nd trimester), Category D (3rd trimester) — avoid in 3rd trimester.',
     storage: 'Store at room temperature (15-30°C). Protect from moisture.',
   },
-  'ranitidine': {
+  ranitidine: {
     name: 'Ranitidine (Note: Recalled in many countries)',
     genericName: 'Ranitidine Hydrochloride',
     category: 'H2 Receptor Blocker',
-    commonUses: ['Acid reflux', 'Stomach ulcers', 'Heartburn (NOTE: Recalled by FDA in 2020 due to NDMA contamination)'],
-    dosage: 'NOTE: This medication has been recalled in the US and many countries. Consult your doctor for alternatives like Famotidine.',
+    commonUses: [
+      'Acid reflux',
+      'Stomach ulcers',
+      'Heartburn (NOTE: Recalled by FDA in 2020 due to NDMA contamination)',
+    ],
+    dosage:
+      'NOTE: This medication has been recalled in the US and many countries. Consult your doctor for alternatives like Famotidine.',
     sideEffects: ['Recalled — do not use', 'Previously: headache, constipation, diarrhea'],
     foodInteractions: ['Recalled — do not use'],
     timing: 'Recalled — consult doctor for alternatives.',
     pregnancySafety: 'Recalled — consult doctor.',
     storage: 'Do not use. Return to pharmacy for safe disposal.',
   },
-  'glimepiride': {
+  glimepiride: {
     name: 'Glimepiride',
     genericName: 'Glimepiride',
     category: 'Sulfonylurea (Antidiabetic)',
     commonUses: ['Type 2 diabetes', 'Blood sugar control'],
     dosage: '1-8mg once daily with breakfast. Start at 1-2mg. Max: 8mg/day.',
-    sideEffects: ['Low blood sugar (hypoglycemia)', 'Weight gain', 'Headache', 'Dizziness', 'Nausea'],
-    foodInteractions: ['Take WITH breakfast (first main meal)', 'Do not skip meals (hypoglycemia risk)', 'Limit alcohol'],
+    sideEffects: [
+      'Low blood sugar (hypoglycemia)',
+      'Weight gain',
+      'Headache',
+      'Dizziness',
+      'Nausea',
+    ],
+    foodInteractions: [
+      'Take WITH breakfast (first main meal)',
+      'Do not skip meals (hypoglycemia risk)',
+      'Limit alcohol',
+    ],
     timing: 'Morning, with first meal of the day.',
     pregnancySafety: 'Category C — usually switched to insulin during pregnancy.',
     storage: 'Store at room temperature (20-25°C). Protect from moisture.',
   },
-  'montelukast': {
+  montelukast: {
     name: 'Montelukast',
     genericName: 'Montelukast Sodium',
     category: 'Leukotriene Receptor Antagonist',
     commonUses: ['Asthma', 'Allergic rhinitis', 'Exercise-induced bronchoconstriction'],
     dosage: 'Adults: 10mg once daily. Children 6-14: 5mg daily. Children 2-5: 4mg daily.',
-    sideEffects: ['Headache', 'Stomach pain', 'WARNING: Neuropsychiatric events (depression, suicidal thoughts) — FDA black box warning'],
-    foodInteractions: ['Can take with or without food', 'Do not take with fruit juice (reduces absorption in children)'],
+    sideEffects: [
+      'Headache',
+      'Stomach pain',
+      'WARNING: Neuropsychiatric events (depression, suicidal thoughts) — FDA black box warning',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Do not take with fruit juice (reduces absorption in children)',
+    ],
     timing: 'Evening, at the same time each day.',
     pregnancySafety: 'Category B — generally considered safe.',
     storage: 'Store at room temperature (20-25°C). Protect from light and moisture.',
   },
-  'telmisartan': {
+  telmisartan: {
     name: 'Telmisartan',
     genericName: 'Telmisartan',
     category: 'Angiotensin II Receptor Blocker (ARB)',
     commonUses: ['High blood pressure', 'Heart failure', 'Kidney protection in diabetes'],
     dosage: '20-80mg once daily. Start at 40mg. Max: 80mg/day.',
     sideEffects: ['Dizziness', 'Fatigue', 'Back pain', 'Diarrhea', 'Rare: Angioedema'],
-    foodInteractions: ['Can take with or without food', 'Avoid potassium supplements', 'Limit alcohol'],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid potassium supplements',
+      'Limit alcohol',
+    ],
     timing: 'Same time each day, preferably morning.',
     pregnancySafety: 'Category D — DO NOT use during pregnancy.',
     storage: 'Store at room temperature (15-30°C). Protect from moisture.',
   },
-  'escitalopram': {
+  escitalopram: {
     name: 'Escitalopram',
     genericName: 'Escitalopram Oxalate',
     category: 'SSRI Antidepressant',
     commonUses: ['Depression', 'Generalized anxiety disorder', 'Panic disorder', 'OCD'],
     dosage: '5-20mg once daily. Start at 5-10mg.',
-    sideEffects: ['Nausea', 'Headache', 'Drowsiness', 'Insomnia', 'Sexual dysfunction', 'Dry mouth'],
-    foodInteractions: ['Can take with or without food', 'Avoid alcohol (increases sedation)', 'Avoid grapefruit'],
+    sideEffects: [
+      'Nausea',
+      'Headache',
+      'Drowsiness',
+      'Insomnia',
+      'Sexual dysfunction',
+      'Dry mouth',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid alcohol (increases sedation)',
+      'Avoid grapefruit',
+    ],
     timing: 'Same time each day, morning or evening.',
     pregnancySafety: 'Category C — consult doctor. May need to continue during pregnancy.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'pregabalin': {
+  pregabalin: {
     name: 'Pregabalin',
     genericName: 'Pregabalin',
     category: 'Anticonvulsant / Neuropathic Pain',
-    commonUses: ['Neuropathic pain', 'Fibromyalgia', 'Epilepsy (adjunct)', 'Generalized anxiety disorder'],
+    commonUses: [
+      'Neuropathic pain',
+      'Fibromyalgia',
+      'Epilepsy (adjunct)',
+      'Generalized anxiety disorder',
+    ],
     dosage: '75-300mg daily in 2-3 divided doses. Start at 75mg twice daily.',
     sideEffects: ['Drowsiness', 'Dizziness', 'Weight gain', 'Dry mouth', 'Blurred vision'],
     foodInteractions: ['Can take with or without food', 'Avoid alcohol', 'May cause weight gain'],
@@ -311,7 +562,7 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     pregnancySafety: 'Category C — avoid during pregnancy.',
     storage: 'Store at room temperature. Keep dry.',
   },
-  'tamsulosin': {
+  tamsulosin: {
     name: 'Tamsulosin',
     genericName: 'Tamsulosin Hydrochloride',
     category: 'Alpha-blocker',
@@ -323,19 +574,36 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     pregnancySafety: 'Not applicable — used in men only.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'duloxetine': {
+  duloxetine: {
     name: 'Duloxetine',
     genericName: 'Duloxetine Hydrochloride',
     category: 'SNRI Antidepressant',
-    commonUses: ['Depression', 'Generalized anxiety disorder', 'Neuropathic pain', 'Fibromyalgia', 'Chronic musculoskeletal pain'],
+    commonUses: [
+      'Depression',
+      'Generalized anxiety disorder',
+      'Neuropathic pain',
+      'Fibromyalgia',
+      'Chronic musculoskeletal pain',
+    ],
     dosage: '20-60mg once daily. Start at 20-30mg.',
-    sideEffects: ['Nausea', 'Dry mouth', 'Constipation', 'Drowsiness', 'Dizziness', 'Increased sweating'],
-    foodInteractions: ['Can take with or without food', 'Avoid alcohol', 'Take with food if nausea occurs'],
+    sideEffects: [
+      'Nausea',
+      'Dry mouth',
+      'Constipation',
+      'Drowsiness',
+      'Dizziness',
+      'Increased sweating',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid alcohol',
+      'Take with food if nausea occurs',
+    ],
     timing: 'Same time each day, with or without food.',
     pregnancySafety: 'Category C — avoid during pregnancy.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'bisoprolol': {
+  bisoprolol: {
     name: 'Bisoprolol',
     genericName: 'Bisoprolol Fumarate',
     category: 'Beta-blocker',
@@ -347,7 +615,7 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     pregnancySafety: 'Category C — use only if clearly needed.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'esomeprazole': {
+  esomeprazole: {
     name: 'Esomeprazole',
     genericName: 'Esomeprazole Magnesium',
     category: 'Proton Pump Inhibitor (PPI)',
@@ -359,26 +627,34 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     pregnancySafety: 'Category C — use only if clearly needed.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'perindopril': {
+  perindopril: {
     name: 'Perindopril',
     genericName: 'Perindopril Erbumine',
     category: 'ACE Inhibitor',
     commonUses: ['High blood pressure', 'Heart failure', 'Post-heart attack protection'],
     dosage: '4-8mg once daily. Start at 4mg.',
     sideEffects: ['Dry cough (common)', 'Dizziness', 'Headache', 'Fatigue', 'Rare: Angioedema'],
-    foodInteractions: ['Take in the morning before food', 'Avoid potassium supplements', 'Limit salt substitutes'],
+    foodInteractions: [
+      'Take in the morning before food',
+      'Avoid potassium supplements',
+      'Limit salt substitutes',
+    ],
     timing: 'Morning, before breakfast.',
     pregnancySafety: 'Category D — DO NOT use during pregnancy.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'clopidogrel': {
+  clopidogrel: {
     name: 'Clopidogrel',
     genericName: 'Clopidogrel Bisulfate',
     category: 'Antiplatelet',
     commonUses: ['Heart attack prevention', 'Stroke prevention', 'After stent placement'],
     dosage: '75mg once daily. May start with 300mg loading dose.',
     sideEffects: ['Bleeding', 'Bruising', 'Diarrhea', 'Stomach pain', 'Rash'],
-    foodInteractions: ['Can take with or without food', 'Avoid aspirin unless prescribed', 'Avoid NSAIDs'],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid aspirin unless prescribed',
+      'Avoid NSAIDs',
+    ],
     timing: 'Same time each day.',
     pregnancySafety: 'Category B — generally considered safe.',
     storage: 'Store at room temperature (15-30°C).',
@@ -390,12 +666,16 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     commonUses: ['Iron deficiency anemia', 'Pregnancy supplementation', 'Heavy menstrual bleeding'],
     dosage: 'Elemental iron: 30-100mg daily. Take with Vitamin C for better absorption.',
     sideEffects: ['Constipation', 'Dark stools (normal)', 'Nausea', 'Stomach cramps'],
-    foodInteractions: ['Take on empty stomach (best absorption)', 'Take with orange juice', 'Avoid dairy, tea, coffee within 2 hours'],
+    foodInteractions: [
+      'Take on empty stomach (best absorption)',
+      'Take with orange juice',
+      'Avoid dairy, tea, coffee within 2 hours',
+    ],
     timing: 'Morning, 30 min before breakfast.',
     pregnancySafety: 'Category A — often recommended during pregnancy.',
     storage: 'Store at room temperature. Keep away from children.',
   },
-  'onddansetron': {
+  onddansetron: {
     name: 'Ondansetron',
     genericName: 'Ondansetron Hydrochloride',
     category: 'Antiemetic',
@@ -407,16 +687,21 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     pregnancySafety: 'Category B — generally considered safe.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'combiflam': {
+  combiflam: {
     name: 'Combiflam',
     genericName: 'Ibuprofen 400mg + Paracetamol 325mg',
     category: 'NSAID + Analgesic Combination',
     commonUses: ['Pain relief', 'Fever', 'Headache', 'Dental pain', 'Menstrual cramps'],
     dosage: '1-2 tablets every 6-8 hours as needed. Max: 6 tablets/day.',
     sideEffects: ['Stomach pain', 'Nausea', 'Dizziness', 'Bleeding risk'],
-    foodInteractions: ['Take with food to protect stomach', 'Avoid alcohol', 'Do not combine with other NSAIDs'],
+    foodInteractions: [
+      'Take with food to protect stomach',
+      'Avoid alcohol',
+      'Do not combine with other NSAIDs',
+    ],
     timing: 'With food, as needed for pain.',
-    pregnancySafety: 'Category C (1st/2nd trimester), Category D (3rd trimester) — avoid in 3rd trimester.',
+    pregnancySafety:
+      'Category C (1st/2nd trimester), Category D (3rd trimester) — avoid in 3rd trimester.',
     storage: 'Store at room temperature. Keep dry.',
   },
   'pan 40': {
@@ -431,9 +716,9 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     pregnancySafety: 'Category B — animal studies show no risk.',
     storage: 'Store at room temperature (15-30°C).',
   },
-  'azee 500': {
-    name: 'Azee 500',
-    genericName: 'Azithromycin 500mg',
+  'z-pak': {
+    name: 'Azithromycin 500mg',
+    genericName: 'Azithromycin Dihydrate',
     category: 'Antibiotic (Macrolide)',
     commonUses: ['Respiratory infections', 'Skin infections', 'Ear infections', 'STI treatment'],
     dosage: '500mg day 1, then 250mg days 2-5. OR 500mg daily for 3 days.',
@@ -449,39 +734,47 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     category: 'Analgesic / Antipyretic',
     commonUses: ['Fever', 'Pain relief', 'Headache', 'Body ache', 'Post-vaccination fever'],
     dosage: '500-1000mg every 4-6 hours. Max: 4g/day (8 tablets).',
-    sideEffects: ['Usually none at recommended doses', 'Rare: Liver damage (overdose)', 'Allergic reactions'],
-    foodInteractions: ['Can take with or without food', 'Avoid alcohol (liver risk)', 'Safe to take with most medicines'],
+    sideEffects: [
+      'Usually none at recommended doses',
+      'Rare: Liver damage (overdose)',
+      'Allergic reactions',
+    ],
+    foodInteractions: [
+      'Can take with or without food',
+      'Avoid alcohol (liver risk)',
+      'Safe to take with most medicines',
+    ],
     timing: 'As needed for fever or pain.',
     pregnancySafety: 'Category A — safe at recommended doses during pregnancy.',
     storage: 'Store at room temperature. Keep dry.',
   },
-}
+};
 
 /** Check if a medication name exists in the pre-computed DB. */
 export function isMedicineInDb(query: string): boolean {
-  const normalized = query.toLowerCase().trim()
+  const normalized = query.toLowerCase().trim();
   // Direct match
-  if (MEDICINE_DB[normalized]) return true
+  if (MEDICINE_DB[normalized]) return true;
   // Partial match (e.g., "metformin 500mg" → "metformin")
   for (const key of Object.keys(MEDICINE_DB)) {
-    if (normalized.includes(key)) return true
+    if (normalized.includes(key)) return true;
   }
-  return false
+  return false;
 }
 
 /** Get medicine info from the pre-computed DB. Returns null if not found. */
 export function getMedicineFromDb(query: string): MedicineInfo | null {
-  const normalized = query.toLowerCase().trim()
+  const normalized = query.toLowerCase().trim();
   // Direct match
-  if (MEDICINE_DB[normalized]) return MEDICINE_DB[normalized]
+  if (MEDICINE_DB[normalized]) return MEDICINE_DB[normalized];
   // Partial match
   for (const [key, info] of Object.entries(MEDICINE_DB)) {
-    if (normalized.includes(key)) return info
+    if (normalized.includes(key)) return info;
   }
-  return null
+  return null;
 }
 
 /** List all medicines in the DB (for debugging/counts). */
 export function listMedicinesInDb(): string[] {
-  return Object.keys(MEDICINE_DB)
+  return Object.keys(MEDICINE_DB);
 }

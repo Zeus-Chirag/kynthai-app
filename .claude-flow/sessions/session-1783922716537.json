@@ -4,9 +4,12 @@
   "cwd": "/Users/c.k/Downloads/kyntha-restored-7000-us",
   "context": {},
   "metrics": {
-    "edits": 8,
+    "edits": 49,
     "commands": 0,
     "tasks": 0,
     "errors": 0
-  }
+  },
+  "restoredAt": "2026-07-13T09:57:55.200Z",
+  "endedAt": "2026-07-13T09:58:22.892Z",
+  "duration": 13986355
 }

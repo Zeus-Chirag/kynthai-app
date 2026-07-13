@@ -1,0 +1,35 @@
+{
+  "patterns": {},
+  "memories": [],
+  "trajectories": [],
+  "errors": {},
+  "file_sequences": [],
+  "agents": {},
+  "edges": [],
+  "stats": {
+    "total_patterns": 0,
+    "total_memories": 0,
+    "total_trajectories": 0,
+    "total_errors": 0,
+    "session_count": 0,
+    "last_session": 0
+  },
+  "embeddingProvenance": null,
+  "activeTrajectories": {
+    "traj_1783939049852_3nqee8jhz": {
+      "id": "traj_1783939049852_3nqee8jhz",
+      "context": "20260713103729-full-kyntha-app-review-landing-p: Full Kyntha app review - landing page, portal, API health",
+      "agent": "browser-session",
+      "file": null,
+      "steps": [
+        {
+          "action": "browser_open {\"url\":\"http://localhost:4000\"}",
+          "result": "ok",
+          "reward": 0.5,
+          "time": 1783939051195
+        }
+      ],
+      "startTime": 1783939049852
+    }
+  }
+}

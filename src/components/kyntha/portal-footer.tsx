@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import Link from 'next/link'
-import { Mail, HeartPulse, ShieldCheck } from 'lucide-react'
+import * as React from 'react';
+import Link from 'next/link';
+import { Mail, HeartPulse, ShieldCheck } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /* PortalFooter — shared legal footer for all authenticated portals    */
@@ -12,14 +12,14 @@ const LEGAL_LINKS = [
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },
   { label: 'Cookie Policy', href: '/cookies' },
-      { label: 'Do Not Sell My Info (CCPA)', href: '/ccpa' },
+  { label: 'Do Not Sell My Info (CCPA)', href: '/ccpa' },
+  { label: 'Data Subject Rights (CCPA)', href: '/ccpa-rights' },
   { label: 'Refund & Cancellation', href: '/refund-cancellation' },
   { label: 'Grievance', href: '/grievance' },
   { label: 'Medical Disclaimer', href: '/medical-disclaimer' },
-] as const
+] as const;
 
-const REGISTERED_OFFICE =
-  '1600 Pennsylvania Avenue NW, Suite 500, Washington, DC 20500, United States'
+const REGISTERED_OFFICE = '1209 Orange St, Wilmington, DE 19801, United States';
 
 export function PortalFooter() {
   return (
@@ -27,11 +27,8 @@ export function PortalFooter() {
       <div className="mx-auto max-w-3xl px-4 py-5 sm:px-6">
         {/* Legal links */}
         <nav aria-label="Legal" className="mb-4">
-          <ul
-            role="list"
-            className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs"
-          >
-            {LEGAL_LINKS.map((l) => (
+          <ul role="list" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+            {LEGAL_LINKS.map(l => (
               <li key={l.label}>
                 <Link
                   href={l.href}
@@ -75,11 +72,11 @@ export function PortalFooter() {
             </span>
             <span className="inline-flex items-center gap-1">
               <ShieldCheck className="h-3 w-3 text-emerald-600" />
-              HIPAA aligned
+              CCPA/CPRA compliant
             </span>
           </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }

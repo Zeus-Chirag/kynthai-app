@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   Upload,
   Loader2,
@@ -12,47 +12,47 @@ import {
   X,
   Scale,
   CheckCircle2,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Separator } from '@/components/ui/separator'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useToast } from '@/hooks/use-toast'
-import { cn } from '@/lib/utils'
-import type { AuthUser } from '@/lib/store'
-import { KynthaBrand } from '../logo'
-import { t, initLanguage } from '@/lib/i18n'
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import type { AuthUser } from '@/lib/store';
+import { KynthaBrand } from '../logo';
+import { t, initLanguage } from '@/lib/i18n';
 
 interface DoctorVerificationProps {
-  user: AuthUser
+  user: AuthUser;
   existing?: {
-    specialization?: string
-    licenseNumber?: string
-    experience?: number
-    consultationFee?: number
-    city?: string
-    state?: string
-    bio?: string
-    videoCallEnabled?: boolean
-    rejectionReason?: string | null
-    degreeType?: string
-    medicalCouncil?: string
-    npiNumber?: string
-    taxId?: string
-  } | null
-  onSubmitted: () => void
+    specialization?: string;
+    licenseNumber?: string;
+    experience?: number;
+    consultationFee?: number;
+    city?: string;
+    state?: string;
+    bio?: string;
+    videoCallEnabled?: boolean;
+    rejectionReason?: string | null;
+    degreeType?: string;
+    medicalCouncil?: string;
+    npiNumber?: string;
+    taxId?: string;
+  } | null;
+  onSubmitted: () => void;
 }
 
 const SPECIALIZATIONS = [
@@ -68,19 +68,19 @@ const SPECIALIZATIONS = [
   'Oncologist',
   'Endocrinologist',
   'Gastroenterologist',
-]
+];
 
 interface UploadedDoc {
-  id: string
-  name: string
-  type: string
-  size: number
-  data: string
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  data: string;
 }
 
 interface DocSlot {
-  id: string
-  label: string
+  id: string;
+  label: string;
 }
 
 const DOC_TYPES: DocSlot[] = [
@@ -88,71 +88,74 @@ const DOC_TYPES: DocSlot[] = [
   { id: 'degree', label: t('degree_certificate') },
   { id: 'id', label: t('government_id') },
   { id: 'photo', label: t('profile_photo') },
-]
+];
 
 export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerificationProps) {
-  const { toast } = useToast()
-  React.useEffect(() => { initLanguage() }, [])
-  const [specialization, setSpecialization] = React.useState(existing?.specialization ?? '')
-  const [licenseNumber, setLicenseNumber] = React.useState(existing?.licenseNumber ?? '')
-  const [experience, setExperience] = React.useState(existing?.experience?.toString() ?? '')
-  const [consultationFee, setConsultationFee] = React.useState(existing?.consultationFee?.toString() ?? '')
-  const [city, setCity] = React.useState(existing?.city ?? '')
-  const [bio, setBio] = React.useState(existing?.bio ?? '')
-  const [videoCall, setVideoCall] = React.useState(existing?.videoCallEnabled ?? true)
-  const [degreeType, setDegreeType] = React.useState(existing?.degreeType ?? '')
-  const [medicalCouncil, setMedicalCouncil] = React.useState(existing?.medicalCouncil ?? '')
-  const [npiNumber, setNpiNumber] = React.useState(existing?.npiNumber ?? '')
-  const [taxId, setTaxId] = React.useState(existing?.taxId ?? '')
-  const [state, setState] = React.useState(existing?.state ?? '')
-  const [doctorLiabilityAgreement, setDoctorLiabilityAgreement] = React.useState(false)
-  const [documents, setDocuments] = React.useState<Record<string, UploadedDoc | undefined>>({})
-  const [uploading, setUploading] = React.useState<Record<string, boolean>>({})
-  const [submitting, setSubmitting] = React.useState(false)
+  const { toast } = useToast();
+  React.useEffect(() => {
+    initLanguage();
+  }, []);
+  const [specialization, setSpecialization] = React.useState(existing?.specialization ?? '');
+  const [licenseNumber, setLicenseNumber] = React.useState(existing?.licenseNumber ?? '');
+  const [experience, setExperience] = React.useState(existing?.experience?.toString() ?? '');
+  const [consultationFee, setConsultationFee] = React.useState(
+    existing?.consultationFee?.toString() ?? ''
+  );
+  const [city, setCity] = React.useState(existing?.city ?? '');
+  const [bio, setBio] = React.useState(existing?.bio ?? '');
+  const [videoCall, setVideoCall] = React.useState(existing?.videoCallEnabled ?? true);
+  const [degreeType, setDegreeType] = React.useState(existing?.degreeType ?? '');
+  const [medicalCouncil, setMedicalCouncil] = React.useState(existing?.medicalCouncil ?? '');
+  const [npiNumber, setNpiNumber] = React.useState(existing?.npiNumber ?? '');
+  const [taxId, setTaxId] = React.useState(existing?.taxId ?? '');
+  const [state, setState] = React.useState(existing?.state ?? '');
+  const [doctorLiabilityAgreement, setDoctorLiabilityAgreement] = React.useState(false);
+  const [documents, setDocuments] = React.useState<Record<string, UploadedDoc | undefined>>({});
+  const [uploading, setUploading] = React.useState<Record<string, boolean>>({});
+  const [submitting, setSubmitting] = React.useState(false);
 
   // Step completion tracking
-  const step1Complete = !!specialization && !!licenseNumber && !!city && !!state
-  const step2Complete = !!degreeType && !!medicalCouncil && !!npiNumber
-  const step3Complete = Object.values(documents).some((f) => f !== undefined)
-  const currentStep = step1Complete ? (step2Complete ? 3 : 2) : 1
+  const step1Complete = !!specialization && !!licenseNumber && !!city && !!state;
+  const step2Complete = !!degreeType && !!medicalCouncil && !!npiNumber;
+  const step3Complete = Object.values(documents).some(f => f !== undefined);
+  const currentStep = step1Complete ? (step2Complete ? 3 : 2) : 1;
 
-  const updateDoc = (id: string, file?: UploadedDoc) =>
-    setDocuments((p) => ({ ...p, [id]: file }))
+  const updateDoc = (id: string, file?: UploadedDoc) => setDocuments(p => ({ ...p, [id]: file }));
 
   const uploadFile = async (docId: string, file: File) => {
-    setUploading((p) => ({ ...p, [docId]: true }))
+    setUploading(p => ({ ...p, [docId]: true }));
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      if (!res.ok) throw new Error('Upload failed')
-      const data: UploadedDoc = await res.json()
-      setDocuments((p) => ({ ...p, [docId]: data }))
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Upload failed');
+      const data: UploadedDoc = await res.json();
+      setDocuments(p => ({ ...p, [docId]: data }));
     } catch {
-      toast({ title: 'Upload failed', variant: 'destructive' })
+      toast({ title: 'Upload failed', variant: 'destructive' });
     } finally {
-      setUploading((p) => ({ ...p, [docId]: false }))
+      setUploading(p => ({ ...p, [docId]: false }));
     }
-  }
+  };
 
   const submit = async () => {
     if (!specialization) {
-      toast({ title: t('select_specialization_toast'), variant: 'destructive' })
-      return
+      toast({ title: t('select_specialization_toast'), variant: 'destructive' });
+      return;
     }
     if (!licenseNumber) {
-      toast({ title: t('license_required'), variant: 'destructive' })
-      return
+      toast({ title: t('license_required'), variant: 'destructive' });
+      return;
     }
     if (!city) {
-      toast({ title: t('city_required'), variant: 'destructive' })
-      return
+      toast({ title: t('city_required'), variant: 'destructive' });
+      return;
     }
     if (!doctorLiabilityAgreement) {
-      toast({ title: t('must_accept_liability'), variant: 'destructive' })
-      return
+      toast({ title: t('must_accept_liability'), variant: 'destructive' });
+      return;
     }
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       const res = await fetch('/api/doctors', {
         method: 'POST',
@@ -169,7 +172,10 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
           bio,
           videoCallEnabled: videoCall,
           documents: Object.fromEntries(
-            Object.entries(documents).map(([k, v]) => [k, v ? { id: v.id, name: v.name, type: v.type, size: v.size, data: v.data } : null])
+            Object.entries(documents).map(([k, v]) => [
+              k,
+              v ? { id: v.id, name: v.name, type: v.type, size: v.size, data: v.data } : null,
+            ])
           ),
           degreeType,
           medicalCouncil,
@@ -177,26 +183,29 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
           taxId,
           state,
         }),
-      })
+      });
       // Even if the endpoint is not implemented, simulate success
       if (!res.ok && res.status !== 404) {
-        throw new Error('Submit failed')
+        throw new Error('Submit failed');
       }
-      onSubmitted()
+      onSubmitted();
     } catch (e) {
       // Still call onSubmitted to show pending state in the demo
-      onSubmitted()
+      onSubmitted();
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
       <div className="mx-auto max-w-2xl px-4 py-6">
         <div className="flex items-center justify-between">
           <KynthaBrand />
-          <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <Badge
+            variant="secondary"
+            className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          >
             {t('doctor_verification')}
           </Badge>
         </div>
@@ -205,9 +214,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
           <h1 className="text-2xl font-bold tracking-tight">
             {t('welcome_doctor')} {user.name?.split(' ').slice(-1)[0] ?? 'Doctor'}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t('complete_profile')}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t('complete_profile')}</p>
         </div>
 
         {existing?.rejectionReason && (
@@ -216,9 +223,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
               <p className="font-semibold text-rose-600 dark:text-rose-400">
                 {t('previous_needs_changes')}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {existing.rejectionReason}
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{existing.rejectionReason}</p>
             </CardContent>
           </Card>
         )}
@@ -244,18 +249,21 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                 >
                   {s.done ? <CheckCircle2 className="h-4 w-4" /> : s.step}
                 </span>
-                <span className={cn(
-                  'text-[10px] font-medium',
-                  currentStep === s.step ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
-                )}>
+                <span
+                  className={cn(
+                    'text-[10px] font-medium',
+                    currentStep === s.step
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-muted-foreground'
+                  )}
+                >
                   {s.label}
                 </span>
               </div>
               {i < 2 && (
-                <div className={cn(
-                  'h-0.5 w-8 mt-[-16px]',
-                  s.done ? 'bg-emerald-500' : 'bg-muted'
-                )} />
+                <div
+                  className={cn('h-0.5 w-8 mt-[-16px]', s.done ? 'bg-emerald-500' : 'bg-muted')}
+                />
               )}
             </React.Fragment>
           ))}
@@ -263,7 +271,11 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
 
         <Card className="mt-4">
           <CardContent className="p-5 space-y-5">
-            <Section icon={Award} title={t('professional_details')} tint="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <Section
+              icon={Award}
+              title={t('professional_details')}
+              tint="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+            >
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <Label>{t('specialization')}</Label>
@@ -272,8 +284,10 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                       <SelectValue placeholder={t('select_specialization')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {SPECIALIZATIONS.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      {SPECIALIZATIONS.map(s => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -285,7 +299,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                     <Input
                       id="license"
                       value={licenseNumber}
-                      onChange={(e) => setLicenseNumber(e.target.value)}
+                      onChange={e => setLicenseNumber(e.target.value)}
                       placeholder="USMD-XXXXX / NPI / State medical license"
                     />
                   </div>
@@ -296,7 +310,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                       type="number"
                       min={0}
                       value={experience}
-                      onChange={(e) => setExperience(e.target.value)}
+                      onChange={e => setExperience(e.target.value)}
                       placeholder="12"
                     />
                   </div>
@@ -310,7 +324,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                       type="number"
                       min={0}
                       value={consultationFee}
-                      onChange={(e) => setConsultationFee(e.target.value)}
+                      onChange={e => setConsultationFee(e.target.value)}
                       placeholder="500"
                     />
                   </div>
@@ -321,7 +335,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                       <Input
                         id="city"
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={e => setCity(e.target.value)}
                         placeholder="City"
                         className="pl-9"
                       />
@@ -348,46 +362,35 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                     </Select>
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="medicalCouncil">{t('medical_council')}</Label>
+                    <Label htmlFor="medicalCouncil">Medical Council / Board</Label>
                     <Input
                       id="medicalCouncil"
                       value={medicalCouncil}
-                      onChange={(e) => setMedicalCouncil(e.target.value)}
-                      placeholder="MCI / NMC / State council no."
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="license">{t('license_number')}</Label>
-                    <Input
-                      id="license"
-                      value={licenseNumber}
-                      onChange={(e) => setLicenseNumber(e.target.value)}
-                      placeholder="State-XXXXX"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="medicalCouncil">{t('medical_council')}</Label>
-                    <Input
-                      id="medicalCouncil"
-                      value={medicalCouncil}
-                      onChange={(e) => setMedicalCouncil(e.target.value)}
+                      onChange={e => setMedicalCouncil(e.target.value)}
                       placeholder="State medical board / council no."
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="npi">NPI number</Label>
+                    <Label htmlFor="npi">NPI Number</Label>
                     <Input
                       id="npi"
                       value={npiNumber}
-                      onChange={(e) => setNpiNumber(e.target.value)}
+                      onChange={e => setNpiNumber(e.target.value)}
                       placeholder="10-digit NPI"
                       maxLength={10}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                      id="state"
+                      value={state}
+                      onChange={e => setState(e.target.value)}
+                      placeholder="CA"
+                      maxLength={2}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -395,22 +398,8 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                     <Input
                       id="taxId"
                       value={taxId}
-                      onChange={(e) => setTaxId(e.target.value.toUpperCase())}
+                      onChange={e => setTaxId(e.target.value.toUpperCase())}
                       placeholder="XX-XXXXXXX"
-                      maxLength={10}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      placeholder="CA"
-                      maxLength={2}
                     />
                   </div>
                 </div>
@@ -420,7 +409,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                   <Textarea
                     id="bio"
                     value={bio}
-                    onChange={(e) => setBio(e.target.value)}
+                    onChange={e => setBio(e.target.value)}
                     placeholder={t('bio_placeholder')}
                     rows={3}
                   />
@@ -433,7 +422,9 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
                     </span>
                     <div>
                       <p className="text-sm font-medium">{t('video_consultations')}</p>
-                      <p className="text-xs text-muted-foreground">{t('accept_video_appointments')}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('accept_video_appointments')}
+                      </p>
                     </div>
                   </div>
                   <Switch checked={videoCall} onCheckedChange={setVideoCall} />
@@ -443,44 +434,40 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
 
             <Separator />
 
-            <Section icon={FileText} title={t('document_uploads')} tint="bg-teal-500/10 text-teal-600 dark:text-teal-400">
+            <Section
+              icon={FileText}
+              title={t('document_uploads')}
+              tint="bg-teal-500/10 text-teal-600 dark:text-teal-400"
+            >
               <div className="grid sm:grid-cols-2 gap-3">
-                {DOC_TYPES.map((d) => (
+                {DOC_TYPES.map(d => (
                   <DocUpload
                     key={d.id}
                     label={d.label}
                     doc={documents[d.id]}
                     uploading={!!uploading[d.id]}
-                    onChange={(f) => f && uploadFile(d.id, f)}
+                    onChange={f => f && uploadFile(d.id, f)}
                   />
                 ))}
               </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">
-                {t('accepted_formats')}
-              </p>
+              <p className="mt-2 text-[11px] text-muted-foreground">{t('accepted_formats')}</p>
             </Section>
 
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 flex items-start gap-2">
               <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">
-                {t('submit_info_confirm')}
-              </p>
+              <p className="text-xs text-muted-foreground">{t('submit_info_confirm')}</p>
             </div>
 
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 flex items-start gap-2">
               <Scale className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-xs font-medium text-foreground">
-                  {t('doctor_liability')}
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {t('liability_text')}
-                </p>
+                <p className="text-xs font-medium text-foreground">{t('doctor_liability')}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{t('liability_text')}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <Checkbox
                     id="doctor-liability"
                     checked={doctorLiabilityAgreement}
-                    onCheckedChange={(v) => setDoctorLiabilityAgreement(!!v)}
+                    onCheckedChange={v => setDoctorLiabilityAgreement(!!v)}
                   />
                   <label
                     htmlFor="doctor-liability"
@@ -510,7 +497,7 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 function Section({
@@ -519,10 +506,10 @@ function Section({
   tint,
   children,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  title: string
-  tint: string
-  children: React.ReactNode
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  tint: string;
+  children: React.ReactNode;
 }) {
   return (
     <div>
@@ -534,7 +521,7 @@ function Section({
       </div>
       {children}
     </div>
-  )
+  );
 }
 
 function DocUpload({
@@ -543,12 +530,12 @@ function DocUpload({
   uploading,
   onChange,
 }: {
-  label: string
-  doc?: UploadedDoc
-  uploading: boolean
-  onChange: (file: File) => void
+  label: string;
+  doc?: UploadedDoc;
+  uploading: boolean;
+  onChange: (file: File) => void;
 }) {
-  const inputRef = React.useRef<HTMLInputElement>(null)
+  const inputRef = React.useRef<HTMLInputElement>(null);
   return (
     <div>
       <Label className="text-xs">{label}</Label>
@@ -582,9 +569,9 @@ function DocUpload({
             </div>
             <X
               className="h-4 w-4 text-muted-foreground hover:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation()
-                onChange(undefined as unknown as File)
+              onClick={e => {
+                e.stopPropagation();
+                onChange(undefined as unknown as File);
               }}
             />
           </>
@@ -602,12 +589,12 @@ function DocUpload({
         type="file"
         accept="image/jpeg,image/png,application/pdf"
         className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0]
-          if (f) onChange(f)
-          e.target.value = ''
+        onChange={e => {
+          const f = e.target.files?.[0];
+          if (f) onChange(f);
+          e.target.value = '';
         }}
       />
     </div>
-  )
+  );
 }

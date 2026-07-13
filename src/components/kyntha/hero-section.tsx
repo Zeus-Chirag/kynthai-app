@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ArrowRight, ShieldCheck } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { PhoneMockup } from './phone-mockup'
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { PhoneMockup } from './phone-mockup';
 
 interface HeroSectionProps {
-  onGetStarted: (portal?: string) => void
+  onGetStarted: (portal?: string) => void;
 }
 
 export function HeroSection({ onGetStarted }: HeroSectionProps) {
@@ -19,15 +19,21 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
         <div
           className="absolute -top-48 left-1/2 h-[44rem] w-[44rem] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-          style={{ background: 'radial-gradient(closest-side, rgba(16,185,129,0.32), transparent 70%)' }}
+          style={{
+            background: 'radial-gradient(closest-side, rgba(16,185,129,0.32), transparent 70%)',
+          }}
         />
         <div
           className="absolute -top-20 -left-48 h-[26rem] w-[26rem] rounded-full opacity-40 blur-3xl"
-          style={{ background: 'radial-gradient(closest-side, rgba(13,148,136,0.32), transparent 70%)' }}
+          style={{
+            background: 'radial-gradient(closest-side, rgba(13,148,136,0.32), transparent 70%)',
+          }}
         />
         <div
           className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full opacity-35 blur-3xl"
-          style={{ background: 'radial-gradient(closest-side, rgba(16,185,129,0.22), transparent 70%)' }}
+          style={{
+            background: 'radial-gradient(closest-side, rgba(16,185,129,0.22), transparent 70%)',
+          }}
         />
       </div>
 
@@ -45,7 +51,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               className="mb-6 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium"
             >
               <ShieldCheck className="h-3.5 w-3.5" />
-              Built for America · HIPAA-aligned · Secure billing
+              Built for India · DPDP-compliant · Secure billing
             </Badge>
           </motion.div>
 
@@ -56,7 +62,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="text-balance text-[2.65rem] leading-[1.08] font-bold tracking-tight sm:text-6xl lg:text-[3.7rem]"
           >
-            America&apos;s AI health companion
+            India&apos;s AI health companion
             <br />
             <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
               for every member of your family.
@@ -83,7 +89,9 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             transition={{ duration: 0.5, delay: 0.26 }}
             className="mt-4 max-w-xl text-pretty text-base leading-relaxed text-foreground/75 sm:text-lg"
           >
-            Missed doses, confusing labels, scheduling headaches — Kyntha brings smart reminders, AI-guided medication information, verified consults, and home diagnostic tests together. Built for US households, in USD, with HIPAA-aligned safeguards.
+            Missed doses, confusing labels, scheduling headaches — Kyntha brings smart reminders,
+            AI-guided medication information, verified consults, and home diagnostic tests together.
+            Built for Indian households, in INR, with DPDP-compliant safeguards.
           </motion.p>
 
           {/* CTA buttons */}
@@ -105,8 +113,8 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               size="lg"
               variant="outline"
               onClick={() => {
-                const el = document.getElementById('how-it-works')
-                if (el) el.scrollIntoView({ behavior: 'smooth' })
+                const el = document.getElementById('how-it-works');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
               className="h-12 w-full rounded-full px-7 text-base font-semibold"
             >
@@ -122,7 +130,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs font-medium text-muted-foreground"
           >
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> HIPAA-aligned
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> DPDP-compliant
             </span>
             <span className="h-1 w-1 rounded-full bg-border" aria-hidden />
             <span className="inline-flex items-center gap-1.5">
@@ -141,5 +149,5 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }
