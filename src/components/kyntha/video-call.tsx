@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface VideoCallProps {
   roomName: string;
@@ -87,7 +88,7 @@ export function VideoCall({
           }),
         });
       } catch (e) {
-        console.error('[VideoCall]', e);
+        logger.phiSafeError(e, 'VideoCall');
       }
     },
     [roomName, role, identity, displayName]
@@ -132,7 +133,7 @@ export function VideoCall({
     try {
       pcRef.current?.close();
     } catch (e) {
-      console.error('[VideoCall] close peerconnection', e);
+      logger.phiSafeError(e, 'VideoCall.closePeerConnection');
     }
     stopAllTracks();
     setPeer({ connected: false });
@@ -202,7 +203,7 @@ export function VideoCall({
             try {
               await pc.addIceCandidate(c);
             } catch (e) {
-              console.error('[VideoCall] addIceCandidate', e);
+              logger.phiSafeError(e, 'VideoCall.addIceCandidate');
             }
           }
           iceCandidatesBuffer.current = [];
@@ -218,7 +219,7 @@ export function VideoCall({
             try {
               await pcRef.current!.addIceCandidate(c);
             } catch (e) {
-              console.error('[VideoCall] addIceCandidate', e);
+              logger.phiSafeError(e, 'VideoCall.addIceCandidate');
             }
           }
           iceCandidatesBuffer.current = [];
@@ -228,7 +229,7 @@ export function VideoCall({
               new RTCIceCandidate(msg.payload?.candidate as RTCIceCandidateInit)
             );
           } catch (e) {
-            console.error('[VideoCall]', e);
+            logger.phiSafeError(e, 'VideoCall');
           }
         } else if (msg.type === 'leave') {
           handleEnd();
@@ -236,7 +237,7 @@ export function VideoCall({
         }
       }
     } catch (e) {
-      console.error('[VideoCall]', e);
+      logger.phiSafeError(e, 'VideoCall');
     }
   }, [roomName, role, postSignal, handleEnd]);
 
@@ -291,7 +292,7 @@ export function VideoCall({
       try {
         pcRef.current?.close();
       } catch (e) {
-        console.error('[VideoCall] close peerconnection', e);
+        logger.phiSafeError(e, 'VideoCall.closePeerConnection');
       }
       stopAllTracks();
     };

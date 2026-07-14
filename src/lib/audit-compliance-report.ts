@@ -121,7 +121,7 @@ export async function generateAnomalyReport({
   const byUser  = new Map<string, number>()
   for (const l of logs.logs) {
     byAction.set(l.action, (byAction.get(l.action) ?? 0) + 1)
-    byUser.set(l.userId,  (byUser.get(l.userId)  ?? 0) + 1)
+    if (l.userId) byUser.set(l.userId, (byUser.get(l.userId) ?? 0) + 1)
   }
 
   return {

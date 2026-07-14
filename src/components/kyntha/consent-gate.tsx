@@ -1,23 +1,35 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { useRouter } from 'next/navigation'
+import * as React from 'react';
+import { ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
 
 interface ConsentGateProps {
-  consentAccepted: boolean
-  dataProcessingConsent: boolean
-  userName?: string
+  consentAccepted: boolean;
+  dataProcessingConsent: boolean;
+  userName?: string;
 }
 
-export function ConsentGate({ consentAccepted, dataProcessingConsent, userName }: ConsentGateProps) {
-  const router = useRouter()
+export function ConsentGate({
+  consentAccepted,
+  dataProcessingConsent,
+  userName,
+}: ConsentGateProps) {
+  const router = useRouter();
   const missingItems = [
-    { key: 'consentAccepted', label: 'Terms of Service & Privacy Policy', accepted: consentAccepted },
-    { key: 'dataProcessingConsent', label: 'Health Data Processing Consent', accepted: dataProcessingConsent },
-  ] as const
+    {
+      key: 'consentAccepted',
+      label: 'Terms of Service & Privacy Policy',
+      accepted: consentAccepted,
+    },
+    {
+      key: 'dataProcessingConsent',
+      label: 'Health Data Processing Consent',
+      accepted: dataProcessingConsent,
+    },
+  ] as const;
 
   return (
     <div className="w-full max-w-md px-4">
@@ -30,20 +42,21 @@ export function ConsentGate({ consentAccepted, dataProcessingConsent, userName }
             <div>
               <h2 className="text-base font-semibold">Consent Required</h2>
               <p className="text-xs text-muted-foreground">
-                {userName ? `${userName}, ` : ''}please review and accept the following to access your health data.
+                {userName ? `${userName}, ` : ''}please review and accept the following to access
+                your health data.
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            {missingItems.map((item) => (
+            {missingItems.map(item => (
               <div
                 key={item.key}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl border p-3",
+                  'flex items-center gap-3 rounded-xl border p-3',
                   item.accepted
-                    ? "border-emerald-500/30 bg-emerald-500/5"
-                    : "border-amber-500/30 bg-amber-500/5"
+                    ? 'border-emerald-500/30 bg-emerald-500/5'
+                    : 'border-amber-500/30 bg-amber-500/5'
                 )}
               >
                 {item.accepted ? (
@@ -51,10 +64,14 @@ export function ConsentGate({ consentAccepted, dataProcessingConsent, userName }
                 ) : (
                   <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600" />
                 )}
-                <span className={cn(
-                  "text-sm",
-                  item.accepted ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400"
-                )}>
+                <span
+                  className={cn(
+                    'text-sm',
+                    item.accepted
+                      ? 'text-emerald-700 dark:text-emerald-400'
+                      : 'text-amber-700 dark:text-amber-400'
+                  )}
+                >
                   {item.label}
                 </span>
               </div>
@@ -62,9 +79,9 @@ export function ConsentGate({ consentAccepted, dataProcessingConsent, userName }
           </div>
 
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Your data is protected under HIPAA and Indian privacy law. We only process your health
-            information to provide care services. You can withdraw consent at any time from your
-            profile settings.
+            Your data is protected under HIPAA and applicable US privacy law. We only process your
+            health information to provide care services. You can withdraw consent at any time from
+            your profile settings.
           </p>
 
           <Button
@@ -77,10 +94,10 @@ export function ConsentGate({ consentAccepted, dataProcessingConsent, userName }
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 // Local cn helper (avoids importing from utils at module level in a critical path)
 function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(' ');
 }

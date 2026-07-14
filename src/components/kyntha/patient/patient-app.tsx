@@ -56,6 +56,22 @@ import { ShareSheet } from '@/components/kyntha/share-sheet';
 import { FadeIn } from '@/components/kyntha/animations';
 import dynamic from 'next/dynamic';
 
+// ── dynamic video-call load ───────────────────────────────────────────────
+const VideoCall = dynamic(
+  () =>
+    import('@/components/kyntha/video-call')
+      .then(m => m.VideoCall)
+      .catch(() => {
+        // graceful fallback if the component is removed
+        return () => (
+          <div className="text-sm text-muted-foreground text-center py-8">
+            Video call unavailable.
+          </div>
+        );
+      }),
+  { ssr: false, loading: () => <div className="h-40 rounded-xl bg-muted animate-pulse" /> }
+);
+
 // ── dynamic market load ────────────────────────────────────────────────────
 const MarketView = dynamic(
   () =>
@@ -272,7 +288,7 @@ function MetricCard({ m, index }: { m: HealthMetric; index: number }) {
   );
 }
 
-function ApptRow({ appt }: { appt: Appointment }) {
+function ApptRow({ appt, onJoinCall }: { appt: Appointment; onJoinCall?: (id: string) => void }) {
   const sc: Record<string, string> = {
     confirmed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     upcoming: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
@@ -295,6 +311,14 @@ function ApptRow({ appt }: { appt: Appointment }) {
       <Badge variant="secondary" className={`text-[10px] shrink-0 ${sc[appt.status]}`}>
         {appt.status}
       </Badge>
+      {appt.type === 'video' && appt.status === 'confirmed' && onJoinCall && (
+        <button
+          onClick={() => onJoinCall(appt.id)}
+          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+        >
+          Join
+        </button>
+      )}
     </div>
   );
 }
@@ -311,11 +335,13 @@ function HomeTab({
   isFree,
   isDemo,
   onNavigate,
+  onJoinCall,
 }: {
   user: AuthUser;
   isFree: boolean;
   isDemo: boolean;
   onNavigate: (t: Tab) => void;
+  onJoinCall: (id: string) => void;
 }) {
   const [journalOpen, setJournalOpen] = React.useState(false);
   const { toast } = useToast();
@@ -398,7 +424,7 @@ function HomeTab({
         </div>
         <div className="space-y-2.5">
           {appointments.length > 0 ? (
-            appointments.map(a => <ApptRow key={a.id} appt={a} />)
+            appointments.map(a => <ApptRow key={a.id} appt={a} onJoinCall={onJoinCall} />)
           ) : (
             <p className="text-sm text-muted-foreground text-center py-4">
               No upcoming appointments
@@ -785,6 +811,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
     summary: string;
   } | null>(null);
   const [shareOpen, setShareOpen] = React.useState(false);
+  const [joiningCallApptId, setJoiningCallApptId] = React.useState<string | null>(null);
 
   const isFree = (user?.subscriptionTier ?? 'free') === 'free';
   const isDemo = !!user.isDemo;
@@ -872,7 +899,13 @@ export function PatientApp({ user }: { user: AuthUser }) {
         <AnimatePresence mode="wait">
           {tab === 'home' && (
             <FadeIn key="home">
-              <HomeTab user={user} isFree={isFree} isDemo={isDemo} onNavigate={setTab} />
+              <HomeTab
+                user={user}
+                isFree={isFree}
+                isDemo={isDemo}
+                onNavigate={setTab}
+                onJoinCall={setJoiningCallApptId}
+              />
             </FadeIn>
           )}
           {tab === 'meds' && (
@@ -903,6 +936,19 @@ export function PatientApp({ user }: { user: AuthUser }) {
         </AnimatePresence>
       </main>
 
+      {/* Active video call overlay */}
+      {joiningCallApptId && (
+        <FadeIn>
+          <VideoCall
+            roomName={joiningCallApptId}
+            displayName={user.name}
+            identity={user.id}
+            role="patient"
+            onEndCall={() => setJoiningCallApptId(null)}
+          />
+        </FadeIn>
+      )}
+
       {/* Share sheet */}
       {shareOpen && (
         <ShareSheet
@@ -929,7 +975,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
                   t.id === 'sos'
                     ? active
                       ? 'text-rose-600 dark:text-rose-400'
-                      : 'text-rose-500/80'
+                      : 'text-muted-foreground'
                     : active
                       ? 'text-emerald-600 dark:text-emerald-400'
                       : 'text-muted-foreground'
@@ -941,7 +987,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
                     t.id === 'sos'
                       ? active
                         ? 'bg-rose-500/15 text-rose-600'
-                        : 'bg-rose-500/10'
+                        : 'bg-transparent'
                       : active
                         ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shadow-sm'
                         : 'bg-transparent'

@@ -58,10 +58,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-.env.local
-.env.production
-.env.development
-.env.test
 
 # vercel
 .vercel
@@ -87,12 +83,6 @@ server.log
 /skills/
 .gstack/
 
-# Production environment
-.env.production
-
 # Test login scripts with hardcoded credentials (DO NOT COMMIT)
 test-login*.js
 e2e/quick-test.mjs
-
-# Env backup files with potential secrets
-.env.bak

@@ -182,11 +182,12 @@ export function PricingPage() {
 
   // US launch — pricing is in USD.
 
-  // Get dynamic prices for the selected currency
-  const plusPrice = PRICING[currency].plus;
-  const familyProPrice = PRICING[currency].family_pro;
-  const savingsPlus = yearlySavingsPct(currency, 'plus');
-  const savingsFamily = yearlySavingsPct(currency, 'family_pro');
+  // Get dynamic prices for the selected currency — fallback to USD if unsupported
+  const safeCurrency = PRICING[currency] ? currency : 'USD';
+  const plusPrice = PRICING[safeCurrency].plus;
+  const familyProPrice = PRICING[safeCurrency].family_pro;
+  const savingsPlus = yearlySavingsPct(safeCurrency, 'plus');
+  const savingsFamily = yearlySavingsPct(safeCurrency, 'family_pro');
   const savingsLabel = Math.min(savingsPlus, savingsFamily);
 
   function startCheckout(tier: 'plus' | 'family_pro') {
@@ -654,7 +655,7 @@ export function PricingPage() {
         <Reveal>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-x-6 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" /> DPDP-compliant
+              <ShieldCheck className="h-4 w-4 text-emerald-600" /> HIPAA-aligned
             </span>
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-600" /> Built for US families

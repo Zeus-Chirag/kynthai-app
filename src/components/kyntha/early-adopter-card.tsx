@@ -1,39 +1,28 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { Gift, Users, Check, Zap } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useAppStore } from '@/lib/store'
-import { EARLY_ADOPTER_TIERS } from '@/lib/commission'
-import { formatPrice } from '@/lib/currency'
+import { Gift, Users, Check, Zap } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useAppStore } from '@/lib/store';
+import { formatPrice } from '@/lib/currency';
 
 interface EarlyAdopterCardProps {
-  onSelect: (type: 'individual' | 'family') => void
+  onSelect: (type: 'individual' | 'family') => void;
 }
 
-// Early Bird slots — fixed limited availability
-const EARLY_BIRD_SLOTS = {
-  individual: 300, // patient slots
-  family: 200,     // family slots
-}
+// Early Adopter — founding member pricing (no fake countdown)
+// TODO: Wire to a backend API when real slot tracking is implemented.
 
 export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
-  const { currency } = useAppStore()
-  const setCheckoutFounder = useAppStore((s) => s.setCheckoutFounder)
-  const [slots, setSlots] = React.useState(EARLY_BIRD_SLOTS)
+  const { currency } = useAppStore();
+  const setCheckoutFounder = useAppStore(s => s.setCheckoutFounder);
 
   const handleSelect = (type: 'individual' | 'family') => {
-    setCheckoutFounder(true)
-    onSelect(type)
-  }
-
-  const remainingIndividual = Math.max(0, slots.individual)
-  const remainingFamily = Math.max(0, slots.family)
-  const individualSoldOut = remainingIndividual === 0
-  const familySoldOut = remainingFamily === 0
+    setCheckoutFounder(true);
+    onSelect(type);
+  };
 
   return (
     <Card className="border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30">
@@ -45,7 +34,9 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
             </div>
             <div>
               <h3 className="font-bold text-lg">Early Bird Pricing</h3>
-              <p className="text-sm text-muted-foreground">Limited slots — lock in forever pricing</p>
+              <p className="text-sm text-muted-foreground">
+                Lock in forever pricing as a founding member
+              </p>
             </div>
           </div>
           <Badge className="bg-emerald-500">SAVE MORE</Badge>
@@ -57,30 +48,21 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
               <Zap className="h-4 w-4 text-emerald-500" />
               <span className="font-semibold">Individual Plan (Patient)</span>
             </div>
-            {individualSoldOut ? (
-              <Badge variant="destructive" className="text-[10px]">SOLD OUT</Badge>
-            ) : (
-              <Badge variant="secondary" className="text-[10px]">
-                {remainingIndividual} left
-              </Badge>
-            )}
+            <Badge className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+              Founding pricing
+            </Badge>
           </div>
           <div className="flex items-baseline gap-2 mb-3">
-              <>
-                <span className="text-3xl font-bold text-emerald-600">$9.99</span>
-                <span className="text-muted-foreground">/month</span>
-              </>
+            <>
+              <span className="text-3xl font-bold text-emerald-600">$9.99</span>
+              <span className="text-muted-foreground">/month</span>
+            </>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <span>Or $99.99/year</span>
           </div>
-          <Button
-            onClick={() => handleSelect('individual')}
-            className="w-full"
-            variant="outline"
-            disabled={individualSoldOut}
-          >
-            {individualSoldOut ? 'Sold Out' : 'Choose Individual'}
+          <Button onClick={() => handleSelect('individual')} className="w-full" variant="outline">
+            Choose Individual
           </Button>
         </div>
 
@@ -90,13 +72,9 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
               <Users className="h-4 w-4 text-emerald-500" />
               <span className="font-semibold">Family Plan</span>
             </div>
-            {familySoldOut ? (
-              <Badge variant="destructive" className="text-[10px]">SOLD OUT</Badge>
-            ) : (
-              <Badge variant="secondary" className="text-[10px]">
-                {remainingFamily} left
-              </Badge>
-            )}
+            <Badge className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+              Founding pricing
+            </Badge>
           </div>
           <div className="flex items-baseline gap-2 mb-3">
             <span className="text-3xl font-bold text-emerald-600">$19.99</span>
@@ -105,13 +83,8 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <span>Or $199.99/year</span>
           </div>
-          <Button
-            onClick={() => handleSelect('family')}
-            className="w-full"
-            variant="outline"
-            disabled={familySoldOut}
-          >
-            {familySoldOut ? 'Sold Out' : 'Choose Family'}
+          <Button onClick={() => handleSelect('family')} className="w-full" variant="outline">
+            Choose Family
           </Button>
         </div>
 
@@ -119,7 +92,7 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
             <Check className="h-4 w-4 text-emerald-500" />
-            <span>300 patient slots · 200 family slots — limited availability</span>
+            <span>Founding member pricing — sign up now to lock in forever</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Check className="h-4 w-4 text-emerald-500" />
@@ -136,5 +109,5 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

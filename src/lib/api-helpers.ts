@@ -553,7 +553,7 @@ export async function auditSecurity(
   action: string,
   context: Partial<AuditContext> = {}
 ): Promise<void> {
-  await recordAuditSync(userId ?? 'system', action, {
+  await recordAuditSync(userId ?? null, action, {
     ...context,
     category: AuditCategory.SECURITY,
     outcome: context.outcome ?? 'failure',

@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import dynamic from 'next/dynamic'
+import * as React from 'react';
+import dynamic from 'next/dynamic';
 import {
   Users,
   ShoppingBag,
@@ -17,14 +17,14 @@ import {
   UserPlus,
   Activity,
   Clock,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -32,32 +32,32 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { cn } from '@/lib/utils'
-import { KynthaBrand } from '@/components/kyntha/logo'
-import { useAppStore, type AuthUser } from '@/lib/store'
-import { useRouter } from 'next/navigation'
-import { getGreeting } from '@/lib/greeting'
-import { useToast } from '@/hooks/use-toast'
-import { AiChat } from '@/components/medication/ai-chat'
-import { CareHub as CaretakerCareHub } from './care-hub'
-import { ProfileHub } from '@/components/kyntha/patient/profile-hub'
-import { FamilyMemberSchedule } from './member-schedule'
-import { MedicationsList } from '@/components/medication/medications-list'
-import { FamilyCircle } from '@/components/kyntha/family/family-circle'
-import { OfflineIndicator } from '@/components/kyntha/offline-indicator'
-import { useOfflineQueue } from '@/hooks/use-offline-queue'
-import { PortalFooter } from '@/components/kyntha/portal-footer'
-import { AnimatePresence, motion } from 'framer-motion'
-import { FadeIn } from '@/components/kyntha/animations'
-import type { PulseMember } from '@/components/kyntha/family/family-circle'
+} from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
+import { KynthaBrand } from '@/components/kyntha/logo';
+import { useAppStore, type AuthUser } from '@/lib/store';
+import { useRouter } from 'next/navigation';
+import { getGreeting } from '@/lib/greeting';
+import { useToast } from '@/hooks/use-toast';
+import { AiChat } from '@/components/medication/ai-chat';
+import { CareHub as CaretakerCareHub } from './care-hub';
+import { ProfileHub } from '@/components/kyntha/patient/profile-hub';
+import { FamilyMemberSchedule } from './member-schedule';
+import { MedicationsList } from '@/components/medication/medications-list';
+import { FamilyCircle } from '@/components/kyntha/family/family-circle';
+import { OfflineIndicator } from '@/components/kyntha/offline-indicator';
+import { useOfflineQueue } from '@/hooks/use-offline-queue';
+import { PortalFooter } from '@/components/kyntha/portal-footer';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FadeIn } from '@/components/kyntha/animations';
+import type { PulseMember } from '@/components/kyntha/family/family-circle';
 
 const MarketView = dynamic(
-  () => import('@/components/kyntha/market/market-view').then((m) => m.MarketView),
+  () => import('@/components/kyntha/market/market-view').then(m => m.MarketView),
   { ssr: false, loading: () => <div className="h-40 rounded-xl bg-muted animate-pulse" /> }
-)
+);
 
-type Tab = 'family' | 'meds' | 'market' | 'ai' | 'care' | 'sos'
+type Tab = 'family' | 'meds' | 'market' | 'ai' | 'care' | 'sos';
 
 const TABS: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'family', label: 'Family', icon: Users },
@@ -66,190 +66,324 @@ const TABS: { id: Tab; label: string; icon: React.ComponentType<{ className?: st
   { id: 'ai', label: 'Ask AI', icon: Sparkles },
   { id: 'care', label: 'Tools', icon: HeartPulse },
   { id: 'sos', label: 'Family Alert', icon: Siren },
-]
+];
 
 interface FamilyMember {
-  id: string
-  name: string
-  relation: string
-  email?: string
-  phone?: string
-  adherence: number
-  pending: number
-  lowStock: number
-  age: number
+  id: string;
+  name: string;
+  relation: string;
+  email?: string;
+  phone?: string;
+  adherence: number;
+  pending: number;
+  lowStock: number;
+  age: number;
 }
 
 const SAMPLE_FAMILY: FamilyMember[] = [
-  { id: 'fm1', name: 'James Carter', relation: 'Father', email: 'james@example.com', phone: '+1 (555) 012-3456', adherence: 88, pending: 2, lowStock: 1, age: 62 },
-  { id: 'fm2', name: 'Emily Carter', relation: 'Mother', email: 'emily@example.com', phone: '+1 (555) 012-3457', adherence: 95, pending: 0, lowStock: 0, age: 58 },
-  { id: 'fm3', name: 'Mia Carter', relation: 'Daughter', email: 'mia@example.com', phone: '+1 (555) 012-3458', adherence: 72, pending: 3, lowStock: 2, age: 16 },
-]
+  {
+    id: 'fm1',
+    name: 'James Carter',
+    relation: 'Father',
+    email: 'james@example.com',
+    phone: '+1 (555) 012-3456',
+    adherence: 88,
+    pending: 2,
+    lowStock: 1,
+    age: 62,
+  },
+  {
+    id: 'fm2',
+    name: 'Emily Carter',
+    relation: 'Mother',
+    email: 'emily@example.com',
+    phone: '+1 (555) 012-3457',
+    adherence: 95,
+    pending: 0,
+    lowStock: 0,
+    age: 58,
+  },
+  {
+    id: 'fm3',
+    name: 'Mia Carter',
+    relation: 'Daughter',
+    email: 'mia@example.com',
+    phone: '+1 (555) 012-3458',
+    adherence: 72,
+    pending: 3,
+    lowStock: 2,
+    age: 16,
+  },
+];
 
 interface EscalatedAlert {
-  id: string
-  memberId: string
-  memberName: string
-  message: string
-  severity: 'high' | 'medium'
-  time: string
+  id: string;
+  memberId: string;
+  memberName: string;
+  message: string;
+  severity: 'high' | 'medium';
+  time: string;
 }
 
 const SAMPLE_ALERTS: EscalatedAlert[] = [
-  { id: 'a1', memberId: 'fm1', memberName: 'James Carter', message: 'Missed Lisinopril (morning dose)', severity: 'high', time: '2h ago' },
-  { id: 'a2', memberId: 'fm3', memberName: 'Mia Carter', message: 'Albuterol inhaler running low (3 doses left)', severity: 'medium', time: '5h ago' },
-]
+  {
+    id: 'a1',
+    memberId: 'fm1',
+    memberName: 'James Carter',
+    message: 'Missed Lisinopril (morning dose)',
+    severity: 'high',
+    time: '2h ago',
+  },
+  {
+    id: 'a2',
+    memberId: 'fm3',
+    memberName: 'Mia Carter',
+    message: 'Albuterol inhaler running low (3 doses left)',
+    severity: 'medium',
+    time: '5h ago',
+  },
+];
 
-interface MemberMeds { [memberId: string]: Array<{id: string; name: string; dosage: string; time: string; status: 'pending' | 'taken' | 'skipped'; color?: string; instructions?: string | null; medicationId?: string}> }
+interface MemberMeds {
+  [memberId: string]: Array<{
+    id: string;
+    name: string;
+    dosage: string;
+    time: string;
+    status: 'pending' | 'taken' | 'skipped';
+    color?: string;
+    instructions?: string | null;
+    medicationId?: string;
+  }>;
+}
 
 const SAMPLE_MEMBER_MEDS: MemberMeds = {
   fm1: [
-    { id: 'm1', name: 'Metformin', dosage: '500 mg', time: '08:00', status: 'taken', instructions: 'With meals' },
-    { id: 'm2', name: 'Amlodipine', dosage: '5 mg', time: '08:00', status: 'taken', instructions: 'After breakfast' },
-    { id: 'm3', name: 'Metformin', dosage: '500 mg', time: '20:00', status: 'pending', instructions: 'With meals' },
-    { id: 'm4', name: 'Aspirin', dosage: '75 mg', time: '08:00', status: 'taken', instructions: 'With food' },
+    {
+      id: 'm1',
+      name: 'Metformin',
+      dosage: '500 mg',
+      time: '08:00',
+      status: 'taken',
+      instructions: 'With meals',
+    },
+    {
+      id: 'm2',
+      name: 'Amlodipine',
+      dosage: '5 mg',
+      time: '08:00',
+      status: 'taken',
+      instructions: 'After breakfast',
+    },
+    {
+      id: 'm3',
+      name: 'Metformin',
+      dosage: '500 mg',
+      time: '20:00',
+      status: 'pending',
+      instructions: 'With meals',
+    },
+    {
+      id: 'm4',
+      name: 'Aspirin',
+      dosage: '75 mg',
+      time: '08:00',
+      status: 'taken',
+      instructions: 'With food',
+    },
   ],
   fm2: [
-    { id: 'm5', name: 'Thyroxine', dosage: '50 mcg', time: '07:00', status: 'taken', instructions: 'Empty stomach' },
-    { id: 'm6', name: 'Calcium + D3', dosage: '500 mg', time: '20:00', status: 'pending', instructions: 'After dinner' },
+    {
+      id: 'm5',
+      name: 'Thyroxine',
+      dosage: '50 mcg',
+      time: '07:00',
+      status: 'taken',
+      instructions: 'Empty stomach',
+    },
+    {
+      id: 'm6',
+      name: 'Calcium + D3',
+      dosage: '500 mg',
+      time: '20:00',
+      status: 'pending',
+      instructions: 'After dinner',
+    },
   ],
   fm3: [
-    { id: 'm7', name: 'Cetirizine', dosage: '10 mg', time: '21:00', status: 'pending', instructions: 'As needed for allergies' },
+    {
+      id: 'm7',
+      name: 'Cetirizine',
+      dosage: '10 mg',
+      time: '21:00',
+      status: 'pending',
+      instructions: 'As needed for allergies',
+    },
   ],
-}
+};
 
 export function CaretakerApp({ user }: { user: AuthUser }) {
-  const { logout, setScreen } = useAppStore()
-  const router = useRouter()
-  const { toast } = useToast()
-  const [tab, setTab] = React.useState<Tab>('family')
-  const isDemo = !!user.isDemo
-  const [profileOpen, setProfileOpen] = React.useState(false)
+  const { logout, setScreen } = useAppStore();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [tab, setTab] = React.useState<Tab>('family');
+  const isDemo = !!user.isDemo;
+  const [profileOpen, setProfileOpen] = React.useState(false);
 
   const handleLogout = React.useCallback(() => {
-    logout()
-    router.replace('/')
-  }, [logout, router])
-  const [family, setFamily] = React.useState<FamilyMember[]>(SAMPLE_FAMILY)
-  const [alerts, setAlerts] = React.useState<EscalatedAlert[]>(SAMPLE_ALERTS)
-  const [selectedMember, setSelectedMember] = React.useState<FamilyMember | null>(SAMPLE_FAMILY[0] ?? null)
-  const [addOpen, setAddOpen] = React.useState(false)
-  const [memberMeds, setMemberMeds] = React.useState<MemberMeds>({})
-  const [familyPulse, setFamilyPulse] = React.useState<PulseMember[]>([])
-  const [pulseLoading, setPulseLoading] = React.useState(true)
+    logout();
+    router.replace('/');
+  }, [logout, router]);
+  const [family, setFamily] = React.useState<FamilyMember[]>(SAMPLE_FAMILY);
+  const [alerts, setAlerts] = React.useState<EscalatedAlert[]>(SAMPLE_ALERTS);
+  const [selectedMember, setSelectedMember] = React.useState<FamilyMember | null>(
+    SAMPLE_FAMILY[0] ?? null
+  );
+  const [addOpen, setAddOpen] = React.useState(false);
+  const [memberMeds, setMemberMeds] = React.useState<MemberMeds>({});
+  const [familyPulse, setFamilyPulse] = React.useState<PulseMember[]>([]);
+  const [pulseLoading, setPulseLoading] = React.useState(true);
 
   // Load family pulse data for the health circle
   React.useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function loadPulse() {
       try {
-        const res = await fetch('/api/family/pulse', { credentials: 'include' })
+        const res = await fetch('/api/family/pulse', { credentials: 'include' });
         if (res.ok) {
-          const data = await res.json()
-          if (!cancelled) setFamilyPulse(data)
+          const data = await res.json();
+          if (!cancelled) setFamilyPulse(data);
         }
       } catch {
         // Silently fail — circle will show empty state
       } finally {
-        if (!cancelled) setPulseLoading(false)
+        if (!cancelled) setPulseLoading(false);
       }
     }
-    loadPulse()
-    return () => { cancelled = true }
-  }, [])
+    loadPulse();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Load real medications for each family member from API
   // N+1 → parallel: fire all per-member reminder fetches simultaneously.
   React.useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     async function load() {
       try {
-        const famRes = await fetch('/api/family', { credentials: 'include' })
+        const famRes = await fetch('/api/family', { credentials: 'include' });
         if (!famRes.ok) {
           // Silently handle expected auth errors; surface other failures
-          if (famRes.status === 403) return
-          console.warn('Family fetch failed:', famRes.status)
-          return
+          if (famRes.status === 403) return;
+          console.warn('Family fetch failed:', famRes.status);
+          return;
         }
-        const famData = await famRes.json()
-        const members: Array<{id: string; name: string}> = famData.members ?? []
-        if (cancelled || members.length === 0) return
+        const famData = await famRes.json();
+        const members: Array<{ id: string; name: string }> = famData.members ?? [];
+        if (cancelled || members.length === 0) return;
 
-        const today = new Date().toISOString().split('T')[0]
-        const allMeds: MemberMeds = {}
+        const today = new Date().toISOString().split('T')[0];
+        const allMeds: MemberMeds = {};
 
         // ── PARALLEL: one fetch per member, all fired simultaneously ──────────
-        const reminderPromises = members.map(async (m) => {
-          const remRes = await fetch(
-            `/api/reminders?date=${today}&familyMemberId=${m.id}`,
-            { credentials: 'include' }
-          )
+        const reminderPromises = members.map(async m => {
+          const remRes = await fetch(`/api/reminders?date=${today}&familyMemberId=${m.id}`, {
+            credentials: 'include',
+          });
           if (remRes.ok) {
-            const reminders = await remRes.json()
-            const meds = reminders.map((r: {id: string; time: string; date: string; status: string; medicationId: string; medication?: {name: string; dosage: string; instructions?: string | null; color?: string}}) => ({
-              id: r.id,
-              name: r.medication?.name ?? 'Medication',
-              dosage: r.medication?.dosage ?? '',
-              time: r.time,
-              status: r.status as 'pending' | 'taken' | 'skipped',
-              instructions: r.medication?.instructions,
-              color: r.medication?.color,
-              medicationId: r.medicationId,
-            }))
-            return { memberId: m.id, meds }
+            const reminders = await remRes.json();
+            const meds = reminders.map(
+              (r: {
+                id: string;
+                time: string;
+                date: string;
+                status: string;
+                medicationId: string;
+                medication?: {
+                  name: string;
+                  dosage: string;
+                  instructions?: string | null;
+                  color?: string;
+                };
+              }) => ({
+                id: r.id,
+                name: r.medication?.name ?? 'Medication',
+                dosage: r.medication?.dosage ?? '',
+                time: r.time,
+                status: r.status as 'pending' | 'taken' | 'skipped',
+                instructions: r.medication?.instructions,
+                color: r.medication?.color,
+                medicationId: r.medicationId,
+              })
+            );
+            return { memberId: m.id, meds };
           }
-          return { memberId: m.id, meds: [] as MemberMeds[string] }
-        })
+          return { memberId: m.id, meds: [] as MemberMeds[string] };
+        });
 
-        const results = await Promise.all(reminderPromises)
-        const medsMap: MemberMeds = {}
+        const results = await Promise.all(reminderPromises);
+        const medsMap: MemberMeds = {};
         for (const r of results) {
-          if (r.meds.length > 0) medsMap[r.memberId] = r.meds
+          if (r.meds.length > 0) medsMap[r.memberId] = r.meds;
         }
 
-        if (!cancelled) setMemberMeds(medsMap)
+        if (!cancelled) setMemberMeds(medsMap);
       } catch (err) {
-        console.error('Failed to load family medications:', err)
+        console.error('Failed to load family medications:', err);
       }
     }
-    load()
-    return () => { cancelled = true }
-  }, [])
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const updateMemberMed = React.useCallback(async (memberId: string, med: {id: string; medicationId?: string; time: string}, status: 'taken' | 'skipped') => {
-    // Optimistic UI update
-    setMemberMeds(prev => ({
-      ...prev,
-      [memberId]: prev[memberId]?.map(m => m.id === med.id ? { ...m, status } : m) ?? [],
-    }))
-    // Hit the API to persist
-    if (med.medicationId) {
-      try {
-        const csrf = await fetch('/api/auth/csrf', { credentials: 'include' }).then(r => r.json()).then(d => d.token)
-        await fetch('/api/reminders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf },
-          credentials: 'include',
-          body: JSON.stringify({
-            medicationId: med.medicationId,
-            date: new Date().toISOString().split('T')[0],
-            time: med.time,
-            status,
-          }),
-        })
-      } catch { /* ignore */ }
-    }
-  }, [])
+  const updateMemberMed = React.useCallback(
+    async (
+      memberId: string,
+      med: { id: string; medicationId?: string; time: string },
+      status: 'taken' | 'skipped'
+    ) => {
+      // Optimistic UI update
+      setMemberMeds(prev => ({
+        ...prev,
+        [memberId]: prev[memberId]?.map(m => (m.id === med.id ? { ...m, status } : m)) ?? [],
+      }));
+      // Hit the API to persist
+      if (med.medicationId) {
+        try {
+          const csrf = await fetch('/api/auth/csrf', { credentials: 'include' })
+            .then(r => r.json())
+            .then(d => d.token);
+          await fetch('/api/reminders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf },
+            credentials: 'include',
+            body: JSON.stringify({
+              medicationId: med.medicationId,
+              date: new Date().toISOString().split('T')[0],
+              time: med.time,
+              status,
+            }),
+          });
+        } catch {
+          /* ignore */
+        }
+      }
+    },
+    []
+  );
 
-  const initial = isDemo ? 'K' : (user.name?.[0] ?? 'C').toUpperCase()
-  const familyName = isDemo ? 'Guest' : (user.name?.split(' ').slice(-1)[0] ?? 'Family')
-  const displayName = familyName === 'Family' ? 'My Family' : `The ${familyName} Family`
+  const initial = isDemo ? 'K' : (user.name?.[0] ?? 'C').toUpperCase();
+  const familyName = isDemo ? 'Guest' : (user.name?.split(' ').slice(-1)[0] ?? 'Family');
+  const displayName = familyName === 'Family' ? 'My Family' : `The ${familyName} Family`;
 
-  const dismissAlert = (id: string) => setAlerts((p) => p.filter((a) => a.id !== id))
+  const dismissAlert = (id: string) => setAlerts(p => p.filter(a => a.id !== id));
   const resolveAlert = (id: string) => {
-    setAlerts((p) => p.filter((a) => a.id !== id))
-    toast({ title: 'Marked as taken', description: 'Reminder resolved for family member.' })
-  }
+    setAlerts(p => p.filter(a => a.id !== id));
+    toast({ title: 'Marked as taken', description: 'Reminder resolved for family member.' });
+  };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
@@ -260,25 +394,18 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
           <div className="flex items-center">
             <KynthaBrand iconSize={32} />
           </div>
-          
+
           {/* Caretaker Profile - Secondary, Right Side */}
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setProfileOpen(true)}
-              className="flex items-center gap-3"
-            >
+            <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3">
               <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
                 <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-semibold">
                   {initial}
                 </AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-xs text-muted-foreground leading-tight">
-                  {getGreeting()}
-                </p>
-                <p className="text-sm font-semibold leading-tight">
-                  {displayName}
-                </p>
+                <p className="text-xs text-muted-foreground leading-tight">{getGreeting()}</p>
+                <p className="text-sm font-semibold leading-tight">{displayName}</p>
               </div>
             </button>
             <div className="flex items-center gap-1">
@@ -316,7 +443,11 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
           {tab === 'meds' && (
             <FadeIn key="meds">
               <div className="space-y-3">
-                <MemberSelector members={family} selected={selectedMember} onSelect={setSelectedMember} />
+                <MemberSelector
+                  members={family}
+                  selected={selectedMember}
+                  onSelect={setSelectedMember}
+                />
                 {selectedMember ? (
                   <MedicationsList familyMemberId={selectedMember.id} isDemo={user.isDemo} />
                 ) : (
@@ -324,7 +455,9 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
                     <CardContent className="p-8 text-center text-muted-foreground">
                       <Pill className="h-10 w-10 mx-auto mb-3 opacity-40" />
                       <p className="text-sm font-medium">Select a family member</p>
-                      <p className="text-xs mt-1">Choose someone above to manage their medications.</p>
+                      <p className="text-xs mt-1">
+                        Choose someone above to manage their medications.
+                      </p>
                     </CardContent>
                   </Card>
                 )}
@@ -333,11 +466,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
           )}
           {tab === 'market' && (
             <FadeIn key="market">
-              <ScopedTab
-                members={family}
-                selected={selectedMember}
-                onSelect={setSelectedMember}
-              >
+              <ScopedTab members={family} selected={selectedMember} onSelect={setSelectedMember}>
                 <MarketView />
               </ScopedTab>
             </FadeIn>
@@ -351,20 +480,28 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
             <FadeIn key="care">
               {selectedMember ? (
                 <ScopedTab members={family} selected={selectedMember} onSelect={setSelectedMember}>
-                  <CaretakerCareHub familyMemberId={selectedMember.id} memberName={selectedMember.name} familyPulse={familyPulse} pulseLoading={pulseLoading} />
+                  <CaretakerCareHub
+                    familyMemberId={selectedMember.id}
+                    memberName={selectedMember.name}
+                    familyPulse={familyPulse}
+                    pulseLoading={pulseLoading}
+                  />
                 </ScopedTab>
-              ) : <CaretakerCareHub familyMemberId={undefined} memberName={undefined} familyPulse={familyPulse} pulseLoading={pulseLoading} />}
+              ) : (
+                <CaretakerCareHub
+                  familyMemberId={undefined}
+                  memberName={undefined}
+                  familyPulse={familyPulse}
+                  pulseLoading={pulseLoading}
+                />
+              )}
             </FadeIn>
           )}
           {tab === 'sos' && (
             <FadeIn key="sos">
               <>
                 {selectedMember ? (
-                  <SosTab
-                    members={family}
-                    selected={selectedMember}
-                    onSelect={setSelectedMember}
-                  />
+                  <SosTab members={family} selected={selectedMember} onSelect={setSelectedMember} />
                 ) : (
                   <Card>
                     <CardContent className="p-8 text-center text-muted-foreground">
@@ -382,10 +519,10 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
       {/* Bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">
         <div className="mx-auto flex max-w-3xl items-stretch justify-around px-2 py-2">
-          {TABS.map((t) => {
-            const active = tab === t.id
-            const Icon = t.icon
-            const isSos = t.id === 'sos'
+          {TABS.map(t => {
+            const active = tab === t.id;
+            const Icon = t.icon;
+            const isSos = t.id === 'sos';
             return (
               <button
                 key={t.id}
@@ -418,7 +555,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
                 </span>
                 {t.label}
               </button>
-            )
+            );
           })}
         </div>
       </nav>
@@ -435,15 +572,15 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
       <AddMemberDialog
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        onAdd={(m) => {
-          setFamily((p) => [...p, m])
-          if (!selectedMember) setSelectedMember(m)
-          toast({ title: 'Family member added', description: `${m.name} (${m.relation})` })
+        onAdd={m => {
+          setFamily(p => [...p, m]);
+          if (!selectedMember) setSelectedMember(m);
+          toast({ title: 'Family member added', description: `${m.name} (${m.relation})` });
         }}
       />
       <PortalFooter />
     </div>
-  )
+  );
 }
 
 /* --------------------------------- Family tab -------------------------------- */
@@ -460,22 +597,26 @@ function FamilyTab({
   familyPulse,
   pulseLoading,
 }: {
-  family: FamilyMember[]
-  alerts: EscalatedAlert[]
-  onResolve: (id: string) => void
-  onDismiss: (id: string) => void
-  onAddMember: () => void
-  familyName: string
-  memberMeds: MemberMeds
-  onUpdateMemberMed: (memberId: string, med: {id: string; medicationId?: string; time: string}, status: 'taken' | 'skipped') => void
-  familyPulse: PulseMember[]
-  pulseLoading: boolean
+  family: FamilyMember[];
+  alerts: EscalatedAlert[];
+  onResolve: (id: string) => void;
+  onDismiss: (id: string) => void;
+  onAddMember: () => void;
+  familyName: string;
+  memberMeds: MemberMeds;
+  onUpdateMemberMed: (
+    memberId: string,
+    med: { id: string; medicationId?: string; time: string },
+    status: 'taken' | 'skipped'
+  ) => void;
+  familyPulse: PulseMember[];
+  pulseLoading: boolean;
 }) {
   const avgAdherence = family.length
     ? Math.round(family.reduce((s, m) => s + m.adherence, 0) / family.length)
-    : 0
-  const totalOverdue = family.reduce((s, m) => s + m.pending, 0)
-  const totalLow = family.reduce((s, m) => s + m.lowStock, 0)
+    : 0;
+  const totalOverdue = family.reduce((s, m) => s + m.pending, 0);
+  const totalLow = family.reduce((s, m) => s + m.lowStock, 0);
 
   return (
     <div className="space-y-5">
@@ -524,7 +665,11 @@ function FamilyTab({
           <h2 className="text-base font-semibold flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
             Escalated alerts
-            {alerts.length > 0 && <Badge variant="secondary" className="text-[10px]">{alerts.length}</Badge>}
+            {alerts.length > 0 && (
+              <Badge variant="secondary" className="text-[10px]">
+                {alerts.length}
+              </Badge>
+            )}
           </h2>
         </div>
         {alerts.length === 0 ? (
@@ -536,7 +681,7 @@ function FamilyTab({
           </Card>
         ) : (
           <div className="space-y-2">
-            {alerts.map((a) => (
+            {alerts.map(a => (
               <Card key={a.id} className={cn(a.severity === 'high' && 'ring-1 ring-rose-500/30')}>
                 <CardContent className="p-3">
                   <div className="flex items-start gap-3">
@@ -553,7 +698,15 @@ function FamilyTab({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-semibold">{a.memberName}</p>
-                        <Badge variant="secondary" className={cn('text-[10px]', a.severity === 'high' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400')}>
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            'text-[10px]',
+                            a.severity === 'high'
+                              ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                              : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                          )}
+                        >
                           {a.severity}
                         </Badge>
                         <span className="text-[11px] text-muted-foreground">{a.time}</span>
@@ -562,11 +715,21 @@ function FamilyTab({
                     </div>
                   </div>
                   <div className="mt-2 flex gap-2">
-                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => onResolve(a.id)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      onClick={() => onResolve(a.id)}
+                    >
                       <CheckCircle2 className="h-3 w-3" />
                       Taken
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground" onClick={() => onDismiss(a.id)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs text-muted-foreground"
+                      onClick={() => onDismiss(a.id)}
+                    >
                       <XCircle className="h-3 w-3" />
                       Dismiss
                     </Button>
@@ -585,13 +748,18 @@ function FamilyTab({
             <Users className="h-4 w-4 text-emerald-600" />
             Family members
           </h2>
-          <Button size="sm" variant="outline" onClick={onAddMember} className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onAddMember}
+            className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
+          >
             <UserPlus className="h-3.5 w-3.5" />
             Add
           </Button>
         </div>
         <div className="space-y-4">
-          {family.map((m) => (
+          {family.map(m => (
             <div key={m.id} className="space-y-2">
               <Card>
                 <CardContent className="p-4">
@@ -604,16 +772,24 @@ function FamilyTab({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-sm">{m.name}</h3>
-                        <Badge variant="secondary" className="text-[10px]">{m.relation}</Badge>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {m.relation}
+                        </Badge>
                         <span className="text-[11px] text-muted-foreground">· {m.age}y</span>
                       </div>
                       <div className="mt-2 space-y-1">
                         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                           <span>Adherence</span>
-                          <span className={cn(
-                            'font-semibold',
-                            m.adherence >= 85 ? 'text-emerald-600 dark:text-emerald-400' : m.adherence >= 70 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'
-                          )}>
+                          <span
+                            className={cn(
+                              'font-semibold',
+                              m.adherence >= 85
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : m.adherence >= 70
+                                  ? 'text-amber-600 dark:text-amber-400'
+                                  : 'text-rose-600 dark:text-rose-400'
+                            )}
+                          >
                             {m.adherence}%
                           </span>
                         </div>
@@ -654,7 +830,7 @@ function FamilyTab({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /* ------------------------------- Scoped wrapper ------------------------------ */
@@ -665,20 +841,20 @@ function ScopedTab({
   onSelect,
   children,
 }: {
-  members: FamilyMember[]
-  selected: FamilyMember | null
-  onSelect: (m: FamilyMember) => void
-  children: React.ReactNode
+  members: FamilyMember[];
+  selected: FamilyMember | null;
+  onSelect: (m: FamilyMember) => void;
+  children: React.ReactNode;
 }) {
   if (!selected) {
-    return <div>{children}</div>
+    return <div>{children}</div>;
   }
   return (
     <div className="space-y-3">
       <MemberSelector members={members} selected={selected} onSelect={onSelect} />
       {children}
     </div>
-  )
+  );
 }
 
 function MemberSelector({
@@ -686,13 +862,13 @@ function MemberSelector({
   selected,
   onSelect,
 }: {
-  members: FamilyMember[]
-  selected: FamilyMember | null
-  onSelect: (m: FamilyMember) => void
+  members: FamilyMember[];
+  selected: FamilyMember | null;
+  onSelect: (m: FamilyMember) => void;
 }) {
   return (
     <div className="flex gap-2 overflow-x-auto custom-scroll pb-1">
-      {members.map((m) => (
+      {members.map(m => (
         <button
           key={m.id}
           onClick={() => onSelect(m)}
@@ -712,7 +888,7 @@ function MemberSelector({
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 /* ---------------------------------- SOS tab --------------------------------- */
@@ -722,19 +898,19 @@ function SosTab({
   selected,
   onSelect,
 }: {
-  members: FamilyMember[]
-  selected: FamilyMember
-  onSelect: (m: FamilyMember) => void
+  members: FamilyMember[];
+  selected: FamilyMember;
+  onSelect: (m: FamilyMember) => void;
 }) {
-  const { toast } = useToast()
-  const [stage, setStage] = React.useState<'idle' | 'triggering' | 'triggered'>('idle')
+  const { toast } = useToast();
+  const [stage, setStage] = React.useState<'idle' | 'triggering' | 'triggered'>('idle');
   const [response, setResponse] = React.useState<{
-    notifiedDoctors: { name: string; eta: string }[]
-    summary: string
-  } | null>(null)
+    notifiedDoctors: { name: string; eta: string }[];
+    summary: string;
+  } | null>(null);
 
   const trigger = async (tier: 'critical' | 'family') => {
-    setStage('triggering')
+    setStage('triggering');
     try {
       // Step 1: call emergency-sos to log the SOS trigger
       await fetch('/api/emergency-sos', {
@@ -745,34 +921,38 @@ function SosTab({
           notes: `${tier === 'critical' ? 'Critical' : 'Family'} SOS triggered from caretaker app`,
           medicalInfo: '',
         }),
-      })
+      });
 
       // Step 2: call the emergency family alert endpoint
       const emRes = await fetch('/api/emergency', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ memberId: selected.id, memberName: selected.name, tier }),
-      })
+      });
       // Even if endpoint is not implemented, simulate a response
-      let data: { notifiedDoctors?: { name: string; eta: string }[]; summary?: string } = {}
+      let data: { notifiedDoctors?: { name: string; eta: string }[]; summary?: string } = {};
       if (emRes.ok) {
-        data = await emRes.json()
+        data = await emRes.json();
       }
       setResponse({
-        notifiedDoctors:
-          data.notifiedDoctors ?? [
-            { name: 'On-call doctor', eta: '~8 min' },
-            { name: 'Emergency services', eta: '~14 min' },
-          ],
+        notifiedDoctors: data.notifiedDoctors ?? [
+          { name: 'On-call doctor', eta: '~8 min' },
+          { name: 'Emergency services', eta: '~14 min' },
+        ],
         summary:
           data.summary ??
           `${selected.name} (${selected.age}y) -- emergency SOS triggered. Medical details will be shared by the responding doctor.`,
-      })
-      setStage('triggered')
-      const desc = tier === 'critical'
-        ? 'Emergency contacts, doctors, and 911 notified.'
-        : 'Caretaker notified -- they will reach out shortly.'
-      toast({ title: `${tier === 'critical' ? 'Critical' : 'Family'} SOS triggered`, description: desc, variant: 'destructive' })
+      });
+      setStage('triggered');
+      const desc =
+        tier === 'critical'
+          ? 'Emergency contacts, doctors, and 911 notified.'
+          : 'Caretaker notified -- they will reach out shortly.';
+      toast({
+        title: `${tier === 'critical' ? 'Critical' : 'Family'} SOS triggered`,
+        description: desc,
+        variant: 'destructive',
+      });
     } catch {
       setResponse({
         notifiedDoctors: [
@@ -780,15 +960,15 @@ function SosTab({
           { name: 'Emergency services', eta: '~14 min' },
         ],
         summary: `${selected.name} (${selected.age}y) -- emergency SOS triggered. Medical details will be shared by the responding doctor.`,
-      })
-      setStage('triggered')
+      });
+      setStage('triggered');
     }
-  }
+  };
 
   const reset = () => {
-    setStage('idle')
-    setResponse(null)
-  }
+    setStage('idle');
+    setResponse(null);
+  };
 
   return (
     <div className="space-y-4">
@@ -801,8 +981,9 @@ function SosTab({
           </div>
           <h2 className="text-lg font-bold">Emergency SOS</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Trigger an emergency for <span className="font-semibold text-foreground">{selected.name}</span>.
-            Notifies on-call doctors, ambulance & emergency contacts with medical summary.
+            Trigger an emergency for{' '}
+            <span className="font-semibold text-foreground">{selected.name}</span>. Notifies on-call
+            doctors, ambulance & emergency contacts with medical summary.
           </p>
 
           {stage === 'idle' && (
@@ -815,8 +996,10 @@ function SosTab({
                 <Siren className="h-5 w-5" />
                 SOS -- Critical
               </Button>
-              <p className="text-[11px] text-muted-foreground text-center">Ambulance, 911, doctors, emergency contacts</p>
-              
+              <p className="text-[11px] text-muted-foreground text-center">
+                Ambulance, 911, doctors, emergency contacts
+              </p>
+
               <Button
                 size="lg"
                 variant="outline"
@@ -826,12 +1009,18 @@ function SosTab({
                 <Users className="h-4 w-4" />
                 Alert Caretaker
               </Button>
-              <p className="text-[11px] text-muted-foreground text-center">Not life-threatening — caretaker will reach out</p>
+              <p className="text-[11px] text-muted-foreground text-center">
+                Not life-threatening — caretaker will reach out
+              </p>
             </div>
           )}
 
           {stage === 'triggering' && (
-            <Button size="lg" disabled className="mt-5 w-full h-14 text-base bg-rose-600 text-white">
+            <Button
+              size="lg"
+              disabled
+              className="mt-5 w-full h-14 text-base bg-rose-600 text-white"
+            >
               <Activity className="h-5 w-5 animate-pulse" />
               Notifying emergency contacts...
             </Button>
@@ -854,14 +1043,19 @@ function SosTab({
                 </p>
                 <div className="space-y-2">
                   {response.notifiedDoctors.map((d, i) => (
-                    <div key={i} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-lg border border-border/60 p-2.5"
+                    >
                       <div className="flex items-center gap-2">
                         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                           <CheckCircle2 className="h-4 w-4" />
                         </span>
                         <span className="text-sm font-medium">{d.name}</span>
                       </div>
-                      <Badge variant="secondary" className="text-[10px]">ETA {d.eta}</Badge>
+                      <Badge variant="secondary" className="text-[10px]">
+                        ETA {d.eta}
+                      </Badge>
                     </div>
                   ))}
                 </div>
@@ -886,7 +1080,7 @@ function SosTab({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 /* ------------------------------ Add member dialog ---------------------------- */
@@ -896,21 +1090,21 @@ function AddMemberDialog({
   onClose,
   onAdd,
 }: {
-  open: boolean
-  onClose: () => void
-  onAdd: (m: FamilyMember) => void
+  open: boolean;
+  onClose: () => void;
+  onAdd: (m: FamilyMember) => void;
 }) {
-  const { toast: showToast } = useToast()
-  const [name, setName] = React.useState('')
-  const [relation, setRelation] = React.useState('spouse')
-  const [age, setAge] = React.useState('')
-  const [email, setEmail] = React.useState('')
-  const [phone, setPhone] = React.useState('')
+  const { toast: showToast } = useToast();
+  const [name, setName] = React.useState('');
+  const [relation, setRelation] = React.useState('spouse');
+  const [age, setAge] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [phone, setPhone] = React.useState('');
 
   const submit = async () => {
-    if (!name || !relation) return
-    const parsedAge = parseInt(age, 10)
-    const clampedAge = Number.isFinite(parsedAge) ? Math.max(0, Math.min(parsedAge, 150)) : 0
+    if (!name || !relation) return;
+    const parsedAge = parseInt(age, 10);
+    const clampedAge = Number.isFinite(parsedAge) ? Math.max(0, Math.min(parsedAge, 150)) : 0;
 
     const newMember: FamilyMember = {
       id: `fm_${Date.now()}`,
@@ -922,18 +1116,20 @@ function AddMemberDialog({
       adherence: 100,
       pending: 0,
       lowStock: 0,
-    }
-    onAdd(newMember)
-    onClose()
-    setName('')
-    setRelation('spouse')
-    setAge('')
-    setEmail('')
-    setPhone('')
+    };
+    onAdd(newMember);
+    onClose();
+    setName('');
+    setRelation('spouse');
+    setAge('');
+    setEmail('');
+    setPhone('');
 
     // Persist via API — call POST /api/family/invite
     try {
-      const csrf = await fetch('/api/auth/csrf', { credentials: 'include' }).then(r => r.json()).then(d => d.token)
+      const csrf = await fetch('/api/auth/csrf', { credentials: 'include' })
+        .then(r => r.json())
+        .then(d => d.token);
       const res = await fetch('/api/family/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
@@ -944,21 +1140,28 @@ function AddMemberDialog({
           name,
           relation,
         }),
-      })
+      });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        showToast({ title: 'Invite failed', description: data.error || 'Could not send invite.', variant: 'destructive' })
-        return
+        const data = await res.json().catch(() => ({}));
+        showToast({
+          title: 'Invite failed',
+          description: data.error || 'Could not send invite.',
+          variant: 'destructive',
+        });
+        return;
       }
-      const data = await res.json().catch(() => ({}))
-      showToast({ title: 'Invite sent', description: data.message || `${name} has been invited.` })
+      const data = await res.json().catch(() => ({}));
+      showToast({ title: 'Invite sent', description: data.message || `${name} has been invited.` });
     } catch {
-      showToast({ title: 'Invite sent (offline)', description: `${name} will be synced when you're back online.` })
+      showToast({
+        title: 'Invite sent (offline)',
+        description: `${name} will be synced when you're back online.`,
+      });
     }
-  }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add family member</DialogTitle>
@@ -969,12 +1172,22 @@ function AddMemberDialog({
         <div className="space-y-3 py-2">
           <div className="space-y-1.5">
             <Label htmlFor="fm-name">Full name</Label>
-            <Input id="fm-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Aarav Sharma" />
+            <Input
+              id="fm-name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="e.g. Aarav Sharma"
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="fm-rel">Relation</Label>
-              <select id="fm-rel" value={relation} onChange={(e) => setRelation(e.target.value)} className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm outline-none">
+              <select
+                id="fm-rel"
+                value={relation}
+                onChange={e => setRelation(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm outline-none"
+              >
                 <option value="self">Self</option>
                 <option value="spouse">Spouse</option>
                 <option value="parent">Parent</option>
@@ -987,20 +1200,41 @@ function AddMemberDialog({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="fm-age">Age</Label>
-              <Input id="fm-age" type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="62" />
+              <Input
+                id="fm-age"
+                type="number"
+                inputMode="numeric"
+                value={age}
+                onChange={e => setAge(e.target.value)}
+                placeholder="62"
+                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fm-email">Email</Label>
-            <Input id="fm-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. aarav@example.com" />
+            <Input
+              id="fm-email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="e.g. aarav@example.com"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fm-phone">Phone</Label>
-            <Input id="fm-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +1 (555) 123-4567" />
+            <Input
+              id="fm-phone"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              placeholder="e.g. +1 (555) 123-4567"
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             onClick={submit}
             disabled={!name || !relation}
@@ -1012,7 +1246,7 @@ function AddMemberDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 /* --------------------------------- Helpers --------------------------------- */
@@ -1023,16 +1257,16 @@ function StatCard({
   value,
   tint,
 }: {
-  icon: React.ReactNode
-  label: string
-  value: React.ReactNode
-  tint: 'emerald' | 'amber' | 'rose'
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  tint: 'emerald' | 'amber' | 'rose';
 }) {
   const cls = {
     emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
     amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
     rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
-  }[tint]
+  }[tint];
   return (
     <Card>
       <CardContent className="p-3">
@@ -1045,6 +1279,5 @@ function StatCard({
         <div className={cn('text-xl font-bold', cls.split(' ').slice(1).join(' '))}>{value}</div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

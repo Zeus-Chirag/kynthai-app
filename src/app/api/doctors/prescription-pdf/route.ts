@@ -41,13 +41,13 @@ export async function POST(req: NextRequest) {
     instructions?: string
   }>
 
-  const dateStr = prescription.createdAt.toLocaleDateString('en-IN', {
+  const dateStr = prescription.createdAt.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   })
   const followUpStr = prescription.followUpDate
-    ? prescription.followUpDate.toLocaleDateString('en-IN', {
+    ? prescription.followUpDate.toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',

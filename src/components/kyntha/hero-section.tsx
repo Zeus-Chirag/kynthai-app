@@ -51,7 +51,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               className="mb-6 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium"
             >
               <ShieldCheck className="h-3.5 w-3.5" />
-              Built for India · DPDP-compliant · Secure billing
+              Built for the US · HIPAA-aligned · Secure billing
             </Badge>
           </motion.div>
 
@@ -62,7 +62,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="text-balance text-[2.65rem] leading-[1.08] font-bold tracking-tight sm:text-6xl lg:text-[3.7rem]"
           >
-            India&apos;s AI health companion
+            America&apos;s AI health companion
             <br />
             <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
               for every member of your family.
@@ -77,7 +77,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             className="mt-5 text-xl font-semibold sm:text-2xl"
           >
             <span className="bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent">
-              Smart reminders, verified doctors & lab tests
+              Smart reminders, verified doctors &amp; lab tests
             </span>
             <span className="text-foreground"> — all in one trusted app.</span>
           </motion.p>
@@ -91,7 +91,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           >
             Missed doses, confusing labels, scheduling headaches — Kyntha brings smart reminders,
             AI-guided medication information, verified consults, and home diagnostic tests together.
-            Built for Indian households, in INR, with DPDP-compliant safeguards.
+            Built in the US, for US families, in USD, with HIPAA-aligned safeguards.
           </motion.p>
 
           {/* CTA buttons */}
@@ -130,7 +130,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs font-medium text-muted-foreground"
           >
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> DPDP-compliant
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> HIPAA-aligned
             </span>
             <span className="h-1 w-1 rounded-full bg-border" aria-hidden />
             <span className="inline-flex items-center gap-1.5">

@@ -13,7 +13,7 @@ export const createPaymentSchema = z.object({
     .refine(v => Number.isFinite(v), 'Amount must be a valid number'),
   currency: z
     .string()
-    .length(3, 'Currency must be a 3-letter ISO code, e.g. USD, INR')
+    .length(3, 'Currency must be a 3-letter ISO code, e.g. USD')
     .optional()
     .default('USD'),
   description: z.string().max(300).optional().nullable(),

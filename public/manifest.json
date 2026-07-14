@@ -2,12 +2,31 @@
   "id": "/?pwa=kyntha",
   "name": "Kyntha - Your Health Companion",
   "short_name": "Kyntha",
-  "description": "AI-powered health assistant for medicines, appointments, and family care",
+  "description": "AI-powered health assistant for medicines, appointments, and family care in the US",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
   "orientation": "portrait-primary",
+  "categories": ["health", "medical", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Add Medication",
+      "url": "/patient",
+      "description": "Quickly add or manage medications"
+    },
+    {
+      "name": "SOS Emergency",
+      "url": "/patient",
+      "description": "Send emergency alert to your contacts"
+    },
+    {
+      "name": "AI Health Chat",
+      "url": "/patient",
+      "description": "Ask the AI health assistant"
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",

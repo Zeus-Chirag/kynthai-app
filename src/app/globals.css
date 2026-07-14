@@ -267,4 +267,21 @@
       -webkit-tap-highlight-color: transparent;
     }
   }
+
+  /* iOS Safari: prevent font-size auto-adjust in landscape (body + focus).
+     Without this, input focus can zoom the page unexpectedly. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* PWA standalone mode — hide install prompts, adjust padding */
+  @media (display-mode: standalone) {
+    .pwa-only { display: block !important; }
+    .no-pwa { display: none !important; }
+  }
+
+  @media all and (display-mode: browser) {
+    .pwa-only { display: none !important; }
+  }
 }

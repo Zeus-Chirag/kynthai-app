@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
       { userId: lab.userId },
       {
         title: 'New lab test booking',
-        body: `${patient.name} booked ${tests.length > 1 ? `${tests.length} tests` : tests[0]?.name} for ${new Date(body.scheduledAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}.`,
+        body: `${patient.name} booked ${tests.length > 1 ? `${tests.length} tests` : tests[0]?.name} for ${new Date(body.scheduledAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}.`,
         type: 'lab_booking',
         data: { bookingId: booking.id, labId: lab.id, patientId: patient.id },
       },

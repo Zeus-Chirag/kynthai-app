@@ -106,7 +106,7 @@ export function AdherenceInsights({ patients, summary, onPatientClick }: Adheren
                     {p.lastConsultation && (
                       <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                         <CalendarDays className="h-3 w-3" />
-                        {new Date(p.lastConsultation).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                        {new Date(p.lastConsultation).toLocaleDateString("en-US", { day: "numeric", month: "short" })}
                       </span>
                     )}
                   </div>

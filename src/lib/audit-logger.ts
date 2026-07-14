@@ -103,8 +103,8 @@ function sanitizeMetadata(raw?: Record<string, unknown>): string | undefined {
   } catch { return undefined }
 }
 
-function buildAuditDescription(userId: string, action: string, ctx: AuditContext): string {
-  const parts: string[] = [`user=${userId}`, `action=${action}`, `method=${ctx.httpMethod ?? 'UNKNOWN'}`]
+function buildAuditDescription(userId: string | null, action: string, ctx: AuditContext): string {
+  const parts: string[] = [`user=${userId ?? 'anonymous'}`, `action=${action}`, `method=${ctx.httpMethod ?? 'UNKNOWN'}`]
   if (ctx.resourceType) parts.push(`resource_type=${ctx.resourceType}`)
   if (ctx.resourceId)   parts.push(`resource_id=${maskId(ctx.resourceId)}`)
   if (ctx.statusCode)   parts.push(`status=${ctx.statusCode}`)
@@ -122,7 +122,7 @@ function maskId(id: string): string {
  * Use for high-volume, non-critical events.
  */
 export async function recordAudit(
-  userId: string,
+  userId: string | null,
   action: string,
   ctx: AuditContext = {}
 ): Promise<{ ok: boolean }> {
@@ -165,7 +165,7 @@ export async function recordAudit(
  * (login, logout, password change) where you need confirmed write.
  */
 export async function recordAuditSync(
-  userId: string,
+  userId: string | null,
   action: string,
   ctx: AuditContext = {}
 ): Promise<{ ok: boolean; logId?: string }> {

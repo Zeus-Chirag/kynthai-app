@@ -1,41 +1,41 @@
+# Kyntha US — Caddy reverse proxy config
+# Update the email and domain before launch
+
+{$CADDY_GLOBAL_OPTIONS}
+
 {
-	# Security headers for all sites
-	headers {
-		# HSTS - force HTTPS for 1 year with preload
-		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-		# Prevent MIME type sniffing
-		X-Content-Type-Options "nosniff"
-		# Prevent clickjacking
-		X-Frame-Options "DENY"
-		# XSS Protection
-		X-XSS-Protection "1; mode=block"
-		# Referrer policy
-		Referrer-Policy "strict-origin-when-cross-origin"
-		# Permissions policy
-		Permissions-Policy "geolocation=(), microphone=(), camera=()"
-		# Remove server signature
-		-Server
-	}
+	{$CADDY_EXTRA_CONFIG}
 }
 
-# Production domain - HTTPS enabled
-# Replace kyntha.app and www.kyntha.app with your actual domains
-kyntha.app, www.kyntha.app {
-	reverse_proxy app:3000 {
-		# Preserve client IP for accurate rate limiting and audit logs
-		header_up X-Real-IP {remote_host}
-		header_up X-Forwarded-For {remote_host}
-		header_up X-Forwarded-Proto {scheme}
-		header_up X-Forwarded-Host {host}
-	}
-}
-
-# Development / localhost - no TLS
+# Redirect HTTP to HTTPS
 :80 {
-	reverse_proxy localhost:3000 {
-		header_up X-Real-IP {remote_host}
-		header_up X-Forwarded-For {remote_host}
-		header_up X-Forwarded-Proto {scheme}
-		header_up X-Forwarded-Host {host}
+	redir https://{host}{uri} permanent
+}
+
+# HTTPS endpoint
+:443, 443/udp {
+	tls {$CADDY_TLS_EMAIL} {
+		protocols tls1.2 tls1.3
+	}
+
+	reverse_proxy app:3000 {
+		@ws {
+			header Connection *Upgrade*
+			header Upgrade websocket
+		}
+		reverse_proxy @ws app:3000
+
+		health_uri /api/health
+		health_interval 30s
+		health_timeout 5s
+	}
+
+	# Security headers (also set in next.config.js — defense in depth)
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
 	}
 }

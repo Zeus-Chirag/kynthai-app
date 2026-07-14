@@ -5,8 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url      = env("DATABASE_URL") // e.g. postgresql://kyntha:password@db:5432/kyntha_us?sslmode=require
 }
 
 // ── Enums ───────────────────────────────────────────────────────────────
@@ -74,7 +73,7 @@ model User {
   consentAccepted       Boolean          @default(false)
   dataProcessingConsent Boolean          @default(false)
   aiTrainingConsent     Boolean          @default(false) // explicit opt-in for AI model training
-  notificationPrefs      String?          @db.Text // JSON object of per-channel notification toggles: { reminders, labResults, emergency, insights, family }
+  notificationPrefs      String?         
   emailOptOut           Boolean          @default(false) // CAN-SPAM: user unsubscribed from marketing emails
   isDemo                Boolean          @default(false) // demo/seed account flag
   failedLoginAttempts   Int              @default(0)
@@ -504,8 +503,8 @@ model Payment {
 
 model AuditLog {
   id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   action       String   // e.g. "auth.login", "medication.create", "record.access"
   category     String   @default("access") // "access" | "auth" | "modification" | "deletion" | "system"
   resourceType String?  // e.g. "Medication", "LabResult", "Prescription", "ConsultationNote"

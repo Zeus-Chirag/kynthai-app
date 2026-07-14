@@ -163,8 +163,9 @@ export async function POST(req: NextRequest) {
             },
           ],
         });
-      } catch {
-        /* ignore */
+      } catch (err) {
+        // SECURITY: log failure without PHI — chat history loss is recoverable
+        logger.phiSafeError(err, 'chat.persist.medicine-db');
       }
       return NextResponse.json({ response: dbReply, source: 'medicine-db' });
     }
@@ -199,8 +200,8 @@ export async function POST(req: NextRequest) {
               { userId: u.id, role: 'assistant', content: cached, expiresAt: messageExpiry() },
             ],
           });
-        } catch {
-          /* ignore */
+        } catch (err) {
+          logger.phiSafeError(err, 'chat.persist.cache');
         }
         return NextResponse.json({ response: cached, source: 'cache' });
       }
@@ -217,8 +218,8 @@ export async function POST(req: NextRequest) {
             { userId: u.id, role: 'assistant', content: msg, expiresAt: messageExpiry() },
           ],
         });
-      } catch {
-        /* ignore */
+      } catch (err) {
+        logger.phiSafeError(err, 'chat.persist.config-needed');
       }
       return NextResponse.json({ response: msg, source: 'config-needed' });
     }
@@ -475,8 +476,8 @@ export async function POST(req: NextRequest) {
           },
         ],
       });
-    } catch {
-      // ignore persistence errors
+    } catch (err) {
+      logger.phiSafeError(err, 'chat.persist.llm');
     }
 
     return NextResponse.json({ response: reply, source: 'llm' });

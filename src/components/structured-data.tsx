@@ -10,11 +10,11 @@
 // ─── Schema definitions (pure data — no hooks, no subscriptions) ──────────────
 
 const KYNETHA_ADDRESS = {
-  streetAddress: 'TBD — update upon registration',
-  addressLocality: 'TBD',
-  addressRegion: 'TBD',
-  postalCode: 'TBD',
-  addressCountry: 'IN',
+  streetAddress: '1209 Orange St, Wilmington, DE 19801',
+  addressLocality: 'Wilmington',
+  addressRegion: 'DE',
+  postalCode: '19801',
+  addressCountry: 'US',
 } as const;
 
 const SOCIAL_PROFILES = [
@@ -28,56 +28,70 @@ const SOCIAL_PROFILES = [
 const WEBAPP_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  '@id': 'https://kyntha.in/#webapp',
+  '@id': 'https://kyntha.app/#webapp',
   name: 'Kyntha',
   alternateName: 'Kyntha Health',
   description:
-    "India's AI Health Companion with medicine reminders, doctor consults, lab tests, and family health management.",
-  url: 'https://kyntha.in',
+    'AI-powered health management platform for US patients, families, doctors, and labs. Medicine reminders, doctor consultations, lab bookings, and family health coordination.',
+  url: 'https://kyntha.app',
   applicationCategory: 'HealthApplication',
   operatingSystem: 'iOS, Android, Web',
   softwareVersion: '2.0.0',
   offers: [
-    { '@type': 'Offer', name: 'Free Plan', price: '0', priceCurrency: 'INR' },
-    { '@type': 'Offer', name: 'Plus Plan', price: '199', priceCurrency: 'INR' },
-    { '@type': 'Offer', name: 'Family Pro', price: '499', priceCurrency: 'INR' },
+    { '@type': 'Offer', name: 'Free Plan', price: '0', priceCurrency: 'USD' },
+    {
+      '@type': 'Offer',
+      name: 'Individual Plan',
+      price: '9.99',
+      priceCurrency: 'USD',
+      billingIncrement: 'P1M',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Family Pro Plan',
+      price: '19.99',
+      priceCurrency: 'USD',
+      billingIncrement: 'P1M',
+    },
   ],
   availableOnDemand: true,
-  inLanguage: ['en', 'hi'],
+  inLanguage: ['en-US'],
   author: {
     '@type': 'Organization',
-    '@id': 'https://kyntha.in/#organization',
-    name: 'Kyntha Health Technologies Pvt Ltd',
+    '@id': 'https://kyntha.app/#organization',
+    name: 'Kyntha Health Technologies LLC',
   },
-  publisher: { '@id': 'https://kyntha.in/#organization' },
+  publisher: { '@id': 'https://kyntha.app/#organization' },
 } as const;
 
 const MEDICAL_ORG_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  '@id': 'https://kyntha.in/#medicalorganization',
-  name: 'Kyntha Health Technologies Pvt Ltd',
-  description: "India's AI Health Companion for families.",
-  url: 'https://kyntha.in',
+  '@id': 'https://kyntha.app/#medicalorganization',
+  name: 'Kyntha Health Technologies LLC',
+  description:
+    'AI-powered health management platform for patients, families, doctors, and labs in the United States.',
+  url: 'https://kyntha.app',
   ...KYNETHA_ADDRESS,
-  email: 'privacy@kyntha.in',
-  foundingDate: '2026', // ⚠️ CHANGE after actual registration
+  email: 'privacy@kyntha.app',
+  foundingDate: '2025',
   sameAs: [...SOCIAL_PROFILES],
-  areaServed: { '@type': 'Country', name: 'India' },
+  areaServed: { '@type': 'Country', name: 'United States' },
 } as const;
 
 const ORG_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  '@id': 'https://kyntha.in/#organization',
-  name: 'Kyntha Health Technologies Pvt Ltd',
-  description: "India's AI Health Companion for families.",
-  url: 'https://kyntha.in',
+  '@id': 'https://kyntha.app/#organization',
+  name: 'Kyntha Health Technologies LLC',
+  description:
+    'AI-powered health management platform for patients, families, doctors, and labs in the United States.',
+  url: 'https://kyntha.app',
   ...KYNETHA_ADDRESS,
-  email: 'privacy@kyntha.in',
-  foundingDate: '2026', // ⚠️ CHANGE after actual registration
+  email: 'privacy@kyntha.app',
+  foundingDate: '2025',
   sameAs: [...SOCIAL_PROFILES],
-  areaServed: { '@type': 'Country', name: 'India' },
+  areaServed: { '@type': 'Country', name: 'United States' },
 } as const;
 
 function breadcrumbSchema(pathname: string) {
@@ -86,14 +100,14 @@ function breadcrumbSchema(pathname: string) {
     '@type': 'ListItem' as const,
     position: i + 1,
     name: part.charAt(0).toUpperCase() + part.slice(1),
-    item: `https://kyntha.in/${parts.slice(0, i + 1).join('/')}`,
+    item: `https://kyntha.app/${parts.slice(0, i + 1).join('/')}`,
   }));
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList' as const,
-    '@id': `https://kyntha.in${pathname}#breadcrumb`,
+    '@id': `https://kyntha.app${pathname}#breadcrumb`,
     itemListElement: [
-      { '@type': 'ListItem' as const, position: 1, name: 'Home', item: 'https://kyntha.in' },
+      { '@type': 'ListItem' as const, position: 1, name: 'Home', item: 'https://kyntha.app' },
       ...items,
     ],
   };
@@ -102,11 +116,12 @@ function breadcrumbSchema(pathname: string) {
 const WEBPAGE_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  '@id': 'https://kyntha.in/#webpage',
-  name: "Kyntha — India's AI Health Companion",
-  description: 'AI-powered health management for families in India.',
-  url: 'https://kyntha.in',
-  inLanguage: 'en-IN',
+  '@id': 'https://kyntha.app/#webpage',
+  name: 'Kyntha — AI Health Management for US Families',
+  description:
+    'AI-powered health management for patients and families in the United States. Medicine reminders, doctor consultations, lab bookings.',
+  url: 'https://kyntha.app',
+  inLanguage: 'en-US',
   isAccessibleForFree: true,
   accessibilitySummary: 'WCAG 2.1 AA compliant. Keyboard navigable and screen-reader friendly.',
 } as const;
@@ -114,7 +129,7 @@ const WEBPAGE_SCHEMA = {
 const FAQ_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  '@id': 'https://kyntha.in/#faqpage',
+  '@id': 'https://kyntha.app/#faqpage',
   mainEntity: [
     {
       '@type': 'Question' as const,
@@ -129,15 +144,23 @@ const FAQ_SCHEMA = {
       name: 'What payment methods are supported?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'All major UPI apps, credit/debit cards (Visa, Mastercard, RuPay), and net banking via Razorpay.',
+        text: 'We accept all major credit/debit cards (Visa, Mastercard, Amex), Apple Pay, Google Pay, and ACH bank transfer via Stripe.',
       },
     },
     {
       '@type': 'Question' as const,
-      name: 'Is Kyntha DPDP compliant?',
+      name: 'Is Kyntha HIPAA aligned?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'Kyntha is designed with DPDP-compliant safeguards. Your data is encrypted at rest and in transit under India data protection laws. We never sell your personal data. You can export or delete it anytime.',
+        text: 'Kyntha is designed with HIPAA-aligned safeguards including AES-256 encryption at rest and in transit. No PHI data is sold to third parties. You can export or delete your data anytime. We provide a BAA upon request.',
+      },
+    },
+    {
+      '@type': 'Question' as const,
+      name: 'Where is my data stored?',
+      acceptedAnswer: {
+        '@type': 'Answer' as const,
+        text: 'Kyntha is US-hosted on AWS infrastructure. Your health data never leaves American soil for processing.',
       },
     },
   ],

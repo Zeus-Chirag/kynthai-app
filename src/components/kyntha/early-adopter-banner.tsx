@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { Gift, Clock, Users, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import * as React from 'react';
+import { Gift, Clock, Users, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface EarlyAdopterBannerProps {
-  onGetStarted: (portal?: string) => void
+  onGetStarted: (portal?: string) => void;
 }
 
 export function EarlyAdopterBanner({ onGetStarted }: EarlyAdopterBannerProps) {
@@ -19,9 +19,7 @@ export function EarlyAdopterBanner({ onGetStarted }: EarlyAdopterBannerProps) {
               <Gift className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-bold">
-                🎉 Early pricing — $9.99/mo Individual, $19.99/mo Family
-              </p>
+              <p className="font-bold">🎉 Early pricing — $9.99/mo Individual, $19.99/mo Family</p>
               <p className="text-sm text-emerald-100">
                 Transparent pricing with no surprise charges at checkout.
               </p>
@@ -30,7 +28,7 @@ export function EarlyAdopterBanner({ onGetStarted }: EarlyAdopterBannerProps) {
 
           {/* Right: CTA */}
           <Button
-            onClick={() => onGetStarted('caretaker')}
+            onClick={() => onGetStarted()}
             className="bg-white text-emerald-700 hover:bg-emerald-50"
             size="sm"
           >
@@ -40,5 +38,5 @@ export function EarlyAdopterBanner({ onGetStarted }: EarlyAdopterBannerProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

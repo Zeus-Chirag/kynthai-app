@@ -1,0 +1,15 @@
+{
+  "id": "session-1784018888139",
+  "startedAt": "2026-07-14T08:48:08.139Z",
+  "cwd": "/Users/c.k/Downloads/kyntha-restored-7000-us",
+  "context": {},
+  "metrics": {
+    "edits": 97,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "restoredAt": "2026-07-14T14:40:04.235Z",
+  "endedAt": "2026-07-14T14:40:14.749Z",
+  "duration": 21126611
+}

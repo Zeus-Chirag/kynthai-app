@@ -15,24 +15,25 @@
  * 9. PHI-safe query-param sanitisation in audit records
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { rateLimitWithInfo } from './lib/rate-limit'
-import { validateEnv } from './lib/env'
-import { getSessionUser } from '@/lib/auth'
-import { recordAudit, AuditCategory } from '@/lib/audit-logger'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { rateLimitWithInfo } from './lib/rate-limit';
+import { validateEnv } from './lib/env';
+import { getSessionUser } from '@/lib/auth';
+import { recordAudit, AuditCategory } from '@/lib/audit-logger';
+import { logger } from '@/lib/logger';
+import { checkCsrf } from '@/lib/csrf';
 
 // HMR-safe env validation (fail-loud in production, skip during build)
-let envValidated = false
+let envValidated = false;
 function ensureEnvValidated(): void {
-  if (envValidated) return
+  if (envValidated) return;
   // Skip validation during Next.js production build to allow builds without secrets
   if (process.env.NEXT_PHASE === 'phase-production-build') {
-    envValidated = true
-    return
+    envValidated = true;
+    return;
   }
-  validateEnv()
-  envValidated = true
+  validateEnv();
+  envValidated = true;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -42,185 +43,241 @@ function getClientIp(req: NextRequest): string {
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     req.headers.get('x-real-ip') ??
     'unknown'
-  )
+  );
 }
 
 function getUserAgent(req: NextRequest): string | undefined {
-  const ua = req.headers.get('user-agent')
-  return ua ? ua.slice(0, 512) : undefined
+  const ua = req.headers.get('user-agent');
+  return ua ? ua.slice(0, 512) : undefined;
 }
 
 function maskIp(ip: string): string {
-  const parts = ip.split('.')
-  if (parts.length === 4) return parts[0] + "." + parts[1] + ".***.***"
-  return ip.length > 4 ? ip.slice(0, 4) + '***' : ip
+  const parts = ip.split('.');
+  if (parts.length === 4) return parts[0] + '.' + parts[1] + '.***.***';
+  return ip.length > 4 ? ip.slice(0, 4) + '***' : ip;
 }
 
 function getRequestId(): string {
   // crypto.randomUUID is available in Edge runtimes
   try {
     // @ts-ignore
-    return crypto.randomUUID()
+    return crypto.randomUUID();
   } catch {
     // Fallback: CSPRNG via crypto.getRandomValues (preferred over Math.random)
-    const bytes = new Uint8Array(16)
-    crypto.getRandomValues(bytes)
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
     return Array.from(bytes)
       .map(b => b.toString(16).padStart(2, '0'))
-      .join('')
+      .join('');
   }
 }
 
 // ── PHI Sanitisation ──────────────────────────────────────────────────────────
 
 const PHI_QUERY_KEYS = new Set([
-  'patientId', 'userId', 'doctorId', 'memberId', 'familyId',
-  'email', 'phone', 'name', 'search', 'q', 'query',
-  'diagnosis', 'symptoms', 'medication', 'condition',
-  'dob', 'dateOfBirth', 'birthDate',
-])
+  'patientId',
+  'userId',
+  'doctorId',
+  'memberId',
+  'familyId',
+  'email',
+  'phone',
+  'name',
+  'search',
+  'q',
+  'query',
+  'diagnosis',
+  'symptoms',
+  'medication',
+  'condition',
+  'dob',
+  'dateOfBirth',
+  'birthDate',
+]);
 
 function sanitizeAuditQuery(params: URLSearchParams): Record<string, string> {
-  const out: Record<string, string> = {}
+  const out: Record<string, string> = {};
   for (const [key, value] of params.entries()) {
     if (PHI_QUERY_KEYS.has(key.toLowerCase())) {
-      out[key] = '[REDACTED]'
+      out[key] = '[REDACTED]';
     } else if (value.length > 100) {
-      out[key] = value.slice(0, 100) + '...[truncated]'
+      out[key] = value.slice(0, 100) + '...[truncated]';
     } else {
-      out[key] = value
+      out[key] = value;
     }
   }
-  return out
+  return out;
+}
+
+/**
+ * Mask resource IDs in URL paths before logging to audit records.
+ * Paths like /api/medications/abc-123-patient-id leak resource correlations;
+ * this replaces them with generic [id] placeholders while preserving
+ * the route structure for debugging.
+ */
+function maskPathIds(pathname: string): string {
+  return pathname.replace(/\/[a-f0-9]{8,}-[a-f0-9-]+/g, '/[id]');
 }
 
 // ── Public API Paths (logging bypass + rate-limit exemption) ─────────────────
 // Merged from legacy middleware.ts and updated proxy.ts
 const PUBLIC_API_PATHS = new Set([
-  '/api/auth/register', '/api/auth/login', '/api/auth/csrf',
-  '/api/auth/forgot-password', '/api/auth/reset-password',
-  '/api/health', '/api/stripe/webhook', '/api/upload/',
-  '/api/search-medicine', '/api/identify-medicine',
-  '/api/ai/nudge', '/api/consult-messages',
-  '/api/prescription-scan', '/api/doctors', '/api/labs',
-])
+  '/api/auth/register',
+  '/api/auth/login',
+  '/api/auth/csrf',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+  '/api/health',
+  '/api/stripe/webhook',
+  '/api/upload/',
+  '/api/search-medicine',
+  '/api/identify-medicine',
+  '/api/ai/nudge',
+  '/api/consult-messages',
+  '/api/prescription-scan',
+  '/api/doctors',
+  '/api/labs',
+]);
 
 function isPublicApi(pathname: string): boolean {
   for (const p of PUBLIC_API_PATHS) {
     if (p.endsWith('/')) {
-      if (pathname.startsWith(p)) return true
+      if (pathname.startsWith(p)) return true;
     } else {
-      if (pathname === p) return true
+      if (pathname === p) return true;
     }
   }
-  return false
+  return false;
 }
 
 // ── Auth-required prefixes ────────────────────────────────────────────────────
 
 const AUTH_REQUIRED_PREFIXES = [
-  '/api/appointments', '/api/medications', '/api/consultation-prep',
-  '/api/emergency', '/api/emergency-sos', '/api/family',
-  '/api/lab-bookings', '/api/labs', '/api/payments',
-  '/api/prescriptions', '/api/notifications', '/api/chat',
-  '/api/insights', '/api/health-report', '/api/chronic',
-  '/api/user', '/api/doctors', '/api/reminders',
-  '/api/challenges', '/api/account', '/api/consent', '/api/me',
-]
+  '/api/appointments',
+  '/api/medications',
+  '/api/consultation-prep',
+  '/api/emergency',
+  '/api/emergency-sos',
+  '/api/family',
+  '/api/lab-bookings',
+  '/api/labs',
+  '/api/payments',
+  '/api/prescriptions',
+  '/api/notifications',
+  '/api/chat',
+  '/api/insights',
+  '/api/health-report',
+  '/api/chronic',
+  '/api/user',
+  '/api/doctors',
+  '/api/reminders',
+  '/api/challenges',
+  '/api/account',
+  '/api/consent',
+  '/api/me',
+];
 
 function requiresAuth(pathname: string): boolean {
-  return AUTH_REQUIRED_PREFIXES.some(prefix => pathname.startsWith(prefix))
+  return AUTH_REQUIRED_PREFIXES.some(prefix => pathname.startsWith(prefix));
 }
 
 // ── Portal role mapping ──────────────────────────────────────────────────────
 
 const PORTAL_ROLE_MAP: Record<string, string> = {
-  '/patient':   'patient',
-  '/doctor':    'doctor',
-  '/lab':       'lab',
+  '/patient': 'patient',
+  '/doctor': 'doctor',
+  '/lab': 'lab',
   '/caretaker': 'caretaker',
-  '/family':    'caretaker',   // 'family' URL → caretaker DB role
-  '/admin':     'admin',
-}
+  '/family': 'caretaker', // 'family' URL → caretaker DB role
+  '/admin': 'admin',
+};
 
 function isPortalPath(pathname: string): boolean {
-  return Object.keys(PORTAL_ROLE_MAP).some(p => pathname === p || pathname.startsWith(p + '/'))
+  return Object.keys(PORTAL_ROLE_MAP).some(p => pathname === p || pathname.startsWith(p + '/'));
 }
 
 function expectedRoleForPortal(pathname: string): string | null {
   for (const p of Object.keys(PORTAL_ROLE_MAP)) {
-    if (pathname === p || pathname.startsWith(p + '/')) return PORTAL_ROLE_MAP[p]
+    if (pathname === p || pathname.startsWith(p + '/')) return PORTAL_ROLE_MAP[p];
   }
-  return null
+  return null;
 }
 
 // ── Rate-limit helpers ────────────────────────────────────────────────────────
 
 function getApiLimit(pathname: string): number {
-  if (pathname === '/api/auth/me') return 60
-  if (pathname.startsWith('/api/auth/')) return 10
-  if (pathname.startsWith('/api/payments')) return 5
-  if (pathname.startsWith('/api/chat')) return 20
-  if (pathname.startsWith('/api/emergency')) return 100  // emergency is high-tolerance
-  return 100
+  if (pathname === '/api/auth/me') return 60;
+  if (pathname.startsWith('/api/auth/')) return 10;
+  if (pathname.startsWith('/api/payments')) return 5;
+  if (pathname.startsWith('/api/chat')) return 20;
+  if (pathname.startsWith('/api/emergency')) return 100; // emergency is high-tolerance
+  return 100;
 }
 
 function inferResourceType(pathname: string): string {
-  const parts = pathname.split('/').filter(Boolean)
+  const parts = pathname.split('/').filter(Boolean);
   if (parts.length >= 3) {
-    const resource = parts[2] as string
+    const resource = parts[2] as string;
     const map: Record<string, string> = {
-      medication: 'Medication', lab: 'LabResult', labs: 'LabResult',
-      prescription: 'Prescription', appointments: 'Appointment',
-      family: 'Family', user: 'User', health: 'HealthJournal',
-      health_report: 'HealthJournal', chronic: 'ChronicCondition',
-      emergency: 'EmergencyAlert', emergency_sos: 'EmergencyAlert',
-      chat: 'ChatMessage', doctors: 'DoctorProfile',
-      notifications: 'Notification', reminders: 'Reminder',
+      medication: 'Medication',
+      lab: 'LabResult',
+      labs: 'LabResult',
+      prescription: 'Prescription',
+      appointments: 'Appointment',
+      family: 'Family',
+      user: 'User',
+      health: 'HealthJournal',
+      health_report: 'HealthJournal',
+      chronic: 'ChronicCondition',
+      emergency: 'EmergencyAlert',
+      emergency_sos: 'EmergencyAlert',
+      chat: 'ChatMessage',
+      doctors: 'DoctorProfile',
+      notifications: 'Notification',
+      reminders: 'Reminder',
       payment: 'Payment',
-    }
-    return map[resource] ?? resource
+    };
+    return map[resource] ?? resource;
   }
-  return 'Unknown'
+  return 'Unknown';
 }
 
 function inferResourceId(pathname: string): string | undefined {
-  const parts = pathname.split('/').filter(Boolean)
-  return parts.length >= 4 ? parts[3] : undefined
+  const parts = pathname.split('/').filter(Boolean);
+  return parts.length >= 4 ? parts[3] : undefined;
 }
 
 // ── Security headers ──────────────────────────────────────────────────────────
 
 function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
-  res.headers.set('X-Content-Type-Options', 'nosniff')
-  res.headers.set('X-Frame-Options', 'DENY')
-  res.headers.set('X-XSS-Protection', '1; mode=block')
-  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  res.headers.set('X-Request-Id', requestId)
-  res.headers.set(
-    'Permissions-Policy',
-    'camera=(self), microphone=(self), geolocation=(self)',
-  )
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('X-Frame-Options', 'DENY');
+  res.headers.set('X-XSS-Protection', '1; mode=block');
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set('X-Request-Id', requestId);
+  res.headers.set('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=(self)');
   // Cross-Origin isolation for Spectre mitigations and advanced features
-  res.headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
-  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin')
+  res.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
 
   // Static assets cache
   if (
-    pathname.startsWith('/icon') || pathname.startsWith('/apple')
-    || pathname.startsWith('/logo') || pathname.endsWith('.woff2')
+    pathname.startsWith('/icon') ||
+    pathname.startsWith('/apple') ||
+    pathname.startsWith('/logo') ||
+    pathname.endsWith('.woff2')
   ) {
-    res.headers.set('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400')
+    res.headers.set('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
   }
 
   // API responses: never cache (may contain PHI)
   if (pathname.startsWith('/api/')) {
-    res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
-    res.headers.set('Pragma', 'no-cache')
-    res.headers.set('Expires', '0')
+    res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.headers.set('Pragma', 'no-cache');
+    res.headers.set('Expires', '0');
   }
 
-  const isProd = process.env.NODE_ENV === 'production'
+  const isProd = process.env.NODE_ENV === 'production';
   const csp = isProd
     ? [
         "default-src 'self'",
@@ -234,7 +291,7 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
         "base-uri 'self'",
         "form-action 'self'",
         "object-src 'none'",
-        "upgrade-insecure-requests",
+        'upgrade-insecure-requests',
       ].join('; ')
     : [
         "default-src 'self'",
@@ -248,247 +305,260 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
         "base-uri 'self'",
         "form-action 'self'",
         "object-src 'none'",
-      ].join('; ')
+      ].join('; ');
 
-  res.headers.set('Content-Security-Policy', csp)
-  res.headers.set('X-Frame-Options', 'DENY')
+  res.headers.set('Content-Security-Policy', csp);
+  res.headers.set('X-Frame-Options', 'DENY');
 
   if (isProd) {
-    res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+    res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
 }
 
 // ── CORS preflight ──────────────────────────────────────────────────────────
 
-function handleCorsPreflight(
-  req: NextRequest,
-): NextResponse | null {
-  if (req.method !== 'OPTIONS') return null
-  const origin = req.headers.get('origin')
-  const rawCorsOrigin = process.env.CORS_ORIGIN ?? ''
-  const allowList = rawCorsOrigin.split(',').map(o => o.trim()).filter(Boolean)
-  let corsOrigin: string | null = null
+function handleCorsPreflight(req: NextRequest): NextResponse | null {
+  if (req.method !== 'OPTIONS') return null;
+  const origin = req.headers.get('origin');
+  const rawCorsOrigin = process.env.CORS_ORIGIN ?? '';
+  const allowList = rawCorsOrigin
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+  let corsOrigin: string | null = null;
 
   if (!allowList.length) {
-    corsOrigin = process.env.NODE_ENV !== 'production' ? (origin ?? '*') : null
+    corsOrigin = process.env.NODE_ENV !== 'production' ? (origin ?? '*') : null;
   } else if (origin && allowList.includes(origin)) {
     // SECURITY: enforce HTTPS origins in production
     if (process.env.NODE_ENV === 'production' && !origin.startsWith('https://')) {
-      return new NextResponse(null, { status: 204 })
+      return new NextResponse(null, { status: 204 });
     }
-    corsOrigin = origin
+    corsOrigin = origin;
   }
 
-  if (!corsOrigin) return new NextResponse(null, { status: 204 })
+  if (!corsOrigin) return new NextResponse(null, { status: 204 });
 
-  const res = new NextResponse(null, { status: 204 })
-  res.headers.set('Access-Control-Allow-Origin', corsOrigin)
-  res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-  res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token')
-  res.headers.set('Access-Control-Expose-Headers', 'X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-Request-Id')
-  res.headers.set('Access-Control-Max-Age', '86400')
-  res.headers.set('Vary', 'Origin')
-  return res
+  const res = new NextResponse(null, { status: 204 });
+  res.headers.set('Access-Control-Allow-Origin', corsOrigin);
+  res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');
+  res.headers.set(
+    'Access-Control-Expose-Headers',
+    'X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-Request-Id'
+  );
+  res.headers.set('Access-Control-Max-Age', '86400');
+  res.headers.set('Vary', 'Origin');
+  return res;
 }
 
 // ── Main proxy ───────────────────────────────────────────────────────────────
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
-}
+};
 
 export default async function middleware(req: NextRequest): Promise<NextResponse> {
-  ensureEnvValidated()
+  ensureEnvValidated();
 
-  const { pathname } = req.nextUrl
-  const method = req.method
-  const isApi  = pathname.startsWith('/api/')
-  const rawIp  = getClientIp(req)          // unmasked — used for rate-limiting keys
-  const ip     = maskIp(rawIp)             // masked — used for audit logs only
-  const ua     = getUserAgent(req)
-  const requestId = getRequestId()
+  const { pathname } = req.nextUrl;
+  const method = req.method;
+  const isApi = pathname.startsWith('/api/');
+  const rawIp = getClientIp(req); // unmasked — used for rate-limiting keys
+  const ip = maskIp(rawIp); // masked — used for audit logs only
+  const ua = getUserAgent(req);
+  const requestId = getRequestId();
 
   // Block dangerous methods that should never be proxied to app handlers
-  const safeMethods = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+  const safeMethods = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
   if (!safeMethods.includes(method)) {
-    return new NextResponse(null, { status: 405 })
+    return new NextResponse(null, { status: 405 });
   }
 
   // All responses get trace + security headers
-  const res = NextResponse.next()
-  res.headers.set('X-Request-Id', requestId)
+  const res = NextResponse.next();
+  res.headers.set('X-Request-Id', requestId);
 
   // ── Static assets ──────────────────────────────────────────────────────
   if (pathname.startsWith('/_next/static/')) {
-    res.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
-    return res
+    res.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    return res;
   }
   if (
-    pathname.startsWith('/_next/')
-    || pathname.startsWith('/icon') || pathname.startsWith('/logo')
-    || pathname.startsWith('/manifest') || pathname.startsWith('/sw.js')
-    || pathname === '/favicon.ico' || pathname.startsWith('/apple')
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/icon') ||
+    pathname.startsWith('/logo') ||
+    pathname.startsWith('/manifest') ||
+    pathname.startsWith('/sw.js') ||
+    pathname === '/favicon.ico' ||
+    pathname.startsWith('/apple')
   ) {
-    applyHeaders(res, pathname, requestId)
-    return res
+    applyHeaders(res, pathname, requestId);
+    return res;
   }
 
   // ── CORS preflight ─────────────────────────────────────────────────────
-  const corsResponse = handleCorsPreflight(req)
+  const corsResponse = handleCorsPreflight(req);
   if (corsResponse !== null) {
-    corsResponse.headers.set('Vary', 'Origin')
-    applyHeaders(corsResponse, pathname, requestId)
-    return corsResponse
+    corsResponse.headers.set('Vary', 'Origin');
+    applyHeaders(corsResponse, pathname, requestId);
+    return corsResponse;
   }
 
   // ── Audit endpoint: session cookie required ─────────────────────────────
   if (pathname === '/api/audit' || pathname.startsWith('/api/audit/')) {
-    const sessionCookie = req.cookies.get('kyntha_session')?.value
+    const sessionCookie = req.cookies.get('kyntha_session')?.value;
     if (!sessionCookie) {
-      recordAudit('anonymous', 'security.audit_endpoint_unauthorized', {
+      recordAudit(null, 'security.audit_endpoint_unauthorized', {
         category: AuditCategory.SECURITY,
-        outcome:  'failure',
+        outcome: 'failure',
         httpMethod: method,
         httpPath: pathname,
         metadata: { ip, requestId, ts: new Date().toISOString() },
-      })
-      return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 })
+      });
+      return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });
     }
   }
 
   // ── Edge audit log API requests (PHI-safe) ─────────────────────────────
   if (isApi && !isPublicApi(pathname)) {
-    const origin = req.headers.get('origin') ?? 'direct'
-    recordAudit('anonymous', 'request.edge', {
+    const origin = req.headers.get('origin') ?? 'direct';
+    recordAudit(null, 'request.edge', {
       category: AuditCategory.ACCESS,
-      outcome:  'success',
+      outcome: 'success',
       httpMethod: method,
-      httpPath:   pathname,
+      httpPath: maskPathIds(pathname),
       statusCode: undefined,
-      userAgent:  ua ?? undefined,
+      userAgent: ua ?? undefined,
       ip,
       metadata: {
         query: sanitizeAuditQuery(req.nextUrl.searchParams),
       },
-    })
+    });
   }
 
   // ── Portal role guard ─────────────────────────────────────────────────
   if (isPortalPath(pathname) && !isApi) {
-    const portalRole   = expectedRoleForPortal(pathname)!
-    let sessionUser: Awaited<ReturnType<typeof getSessionUser>> | null = null
+    const portalRole = expectedRoleForPortal(pathname)!;
+    let sessionUser: Awaited<ReturnType<typeof getSessionUser>> | null = null;
     try {
-      sessionUser = await getSessionUser()
+      sessionUser = await getSessionUser();
     } catch (error) {
-      logger.phiSafeError(error, 'proxy.portal_session_lookup')
-      return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 })
+      logger.phiSafeError(error, 'proxy.portal_session_lookup');
+      return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 });
     }
     if (!sessionUser) {
-      const redirect = NextResponse.redirect(new URL('/login', req.url))
-      applyHeaders(redirect, pathname, requestId)
-      return redirect
+      const redirect = NextResponse.redirect(new URL('/login', req.url));
+      applyHeaders(redirect, pathname, requestId);
+      return redirect;
     }
     if (sessionUser.role !== portalRole) {
       try {
         await recordAudit(sessionUser.id, 'security.portal_unauthorized', {
-          category:    AuditCategory.SECURITY,
-          outcome:     'failure',
-          httpMethod:  method,
-          httpPath:    pathname,
+          category: AuditCategory.SECURITY,
+          outcome: 'failure',
+          httpMethod: method,
+          httpPath: pathname,
           metadata: { requiredRole: portalRole, actualRole: sessionUser.role },
-        })
+        });
       } catch {
         // non-blocking
       }
       const resForbidden = NextResponse.json(
         { error: 'Access denied — this portal requires the ' + portalRole + ' role.' },
-        { status: 403 },
-      )
-      applyHeaders(resForbidden, pathname, requestId)
-      return resForbidden
+        { status: 403 }
+      );
+      applyHeaders(resForbidden, pathname, requestId);
+      return resForbidden;
     }
   }
 
   // ── Rate limit ──────────────────────────────────────────────────────────
   if (isApi) {
-    const limit        = getApiLimit(pathname)
-    let sessionUserId: string | undefined
+    const limit = getApiLimit(pathname);
+    let sessionUserId: string | undefined;
     try {
-      const su = await getSessionUser()
-      sessionUserId = su?.id
+      const su = await getSessionUser();
+      sessionUserId = su?.id;
     } catch {
       // fail-open for availability; per-IP limit still applies
     }
-    const rateLimitKey   = sessionUserId ?? rawIp   // unmasked IP for precise per-IP limiting
+    const rateLimitKey = sessionUserId ?? rawIp; // unmasked IP for precise per-IP limiting
     const rateLimitResult = await rateLimitWithInfo(
-      "proxy:" + rateLimitKey + ":" + pathname,
+      'proxy:' + rateLimitKey + ':' + pathname,
       limit,
-      60_000,  // window: 60 seconds
-    )
+      60_000 // window: 60 seconds
+    );
 
     if (rateLimitResult.allowed) {
-      res.headers.set('X-RateLimit-Limit',     String(limit))
-      res.headers.set('X-RateLimit-Remaining', String(rateLimitResult.remaining))
-      res.headers.set('X-RateLimit-Reset',     String(rateLimitResult.reset))
+      res.headers.set('X-RateLimit-Limit', String(limit));
+      res.headers.set('X-RateLimit-Remaining', String(rateLimitResult.remaining));
+      res.headers.set('X-RateLimit-Reset', String(rateLimitResult.reset));
     } else {
-      await recordAudit('anonymous', 'security.rate_limit', {
-        category:    AuditCategory.SECURITY,
-        outcome:     'failure',
-        httpMethod:  method,
-        httpPath:    pathname,
+      await recordAudit(null, 'security.rate_limit', {
+        category: AuditCategory.SECURITY,
+        outcome: 'failure',
+        httpMethod: method,
+        httpPath: pathname,
         metadata: { ip, limit, requestId },
-      })
-      rateLimitResult.response!.headers.set('X-RateLimit-Limit',     String(limit))
-      rateLimitResult.response!.headers.set('X-RateLimit-Remaining', '0')
-      rateLimitResult.response!.headers.set('X-RateLimit-Reset',     String(rateLimitResult.reset))
-      applyHeaders(rateLimitResult.response!, pathname, requestId)
-      return rateLimitResult.response!
+      });
+      rateLimitResult.response!.headers.set('X-RateLimit-Limit', String(limit));
+      rateLimitResult.response!.headers.set('X-RateLimit-Remaining', '0');
+      rateLimitResult.response!.headers.set('X-RateLimit-Reset', String(rateLimitResult.reset));
+      applyHeaders(rateLimitResult.response!, pathname, requestId);
+      return rateLimitResult.response!;
+    }
+  }
+
+  // ── CSRF enforcement ──────────────────────────────────────────────────
+  // Enforce double-submit CSRF token on all state-changing requests.
+  // Public auth endpoints are included — the client fetches /api/auth/csrf
+  // before submitting credentials.
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && isApi) {
+    const csrfError = await checkCsrf(req);
+    if (csrfError) {
+      applyHeaders(csrfError, pathname, requestId);
+      return csrfError;
     }
   }
 
   // ── Auth-required path guard ───────────────────────────────────────────
   if (requiresAuth(pathname)) {
-    let sessionUser: Awaited<ReturnType<typeof getSessionUser>> | null = null
+    let sessionUser: Awaited<ReturnType<typeof getSessionUser>> | null = null;
     try {
-      sessionUser = await getSessionUser()
+      sessionUser = await getSessionUser();
     } catch (error) {
-      logger.phiSafeError(error, 'proxy.auth_session_lookup')
-      applyHeaders(res, pathname, requestId)
-      return NextResponse.json(
-        { error: 'Service temporarily unavailable' },
-        { status: 503 },
-      )
+      logger.phiSafeError(error, 'proxy.auth_session_lookup');
+      applyHeaders(res, pathname, requestId);
+      return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 });
     }
 
     if (!sessionUser && !isPublicApi(pathname)) {
-      applyHeaders(res, pathname, requestId)
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 },
-      )
+      applyHeaders(res, pathname, requestId);
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
     if (sessionUser && !isPublicApi(pathname)) {
-      const resourceType = inferResourceType(pathname)
-      const resourceId   = inferResourceId(pathname)
+      const resourceType = inferResourceType(pathname);
+      const resourceId = inferResourceId(pathname);
       try {
         await recordAudit(sessionUser.id, 'resource.access', {
           category: AuditCategory.ACCESS,
-          outcome:  'success',
+          outcome: 'success',
           httpMethod: method,
-          httpPath:  pathname,
+          httpPath: maskPathIds(pathname),
           metadata: {
             resourceType: resourceType,
-            resourceId:   resourceId,
+            resourceId: resourceId ? '[id]' : null,
             authenticatedUserId: sessionUser.id,
           },
-        })
+        });
       } catch {
         // non-blocking audit failure
       }
     }
   }
 
-  applyHeaders(res, pathname, requestId)
-  return res
+  applyHeaders(res, pathname, requestId);
+  return res;
 }

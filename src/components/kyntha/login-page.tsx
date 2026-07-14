@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,27 +16,27 @@ import {
   Lock,
   Sparkles,
   UserCircle,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { useAppStore, type AuthUser, type LoginPortal } from '@/lib/store'
-import { logger } from '@/lib/logger'
-import { useToast } from '@/hooks/use-toast'
-import { cn } from '@/lib/utils'
-import { KynthaBrand } from './logo'
-import { FadeIn } from './animations'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { useAppStore, type AuthUser, type LoginPortal } from '@/lib/store';
+import { logger } from '@/lib/logger';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { KynthaBrand } from './logo';
+import { FadeIn } from './animations';
 
 interface PortalConfig {
-  id: LoginPortal
-  label: string
-  tagline: string
-  icon: React.ComponentType<{ className?: string }>
-  gradient: string
+  id: LoginPortal;
+  label: string;
+  tagline: string;
+  icon: React.ComponentType<{ className?: string }>;
+  gradient: string;
 }
 
 const PORTALS: PortalConfig[] = [
@@ -68,80 +68,93 @@ const PORTALS: PortalConfig[] = [
     icon: Microscope,
     gradient: 'from-teal-500 to-teal-700',
   },
-]
+];
 
 function getCsrfToken(): string | null {
-  if (typeof document === 'undefined') return null
-  const match = document.cookie.match(/(?:^|; )kyntha-csrf=([^;]*)/)
-  return match ? decodeURIComponent(match[1]!) : null
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|; )kyntha-csrf=([^;]*)/);
+  return match ? decodeURIComponent(match[1]!) : null;
 }
 
 async function apiCall(path: string, body: Record<string, unknown>) {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  const url = `/api${path.startsWith('/auth') ? path : path}`
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const url = `/api${path.startsWith('/auth') ? path : path}`;
 
-  let token = getCsrfToken()
+  let token = getCsrfToken();
   if (!token) {
-    await fetch(`/api/auth/csrf`, { method: 'GET', credentials: 'include' })
-    token = getCsrfToken()
+    await fetch(`/api/auth/csrf`, { method: 'GET', credentials: 'include' });
+    token = getCsrfToken();
   }
-  if (token) headers['X-CSRF-Token'] = token
+  if (token) headers['X-CSRF-Token'] = token;
 
   const res = await fetch(url, {
     method: 'POST',
     headers,
     credentials: 'include',
     body: JSON.stringify(body),
-  })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Request failed')
-  return data
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
 }
 
-export function LoginPage() {
-  const { loginPortal, setLoginPortal, login, setScreen, user } = useAppStore()
-  const router = useRouter()
-  const { toast } = useToast()
+export function LoginPage({
+  initialMode = 'signin',
+}: { initialMode?: 'signin' | 'register' } = {}) {
+  const { loginPortal, setLoginPortal, login, setScreen, user } = useAppStore();
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const [mode, setMode] = React.useState<'signin' | 'register'>('signin')
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [name, setName] = React.useState('')
-  const [phone, setPhone] = React.useState('')
-  const [dateOfBirth, setDateOfBirth] = React.useState('')
-  const [termsConsent, setTermsConsent] = React.useState(false)
-  const [dataConsent, setDataConsent] = React.useState(false)
-  const [aiTrainingConsent, setAiTrainingConsent] = React.useState(false)
-  const [loading, setLoading] = React.useState(false)
-  const [invitesLoading, setInvitesLoading] = React.useState(false)
-  const [emergencyContact1, setEmergencyContact1] = React.useState('')
-  const [emergencyContact2, setEmergencyContact2] = React.useState('')
-  const [showPassword, setShowPassword] = React.useState(false)
-  const [pendingInvites, setPendingInvites] = React.useState<{ id: string; invitedBy: string; relation: string }[]>([])
+  const [mode, setMode] = React.useState<'signin' | 'register'>(initialMode);
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [name, setName] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [dateOfBirth, setDateOfBirth] = React.useState('');
+  const [termsConsent, setTermsConsent] = React.useState(false);
+  const [dataConsent, setDataConsent] = React.useState(false);
+  const [aiTrainingConsent, setAiTrainingConsent] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [invitesLoading, setInvitesLoading] = React.useState(false);
+  const [emergencyContact1, setEmergencyContact1] = React.useState('');
+  const [emergencyContact2, setEmergencyContact2] = React.useState('');
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [pendingInvites, setPendingInvites] = React.useState<
+    { id: string; invitedBy: string; relation: string }[]
+  >([]);
   // ── COMPLIANCE: age-gate modal ──────────────────────────────────────────────
   // Blocks registration until the caller confirms they are 18+. Shown before the
   // form when mode is 'register'; dismissed by clicking "I am 18 or older".
-  const [ageGateOpen, setAgeGateOpen] = React.useState(false)
-  const [ageGateDismissed, setAgeGateDismissed] = React.useState(false)
+  const [ageGateOpen, setAgeGateOpen] = React.useState(false);
+  const [ageGateDismissed, setAgeGateDismissed] = React.useState(false);
   // ────────────────────────────────────────────────────────────────────────────
 
   // ── COMPLIANCE: auto-show age-gate when user switches to registration ─────
   React.useEffect(() => {
     if (mode === 'register' && !ageGateDismissed) {
-      setAgeGateOpen(true)
+      setAgeGateOpen(true);
     }
     if (mode === 'signin') {
-      setAgeGateOpen(false)
+      setAgeGateOpen(false);
     }
-  }, [mode, ageGateDismissed])
+  }, [mode, ageGateDismissed]);
   // ───────────────────────────────────────────────────────────────────────────
 
   React.useEffect(() => {
     if (user) {
-      const targetScreen = user.role === 'patient' ? 'patient' : user.role === 'doctor' ? 'doctor' : user.role === 'lab' ? 'lab' : user.role === 'admin' ? 'admin' : 'caretaker'
-      router.push(`/${targetScreen}`)
+      const targetScreen =
+        user.role === 'patient'
+          ? 'patient'
+          : user.role === 'doctor'
+            ? 'doctor'
+            : user.role === 'lab'
+              ? 'lab'
+              : user.role === 'admin'
+                ? 'admin'
+                : 'caretaker';
+      router.push(`/${targetScreen}`);
     }
-  }, [user, router])
+  }, [user, router]);
 
   const portalEmpathy: Record<LoginPortal, string> = {
     caretaker: 'Keep the whole family on track with shared reminders.',
@@ -149,29 +162,41 @@ export function LoginPage() {
     doctor: 'See patients faster with smarter scheduling.',
     lab: 'More bookings, less paperwork.',
     admin: 'Monitor quality, safety, and growth.',
-  }
-  const visiblePortals = PORTALS
-  const active: PortalConfig = visiblePortals.find((p) => p.id === loginPortal) ?? PORTALS[0]!
+  };
+  const visiblePortals = PORTALS;
+  const active: PortalConfig = visiblePortals.find(p => p.id === loginPortal) ?? PORTALS[0]!;
 
   async function submit(e: React.FormEvent) {
-    logger.debug('Login submit', { email, hasPassword: !!password?.length, mode, loginPortal })
-    e.preventDefault()
+    logger.debug('Login submit', { email, hasPassword: !!password?.length, mode, loginPortal });
+    e.preventDefault();
     if (!email || !password) {
-      toast({ title: 'Missing details', description: 'Email and password are required.', variant: 'destructive' })
-      return
+      toast({
+        title: 'Missing details',
+        description: 'Email and password are required.',
+        variant: 'destructive',
+      });
+      return;
     }
-    if (mode === 'register' && (!name || !dateOfBirth || !termsConsent || !dataConsent || !aiTrainingConsent || ((active.id === 'patient' || active.id === 'caretaker') && !emergencyContact1))) {
+    if (
+      mode === 'register' &&
+      (!name ||
+        !dateOfBirth ||
+        !termsConsent ||
+        !dataConsent ||
+        !aiTrainingConsent ||
+        ((active.id === 'patient' || active.id === 'caretaker') && !emergencyContact1))
+    ) {
       toast({
         title: 'Almost there',
         description: !aiTrainingConsent
           ? 'Please accept the AI training consent, add your name, date of birth, accept the checkboxes, and provide an emergency contact.'
           : 'Please add your name, date of birth, accept the consent checkboxes, and provide an emergency contact.',
         variant: 'destructive',
-      })
-      return
+      });
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       if (mode === 'register') {
         await apiCall('/auth/register', {
@@ -184,11 +209,11 @@ export function LoginPage() {
           consentAccepted: termsConsent,
           dataProcessingConsent: dataConsent,
           aiTrainingConsent,
-        })
-        toast({ title: 'Account created', description: 'Welcome to Kyntha!' })
+        });
+        toast({ title: 'Account created', description: 'Welcome to Kyntha!' });
       }
 
-      const data = await apiCall('/auth/login', { email, password })
+      const data = await apiCall('/auth/login', { email, password });
       const user: AuthUser = {
         id: data.id,
         email: data.email,
@@ -199,43 +224,50 @@ export function LoginPage() {
         isDemo: data.isDemo,
         // COMPLIANCE: include runtime flag from login response (undefined = false for older accounts)
         isUserMinor: Boolean((data as { isUserMinor?: boolean }).isUserMinor),
-      }
-      login(user)
+      };
+      login(user);
 
       if (mode === 'signin') {
-        setInvitesLoading(true)
+        setInvitesLoading(true);
         try {
-          const invRes = await fetch('/api/family/invite', { credentials: 'include' })
+          const invRes = await fetch('/api/family/invite', { credentials: 'include' });
           if (invRes.ok) {
-            const invites = await invRes.json()
-            setPendingInvites(invites)
+            const invites = await invRes.json();
+            setPendingInvites(invites);
             if (invites.length > 0) {
               toast({
                 title: `You have ${invites.length} pending invite${invites.length > 1 ? 's' : ''}`,
-                description: invites.map((i: { invitedBy: string; relation: string }) => `${i.invitedBy} (${i.relation})`).join(', '),
+                description: invites
+                  .map(
+                    (i: { invitedBy: string; relation: string }) => `${i.invitedBy} (${i.relation})`
+                  )
+                  .join(', '),
                 duration: 6000,
-              })
+              });
             }
           }
         } catch {
           // Ignore
         } finally {
-          setInvitesLoading(false)
+          setInvitesLoading(false);
         }
       }
 
       toast({
-        title: mode === 'signin' ? `Welcome back, ${user.name}` : `Account created — welcome, ${user.name}`,
+        title:
+          mode === 'signin'
+            ? `Welcome back, ${user.name}`
+            : `Account created — welcome, ${user.name}`,
         description: `You're signed in to the ${active.label} portal.`,
-      })
+      });
     } catch (err) {
       toast({
         title: mode === 'signin' ? 'Sign in failed' : 'Registration failed',
         description: err instanceof Error ? err.message : String(err),
         variant: 'destructive',
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -245,8 +277,7 @@ export function LoginPage() {
         <div
           className="absolute -top-40 left-1/2 h-[40rem] sm:w-[40rem] w-full -translate-x-1/2 rounded-full opacity-40 blur-3xl"
           style={{
-            background:
-              'radial-gradient(closest-side, rgba(16,185,129,0.35), transparent 70%)',
+            background: 'radial-gradient(closest-side, rgba(16,185,129,0.35), transparent 70%)',
           }}
         />
       </div>
@@ -262,8 +293,7 @@ export function LoginPage() {
           </button>
           <KynthaBrand />
           <button
-            onClick={() => router
-            .push('/register')}
+            onClick={() => router.push('/')}
             className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
           >
             Home
@@ -279,7 +309,7 @@ export function LoginPage() {
               {active.label} portal — sign in or create an account to continue.
             </p>
             <div className="mt-8 grid grid-cols-2 gap-3 sm:max-w-md">
-              {visiblePortals.map((p) => (
+              {visiblePortals.map(p => (
                 <button
                   key={p.id}
                   onClick={() => setLoginPortal(p.id)}
@@ -311,33 +341,55 @@ export function LoginPage() {
               <CardContent className="p-6 sm:p-8">
                 {pendingInvites.length > 0 && (
                   <div className="mb-5 space-y-2">
-                    {pendingInvites.map((inv) => (
-                      <div key={inv.id} className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
+                    {pendingInvites.map(inv => (
+                      <div
+                        key={inv.id}
+                        className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3"
+                      >
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                           <Users className="h-4 w-4" />
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium">{inv.invitedBy} invited you as <span className="text-emerald-600">{inv.relation}</span></p>
+                          <p className="text-sm font-medium">
+                            {inv.invitedBy} invited you as{' '}
+                            <span className="text-emerald-600">{inv.relation}</span>
+                          </p>
                         </div>
                         <button
                           onClick={async () => {
                             try {
-                              const csrf = await fetch('/api/auth/csrf', { credentials: 'include' }).then(r => r.json()).then(d => d.token)
+                              const csrf = await fetch('/api/auth/csrf', { credentials: 'include' })
+                                .then(r => r.json())
+                                .then(d => d.token);
                               const res = await fetch('/api/family/invite', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'X-CSRF-Token': csrf,
+                                },
                                 credentials: 'include',
                                 body: JSON.stringify({ action: 'accept', inviteId: inv.id }),
-                              })
+                              });
                               if (res.ok) {
-                                setPendingInvites((p) => p.filter((i) => i.id !== inv.id))
-                                toast({ title: 'Invite accepted!', description: `You're now part of ${inv.invitedBy}'s family.` })
+                                setPendingInvites(p => p.filter(i => i.id !== inv.id));
+                                toast({
+                                  title: 'Invite accepted!',
+                                  description: `You're now part of ${inv.invitedBy}'s family.`,
+                                });
                               } else {
-                                const d = await res.json().catch(() => ({}))
-                                toast({ title: 'Could not accept invite', description: d.error || 'Please try again.', variant: 'destructive' })
+                                const d = await res.json().catch(() => ({}));
+                                toast({
+                                  title: 'Could not accept invite',
+                                  description: d.error || 'Please try again.',
+                                  variant: 'destructive',
+                                });
                               }
                             } catch {
-                              toast({ title: 'Offline', description: 'Re-connected, try again.', variant: 'destructive' })
+                              toast({
+                                title: 'Offline',
+                                description: 'Re-connected, try again.',
+                                variant: 'destructive',
+                              });
                             }
                           }}
                           className="shrink-0 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600"
@@ -367,7 +419,11 @@ export function LoginPage() {
                     Sign In
                   </button>
                   <button
-                    onClick={() => { setMode('register'); setAgeGateDismissed(false); setAgeGateOpen(true) }}
+                    onClick={() => {
+                      setMode('register');
+                      setAgeGateDismissed(false);
+                      setAgeGateOpen(true);
+                    }}
                     className={cn(
                       'rounded-full px-4 py-1.5 text-sm font-medium transition-all',
                       mode === 'register'
@@ -411,13 +467,16 @@ export function LoginPage() {
                           By proceeding, you confirm that you meet this age requirement.
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          If you are under 18, a parent or legal guardian must create and
-                          manage your account through the{' '}
+                          If you are under 18, a parent or legal guardian must create and manage
+                          your account through the{' '}
                           <span className="text-emerald-600">Family portal</span>.
                         </p>
                         <Button
                           type="button"
-                          onClick={() => { setAgeGateDismissed(true); setAgeGateOpen(false) }}
+                          onClick={() => {
+                            setAgeGateDismissed(true);
+                            setAgeGateOpen(false);
+                          }}
                           className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow hover:from-emerald-600 hover:to-teal-700"
                         >
                           I am 18 or older — proceed
@@ -437,38 +496,45 @@ export function LoginPage() {
                           id="name"
                           placeholder="Aarav Sharma"
                           value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          onChange={e => setName(e.target.value)}
                           autoComplete="name"
                         />
                       </div>
-                        <div className="space-y-1.5">
+                      <div className="space-y-1.5">
                         <Label htmlFor="phone">Phone (optional)</Label>
                         <Input
                           id="phone"
                           type="tel"
                           placeholder="+1 (555) 123-4567"
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
+                          onChange={e => setPhone(e.target.value)}
                           autoComplete="tel"
                         />
-                        <p className="text-[11px] text-muted-foreground">Used only for account security and care-team alerts.</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          Used only for account security and care-team alerts.
+                        </p>
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="dob">Date of birth <span className="text-rose-500">*</span></Label>
+                        <Label htmlFor="dob">
+                          Date of birth <span className="text-rose-500">*</span>
+                        </Label>
                         <Input
                           id="dob"
                           type="date"
                           value={dateOfBirth}
-                          onChange={(e) => setDateOfBirth(e.target.value)}
+                          onChange={e => setDateOfBirth(e.target.value)}
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="emergency1">Emergency contact 1 <span className="text-rose-500">*</span></Label>
+                        <Label htmlFor="emergency1">
+                          Emergency contact 1 <span className="text-rose-500">*</span>
+                        </Label>
                         <Input
                           id="emergency1"
+                          type="tel"
                           placeholder="+1 (555) 123-4567"
                           value={emergencyContact1}
-                          onChange={(e) => setEmergencyContact1(e.target.value)}
+                          onChange={e => setEmergencyContact1(e.target.value)}
                           autoComplete="tel"
                         />
                       </div>
@@ -476,9 +542,10 @@ export function LoginPage() {
                         <Label htmlFor="emergency2">Emergency contact 2 (optional)</Label>
                         <Input
                           id="emergency2"
+                          type="tel"
                           placeholder="+1 (555) 123-4567"
                           value={emergencyContact2}
-                          onChange={(e) => setEmergencyContact2(e.target.value)}
+                          onChange={e => setEmergencyContact2(e.target.value)}
                           autoComplete="tel"
                         />
                       </div>
@@ -492,7 +559,7 @@ export function LoginPage() {
                       type="email"
                       placeholder="you@example.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={e => setEmail(e.target.value)}
                       autoComplete="email"
                     />
                   </div>
@@ -505,16 +572,20 @@ export function LoginPage() {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={e => setPassword(e.target.value)}
                         autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPassword((s) => !s)}
+                        onClick={() => setShowPassword(s => !s)}
                         className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -524,7 +595,7 @@ export function LoginPage() {
                       <label className="flex items-start gap-2.5">
                         <Checkbox
                           checked={termsConsent}
-                          onCheckedChange={(v) => setTermsConsent(v === true)}
+                          onCheckedChange={v => setTermsConsent(v === true)}
                           className="mt-0.5"
                         />
                         <span className="text-xs text-muted-foreground">
@@ -550,24 +621,25 @@ export function LoginPage() {
                       <label className="flex items-start gap-2.5">
                         <Checkbox
                           checked={dataConsent}
-                          onCheckedChange={(v) => setDataConsent(v === true)}
+                          onCheckedChange={v => setDataConsent(v === true)}
                           className="mt-0.5"
                         />
                         <span className="text-xs text-muted-foreground">
-                          I consent to processing of my personal and health data under US health data laws.{' '}
-                          <span className="font-medium text-foreground">DPDP-compliant</span>.
+                          I consent to processing of my personal and health data under US health
+                          data laws.{' '}
+                          <span className="font-medium text-foreground">HIPAA-aligned</span>.
                         </span>
                       </label>
                       <label className="flex items-start gap-2.5">
                         <Checkbox
                           checked={aiTrainingConsent}
-                          onCheckedChange={(v) => setAiTrainingConsent(v === true)}
+                          onCheckedChange={v => setAiTrainingConsent(v === true)}
                           className="mt-0.5"
                         />
                         <span className="text-xs text-muted-foreground">
-                          I consent to letting Kyntha use <em>de-identified</em> health data
-                          to improve AI features. My personal data is never shared or identifiable.
-                          See the{' '}
+                          I consent to letting Kyntha use <em>de-identified</em> health data to
+                          improve AI features. My personal data is never shared or identifiable. See
+                          the{' '}
                           <button
                             type="button"
                             onClick={() => router.push('/privacy')}
@@ -595,7 +667,7 @@ export function LoginPage() {
 
                 <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  Data encrypted in transit &amp; at rest · DPDP-compliant
+                  Data encrypted in transit &amp; at rest · HIPAA-aligned
                 </div>
               </CardContent>
             </Card>
@@ -603,5 +675,5 @@ export function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

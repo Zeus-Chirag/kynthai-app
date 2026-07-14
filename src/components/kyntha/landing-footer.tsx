@@ -27,13 +27,12 @@ export function LandingFooter() {
           <div>
             <KynthaBrand />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Health management for families, patients, doctors and labs — Health management for
-              families, patients, doctors and labs — in one beautiful app. Built for India, by
-              founders who care.
+              Health management for families, patients, doctors and labs — in one beautiful app.
+              Built for America, by founders who care.
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-              DPDP-compliant · Secure billing
+              HIPAA-aligned · Secure billing
             </div>
             <a
               href="mailto:privacy@kyntha.app"
@@ -90,7 +89,7 @@ export function LandingFooter() {
               { label: 'Refund & Cancellation', href: '/refund-cancellation' },
               { label: 'Grievance', href: '/grievance' },
               { label: 'Cookie Policy', href: '/cookies' },
-              { label: 'Data Subject Rights (DPDP)', href: '/dpdp-rights' },
+              { label: 'Data Subject Rights (CCPA)', href: '/ccpa-rights' },
               { label: 'Accessibility', href: '/accessibility' },
               { label: 'Medical Disclaimer', href: '/medical-disclaimer' },
             ]}
@@ -101,7 +100,7 @@ export function LandingFooter() {
           <div className="space-y-1 flex-1 min-w-0">
             <p>© {new Date().getFullYear()} Kyntha™. All rights reserved.</p>
             <p className="text-[10px] leading-relaxed">
-              Kyntha Health Technologies Private Limited · Bengaluru, India
+              Kyntha Health Technologies LLC · United States
             </p>
             <p className="text-[10px] leading-relaxed">
               Kyntha and the Kyntha logo are trademarks of Kyntha Health Technologies (pending). All
@@ -111,8 +110,8 @@ export function LandingFooter() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-medium text-emerald-700 dark:text-emerald-300">
-              Built for India
-              <span aria-hidden="true">🇮🇳</span>
+              Built for America
+              <span aria-hidden="true">🇺🇸</span>
             </span>
             <p className="flex items-center gap-1.5">
               Made with <HeartPulse className="h-3 w-3 text-emerald-600" /> for healthier families.

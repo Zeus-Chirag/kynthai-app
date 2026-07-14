@@ -1,44 +1,46 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import * as React from 'react';
+import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   CheckCircle2,
-  CreditCard,
-  Lock,
   ShieldCheck,
+  Lock,
   Loader2,
   Sparkles,
   PartyPopper,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { useAppStore } from '@/lib/store'
-import { useToast } from '@/hooks/use-toast'
-import { cn } from '@/lib/utils'
-import { KynthaBrand } from './logo'
-import { FadeIn, motion, AnimatePresence } from './animations'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { StripeCardElement } from './stripe-card-element';
+import { useAppStore } from '@/lib/store';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { KynthaBrand } from './logo';
+import { FadeIn, motion, AnimatePresence } from './animations';
 import {
   PRICING,
   EARLY_ADOPTER_PRICING,
   formatPrice,
   type Currency,
-} from '@/lib/currency'
-import { EARLY_ADOPTER_TIERS } from '@/lib/commission'
-import type { AuthUser } from '@/lib/store'
+  type Currency as CurrencyType,
+} from '@/lib/currency';
+import { EARLY_ADOPTER_TIERS } from '@/lib/commission';
+import type { AuthUser } from '@/lib/store';
 
 interface TierInfo {
-  id: 'plus' | 'family_pro'
-  name: string
-  tagline: string
-  features: string[]
+  id: 'plus' | 'family_pro';
+  name: string;
+  tagline: string;
+  features: string[];
 }
 
 const TIER_INFO: Record<'plus' | 'family_pro', TierInfo> = {
@@ -68,65 +70,34 @@ const TIER_INFO: Record<'plus' | 'family_pro', TierInfo> = {
       'Early access to new AI features',
     ],
   },
-}
+};
 
-type Phase = 'form' | 'processing' | 'success'
+type Phase = 'form' | 'processing' | 'success';
 
 export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
-  const { setScreen, currency, checkoutFounder, user } = useAppStore()
-  const router = useRouter()
-  const { toast } = useToast()
-  const info = TIER_INFO[tier]
-  
-  // Display price equals the amount on the 
+  const { setScreen, currency, checkoutFounder, user } = useAppStore();
+  const router = useRouter();
+  const { toast } = useToast();
+  const info = TIER_INFO[tier];
+
+  // Display price equals the amount on the
   // pricing page — no tax components.
-  const regularPrice = PRICING[currency][tier].monthly
+  const safeCurrency = PRICING[currency] ? currency : 'USD';
+  const regularPrice = PRICING[safeCurrency][tier].monthly;
 
-  const total = regularPrice
+  const total = regularPrice;
 
-  const [phase, setPhase] = React.useState<Phase>('form')
-  const [email, setEmail] = React.useState('')
-  const [name, setName] = React.useState('')
-  const [card, setCard] = React.useState('')
-  const [exp, setExp] = React.useState('')
-  const [cvc, setCvc] = React.useState('')
-  const [isProcessing, setIsProcessing] = React.useState(false)
+  const [phase, setPhase] = React.useState<Phase>('form');
+  const [email, setEmail] = React.useState('');
+  const [name, setName] = React.useState('');
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
-  function formatCardNumber(v: string) {
-    const digits = v.replace(/\D/g, '').slice(0, 16)
-    return digits.replace(/(.{4})/g, '$1 ').trim()
-  }
-  function formatExp(v: string) {
-    const digits = v.replace(/\D/g, '').slice(0, 4)
-    if (digits.length < 3) return digits
-    return digits.slice(0, 2) + '/' + digits.slice(2)
-  }
-
-  async function pay(e: React.FormEvent) {
-    e.preventDefault()
-    if (isProcessing) return // Prevent double-click
-    if (!email || !name || !card || !exp || !cvc) {
-      toast({
-        title: 'Missing details',
-        description: 'Please fill in all fields.',
-        variant: 'destructive',
-      })
-      return
-    }
-    if (card.replace(/\s/g, '').length < 16) {
-      toast({
-        title: 'Invalid card number',
-        description: 'Card numbers must be 16 digits.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    setIsProcessing(true)
-    setPhase('processing')
-
+  async function createPaymentIntent(): Promise<{
+    clientSecret: string;
+    paymentId: string;
+  } | null> {
     try {
-      // Step 1: create payment intent
+      setIsProcessing(true);
       const intentRes = await fetch('/api/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,63 +109,48 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
           email,
           name,
         }),
-      })
+      });
 
-      let intent: { id?: string; clientSecret?: string; duplicate?: boolean } = {}
-      if (intentRes.ok) {
-        intent = await intentRes.json().catch(() => ({}))
-      } else {
-        const error = await intentRes.json().catch(() => ({}))
-        throw new Error(error.error || 'Payment creation failed')
+      const data = await intentRes.json().catch(() => ({}));
+      if (!intentRes.ok) {
+        throw new Error(data.error || 'Payment creation failed');
       }
-
-      // If duplicate payment detected, wait for existing one
-      if (intent.duplicate) {
+      if (data.duplicate) {
         toast({
           title: 'Payment in progress',
           description: 'Your previous payment is being processed.',
-        })
-        setPhase('success')
-        return
+        });
+        return null;
       }
-
-      // Step 2: confirm checkout (server-side)
-      const confirmRes = await fetch('/api/payments/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentId: intent.id,
-          type: 'subscription',
-          amount: total,
-          currency,
-          description: `Kyntha ${info.name} subscription`,
-          email,
-          name,
-        }),
-      })
-
-      if (!confirmRes.ok) {
-        const error = await confirmRes.json().catch(() => ({}))
-        throw new Error(error.error || 'Payment confirmation failed')
-      }
-
-      // Success
-      setPhase('success')
-      toast({
-        title: 'Payment successful',
-        description: `You're now on the ${info.name} plan.`,
-      })
+      return { clientSecret: data.clientSecret, paymentId: data.paymentId };
     } catch (err) {
-      console.error('Payment error:', err)
-      setPhase('form')
+      console.error('Payment initialization failed', err instanceof Error ? err.message : err);
       toast({
-        title: 'Payment failed',
+        title: 'Payment setup failed',
         description: err instanceof Error ? err.message : 'Please try again.',
         variant: 'destructive',
-      })
+      });
+      return null;
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
+  }
+
+  function handlePaymentSuccess() {
+    setPhase('success');
+    toast({
+      title: 'Payment successful',
+      description: `You're now on the ${info.name} plan.`,
+    });
+  }
+
+  function handlePaymentError(message: string) {
+    setPhase('form');
+    toast({
+      title: 'Payment failed',
+      description: message,
+      variant: 'destructive',
+    });
   }
 
   return (
@@ -205,7 +161,8 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
         </div>
       ) : (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-center text-[11px] font-medium text-amber-700 dark:text-amber-300">
-          Demo checkout — no real payment will be processed. Stripe integration required for production.
+          Demo checkout — no real payment will be processed. Stripe integration required for
+          production.
         </div>
       )}
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -218,7 +175,10 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
             Back to pricing
           </button>
           <KynthaBrand />
-          <Badge variant="outline" className="border-emerald-500/30 text-emerald-700 dark:text-emerald-300">
+          <Badge
+            variant="outline"
+            className="border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+          >
             <Lock className="h-3 w-3" />
             {checkoutFounder ? 'Founder Member' : 'Secure checkout'}
           </Badge>
@@ -228,14 +188,29 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <AnimatePresence mode="wait">
           {phase === 'success' ? (
-            <SuccessView key="success" info={info} price={total} currency={currency} onContinue={() => {
-              if (user) {
-                const target = user.role === 'patient' ? 'patient' : user.role === 'doctor' ? 'doctor' : user.role === 'lab' ? 'lab' : user.role === 'admin' ? 'admin' : 'caretaker'
-                router.push(`/${target}`)
-              } else {
-                router.push('/login')
-              }
-            }} />
+            <SuccessView
+              key="success"
+              info={info}
+              price={total}
+              currency={currency}
+              onContinue={() => {
+                if (user) {
+                  const target =
+                    user.role === 'patient'
+                      ? 'patient'
+                      : user.role === 'doctor'
+                        ? 'doctor'
+                        : user.role === 'lab'
+                          ? 'lab'
+                          : user.role === 'admin'
+                            ? 'admin'
+                            : 'caretaker';
+                  router.push(`/${target}`);
+                } else {
+                  router.push('/login');
+                }
+              }}
+            />
           ) : (
             <motion.div
               key="checkout"
@@ -247,9 +222,7 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
               {/* Form */}
               <div className="lg:col-span-3">
                 <FadeIn>
-                  <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                    Checkout
-                  </h1>
+                  <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Checkout</h1>
                   <p className="mt-1 text-sm text-muted-foreground">
                     You're upgrading to the{' '}
                     <span className="font-semibold text-foreground">{info.name}</span> plan.
@@ -265,7 +238,7 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
                         type="email"
                         placeholder="you@example.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={e => setEmail(e.target.value)}
                         disabled={phase === 'processing'}
                       />
                     </div>
@@ -275,80 +248,29 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
                         id="name"
                         placeholder="John Smith"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={e => setName(e.target.value)}
                         disabled={phase === 'processing'}
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label htmlFor="card">Card number</Label>
-                      <div className="relative">
-                        <Input
-                          id="card"
-                          inputMode="numeric"
-                          placeholder="4242 4242 4242 4242"
-                          value={card}
-                          onChange={(e) => setCard(formatCardNumber(e.target.value))}
-                          disabled={phase === 'processing'}
-                          className="pr-10"
-                        />
-                        <CreditCard className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label htmlFor="exp">Expiry</Label>
-                        <Input
-                          id="exp"
-                          inputMode="numeric"
-                          placeholder="MM/YY"
-                          value={exp}
-                          onChange={(e) => setExp(formatExp(e.target.value))}
-                          disabled={phase === 'processing'}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="cvc">CVC</Label>
-                        <Input
-                          id="cvc"
-                          inputMode="numeric"
-                          placeholder="123"
-                          value={cvc}
-                          onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                          disabled={phase === 'processing'}
-                        />
-                      </div>
-                    </div>
-
-                    <Button
-                      onClick={pay}
-                      disabled={phase === 'processing' || isProcessing}
-                      className="w-full gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700"
-                    >
-                      {phase === 'processing' ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Processing…
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="h-4 w-4" />
-                          {`Pay ${formatPrice(total, currency)} & subscribe`}
-                        </>
-                      )}
-                    </Button>
-
-                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                      Payments are encrypted & PCI-compliant.
-                    </div>
+                    <StripePaymentSection
+                      email={email}
+                      name={name}
+                      total={total}
+                      currency={currency}
+                      tier={tier}
+                      info={info}
+                      onCreateIntent={createPaymentIntent}
+                      onSuccess={handlePaymentSuccess}
+                      onError={handlePaymentError}
+                      disabled={phase === 'processing'}
+                    />
                   </CardContent>
                 </Card>
 
                 <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Use <span className="font-mono">4242 4242 4242 4242</span> · any future
-                  date · any CVC for the demo.
+                  Use <span className="font-mono">4242 4242 4242 4242</span> · any future date · any
+                  CVC for the demo.
                 </p>
               </div>
 
@@ -390,7 +312,7 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
                         What's included
                       </p>
                       <ul className="mt-3 space-y-2">
-                        {info.features.map((f) => (
+                        {info.features.map(f => (
                           <li key={f} className="flex items-start gap-2 text-sm">
                             <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
                             <span className="text-muted-foreground">{f}</span>
@@ -406,7 +328,7 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
         </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }
 
 function SuccessView({
@@ -415,10 +337,10 @@ function SuccessView({
   currency,
   onContinue,
 }: {
-  info: TierInfo
-  price: number
-  currency: Currency
-  onContinue: () => void
+  info: TierInfo;
+  price: number;
+  currency: Currency;
+  onContinue: () => void;
 }) {
   return (
     <motion.div
@@ -443,12 +365,10 @@ function SuccessView({
         Payment successful
       </Badge>
 
-      <h1 className="mt-3 text-3xl font-bold tracking-tight">
-        Welcome to Kyntha {info.name}
-      </h1>
+      <h1 className="mt-3 text-3xl font-bold tracking-tight">Welcome to Kyntha {info.name}</h1>
       <p className="mt-2 text-muted-foreground">
-        Your subscription is active. All {info.name} features are now unlocked —
-        sign in to start exploring.
+        Your subscription is active. All {info.name} features are now unlocked — sign in to start
+        exploring.
       </p>
 
       <Card className="mt-6 border-emerald-500/20 text-left">
@@ -464,7 +384,7 @@ function SuccessView({
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Receipt</span>
             <span className="font-mono text-xs">
-              #SHY-{crypto.randomUUID().slice(0, 6).toUpperCase()}
+              #SHY-{useMemo(() => crypto.randomUUID().slice(0, 6).toUpperCase(), [])}
             </span>
           </div>
         </CardContent>
@@ -478,5 +398,84 @@ function SuccessView({
         <ArrowRight className="h-4 w-4" />
       </Button>
     </motion.div>
-  )
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* StripePaymentSection — wraps Stripe Elements inside the form      */
+/* ------------------------------------------------------------------ */
+type StripePaymentSectionProps = {
+  email: string;
+  name: string;
+  total: number;
+  currency: string;
+  tier: 'plus' | 'family_pro';
+  info: TierInfo;
+  onCreateIntent: () => Promise<{ clientSecret: string; paymentId: string } | null>;
+  onSuccess: () => void;
+  onError: (message: string) => void;
+  disabled?: boolean;
+};
+
+function StripePaymentSection({
+  email,
+  name,
+  total,
+  currency,
+  tier,
+  info,
+  onCreateIntent,
+  onSuccess,
+  onError,
+  disabled,
+}: StripePaymentSectionProps) {
+  const [cs, setCs] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    async function init() {
+      const result = await onCreateIntent();
+      if (!cancelled && result) setCs(result.clientSecret);
+      if (!cancelled) setLoading(false);
+    }
+    init();
+    return () => {
+      cancelled = true;
+    };
+  }, [onCreateIntent]);
+
+  if (disabled) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+        <span className="ml-2 text-sm text-muted-foreground">Initializing secure payment…</span>
+      </div>
+    );
+  }
+
+  if (!cs) {
+    return (
+      <div className="rounded-lg border border-amber-500/20 bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+        Unable to initialize payment. Please try again or contact support.
+      </div>
+    );
+  }
+
+  return (
+    <StripeCardElement
+      clientSecret={cs}
+      onSuccess={onSuccess}
+      onError={onError}
+      disabled={!!disabled}
+    />
+  );
 }
