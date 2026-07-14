@@ -86,3 +86,22 @@ server.log
 # Test login scripts with hardcoded credentials (DO NOT COMMIT)
 test-login*.js
 e2e/quick-test.mjs
+
+# Claude Code session state
+.claude-flow/sessions/
+
+# Temporary reports and scripts
+BUG-REPORT.md
+CONTEXT-MANAGEMENT-FIX.md
+docs/UX-FRICTION-ANALYSIS.md
+e2e-report/data/*.png
+review-screenshot.png
+run-kyntha-7000.sh
+start-server-godmode.sh
+verify-context-fix.sh
+
+# Local CLAUDE overrides (project root is the source of truth)
+CLAUDE.md
+
+# test artifacts
+test-results/
