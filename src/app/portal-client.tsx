@@ -80,7 +80,6 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     currency,
     completeOnboarding,
     setLoginPortal,
-    login,
   } = store;
 
   // Mirror devtools — suppress noisy message in console
@@ -93,7 +92,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Demo mode: auto-complete onboarding and redirect to login.
+  // Demo mode: auto-complete onboarding so the app is immediately usable.
   // SECURITY: never auto-consent in production — NODE_ENV='production' hard-blocks.
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -104,16 +103,10 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       window.location.replace('/');
       return;
     }
-    if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true') {
-      if (!onboardingComplete) {
-        completeOnboarding('patient');
-      }
-      // If no user logged in, redirect to login
-      if (!user && pathname === '/') {
-        router.replace('/login');
-      }
+    if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && !onboardingComplete) {
+      completeOnboarding('patient');
     }
-  }, [onboardingComplete, completeOnboarding, user, pathname, router]);
+  }, [onboardingComplete, completeOnboarding]);
 
   // URL wins if it corresponds to a known public page
   const routeScreen = ROUTE_SCREEN[pathname] ?? screen;
