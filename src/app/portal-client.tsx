@@ -92,7 +92,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Demo mode: auto-complete onboarding so the app is immediately usable.
+  // Demo mode: auto-login caretaker user and complete onboarding.
   // SECURITY: never auto-consent in production — NODE_ENV='production' hard-blocks.
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -103,10 +103,21 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       window.location.replace('/');
       return;
     }
-    if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && !onboardingComplete) {
-      completeOnboarding('patient');
+    if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && !user && !onboardingComplete) {
+      // Auto-set demo user in store (client-side only, no backend session required)
+      store.login({
+        id: 'demo-caretaker',
+        email: 'caretaker@kyntha.app',
+        name: 'Demo Family',
+        role: 'caretaker',
+        consentAccepted: true,
+        dataProcessingConsent: true,
+        aiTrainingConsent: true,
+        isDemo: true,
+      });
+      completeOnboarding('caretaker');
     }
-  }, [onboardingComplete, completeOnboarding]);
+  }, [user, onboardingComplete, completeOnboarding, store]);
 
   // URL wins if it corresponds to a known public page
   const routeScreen = ROUTE_SCREEN[pathname] ?? screen;

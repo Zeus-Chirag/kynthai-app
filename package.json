@@ -97,7 +97,6 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "autocannon": "^7.18.0",
     "@next/bundle-analyzer": "^16.2.10",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
@@ -106,6 +105,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.9",
+    "autocannon": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "^16.1.1",
     "tailwindcss": "^4",

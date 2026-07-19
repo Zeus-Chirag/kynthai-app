@@ -1,10 +1,9 @@
 import { NextRequest } from 'next/server'
 import { db } from '@/lib/db'
 import { logAudit } from '@/lib/auth'
-import { getSessionUser } from '@/lib/auth'
 import { sanitizeText, rateLimit } from '@/lib/security'
 import { checkCsrf } from '@/lib/csrf'
-import { jsonError, jsonOk, readJson, audit, parseJsonCol } from '@/lib/api-helpers'
+import { jsonError, jsonOk, readJson, audit, parseJsonCol, requireAuth } from '@/lib/api-helpers'
 export const dynamic = 'force-dynamic'
 
 // GET /api/doctors/[id] — public doctor profile
@@ -73,8 +72,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (csrfError) return csrfError
   const { id } = await params
 
-  const session = await getSessionUser()
-  if (!session) return jsonError('Unauthorized', 401)
+  const { response, user: session } = await requireAuth(req)
+  if (response || !session) return response!
 
   const profile = await db.doctorProfile.findUnique({ where: { id } })
   if (!profile) return jsonError('Doctor not found', 404)

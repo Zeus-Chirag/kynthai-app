@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { Prisma } from '@prisma/client';
+// import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { logAudit } from '@/lib/auth';
 import { sanitizeText, rateLimit } from '@/lib/security';
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Build where clause — if familyMemberId is provided, ONLY return that member's meds
-  let where: Prisma.MedicationWhereInput;
+  let where: any;
   if (familyMemberId) {
     // IDOR: ensure family member belongs to a family owned by this user.
     const member = await db.familyMember.findUnique({
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
   const page = hasMore ? meds.slice(0, limit) : meds;
   const nextCursor = hasMore && page.length > 0 ? page[page.length - 1]!.id : null;
 
-  const serialized = page.map(m => ({ ...m, times: JSON.parse(m.times) }));
+  const serialized = page.map((m: any) => ({ ...m, times: JSON.parse(m.times) }));
 
   return jsonPage(serialized, { cursor: nextCursor, limit, hasMore });
 }

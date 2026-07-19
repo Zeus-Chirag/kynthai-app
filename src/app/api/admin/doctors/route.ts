@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-import { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { logAudit } from '@/lib/auth';
 import { sanitizeText, rateLimit, maskIdLike } from '@/lib/security';
@@ -29,7 +28,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const status = req.nextUrl.searchParams.get('status')?.trim();
-    const where: Prisma.DoctorProfileWhereInput = {};
+    const where: { verificationStatus?: string } = {};
     if (status) where.verificationStatus = status;
 
     const doctors = await db.doctorProfile.findMany({
@@ -39,7 +38,7 @@ export async function GET(req: NextRequest) {
     });
 
     return jsonOk(
-      doctors.map(d => ({
+      doctors.map((d: any) => ({
         id: d.id,
         userId: d.userId,
         name: d.user.name,

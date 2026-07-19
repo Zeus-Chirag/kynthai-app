@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
     }
     for (const [doctorId, count] of byDoctor.entries()) {
       if (count >= 20) {
-        const appt = recentAppts.find((a) => a.doctor.id === doctorId)!
+        const appt = recentAppts.find((a: any) => a.doctor.id === doctorId)!
         flags.push({
           id: `fraud-farming-${doctorId}`,
           entity: appt.doctor.user.name ?? 'Unknown',
@@ -160,8 +160,8 @@ export async function GET(req: NextRequest) {
     for (const [key, set] of apptsByDay.entries()) {
       if (set.size >= 3) {
         const [patientId, doctorId] = key.split('|')
-        const patient = users.find((u) => u.id === patientId)
-        const doctor = doctors.find((d) => d.id === doctorId)
+        const patient = users.find((u: any) => u.id === patientId)
+        const doctor = doctors.find((d: any) => d.id === doctorId)
         flags.push({
           id: `fraud-multi-booking-${key}`,
           entity: (patient?.name ?? patientId) as string,

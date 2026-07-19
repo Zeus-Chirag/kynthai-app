@@ -87,6 +87,58 @@ export function FamilyAnalytics() {
   const [error, setError] = React.useState<string | null>(null)
 
   const load = React.useCallback(async () => {
+    const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+
+    // Demo mode: return seeded data without backend call
+    if (isDemoMode) {
+      const demoData: AnalyticsResponse = {
+        family: { id: 'demo-family', name: 'Demo Family' },
+        members: [
+          {
+            id: 'fm1',
+            name: 'Robert Wilson',
+            relation: 'Father',
+            color: 'emerald',
+            medications: 4,
+            weekTotal: 28,
+            weekTaken: 24,
+            adherence: 85,
+            perDay: Array(7).fill(null).map((_, i) => ({ date: new Date(Date.now() - (6 - i) * 86400000).toISOString().split('T')[0]!, total: 4, taken: 3 + (i % 2), adherence: 75 + (i % 3) * 5 })),
+            conditions: ['Hypertension'],
+          },
+          {
+            id: 'fm2',
+            name: 'Emma Wilson',
+            relation: 'Mother',
+            color: 'teal',
+            medications: 2,
+            weekTotal: 14,
+            weekTaken: 11,
+            adherence: 78,
+            perDay: Array(7).fill(null).map((_, i) => ({ date: new Date(Date.now() - (6 - i) * 86400000).toISOString().split('T')[0]!, total: 2, taken: 1 + (i % 2), adherence: 50 + (i % 4) * 10 })),
+            conditions: ['Thyroid'],
+          },
+          {
+            id: 'fm3',
+            name: 'Noah Wilson',
+            relation: 'Child',
+            color: 'cyan',
+            medications: 1,
+            weekTotal: 7,
+            weekTaken: 7,
+            adherence: 100,
+            perDay: Array(7).fill(null).map((_, i) => ({ date: new Date(Date.now() - (6 - i) * 86400000).toISOString().split('T')[0]!, total: 1, taken: 1, adherence: 100 })),
+            conditions: [],
+          },
+        ],
+        overallAdherence: 84,
+        totalMedications: 7,
+        days: Array(7).fill(null).map((_, i) => new Date(Date.now() - (6 - i) * 86400000).toISOString().split('T')[0]!),
+      }
+      setData(demoData)
+      setLoading(false)
+      return
+    }
     setLoading(true)
     setError(null)
     try {

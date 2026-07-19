@@ -1,11 +1,10 @@
 import { NextRequest } from 'next/server'
-import { Prisma } from '@prisma/client'
+// import type { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { logAudit } from '@/lib/auth'
-import { getSessionUser } from '@/lib/auth'
 import { sanitizeText, rateLimit } from '@/lib/security'
 import { checkCsrf } from '@/lib/csrf'
-import { jsonError, jsonOk, readJson, audit, parseJsonCol } from '@/lib/api-helpers'
+import { jsonError, jsonOk, readJson, audit, parseJsonCol, requireAuth } from '@/lib/api-helpers'
 import { labProfileSchema } from '@/lib/schemas'
 export const dynamic = 'force-dynamic'
 
@@ -20,8 +19,8 @@ export async function GET(req: NextRequest) {
   const userId = sp.get('userId')?.trim()
 
   if (userId) {
-    const session = await getSessionUser()
-    if (!session || session.id !== userId) return jsonError('Unauthorized', 401)
+    const { response, user: session } = await requireAuth(req)
+    if (response || !session || session.id !== userId) return response || jsonError('Unauthorized', 401)
     const profile = await db.labProfile.findUnique({ where: { userId }, include: { user: true } })
     if (!profile) return jsonError('Not found', 404)
     return jsonOk({
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  const and: Prisma.LabProfileWhereInput[] = [{ verified: true }]
+  const and: any[] = [{ verified: true }]
   if (city) and.push({ city: { contains: city } })
   if (search) {
     and.push({
@@ -53,7 +52,7 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  const where: Prisma.LabProfileWhereInput = { AND: and }
+  const where: any = { AND: and }
   const labs = await db.labProfile.findMany({
     where,
     include: { user: true },
@@ -62,7 +61,7 @@ export async function GET(req: NextRequest) {
   })
 
   return jsonOk(
-    labs.map((l) => ({
+    labs.map((l: any) => ({
       id: l.id,
       userId: l.userId,
       labName: l.labName,
@@ -84,8 +83,8 @@ export async function POST(req: NextRequest) {
   const limited = rateLimit(req)
   if (limited) return limited
 
-  const session = await getSessionUser()
-  if (!session) return jsonError('Unauthorized', 401)
+  const { response, user: session } = await requireAuth(req)
+  if (response || !session) return response!
   if (session.role !== 'lab') return jsonError('Only lab accounts may create a lab profile', 403)
 
   const rawBody = await readJson(req)

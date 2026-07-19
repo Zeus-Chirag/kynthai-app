@@ -1,87 +1,98 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { motion } from 'framer-motion'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Pill, BookOpen, MessageSquare, Calendar, AlertTriangle, CheckCircle2, Sparkles, Flame } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Pill,
+  BookOpen,
+  MessageSquare,
+  Calendar,
+  AlertTriangle,
+  CheckCircle2,
+  Sparkles,
+  Flame,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // ── Types ──────────────────────────────────────────────────────────
 
 interface Priority {
-  id: string
-  title: string
-  description: string
-  icon: React.ComponentType<{ className?: string }>
-  tint: string
-  priority: 'high' | 'medium' | 'low'
-  action?: () => void
-  actionLabel?: string
-  completed?: boolean
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tint: string;
+  priority: 'high' | 'medium' | 'low';
+  action?: () => void;
+  actionLabel?: string;
+  completed?: boolean;
 }
 
 interface DailyPrioritiesProps {
-  userId: string
-  isDemo: boolean
-  onNavigate?: (tab: 'home' | 'meds' | 'market' | 'ai' | 'care' | 'sos') => void
+  userId: string;
+  isDemo: boolean;
+  onNavigate?: (tab: 'home' | 'meds' | 'market' | 'ai' | 'care' | 'sos') => void;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────
 
 function getGreeting(): string {
-  const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
 function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  return `${Math.floor(hrs / 24)}d ago`
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 }
 
 // ── Main Component ─────────────────────────────────────────────────
 
 export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesProps) {
-  const [priorities, setPriorities] = React.useState<Priority[]>([])
-  const [loading, setLoading] = React.useState(true)
-  const [completedIds, setCompletedIds] = React.useState<Set<string>>(new Set())
+  const [priorities, setPriorities] = React.useState<Priority[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [completedIds, setCompletedIds] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     const fetchPriorities = async () => {
       try {
         if (isDemo) {
-          setPriorities(getDemoPriorities(onNavigate))
-          setLoading(false)
-          return
+          setPriorities(getDemoPriorities(onNavigate));
+          setLoading(false);
+          return;
         }
-        const res = await fetch('/api/health/pulse')
+        const res = await fetch('/api/health/pulse');
         if (res.ok) {
-          const data = await res.json()
-          const generated = generatePriorities(data)
-          setPriorities(generated)
+          const data = await res.json();
+          const generated = generatePriorities(data);
+          setPriorities(generated);
         }
-      } catch { /* ignore */ }
-      setLoading(false)
-    }
-    fetchPriorities()
-  }, [userId, isDemo])
+      } catch {
+        /* ignore */
+      }
+      setLoading(false);
+    };
+    fetchPriorities();
+  }, [userId, isDemo]);
 
   const toggleComplete = (id: string) => {
-    setCompletedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
+    setCompletedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   if (loading) {
     return (
@@ -92,21 +103,25 @@ export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesP
             <h3 className="text-sm font-semibold">Your priorities today</h3>
           </div>
           <div className="space-y-2">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map(i => (
               <div key={i} className="h-12 rounded-lg bg-muted animate-pulse" />
             ))}
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  if (priorities.length === 0) return null
+  if (priorities.length === 0) return null;
 
-  const highCount = priorities.filter((p) => p.priority === 'high').length
+  const highCount = priorities.filter(p => p.priority === 'high').length;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-card to-teal-500/5 overflow-hidden">
         <CardContent className="p-5">
           {/* Header */}
@@ -116,7 +131,10 @@ export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesP
               <h3 className="text-sm font-semibold">Your priorities today</h3>
             </div>
             {highCount > 0 && (
-              <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px]">
+              <Badge
+                variant="secondary"
+                className="bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px]"
+              >
                 {highCount} needs attention
               </Badge>
             )}
@@ -125,8 +143,8 @@ export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesP
           {/* Priorities */}
           <div className="space-y-2">
             {priorities.map((p, i) => {
-              const Icon = p.icon
-              const isDone = completedIds.has(p.id)
+              const Icon = p.icon;
+              const isDone = completedIds.has(p.id);
               return (
                 <motion.div
                   key={p.id}
@@ -157,10 +175,20 @@ export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesP
                     </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className={cn('flex h-6 w-6 items-center justify-center rounded-lg', p.tint)}>
+                        <span
+                          className={cn(
+                            'flex h-6 w-6 items-center justify-center rounded-lg',
+                            p.tint
+                          )}
+                        >
                           <Icon className="h-3.5 w-3.5" />
                         </span>
-                        <p className={cn('text-sm font-medium', isDone && 'line-through text-muted-foreground')}>
+                        <p
+                          className={cn(
+                            'text-sm font-medium',
+                            isDone && 'line-through text-muted-foreground'
+                          )}
+                        >
                           {p.title}
                         </p>
                       </div>
@@ -178,7 +206,7 @@ export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesP
                     )}
                   </div>
                 </motion.div>
-              )
+              );
             })}
           </div>
 
@@ -192,12 +220,14 @@ export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesP
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }
 
 // ── Demo Data ──────────────────────────────────────────────────────
 
-function getDemoPriorities(onNavigate?: (tab: 'home' | 'meds' | 'market' | 'ai' | 'care' | 'sos') => void): Priority[] {
+function getDemoPriorities(
+  onNavigate?: (tab: 'home' | 'meds' | 'market' | 'ai' | 'care' | 'sos') => void
+): Priority[] {
   return [
     {
       id: 'demo-p1',
@@ -212,7 +242,7 @@ function getDemoPriorities(onNavigate?: (tab: 'home' | 'meds' | 'market' | 'ai' 
     {
       id: 'demo-p2',
       title: 'Log your symptoms',
-      description: 'You haven\'t logged in 2 days — how are you feeling?',
+      description: "You haven't logged in 2 days — how are you feeling?",
       icon: BookOpen,
       tint: 'bg-indigo-500/10 text-indigo-600',
       priority: 'medium',
@@ -229,36 +259,36 @@ function getDemoPriorities(onNavigate?: (tab: 'home' | 'meds' | 'market' | 'ai' 
       action: () => onNavigate?.('ai'),
       actionLabel: 'Chat',
     },
-  ]
+  ];
 }
 
 // ── Priority Generation ────────────────────────────────────────────
 
 function generatePriorities(pulseData: {
-  score: number
-  breakdown: Record<string, number>
-  insight: string
-  streakDays: number
+  score: number;
+  breakdown: Record<string, number>;
+  insight: string;
+  streakDays: number;
 }): Priority[] {
-  const priorities: Priority[] = []
-  const breakdown = pulseData.breakdown || {}
+  const priorities: Priority[] = [];
+  const breakdown = pulseData.breakdown || {};
 
   // Adherence gaps
-  const adherenceScore = breakdown.adherence || 0
+  const adherenceScore = breakdown.adherence || 0;
   if (adherenceScore < 30) {
     priorities.push({
       id: 'priority-adherence',
       title: 'Take your medications',
-      description: 'You\'ve missed several doses today. Stay on track!',
+      description: "You've missed several doses today. Stay on track!",
       icon: Pill,
       tint: 'bg-rose-500/10 text-rose-600',
       priority: 'high',
       actionLabel: 'View meds',
-    })
+    });
   }
 
   // Streak at risk
-  const streakScore = breakdown.streak || 0
+  const streakScore = breakdown.streak || 0;
   if (streakScore < 10 && pulseData.streakDays > 0) {
     priorities.push({
       id: 'priority-streak',
@@ -267,25 +297,25 @@ function generatePriorities(pulseData: {
       icon: Flame,
       tint: 'bg-orange-500/10 text-orange-600',
       priority: 'high',
-    })
+    });
   }
 
   // Journal gap
-  const journalScore = breakdown.journal || 0
+  const journalScore = breakdown.journal || 0;
   if (journalScore < 10) {
     priorities.push({
       id: 'priority-journal',
-      title: 'Log how you\'re feeling',
+      title: "Log how you're feeling",
       description: 'Tracking symptoms helps your care team give better advice.',
       icon: BookOpen,
       tint: 'bg-indigo-500/10 text-indigo-600',
       priority: 'medium',
       actionLabel: 'Log mood',
-    })
+    });
   }
 
   // AI engagement
-  const aiScore = breakdown.ai || 0
+  const aiScore = breakdown.ai || 0;
   if (aiScore < 10) {
     priorities.push({
       id: 'priority-ai',
@@ -295,27 +325,29 @@ function generatePriorities(pulseData: {
       tint: 'bg-cyan-500/10 text-cyan-600',
       priority: 'low',
       actionLabel: 'Ask AI',
-    })
+    });
   }
 
   // Low score overall
   if (pulseData.score < 40) {
     priorities.unshift({
       id: 'priority-low-score',
-      title: 'Let\'s improve your health score',
+      title: "Let's improve your health score",
       description: pulseData.insight,
       icon: AlertTriangle,
       tint: 'bg-amber-500/10 text-amber-600',
       priority: 'high',
-    })
+    });
   }
 
-  return priorities.slice(0, 4)
+  return priorities.slice(0, 4);
 }
 
 function getAiTip(priorities: Priority[]): string {
-  const high = priorities.filter((p) => p.priority === 'high')
-  if (high.length > 0) return `Focus on ${high[0]!.title.toLowerCase()} — small steps lead to big changes.`
-  if (priorities.length > 0) return `You're doing great! ${priorities[0]!.title.toLowerCase()} is next on your list.`
-  return 'Everything looks good today. Keep up the great work!'
+  const high = priorities.filter(p => p.priority === 'high');
+  if (high.length > 0)
+    return `Focus on ${high[0]!.title.toLowerCase()} — small steps lead to big changes.`;
+  if (priorities.length > 0)
+    return `You're doing great! ${priorities[0]!.title.toLowerCase()} is next on your list.`;
+  return 'Everything looks good today. Keep up the great work!';
 }

@@ -1,77 +1,122 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { motion } from 'framer-motion'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Pill, FlaskConical, CheckCircle2, Clock, AlertTriangle, ChevronRight, Loader2, FileText as FileTextIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Pill,
+  FlaskConical,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  ChevronRight,
+  Loader2,
+  FileText as FileTextIcon,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TimelineEvent {
-  id: string
-  type: 'prescription' | 'lab_booking'
-  date: string
-  status: string
-  details: Record<string, unknown>
-  actor: string
+  id: string;
+  type: 'prescription' | 'lab_booking';
+  date: string;
+  status: string;
+  details: Record<string, unknown>;
+  actor: string;
 }
 
 interface CareJourneyTimelineProps {
-  userId: string
-  isDemo: boolean
+  userId: string;
+  isDemo: boolean;
 }
 
 type StatusConfig = {
-  label: string
-  color: string
-  icon: React.ComponentType<{ className?: string }>
-}
+  label: string;
+  color: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  active: { label: 'Active', color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400', icon: CheckCircle2 },
-  pending: { label: 'Pending', color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400', icon: Clock },
-  completed: { label: 'Completed', color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400', icon: CheckCircle2 },
-  sample_collected: { label: 'Sample Collected', color: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400', icon: FlaskConical },
-  processing: { label: 'Processing', color: 'bg-violet-500/10 text-violet-700 dark:text-violet-400', icon: Loader2 },
-  cancelled: { label: 'Cancelled', color: 'bg-rose-500/10 text-rose-700 dark:text-rose-400', icon: AlertTriangle },
-  accepted: { label: 'Active', color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400', icon: CheckCircle2 },
-}
+  active: {
+    label: 'Active',
+    color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+    icon: CheckCircle2,
+  },
+  pending: {
+    label: 'Pending',
+    color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
+    icon: Clock,
+  },
+  completed: {
+    label: 'Completed',
+    color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400',
+    icon: CheckCircle2,
+  },
+  sample_collected: {
+    label: 'Sample Collected',
+    color: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400',
+    icon: FlaskConical,
+  },
+  processing: {
+    label: 'Processing',
+    color: 'bg-violet-500/10 text-violet-700 dark:text-violet-400',
+    icon: Loader2,
+  },
+  cancelled: {
+    label: 'Cancelled',
+    color: 'bg-rose-500/10 text-rose-700 dark:text-rose-400',
+    icon: AlertTriangle,
+  },
+  accepted: {
+    label: 'Active',
+    color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+    icon: CheckCircle2,
+  },
+};
 
 export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps) {
-  const [timeline, setTimeline] = React.useState<TimelineEvent[]>([])
-  const [loading, setLoading] = React.useState(true)
-  const [stats, setStats] = React.useState<Record<string, number>>({})
+  const [timeline, setTimeline] = React.useState<TimelineEvent[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [stats, setStats] = React.useState<Record<string, number>>({});
 
   React.useEffect(() => {
     const fetchTimeline = async () => {
       try {
         if (isDemo) {
-          setTimeline(getDemoTimeline())
-          setStats({ totalPrescriptions: 3, activePrescriptions: 2, totalLabBookings: 2, pendingLabTests: 1, completedLabTests: 1 })
-          setLoading(false)
-          return
+          setTimeline(getDemoTimeline());
+          setStats({
+            totalPrescriptions: 3,
+            activePrescriptions: 2,
+            totalLabBookings: 2,
+            pendingLabTests: 1,
+            completedLabTests: 1,
+          });
+          setLoading(false);
+          return;
         }
-        const res = await fetch('/api/care-workflow')
+        const res = await fetch('/api/care-workflow');
         if (res.ok) {
-          const data = await res.json()
-          setTimeline(data.timeline || [])
-          setStats(data.stats || {})
+          const data = await res.json();
+          setTimeline(data.timeline || []);
+          setStats(data.stats || {});
         }
-      } catch { /* ignore */ }
-      setLoading(false)
-    }
-    fetchTimeline()
-  }, [userId, isDemo])
+      } catch {
+        /* ignore */
+      }
+      setLoading(false);
+    };
+    fetchTimeline();
+  }, [userId, isDemo]);
 
   if (loading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />
         ))}
       </div>
-    )
+    );
   }
 
   if (timeline.length === 0) {
@@ -83,24 +128,35 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
           <p className="text-xs mt-1">Prescriptions and lab tests will appear here.</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <div className="space-y-4">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
-        <StatCard label="Prescriptions" value={stats.activePrescriptions ?? 0} sub={`${stats.totalPrescriptions ?? 0} total`} tint="emerald" />
-        <StatCard label="Lab Tests" value={stats.pendingLabTests ?? 0} sub={`${stats.completedLabTests ?? 0} done`} tint="cyan" />
+        <StatCard
+          label="Prescriptions"
+          value={stats.activePrescriptions ?? 0}
+          sub={`${stats.totalPrescriptions ?? 0} total`}
+          tint="emerald"
+        />
+        <StatCard
+          label="Lab Tests"
+          value={stats.pendingLabTests ?? 0}
+          sub={`${stats.completedLabTests ?? 0} done`}
+          tint="cyan"
+        />
         <StatCard label="Total Events" value={timeline.length} sub="All time" tint="violet" />
       </div>
 
       {/* Timeline */}
       <div className="space-y-3">
         {timeline.map((event, i) => {
-          const config: StatusConfig = (STATUS_CONFIG[event.status] ?? STATUS_CONFIG.pending!) as StatusConfig
-          const StatusIcon = config.icon
-          const isRx = event.type === 'prescription'
+          const config: StatusConfig = (STATUS_CONFIG[event.status] ??
+            STATUS_CONFIG.pending!) as StatusConfig;
+          const StatusIcon = config.icon;
+          const isRx = event.type === 'prescription';
           return (
             <motion.div
               key={event.id}
@@ -108,15 +164,27 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <Card className={cn('border-border/60', isRx ? 'border-l-emerald-500/40' : 'border-l-cyan-500/40')}>
+              <Card
+                className={cn(
+                  'border-border/60',
+                  isRx ? 'border-l-emerald-500/40' : 'border-l-cyan-500/40'
+                )}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', isRx ? 'bg-emerald-500/10 text-emerald-600' : 'bg-cyan-500/10 text-cyan-600')}>
+                    <span
+                      className={cn(
+                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                        isRx ? 'bg-emerald-500/10 text-emerald-600' : 'bg-cyan-500/10 text-cyan-600'
+                      )}
+                    >
                       {isRx ? <Pill className="h-4 w-4" /> : <FlaskConical className="h-4 w-4" />}
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold">{isRx ? 'Prescription' : 'Lab Test'}</p>
+                        <p className="text-sm font-semibold">
+                          {isRx ? 'Prescription' : 'Lab Test'}
+                        </p>
                         <Badge variant="secondary" className={cn('text-[10px] h-5', config.color)}>
                           <StatusIcon className="h-3 w-3" />
                           {config.label}
@@ -125,20 +193,32 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {isRx ? `Dr. ${event.actor}` : event.actor}
                         {' · '}
-                        {new Date(event.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date(event.date).toLocaleDateString('en-US', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
                       </p>
                       {isRx && Array.isArray(event.details.medications) && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
-                          {(event.details.medications as Array<{ name?: string }>).slice(0, 3).map((med, j) => (
-                            <Badge key={j} variant="secondary" className="text-[10px]">{med.name || 'Medication'}</Badge>
-                          ))}
+                          {(event.details.medications as Array<{ name?: string }>)
+                            .slice(0, 3)
+                            .map((med, j) => (
+                              <Badge key={j} variant="secondary" className="text-[10px]">
+                                {med.name || 'Medication'}
+                              </Badge>
+                            ))}
                         </div>
                       )}
                       {!isRx && Array.isArray(event.details.tests) && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
-                          {(event.details.tests as Array<{ name?: string }>).slice(0, 3).map((test, j) => (
-                            <Badge key={j} variant="secondary" className="text-[10px]">{test.name || 'Test'}</Badge>
-                          ))}
+                          {(event.details.tests as Array<{ name?: string }>)
+                            .slice(0, 3)
+                            .map((test, j) => (
+                              <Badge key={j} variant="secondary" className="text-[10px]">
+                                {test.name || 'Test'}
+                              </Badge>
+                            ))}
                         </div>
                       )}
                     </div>
@@ -147,19 +227,29 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
                 </CardContent>
               </Card>
             </motion.div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
 
-function StatCard({ label, value, sub, tint }: { label: string; value: number; sub: string; tint: string }) {
+function StatCard({
+  label,
+  value,
+  sub,
+  tint,
+}: {
+  label: string;
+  value: number;
+  sub: string;
+  tint: string;
+}) {
   const colorMap: Record<string, string> = {
     emerald: 'text-emerald-600 dark:text-emerald-400',
     cyan: 'text-cyan-600 dark:text-cyan-400',
     violet: 'text-violet-600 dark:text-violet-400',
-  }
+  };
   return (
     <Card>
       <CardContent className="p-3 text-center">
@@ -168,7 +258,7 @@ function StatCard({ label, value, sub, tint }: { label: string; value: number; s
         <p className="text-[10px] text-muted-foreground/70">{sub}</p>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function getDemoTimeline(): TimelineEvent[] {
@@ -180,10 +270,7 @@ function getDemoTimeline(): TimelineEvent[] {
       status: 'active',
       actor: 'Rajesh Kumar',
       details: {
-        medications: [
-          { name: 'Metformin 500mg' },
-          { name: 'Atorvastatin 10mg' },
-        ],
+        medications: [{ name: 'Metformin 500mg' }, { name: 'Atorvastatin 10mg' }],
       },
     },
     {
@@ -193,10 +280,7 @@ function getDemoTimeline(): TimelineEvent[] {
       status: 'completed',
       actor: 'MediTest Labs',
       details: {
-        tests: [
-          { name: 'Blood Sugar' },
-          { name: 'Lipid Profile' },
-        ],
+        tests: [{ name: 'Blood Sugar' }, { name: 'Lipid Profile' }],
       },
     },
     {
@@ -206,10 +290,8 @@ function getDemoTimeline(): TimelineEvent[] {
       status: 'accepted',
       actor: 'Rajesh Kumar',
       details: {
-        medications: [
-          { name: 'Vitamin D3' },
-        ],
+        medications: [{ name: 'Vitamin D3' }],
       },
     },
-  ]
+  ];
 }

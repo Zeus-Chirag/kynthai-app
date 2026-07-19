@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { Prisma } from '@prisma/client'
+// import type { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText, rateLimit } from '@/lib/security'
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
   const patientId = sp.get('patientId')?.trim()
   const doctorId = sp.get('doctorId')?.trim()
 
-  const and: Prisma.PrescriptionWhereInput[] = []
+  const and: any[] = []
   if (patientId) {
     if (patientId !== u.id && u.role !== 'admin') {
       return jsonError('Forbidden', 403)
@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const where: Prisma.PrescriptionWhereInput = { AND: and }
+  const where: any = { AND: and }
   const prescriptions = await db.prescription.findMany({
     where,
     include: { patient: true, doctor: { include: { user: true } } },
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
   })
 
   return jsonOk(
-    prescriptions.map((p) => ({
+    prescriptions.map((p: any) => ({
       id: p.id,
       doctorId: p.doctorId,
       doctorName: p.doctor.user.name,

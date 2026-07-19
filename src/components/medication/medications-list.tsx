@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react';
 import {
   Pill,
   Clock,
@@ -11,11 +11,11 @@ import {
   Search,
   CheckCircle2,
   ScanLine,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Sheet,
   SheetContent,
@@ -23,7 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
+} from '@/components/ui/sheet';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,129 +34,209 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Skeleton } from '@/components/ui/skeleton'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useToast } from '@/hooks/use-toast'
-import { type Medication, getColorClasses } from '@/lib/types'
-import { AddMedication } from './add-medication'
-import { PrescriptionScanner } from './prescription-scanner'
+} from '@/components/ui/alert-dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/hooks/use-toast';
+import { type Medication, getColorClasses } from '@/lib/types';
+import { AddMedication } from './add-medication';
+import { PrescriptionScanner } from './prescription-scanner';
 
 function formatTime(t: string) {
-  const [h = 0, m = 0] = (t.split(':').map(Number) as [number, number])
-  const ampm = h >= 12 ? 'PM' : 'AM'
-  const hour12 = h % 12 === 0 ? 12 : h % 12
-  return `${hour12}:${String(m).padStart(2, '0')} ${ampm}`
+  const [h = 0, m = 0] = t.split(':').map(Number) as [number, number];
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, '0')} ${ampm}`;
 }
 
-export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: string; familyMemberId?: string; isDemo?: boolean } = {}) {
-  const [meds, setMeds] = useState<Medication[]>([])
-  const [loading, setLoading] = useState(true)
-  const [query, setQuery] = useState('')
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [scanOpen, setScanOpen] = useState(false)
-  const { toast } = useToast()
+export function MedicationsList({
+  userId,
+  familyMemberId,
+  isDemo,
+}: { userId?: string; familyMemberId?: string; isDemo?: boolean } = {}) {
+  const [meds, setMeds] = useState<Medication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
+  const { toast } = useToast();
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     // Demo mode: show different sample medications per family member.
     if (isDemo) {
-      const now = new Date().toISOString()
+      const now = new Date().toISOString();
       const demoMeds: Record<string, Medication[]> = {
-        fm1: [ // Father
-          { id: 'dm1', name: 'Metformin', dosage: '500mg', times: ['08:00', '20:00'], frequency: '2x daily', instructions: 'After meals', active: true, color: 'emerald', createdAt: now, updatedAt: now },
-          { id: 'dm2', name: 'Amlodipine', dosage: '5mg', times: ['08:00'], frequency: 'Once daily', instructions: 'After breakfast', active: true, color: 'teal', createdAt: now, updatedAt: now },
-          { id: 'dm3', name: 'Atorvastatin', dosage: '10mg', times: ['22:00'], frequency: 'At bedtime', instructions: 'With water', active: true, color: 'blue', createdAt: now, updatedAt: now },
-          { id: 'dm4', name: 'Aspirin', dosage: '75mg', times: ['08:00'], frequency: 'Once daily', instructions: 'With food', active: true, color: 'amber', createdAt: now, updatedAt: now },
+        fm1: [
+          // Father
+          {
+            id: 'dm1',
+            name: 'Metformin',
+            dosage: '500mg',
+            times: ['08:00', '20:00'],
+            frequency: '2x daily',
+            instructions: 'After meals',
+            active: true,
+            color: 'emerald',
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 'dm2',
+            name: 'Amlodipine',
+            dosage: '5mg',
+            times: ['08:00'],
+            frequency: 'Once daily',
+            instructions: 'After breakfast',
+            active: true,
+            color: 'teal',
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 'dm3',
+            name: 'Atorvastatin',
+            dosage: '10mg',
+            times: ['22:00'],
+            frequency: 'At bedtime',
+            instructions: 'With water',
+            active: true,
+            color: 'blue',
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 'dm4',
+            name: 'Aspirin',
+            dosage: '75mg',
+            times: ['08:00'],
+            frequency: 'Once daily',
+            instructions: 'With food',
+            active: true,
+            color: 'amber',
+            createdAt: now,
+            updatedAt: now,
+          },
         ],
-        fm2: [ // Mother
-          { id: 'dm5', name: 'Thyroxine', dosage: '50mcg', times: ['07:00'], frequency: 'Once daily', instructions: 'Empty stomach, 30min before food', active: true, color: 'emerald', createdAt: now, updatedAt: now },
-          { id: 'dm6', name: 'Calcium + D3', dosage: '500mg', times: ['20:00'], frequency: 'Once daily', instructions: 'After dinner', active: true, color: 'teal', createdAt: now, updatedAt: now },
+        fm2: [
+          // Mother
+          {
+            id: 'dm5',
+            name: 'Thyroxine',
+            dosage: '50mcg',
+            times: ['07:00'],
+            frequency: 'Once daily',
+            instructions: 'Empty stomach, 30min before food',
+            active: true,
+            color: 'emerald',
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 'dm6',
+            name: 'Calcium + D3',
+            dosage: '500mg',
+            times: ['20:00'],
+            frequency: 'Once daily',
+            instructions: 'After dinner',
+            active: true,
+            color: 'teal',
+            createdAt: now,
+            updatedAt: now,
+          },
         ],
-        fm3: [ // Daughter
-          { id: 'dm7', name: 'Cetirizine', dosage: '10mg', times: ['21:00'], frequency: 'As needed', instructions: 'For allergies', active: true, color: 'purple', createdAt: now, updatedAt: now },
+        fm3: [
+          // Daughter
+          {
+            id: 'dm7',
+            name: 'Cetirizine',
+            dosage: '10mg',
+            times: ['21:00'],
+            frequency: 'As needed',
+            instructions: 'For allergies',
+            active: true,
+            color: 'purple',
+            createdAt: now,
+            updatedAt: now,
+          },
         ],
-      }
+      };
       // If familyMemberId is provided, show that member's meds; otherwise show first member's
-      const memberKey = familyMemberId || 'fm1'
-      setMeds(demoMeds[memberKey] ?? demoMeds.fm1 ?? [])
-      setLoading(false)
-      return
+      const memberKey = familyMemberId || 'fm1';
+      setMeds(demoMeds[memberKey] ?? demoMeds.fm1 ?? []);
+      setLoading(false);
+      return;
     }
     try {
-      let url = '/api/medications'
-      if (familyMemberId) url += `?familyMemberId=${encodeURIComponent(familyMemberId)}`
-      else if (userId) url += `?userId=${encodeURIComponent(userId)}`
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Failed')
-      const data = await res.json()
-      setMeds(data)
+      let url = '/api/medications';
+      if (familyMemberId) url += `?familyMemberId=${encodeURIComponent(familyMemberId)}`;
+      else if (userId) url += `?userId=${encodeURIComponent(userId)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setMeds(data);
     } catch (e) {
       toast({
         title: 'Failed to load',
         description: e instanceof Error ? e.message : 'Unknown error',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [isDemo, toast, userId, familyMemberId])
+  }, [isDemo, toast, userId, familyMemberId]);
 
   useEffect(() => {
-    load()
-  }, [load])
+    load();
+  }, [load]);
 
   const remove = async (id: string) => {
     if (isDemo) {
-      setMeds((prev) => prev.filter((m) => m.id !== id))
-      toast({ title: 'Medication deleted' })
-      return
+      setMeds(prev => prev.filter(m => m.id !== id));
+      toast({ title: 'Medication deleted' });
+      return;
     }
     try {
-      const res = await fetch(`/api/medications/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Delete failed')
-      toast({ title: 'Medication deleted' })
-      setMeds((prev) => prev.filter((m) => m.id !== id))
+      const res = await fetch(`/api/medications/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      toast({ title: 'Medication deleted' });
+      setMeds(prev => prev.filter(m => m.id !== id));
     } catch (e) {
       toast({
         title: 'Delete failed',
         description: e instanceof Error ? e.message : 'Unknown error',
         variant: 'destructive',
-      })
+      });
     }
-  }
+  };
 
   const toggleActive = async (med: Medication) => {
     if (isDemo) {
-      setMeds((prev) =>
-        prev.map((m) => (m.id === med.id ? { ...m, active: !m.active } : m))
-      )
-      return
+      setMeds(prev => prev.map(m => (m.id === med.id ? { ...m, active: !m.active } : m)));
+      return;
     }
     try {
       const res = await fetch(`/api/medications/${med.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: !med.active }),
-      })
-      if (!res.ok) throw new Error('Update failed')
-      setMeds((prev) =>
-        prev.map((m) => (m.id === med.id ? { ...m, active: !m.active } : m))
-      )
+      });
+      if (!res.ok) throw new Error('Update failed');
+      setMeds(prev => prev.map(m => (m.id === med.id ? { ...m, active: !m.active } : m)));
     } catch (e) {
       toast({
         title: 'Update failed',
         description: e instanceof Error ? e.message : 'Unknown error',
         variant: 'destructive',
-      })
+      });
     }
-  }
+  };
 
   const filtered = meds.filter(
-    (m) =>
+    m =>
       m.name.toLowerCase().includes(query.toLowerCase()) ||
       m.dosage.toLowerCase().includes(query.toLowerCase())
-  )
+  );
 
   return (
     <div className="space-y-4">
@@ -165,7 +245,7 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={e => setQuery(e.target.value)}
             placeholder="Search medications..."
             className="pl-9"
           />
@@ -185,7 +265,12 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
               </SheetDescription>
             </SheetHeader>
             <div className="mt-4">
-              <PrescriptionScanner onImported={() => { load(); setScanOpen(false) }} />
+              <PrescriptionScanner
+                onImported={() => {
+                  load();
+                  setScanOpen(false);
+                }}
+              />
             </div>
           </SheetContent>
         </Sheet>
@@ -216,7 +301,7 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map(i => (
             <Skeleton key={i} className="h-28 w-full rounded-xl" />
           ))}
         </div>
@@ -224,24 +309,17 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground">
             <Pill className="h-10 w-10 mx-auto mb-3 opacity-40" />
-            <p className="font-medium">
-              {query ? 'No matches found' : 'No medications yet'}
-            </p>
-            <p className="text-sm mt-1">
-              Tap “Add” to create your first medication reminder.
-            </p>
+            <p className="font-medium">{query ? 'No matches found' : 'No medications yet'}</p>
+            <p className="text-sm mt-1">Tap “Add” to create your first medication reminder.</p>
           </CardContent>
         </Card>
       ) : (
         <ScrollArea className="max-h-[32rem]">
           <div className="space-y-3 pr-2">
-            {filtered.map((med) => {
-              const cls = getColorClasses(med.color)
+            {filtered.map(med => {
+              const cls = getColorClasses(med.color);
               return (
-                <Card
-                  key={med.id}
-                  className={!med.active ? 'opacity-60' : ''}
-                >
+                <Card key={med.id} className={!med.active ? 'opacity-60' : ''}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <div
@@ -268,7 +346,7 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
 
                         <div className="flex items-center gap-1.5 flex-wrap mt-1.5 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          {med.times.map((t) => (
+                          {med.times.map(t => (
                             <span
                               key={t}
                               className={`px-1.5 py-0.5 rounded ${cls.bg} ${cls.text} font-medium`}
@@ -285,8 +363,7 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
                         )}
                         {med.notes && (
                           <p className="text-xs mt-1 line-clamp-1">
-                            <span className="text-muted-foreground">Note:</span>{' '}
-                            {med.notes}
+                            <span className="text-muted-foreground">Note:</span> {med.notes}
                           </p>
                         )}
                       </div>
@@ -317,12 +394,10 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Delete {med.name}?
-                              </AlertDialogTitle>
+                              <AlertDialogTitle>Delete {med.name}?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will remove the medication and all its
-                                reminders. This action cannot be undone.
+                                This will remove the medication and all its reminders. This action
+                                cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -340,7 +415,7 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </ScrollArea>
@@ -349,9 +424,9 @@ export function MedicationsList({ userId, familyMemberId, isDemo }: { userId?: s
       {!loading && meds.length > 0 && (
         <p className="text-xs text-muted-foreground text-center">
           {meds.length} medication{meds.length !== 1 ? 's' : ''} ·{' '}
-          {meds.filter((m) => m.active).length} active
+          {meds.filter(m => m.active).length} active
         </p>
       )}
     </div>
-  )
+  );
 }

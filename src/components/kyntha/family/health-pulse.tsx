@@ -28,6 +28,48 @@ export function FamilyHealthPulse({ onDataLoaded }: { onDataLoaded?: (members: F
   const [loading, setLoading] = useState(true)
 
   const fetchFamilyData = async () => {
+    const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+
+    // Demo mode: return seeded data without backend call
+    if (isDemoMode) {
+      const demoData: FamilyHealthPulseData = {
+        familyName: 'Demo Family',
+        overallScore: 78,
+        members: [
+          {
+            id: 'fm1',
+            name: 'Robert Wilson',
+            relation: 'Father',
+            color: '#10b981',
+            todayStatus: 'taken' as const,
+            medications: [{ name: 'Metformin', dosage: '500mg' }, { name: 'Amlodipine', dosage: '5mg' }],
+            adherenceScore: 85,
+          },
+          {
+            id: 'fm2',
+            name: 'Emma Wilson',
+            relation: 'Mother',
+            color: '#0d9488',
+            todayStatus: 'pending' as const,
+            medications: [{ name: 'Thyroxine', dosage: '50mcg' }],
+            adherenceScore: 65,
+          },
+          {
+            id: 'fm3',
+            name: 'Noah Wilson',
+            relation: 'Child',
+            color: '#0891b2',
+            todayStatus: 'taken' as const,
+            medications: [{ name: 'Cetirizine', dosage: '10mg' }],
+            adherenceScore: 95,
+          },
+        ],
+      }
+      setData(demoData)
+      onDataLoaded?.(demoData.members)
+      setLoading(false)
+      return
+    }
     try {
       const res = await fetch('/api/family', { credentials: 'include' })
       if (!res.ok) {

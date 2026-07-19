@@ -1,0 +1,28 @@
+import { test, expect } from '@playwright/test';
+
+test('quick login sanity', async ({ page }) => {
+  // API login — immune to form CSRF timing issues
+  const csrfRes = await page.request.get('/api/auth/csrf');
+  expect(csrfRes.ok()).toBeTruthy();
+
+  const loginRes = await page.request.post('/api/auth/login', {
+    data: { email: 'patient@demo.kyntha.app', password: 'Demo@2024' },
+  });
+  expect(loginRes.ok()).toBeTruthy();
+
+  const setCookie = loginRes.headers()['set-cookie'];
+  if (setCookie) {
+    const match = setCookie[0].match(/kyntha_session=([^;]+)/);
+    if (match) {
+      await page.context().addCookies([{
+        name: 'kyntha_session', value: match[1], domain: 'localhost', path: '/',
+      }]);
+    }
+  }
+
+  await page.goto('/patient');
+  await page.waitForTimeout(2000);
+  console.log('URL after login:', page.url());
+  await expect(page.locator('body')).toBeVisible();
+  expect(page.url()).toContain('/patient');
+});

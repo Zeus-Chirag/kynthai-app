@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getSessionUser, logAudit } from '@/lib/auth'
-import { jsonOk, jsonError } from '@/lib/api-helpers'
+import { logAudit } from '@/lib/auth'
+import { jsonOk, jsonError, requireAuth } from '@/lib/api-helpers'
 import { logger } from '@/lib/logger'
 import { todayStr, daysAgo, toISODateTime } from '@/lib/utils'
 // Prevent static generation — this route reads session + DB at runtime
@@ -11,13 +11,13 @@ export const dynamic = 'force-dynamic'
 // Returns up to 2 proactive health nudges based on user data.
 export async function GET(req: NextRequest) {
   try {
-    const sessionUser = await getSessionUser()
-    if (!sessionUser) return jsonError('Unauthorized', 401)
+    const { response, user } = await requireAuth(req)
+    if (response || !user) return response!
 
-    const userId = sessionUser.id
+    const userId = user.id
 
   // HIPAA: audit AI health nudge generation (queries medication, reminder, journal PHI)
-  await logAudit(sessionUser.id, 'ai.nudge', { resourceType: 'HealthJournal' })
+  await logAudit(user.id, 'ai.nudge', { resourceType: 'HealthJournal' })
 
     // ── Parallel data fetch ────────────────────────────────────────
     const [activeMeds, missedReminders, journalEntries, streak, recentChats] =

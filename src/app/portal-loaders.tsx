@@ -91,9 +91,10 @@ export function loadPortal(
   if (!load) return { key: role, node: null };
 
   // SECURITY-CRITICAL: Verify the user is authenticated AND has the correct role
-  if (!user || user.role !== role) {
-    return { key: keys[role] ?? role, node: null };
-  }
+  // Caretaker (DB role) accesses the family portal
+  if (!user) return { key: keys[role] ?? role, node: null };
+  const roleMatches = user.role === role || (user.role === 'caretaker' && role === 'family');
+  if (!roleMatches) return { key: keys[role] ?? role, node: null };
 
   const Comp = dynamic(load, { ssr: false, loading: () => <PortalSkeleton /> });
   const wrapped = (

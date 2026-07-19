@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { Prisma } from '@prisma/client';
+// import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { logAudit } from '@/lib/auth';
 import { sanitizeText, rateLimit } from '@/lib/security';
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const status = req.nextUrl.searchParams.get('status')?.trim();
-    const where: Prisma.LabProfileWhereInput = {};
+    const where: any = {};
     if (status) where.verificationStatus = status;
 
     const labs = await db.labProfile.findMany({
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     });
 
     return jsonOk(
-      labs.map(l => ({
+      labs.map((l: any) => ({
         id: l.id,
         userId: l.userId,
         email: l.user.email,

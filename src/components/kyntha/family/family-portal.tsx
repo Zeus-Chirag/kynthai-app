@@ -11,13 +11,17 @@ export function FamilyPortal() {
   const { user, setLoginPortal } = useAppStore()
 
   useEffect(() => {
-    if (!user) {
+    // Demo mode: allow client-side user without full auth
+    const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+    if (!user && !isDemoMode) {
       setLoginPortal('caretaker')
       router.replace('/login')
     }
   }, [user, router, setLoginPortal])
 
-  if (!user) {
+  // Demo mode fallback: show portal even without server session
+  const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+  if (!user && !isDemoMode) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-sm text-muted-foreground">Redirecting...</div>
@@ -25,5 +29,5 @@ export function FamilyPortal() {
     )
   }
 
-  return <main id="main-content"><FamilyPortalClient user={user} /></main>
+  return <main id="main-content"><FamilyPortalClient user={user as any} /></main>
 }

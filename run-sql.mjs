@@ -1,0 +1,52 @@
+import https from 'https'
+
+const SUPABASE_URL = 'szqzeemimmafkopwqqfp.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6cXplZW1pbW1hZmtvcHdxcWZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDEzMDc3OSwiZXhwIjoyMDk5NzA2Nzc5fQ.tpGh8dWCxutllyjkW10Cpek031Kd6qShEYNfUuNDcKY'
+
+function execSQL(sql) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ query: sql })
+    const options = {
+      hostname: SUPABASE_URL,
+      path: '/rest/v1/rpc/exec_sql',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }
+
+    const req = https.request(options, (res) => {
+      let data = ''
+      res.on('data', (chunk) => { data += chunk })
+      res.on('end', () => {
+        if (res.statusCode === 200 || res.statusCode === 204) {
+          resolve(true)
+        } else if (res.statusCode === 404) {
+          // exec_sql function doesn't exist - need to create it first or use Management API
+          console.log('    exec_sql not found (404)')
+          resolve(false)
+        } else {
+          console.log(`    Error ${res.statusCode}: ${data.slice(0, 150)}`)
+          resolve(false)
+        }
+      })
+    })
+
+    req.on('error', reject)
+    req.write(body)
+    req.end()
+  })
+}
+
+async function main() {
+  // Try a simple SELECT first
+  console.log('Testing connectivity...')
+  const result = await execSQL('SELECT 1 as test')
+  console.log('Result:', result)
+}
+
+main().catch(console.error)

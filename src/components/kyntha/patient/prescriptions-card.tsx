@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * PrescriptionsCard — Patient-side view of prescriptions from their doctor.
@@ -11,7 +11,7 @@
  * visible without a real backend session.
  */
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   Stethoscope,
   Pill,
@@ -20,25 +20,25 @@ import {
   Loader2,
   ChevronRight,
   FileText,
-} from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { useToast } from '@/hooks/use-toast'
-import { cn } from '@/lib/utils'
+} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface Prescription {
-  id: string
-  doctorName: string
-  specialization?: string
-  medications: { name: string; dosage: string; frequency?: string }[]
-  notes?: string | null
-  inviteStatus: 'sent' | 'accepted' | 'expired'
-  inviteToken?: string
-  followUpDate?: string | null
-  createdAt: string
+  id: string;
+  doctorName: string;
+  specialization?: string;
+  medications: { name: string; dosage: string; frequency?: string }[];
+  notes?: string | null;
+  inviteStatus: 'sent' | 'accepted' | 'expired';
+  inviteToken?: string;
+  followUpDate?: string | null;
+  createdAt: string;
 }
 
 const DEMO_PRESCRIPTIONS: Prescription[] = [
@@ -56,78 +56,78 @@ const DEMO_PRESCRIPTIONS: Prescription[] = [
     followUpDate: new Date(Date.now() + 14 * 86400000).toISOString(),
     createdAt: new Date(Date.now() - 2 * 3600000).toISOString(),
   },
-]
+];
 
 export function PrescriptionsCard({
   isDemo,
   onAcceptDemo,
 }: {
-  isDemo: boolean
-  onAcceptDemo?: () => void
+  isDemo: boolean;
+  onAcceptDemo?: () => void;
 }) {
-  const { toast } = useToast()
-  const [prescriptions, setPrescriptions] = React.useState<Prescription[]>([])
-  const [loading, setLoading] = React.useState(true)
-  const [accepting, setAccepting] = React.useState<string | null>(null)
+  const { toast } = useToast();
+  const [prescriptions, setPrescriptions] = React.useState<Prescription[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [accepting, setAccepting] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     if (isDemo) {
-      setPrescriptions(DEMO_PRESCRIPTIONS)
-      setLoading(false)
-      return
+      setPrescriptions(DEMO_PRESCRIPTIONS);
+      setLoading(false);
+      return;
     }
     try {
-      const res = await fetch('/api/prescriptions', { cache: 'no-store' })
-      if (!res.ok) throw new Error('Failed')
-      const data = await res.json()
-      setPrescriptions(data)
+      const res = await fetch('/api/prescriptions', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setPrescriptions(data);
     } catch {
-      setPrescriptions([])
+      setPrescriptions([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [isDemo])
+  }, [isDemo]);
 
   React.useEffect(() => {
-    load()
-  }, [load])
+    load();
+  }, [load]);
 
   const accept = async (rx: Prescription) => {
-    setAccepting(rx.id)
+    setAccepting(rx.id);
     if (isDemo) {
       // Demo: mark as accepted locally + add meds to the Meds tab via callback
-      setPrescriptions((prev) =>
-        prev.map((p) => (p.id === rx.id ? { ...p, inviteStatus: 'accepted' } : p))
-      )
+      setPrescriptions(prev =>
+        prev.map(p => (p.id === rx.id ? { ...p, inviteStatus: 'accepted' } : p))
+      );
       toast({
         title: 'Prescription accepted',
         description: `${rx.medications.length} medication(s) added to your Meds list.`,
-      })
-      onAcceptDemo?.()
-      setAccepting(null)
-      return
+      });
+      onAcceptDemo?.();
+      setAccepting(null);
+      return;
     }
     try {
       const res = await fetch('/api/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: rx.inviteToken }),
-      })
-      if (!res.ok) throw new Error('Accept failed')
-      setPrescriptions((prev) =>
-        prev.map((p) => (p.id === rx.id ? { ...p, inviteStatus: 'accepted' } : p))
-      )
+      });
+      if (!res.ok) throw new Error('Accept failed');
+      setPrescriptions(prev =>
+        prev.map(p => (p.id === rx.id ? { ...p, inviteStatus: 'accepted' } : p))
+      );
       toast({
         title: 'Prescription accepted',
         description: `${rx.medications.length} medication(s) added to your Meds list.`,
-      })
+      });
     } catch {
-      toast({ title: 'Accept failed', description: 'Try again later.', variant: 'destructive' })
+      toast({ title: 'Accept failed', description: 'Try again later.', variant: 'destructive' });
     } finally {
-      setAccepting(null)
+      setAccepting(null);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -137,13 +137,13 @@ export function PrescriptionsCard({
           <span className="text-sm">Checking for prescriptions…</span>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  if (prescriptions.length === 0) return null
+  if (prescriptions.length === 0) return null;
 
-  const pending = prescriptions.filter((p) => p.inviteStatus === 'sent')
-  const accepted = prescriptions.filter((p) => p.inviteStatus === 'accepted')
+  const pending = prescriptions.filter(p => p.inviteStatus === 'sent');
+  const accepted = prescriptions.filter(p => p.inviteStatus === 'accepted');
 
   return (
     <div className="space-y-3">
@@ -159,7 +159,7 @@ export function PrescriptionsCard({
         )}
       </div>
 
-      {pending.map((rx) => (
+      {pending.map(rx => (
         <Card key={rx.id} className="ring-1 ring-amber-500/30">
           <CardContent className="p-4 space-y-3">
             {/* Doctor info */}
@@ -175,7 +175,10 @@ export function PrescriptionsCard({
                   {rx.specialization || 'Provider'} · {timeAgo(rx.createdAt)}
                 </p>
               </div>
-              <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px]">
+              <Badge
+                variant="secondary"
+                className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px]"
+              >
                 <Clock className="h-3 w-3" />
                 Pending
               </Badge>
@@ -210,7 +213,11 @@ export function PrescriptionsCard({
             {rx.followUpDate && (
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                Follow-up: {new Date(rx.followUpDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                Follow-up:{' '}
+                {new Date(rx.followUpDate).toLocaleDateString('en-US', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
               </p>
             )}
 
@@ -222,7 +229,9 @@ export function PrescriptionsCard({
               size="sm"
             >
               {accepting === rx.id ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Accepting…</>
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Accepting…
+                </>
               ) : (
                 <>Accept prescription</>
               )}
@@ -231,7 +240,7 @@ export function PrescriptionsCard({
         </Card>
       ))}
 
-      {accepted.map((rx) => (
+      {accepted.map(rx => (
         <Card key={rx.id} className="opacity-80">
           <CardContent className="p-3 flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
@@ -243,22 +252,25 @@ export function PrescriptionsCard({
                 {rx.medications.length} med(s) · accepted {timeAgo(rx.createdAt)}
               </p>
             </div>
-            <Badge variant="outline" className="text-[10px] text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+            <Badge
+              variant="outline"
+              className="text-[10px] text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+            >
               Active
             </Badge>
           </CardContent>
         </Card>
       ))}
     </div>
-  )
+  );
 }
 
 function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 60) return `${mins}m ago`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }

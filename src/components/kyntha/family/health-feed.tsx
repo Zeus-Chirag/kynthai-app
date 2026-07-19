@@ -21,6 +21,40 @@ export function FamilyHealthFeed() {
   const [loading, setLoading] = useState(true)
 
   const fetchFeed = async () => {
+    const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+
+    // Demo mode: return seeded data without backend call
+    if (isDemoMode) {
+      const demoFeed: FeedItem[] = [
+        {
+          id: 'feed1',
+          type: 'medication_taken',
+          memberName: 'Robert Wilson',
+          memberColor: '#10b981',
+          message: 'Took Metformin 500mg after breakfast',
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: 'feed2',
+          type: 'medication_taken',
+          memberName: 'Emma Wilson',
+          memberColor: '#0d9488',
+          message: 'Took Thyroxine 50mcg on empty stomach',
+          timestamp: new Date(Date.now() - 60 * 60000).toISOString(),
+        },
+        {
+          id: 'feed3',
+          type: 'streak',
+          memberName: 'Noah Wilson',
+          memberColor: '#0891b2',
+          message: '7-day medication streak achieved!',
+          timestamp: new Date(Date.now() - 2 * 60 * 60000).toISOString(),
+        },
+      ]
+      setFeed(demoFeed)
+      setLoading(false)
+      return
+    }
     try {
       const res = await fetch('/api/family-feed')
       if (res.ok) {

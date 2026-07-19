@@ -56,8 +56,10 @@ process.on('unhandledRejection', (reason: unknown) => {
 
 /**
  * Disconnect cleanly on SIGINT / SIGTERM.
+ * SECURITY: In production, always run graceful shutdown to prevent
+ * Prisma connection pool leaks and potential data corruption.
  */
-if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'test') {
   process.on('SIGINT', async () => {
     await disconnectDb()
     process.exit(0)
@@ -66,6 +68,13 @@ if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production') {
   process.on('SIGTERM', async () => {
     await disconnectDb()
     process.exit(0)
+  })
+
+  // SECURITY: Catch unhandled exceptions to prevent silent crashes
+  process.on('uncaughtException', (error: Error) => {
+    logger.phiSafeError(error, 'uncaughtException')
+    // Exit with error code for container restart
+    process.exit(1)
   })
 }
 

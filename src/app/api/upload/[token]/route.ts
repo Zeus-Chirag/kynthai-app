@@ -1,9 +1,8 @@
 import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
-import { getSessionUser } from '@/lib/auth'
 import { logAudit } from '@/lib/auth'
 import { rateLimit } from '@/lib/security'
-import { jsonError, applyStandardHeaders } from '@/lib/api-helpers'
+import { jsonError, applyStandardHeaders, requireAuth } from '@/lib/api-helpers'
 import { readdir, stat, readFile } from 'fs/promises'
 import { join } from 'path'
 export const dynamic = 'force-dynamic'
@@ -37,8 +36,8 @@ export async function GET(
   const limited = await rateLimit(req)
   if (limited) return limited
 
-  const session = await getSessionUser()
-  if (!session) return jsonError('Unauthorized', 401)
+  const { response, user: session } = await requireAuth(req)
+  if (response || !session) return response!
 
   await logAudit(session.id, 'upload.retrieve', { resourceType: 'LabBooking' })
 

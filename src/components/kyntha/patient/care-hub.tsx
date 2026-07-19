@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   Activity,
   Sparkles,
@@ -13,33 +13,30 @@ import {
   HeartPulse,
   FlaskConical,
   FileText,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import {
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet'
-import { cn } from '@/lib/utils'
-import { ResponsiveSheet } from '@/components/kyntha/responsive-sheet'
-import { HealthInsights } from '@/components/medication/health-insights'
-import { DrugInteractions } from '@/components/medication/drug-interactions'
-import { SymptomAnalyzer } from '@/components/medication/symptom-analyzer'
-import { IdentifyMedicine } from '@/components/medication/identify-medicine'
-import { SearchMedicine } from '@/components/medication/search-medicine'
-import { CareJourneyTimeline } from './care-journey-timeline'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
+import { ResponsiveSheet } from '@/components/kyntha/responsive-sheet';
+import { HealthInsights } from '@/components/medication/health-insights';
+import { DrugInteractions } from '@/components/medication/drug-interactions';
+import { SymptomAnalyzer } from '@/components/medication/symptom-analyzer';
+import { IdentifyMedicine } from '@/components/medication/identify-medicine';
+import { SearchMedicine } from '@/components/medication/search-medicine';
+import { CareJourneyTimeline } from './care-journey-timeline';
 
-type ToolId = 'chronic' | 'insights' | 'interactions' | 'symptoms' | 'identify' | 'search' | 'timeline'
+type ToolId =
+  'chronic' | 'insights' | 'interactions' | 'symptoms' | 'identify' | 'search' | 'timeline';
 
 interface Tool {
-  id: ToolId
-  title: string
-  description: string
-  icon: React.ComponentType<{ className?: string }>
-  tint: string
-  badge?: string
+  id: ToolId;
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tint: string;
+  badge?: string;
 }
 
 const TOOLS: Tool[] = [
@@ -99,11 +96,11 @@ const TOOLS: Tool[] = [
     tint: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
     badge: 'New',
   },
-]
+];
 
 export function CareHub({ userId, isDemo }: { userId: string; isDemo: boolean }) {
-  const [active, setActive] = React.useState<ToolId | null>(null)
-  const tool = TOOLS.find((t) => t.id === active) ?? null
+  const [active, setActive] = React.useState<ToolId | null>(null);
+  const tool = TOOLS.find(t => t.id === active) ?? null;
 
   return (
     <div className="space-y-4">
@@ -115,12 +112,8 @@ export function CareHub({ userId, isDemo }: { userId: string; isDemo: boolean })
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {TOOLS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setActive(t.id)}
-            className="group text-left"
-          >
+        {TOOLS.map(t => (
+          <button key={t.id} onClick={() => setActive(t.id)} className="group text-left">
             <Card className="h-full transition-all hover:border-emerald-500/40 hover:shadow-md">
               <CardContent className="flex items-start gap-3 p-4">
                 <span
@@ -151,41 +144,36 @@ export function CareHub({ userId, isDemo }: { userId: string; isDemo: boolean })
         ))}
       </div>
 
-      <ResponsiveSheet open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-          {tool && (
-            <>
-              <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/60 sticky top-0 bg-background/95 backdrop-blur z-10">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      'flex h-10 w-10 items-center justify-center rounded-xl',
-                      tool.tint
-                    )}
-                  >
-                    <tool.icon className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <SheetTitle className="text-base">{tool.title}</SheetTitle>
-                    <SheetDescription className="text-xs">
-                      {tool.description}
-                    </SheetDescription>
-                  </div>
+      <ResponsiveSheet open={!!active} onOpenChange={o => !o && setActive(null)}>
+        {tool && (
+          <>
+            <SheetHeader className="px-5 pt-4 pb-3 border-b border-border/60 sticky top-0 bg-background/95 backdrop-blur z-10">
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn('flex h-10 w-10 items-center justify-center rounded-xl', tool.tint)}
+                >
+                  <tool.icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <SheetTitle className="text-base">{tool.title}</SheetTitle>
+                  <SheetDescription className="text-xs">{tool.description}</SheetDescription>
                 </div>
-              </SheetHeader>
-              <div className="p-4">
-                {active === 'chronic' && <ChronicConditions />}
-                {active === 'insights' && <HealthInsights />}
-                {active === 'interactions' && <DrugInteractions />}
-                {active === 'symptoms' && <SymptomAnalyzer />}
-                {active === 'identify' && <IdentifyMedicine />}
-                {active === 'search' && <SearchMedicine />}
-                {active === 'timeline' && <CareJourneyTimeline userId={userId} isDemo={isDemo} />}
               </div>
-            </>
-          )}
+            </SheetHeader>
+            <div className="p-4">
+              {active === 'chronic' && <ChronicConditions />}
+              {active === 'insights' && <HealthInsights />}
+              {active === 'interactions' && <DrugInteractions />}
+              {active === 'symptoms' && <SymptomAnalyzer />}
+              {active === 'identify' && <IdentifyMedicine />}
+              {active === 'search' && <SearchMedicine />}
+              {active === 'timeline' && <CareJourneyTimeline userId={userId} isDemo={isDemo} />}
+            </div>
+          </>
+        )}
       </ResponsiveSheet>
     </div>
-  )
+  );
 }
 
 function ChronicConditions() {
@@ -193,7 +181,7 @@ function ChronicConditions() {
     { name: 'Type 2 Diabetes', reading: '142 mg/dL', trend: 'up', level: 'high' },
     { name: 'Hypertension', reading: '128/84 mmHg', trend: 'down', level: 'borderline' },
     { name: 'Hypothyroidism', reading: 'TSH 3.1', trend: 'stable', level: 'normal' },
-  ]
+  ];
   return (
     <div className="space-y-4">
       <Card className="border-rose-500/30 bg-rose-500/5">
@@ -202,14 +190,14 @@ function ChronicConditions() {
           <div className="flex-1">
             <p className="font-semibold text-sm">Chronic Condition Tracker</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Track your vitals over time. Connect a device or log readings manually.
-              AI will flag anomalies and trends.
+              Track your vitals over time. Connect a device or log readings manually. AI will flag
+              anomalies and trends.
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {conditions.map((c) => (
+      {conditions.map(c => (
         <Card key={c.name}>
           <CardContent className="p-4 flex items-center justify-between">
             <div>
@@ -249,8 +237,8 @@ function ChronicConditions() {
 
       <Button variant="outline" className="w-full" disabled>
         <Activity className="h-4 w-4" />
-        Add new condition (coming soon)
+        Add new condition
       </Button>
     </div>
-  )
+  );
 }

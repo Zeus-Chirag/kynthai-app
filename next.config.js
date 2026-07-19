@@ -2,8 +2,8 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  // Enable standalone output for Docker/container deployments
-  output: 'standalone',
+  // Standalone output only for Docker/container deployments (use: node .next/standalone/server.js)
+  // Comment out for standard "next start" usage
 
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -20,17 +20,15 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
+          // ponytail: HSTS omitted here — sending it over plain HTTP bricks the
+          // origin in browsers (Safari caches the https upgrade, can't fall back).
+          // Emitted only over TLS by proxy.ts.
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=()' },
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          // COEP/COOP removed for Safari dev compatibility — re-enable in production build only
         ],
       },
     ];
@@ -40,7 +38,6 @@ const nextConfig = {
     serverActions: { bodySizeLimit: '2mb' },
   },
   turbopack: {
-    root: '.',
     resolveAlias: {
       '@': './src',
     },

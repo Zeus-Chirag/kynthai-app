@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getSessionUser } from '@/lib/auth'
 import { logAudit } from '@/lib/auth'
-import { jsonOk, jsonError } from '@/lib/api-helpers'
+import { jsonOk, jsonError, requireAuth } from '@/lib/api-helpers'
 import { sanitizeText } from '@/lib/security'
 import { checkCsrf } from '@/lib/csrf'
 import { logger } from '@/lib/logger'
@@ -12,15 +11,15 @@ export const dynamic = 'force-dynamic'
 // Returns prescriptions + lab bookings in chronological order.
 // Roles: patient (own data), doctor (their patients), caretaker (family members), lab (their bookings)
 export async function GET(req: NextRequest) {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser) return jsonError('Unauthorized', 401)
+  const { response, user } = await requireAuth(req)
+  if (response || !user) return response!
 
   // HIPAA: audit this PHI access
-  await logAudit(sessionUser.id, 'care_workflow.read', { resourceType: 'Appointment' });
+  await logAudit(user.id, 'care_workflow.read', { resourceType: 'Appointment' });
   try {
     const sp = req.nextUrl.searchParams
     const patientId = sp.get('patientId')?.trim()
-    const u = sessionUser
+    const u = user
 
     // Resolve target patient
     let targetPatientId: string | undefined
@@ -138,9 +137,9 @@ export async function POST(req: NextRequest) {
   const csrfErr = await checkCsrf(req)
   if (csrfErr) return csrfErr
 
-  const sessionUser = await getSessionUser()
-  if (!sessionUser) return jsonError('Unauthorized', 401)
-  if (sessionUser.role !== 'lab') return jsonError('Only labs can update status', 403)
+  const { response, user } = await requireAuth(req)
+  if (response || !user) return response!
+  if (user.role !== 'lab') return jsonError('Only labs can update status', 403)
 
   try {
     const body = await req.json().catch(() => null)
@@ -161,7 +160,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify booking belongs to this lab
-    const labProfile = await db.labProfile.findUnique({ where: { userId: sessionUser.id } })
+    const labProfile = await db.labProfile.findUnique({ where: { userId: user.id } })
     if (!labProfile) return jsonError('Lab profile not found', 404)
 
     const booking = await db.labBooking.findUnique({

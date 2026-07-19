@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSessionUser } from '@/lib/auth'
 import { recordAudit } from '@/lib/audit-logger'
 import { logAudit } from '@/lib/auth'
-import { jsonOk, jsonError } from '@/lib/api-helpers'
+import { jsonOk, jsonError, requireAuth } from '@/lib/api-helpers'
 import { checkCsrf } from '@/lib/csrf'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
@@ -17,10 +16,10 @@ export async function POST(req: NextRequest) {
     const csrfErr = await checkCsrf(req)
     if (csrfErr) return csrfErr
 
-    const sessionUser = await getSessionUser()
-    if (!sessionUser) return jsonError('Unauthorized', 401)
+    const { response, user } = await requireAuth(req)
+    if (response || !user) return response!
 
-    const userId = sessionUser.id
+    const userId = user.id
     const body = await req.json().catch(() => null)
     if (!body || typeof body.score !== 'number') {
       return jsonError('score (number) is required', 400)
@@ -66,10 +65,10 @@ export async function POST(req: NextRequest) {
 // GET /api/health/score — retrieve last 30 days of scores
 export async function GET(req: NextRequest) {
   try {
-    const sessionUser = await getSessionUser()
-    if (!sessionUser) return jsonError('Unauthorized', 401)
+    const { response, user } = await requireAuth(req)
+    if (response || !user) return response!
 
-    const userId = sessionUser.id
+    const userId = user.id
     const sp = req.nextUrl.searchParams
     const days = Math.min(90, Math.max(1, parseInt(sp.get('days') ?? '30', 10) || 30))
 

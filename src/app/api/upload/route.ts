@@ -1,10 +1,9 @@
 import crypto from 'crypto';
 import { NextRequest } from 'next/server';
-import { getSessionUser } from '@/lib/auth';
 import { logAudit } from '@/lib/auth';
 import { rateLimit } from '@/lib/security';
 import { checkCsrf } from '@/lib/csrf';
-import { jsonError, jsonOk } from '@/lib/api-helpers';
+import { jsonError, jsonOk, requireAuth } from '@/lib/api-helpers';
 import { writeFile, mkdir, chmod } from 'fs/promises';
 import { join } from 'path';
 import { encrypt as encryptPayload } from '@/lib/encryption'; // ENCRYPTION-AT-REST
@@ -82,8 +81,8 @@ export async function POST(req: NextRequest) {
   const limited = rateLimit(req);
   if (limited) return limited;
 
-  const session = await getSessionUser();
-  if (!session) return jsonError('Unauthorized', 401);
+  const { response, user: session } = await requireAuth(req);
+  if (response || !session) return response!;
 
   await logAudit(session.id, 'upload.presigned', { resourceType: 'LabBooking' });
 

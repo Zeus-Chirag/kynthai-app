@@ -1,8 +1,7 @@
 import { NextRequest } from 'next/server'
 import { db } from '@/lib/db'
-import { getSessionUser } from '@/lib/auth'
 import { logAudit } from '@/lib/auth'
-import { checkConsent, jsonOk, jsonError } from '@/lib/api-helpers'
+import { checkConsent, jsonOk, jsonError, requireAuth } from '@/lib/api-helpers'
 import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
@@ -16,8 +15,8 @@ export const runtime = 'nodejs'
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await getSessionUser()
-    if (!user) return jsonError('Unauthorized', 401)
+    const { response, user } = await requireAuth(req)
+    if (response || !user) return response!
 
     const consentError = checkConsent(user)
     if (consentError) return consentError

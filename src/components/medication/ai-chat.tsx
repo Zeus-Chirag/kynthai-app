@@ -1,27 +1,27 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
-import { Send, Loader2, Bot, User, Trash2, Sparkles, ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { useToast } from '@/hooks/use-toast'
-import { MedicalDisclaimer } from '@/components/kyntha/medical-disclaimer'
-import { useAppStore } from '@/lib/store'
-import { getMedicineFromDb } from '@/lib/medicine-db-cache'
-import ReactMarkdown from 'react-markdown'
+import { useEffect, useRef, useState } from 'react';
+import { Send, Loader2, Bot, User, Trash2, Sparkles, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { MedicalDisclaimer } from '@/components/kyntha/medical-disclaimer';
+import { useAppStore } from '@/lib/store';
+import { getMedicineFromDb } from '@/lib/medicine-db-cache';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMsg {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
 }
 
 interface PaginatedChatResponse {
-  messages: ChatMsg[]
-  nextCursor: string | null
-  hasMore: boolean
+  messages: ChatMsg[];
+  nextCursor: string | null;
+  hasMore: boolean;
 }
 
 /** Format medicine DB info into readable markdown (used in demo mode, $0 cost). */
@@ -52,7 +52,7 @@ ${med.pregnancySafety}
 ${med.storage}
 
 ---
-⚠️ **This is general information from our medicine database, not medical advice. Always consult a qualified healthcare professional.**`
+⚠️ **This is general information from our medicine database, not medical advice. Always consult a qualified healthcare professional.**`;
 }
 
 const SUGGESTIONS = [
@@ -60,65 +60,71 @@ const SUGGESTIONS = [
   'How do I remember to take my pills on time?',
   'Can I take Vitamin D with food?',
   'What foods should I avoid while on blood pressure medication?',
-]
+];
 
 // Context-aware quick replies shown after the first AI message
 const QUICK_REPLIES = [
-  { label: 'Side effects', query: 'What side effects should I watch for with my current medications?' },
+  {
+    label: 'Side effects',
+    query: 'What side effects should I watch for with my current medications?',
+  },
   { label: 'Diet tips', query: 'What foods should I eat or avoid based on my medications?' },
   { label: 'When to see a doctor', query: 'When should I call my doctor vs. wait it out?' },
-  { label: 'Drug interactions', query: 'Are there any interactions between my current medications?' },
+  {
+    label: 'Drug interactions',
+    query: 'Are there any interactions between my current medications?',
+  },
   { label: 'Lab results', query: 'How do I understand my recent lab results?' },
   { label: 'Sleep tips', query: 'How can I improve my sleep quality?' },
-]
+];
 
 export function AiChat() {
-  const [messages, setMessages] = useState<ChatMsg[]>([])
-  const [input, setInput] = useState('')
-  const [sending, setSending] = useState(false)
-  const [loadingInitial, setLoadingInitial] = useState(false)
-  const [loadError, setLoadError] = useState(false)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(false)
-  const [oldestCursor, setOldestCursor] = useState<string | null>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const topSentinelRef = useRef<HTMLDivElement>(null)
-  const [showQuickReplies, setShowQuickReplies] = useState(false)
-  const { toast } = useToast()
-  const { user } = useAppStore()
-  const isDemo = !!user?.isDemo
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [oldestCursor, setOldestCursor] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const [showQuickReplies, setShowQuickReplies] = useState(false);
+  const { toast } = useToast();
+  const { user } = useAppStore();
+  const isDemo = !!user?.isDemo;
 
   const loadMessages = async (cursor?: string) => {
-    const url = cursor ? `/api/chat?cursor=${encodeURIComponent(cursor)}` : '/api/chat'
-    const res = await fetch(url)
-    if (!res.ok) return
-    const data: PaginatedChatResponse = await res.json()
+    const url = cursor ? `/api/chat?cursor=${encodeURIComponent(cursor)}` : '/api/chat';
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const data: PaginatedChatResponse = await res.json();
     if (cursor) {
       // Prepend older messages
-      setMessages((prev) => [...prev, ...data.messages])
-      setOldestCursor(data.nextCursor)
+      setMessages(prev => [...prev, ...data.messages]);
+      setOldestCursor(data.nextCursor);
     } else {
-      setMessages(data.messages)
-      setOldestCursor(data.nextCursor)
+      setMessages(data.messages);
+      setOldestCursor(data.nextCursor);
     }
-    setHasMore(data.hasMore)
-  }
+    setHasMore(data.hasMore);
+  };
 
   // Load older messages when user scrolls to top
   useEffect(() => {
-    if (!topSentinelRef.current || !hasMore) return
+    if (!topSentinelRef.current || !hasMore) return;
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         if (entries[0]?.isIntersecting && hasMore && !loadingMore && oldestCursor) {
-          setLoadingMore(true)
-          loadMessages(oldestCursor).finally(() => setLoadingMore(false))
+          setLoadingMore(true);
+          loadMessages(oldestCursor).finally(() => setLoadingMore(false));
         }
       },
       { threshold: 0.1 }
-    )
-    observer.observe(topSentinelRef.current)
-    return () => observer.disconnect()
-  }, [hasMore, loadingMore, oldestCursor])
+    );
+    observer.observe(topSentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, oldestCursor]);
 
   useEffect(() => {
     // Demo mode: skip API call, show welcome immediately
@@ -130,63 +136,62 @@ export function AiChat() {
           content:
             "Hi! I'm **Kyntha**, your AI health & medication assistant. I'm here to help you understand your medicines, manage side effects, and feel confident about your health.\n\n**How can I help you today?** Try asking about:\n• Any medicine you're taking\n• Side effects you're experiencing\n• Food or drink interactions\n• When to take your medications",
         },
-      ])
-      return
+      ]);
+      return;
     }
 
     // Real user: load paginated history from API
-    setLoadingInitial(true)
-    setLoadError(false)
+    setLoadingInitial(true);
+    setLoadError(false);
     loadMessages()
       .catch(() => {
-        setLoadError(true)
+        setLoadError(true);
         setMessages([
           {
             id: 'welcome',
             role: 'assistant',
-            content:
-              "Hi! I'm **Kyntha**, your AI medication assistant. How can I help you today?",
+            content: "Hi! I'm **Kyntha**, your AI medication assistant. How can I help you today?",
           },
-        ])
+        ]);
       })
-      .finally(() => setLoadingInitial(false))
-  }, [isDemo])
+      .finally(() => setLoadingInitial(false));
+  }, [isDemo]);
 
   // Show quick replies after first assistant message
   useEffect(() => {
-    const hasAssistantMsg = messages.some((m) => m.role === 'assistant' && m.id !== 'welcome')
-    setShowQuickReplies(hasAssistantMsg && messages.length <= 3)
-  }, [messages])
+    const hasAssistantMsg = messages.some(m => m.role === 'assistant' && m.id !== 'welcome');
+    setShowQuickReplies(hasAssistantMsg && messages.length <= 3);
+  }, [messages]);
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages])
+  }, [messages]);
 
   const send = async (text?: string) => {
-    const content = (text ?? input).trim()
-    if (!content || sending) return
+    const content = (text ?? input).trim();
+    if (!content || sending) return;
 
     const userMsg: ChatMsg = {
       id: `u-${Date.now()}`,
       role: 'user',
       content,
-    }
-    const nextMessages = [...messages, userMsg]
-    setMessages(nextMessages)
-    setInput('')
-    setSending(true)
+    };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    setInput('');
+    setSending(true);
 
     // ── Demo mode: answer from medicine DB locally ($0 API cost) ──
     if (isDemo) {
-      const medInfo = getMedicineFromDb(content)
+      const medInfo = getMedicineFromDb(content);
       if (medInfo) {
-        const reply = formatMedicineInfoLocal(medInfo)
+        const reply = formatMedicineInfoLocal(medInfo);
         setMessages([
           ...nextMessages,
           { id: `a-${Date.now()}`, role: 'assistant', content: reply },
-        ])
+        ]);
       } else {
         setMessages([
           ...nextMessages,
@@ -194,12 +199,12 @@ export function AiChat() {
             id: `a-${Date.now()}`,
             role: 'assistant',
             content:
-              "I'm Kyntha, your **health & medication** assistant. I'm here to help you understand your medicines, manage your health, and feel confident about your care.\n\n**In this demo, I can help with 20+ common medicines** including Metformin, Atorvastatin, Amoxicillin, Omeprazole, Losartan, Aspirin, Levothyroxine, and more.\n\nTry asking me things like:\n• \"What is Metformin used for?\"\n• \"What are the side effects of Atorvastatin?\"\n• \"Can I take Aspirin with food?\"\n\nFor full capabilities — symptom analysis, drug interactions, and personalized health advice — create your free account. Your health journey starts here. 💚",
+              'I\'m Kyntha, your **health & medication** assistant. I\'m here to help you understand your medicines, manage your health, and feel confident about your care.\n\n**In this demo, I can help with 20+ common medicines** including Metformin, Atorvastatin, Amoxicillin, Omeprazole, Losartan, Aspirin, Levothyroxine, and more.\n\nTry asking me things like:\n• "What is Metformin used for?"\n• "What are the side effects of Atorvastatin?"\n• "Can I take Aspirin with food?"\n\nFor full capabilities — symptom analysis, drug interactions, and personalized health advice — create your free account. Your health journey starts here. 💚',
           },
-        ])
+        ]);
       }
-      setSending(false)
-      return
+      setSending(false);
+      return;
     }
 
     // ── Real user: call the API ──
@@ -210,12 +215,12 @@ export function AiChat() {
         body: JSON.stringify({
           message: content,
           history: messages
-            .filter((m) => m.id !== 'welcome')
-            .map((m) => ({ role: m.role, content: m.content })),
+            .filter(m => m.id !== 'welcome')
+            .map(m => ({ role: m.role, content: m.content })),
         }),
-      })
-      if (!res.ok) throw new Error('Chat failed')
-      const data = await res.json()
+      });
+      if (!res.ok) throw new Error('Chat failed');
+      const data = await res.json();
       setMessages([
         ...nextMessages,
         {
@@ -223,32 +228,34 @@ export function AiChat() {
           role: 'assistant',
           content: data.response,
         },
-      ])
+      ]);
     } catch (e) {
       toast({
         title: 'Failed to get response',
         description: e instanceof Error ? e.message : 'Unknown error',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setSending(false)
+      setSending(false);
     }
-  }
+  };
 
   const clearChat = async () => {
     try {
-      await fetch('/api/chat', { method: 'DELETE' })
-    } catch { /* ignore */ }
+      await fetch('/api/chat', { method: 'DELETE' });
+    } catch {
+      /* ignore */
+    }
     setMessages([
       {
         id: 'welcome',
         role: 'assistant',
         content: 'Conversation cleared. What would you like to ask?',
       },
-    ])
-    setHasMore(false)
-    setOldestCursor(null)
-  }
+    ]);
+    setHasMore(false);
+    setOldestCursor(null);
+  };
 
   return (
     <Card className="flex flex-col h-[70vh] min-h-[28rem]">
@@ -261,29 +268,18 @@ export function AiChat() {
             </div>
             <div>
               <p className="font-semibold leading-tight">Kyntha Assistant</p>
-              <p className="text-xs text-muted-foreground">
-                AI-powered medication Q&amp;A
-              </p>
+              <p className="text-xs text-muted-foreground">AI-powered medication Q&amp;A</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={clearChat}
-              title="Clear conversation"
-            >
+            <Button size="icon" variant="ghost" onClick={clearChat} title="Clear conversation">
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         {/* Messages */}
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto custom-scroll pr-3 min-h-0"
-        >
+        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scroll pr-3 min-h-0">
           <div className="space-y-3 pb-2">
             {/* Sentinel for infinite scroll upward */}
             <div ref={topSentinelRef} className="h-1" />
@@ -295,8 +291,8 @@ export function AiChat() {
                   size="sm"
                   onClick={() => {
                     if (oldestCursor && !loadingMore) {
-                      setLoadingMore(true)
-                      loadMessages(oldestCursor).finally(() => setLoadingMore(false))
+                      setLoadingMore(true);
+                      loadMessages(oldestCursor).finally(() => setLoadingMore(false));
                     }
                   }}
                   disabled={loadingMore || !oldestCursor}
@@ -312,22 +308,18 @@ export function AiChat() {
               </div>
             )}
 
-            {loadingInitial && messages.length === 0 && !isDemo && !loadError ? (
-              [0, 1, 2].map((i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Bot className="h-4 w-4" />
+            {loadingInitial && messages.length === 0 && !isDemo && !loadError
+              ? [0, 1, 2].map(i => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Bot className="h-4 w-4" />
+                    </div>
+                    <div className="rounded-2xl rounded-tl-sm bg-muted px-3.5 py-2.5 animate-pulse">
+                      <div className="h-3 w-32 bg-muted-foreground/20 rounded" />
+                    </div>
                   </div>
-                  <div className="rounded-2xl rounded-tl-sm bg-muted px-3.5 py-2.5 animate-pulse">
-                    <div className="h-3 w-32 bg-muted-foreground/20 rounded" />
-                  </div>
-                </div>
-              ))
-            ) : (
-              messages.map((m) => (
-                <MessageBubble key={m.id} msg={m} />
-              ))
-            )}
+                ))
+              : messages.map(m => <MessageBubble key={m.id} msg={m} />)}
             {sending && (
               <div className="flex items-start gap-2">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -335,9 +327,7 @@ export function AiChat() {
                 </div>
                 <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm bg-muted px-3 py-2.5">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">
-                    Thinking...
-                  </span>
+                  <span className="text-xs text-muted-foreground">Thinking...</span>
                 </div>
               </div>
             )}
@@ -352,7 +342,7 @@ export function AiChat() {
         {/* Initial suggestions (before first message) */}
         {messages.length <= 1 && (
           <div className="flex flex-wrap gap-2 py-3">
-            {SUGGESTIONS.map((s) => (
+            {SUGGESTIONS.map(s => (
               <Button
                 key={s}
                 size="sm"
@@ -370,7 +360,7 @@ export function AiChat() {
         {/* Quick replies (after first exchange) */}
         {showQuickReplies && (
           <div className="flex flex-wrap gap-2 py-2">
-            {QUICK_REPLIES.map((q) => (
+            {QUICK_REPLIES.map(q => (
               <Button
                 key={q.label}
                 size="sm"
@@ -389,13 +379,13 @@ export function AiChat() {
           <div className="flex-1">
             <Textarea
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               placeholder="Ask about your medications..."
               className="min-h-[44px] max-h-32 resize-none"
-              onKeyDown={(e) => {
+              onKeyDown={e => {
                 if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  send()
+                  e.preventDefault();
+                  send();
                 }
               }}
             />
@@ -410,32 +400,27 @@ export function AiChat() {
           </Button>
         </div>
         <p className="text-[11px] text-muted-foreground mt-2 text-center">
-          For informational purposes only. Always consult a healthcare
-          professional.
+          For informational purposes only. Always consult a healthcare professional.
         </p>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function MessageBubble({ msg }: { msg: ChatMsg }) {
-  const isUser = msg.role === 'user'
+  const isUser = msg.role === 'user';
   return (
     <div className={`flex items-start gap-2 ${isUser ? 'flex-row-reverse' : ''}`}>
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-          isUser
-            ? 'bg-secondary text-secondary-foreground'
-            : 'bg-primary/10 text-primary'
+          isUser ? 'bg-secondary text-secondary-foreground' : 'bg-primary/10 text-primary'
         }`}
       >
         {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
       </div>
       <div
         className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
-          isUser
-            ? 'bg-primary text-primary-foreground rounded-tr-sm'
-            : 'bg-muted rounded-tl-sm'
+          isUser ? 'bg-primary text-primary-foreground rounded-tr-sm' : 'bg-muted rounded-tl-sm'
         }`}
       >
         {isUser ? (
@@ -454,5 +439,5 @@ function MessageBubble({ msg }: { msg: ChatMsg }) {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -10,6 +10,9 @@ export default async function FamilyPortalPage() {
   // Without this guard, a doctor, patient, lab, or admin could read/write
   // family-member data (medications, conditions, emergency alerts) without
   // the explicit family-management role assignment.
-  if (!user || user.role !== 'caretaker') redirect('/login')
+  // Demo mode bypass: client-side user stored in zustand.
+  const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+  if (!user && !isDemoMode) redirect('/login')
+  if (user && user.role !== 'caretaker') redirect('/login')
   return <FamilyPortalClient user={user as any} />
 }
