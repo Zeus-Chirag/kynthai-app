@@ -467,7 +467,9 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
   // ── Portal role guard ─────────────────────────────────────────────────
   // Role-based access is enforced by each portal's client-side auth guard.
   // The proxy only checks session presence (supabaseUser above).
-  if (isPortalPath(pathname) && !isApi && !supabaseUser) {
+  // Demo mode: allow portal access without session cookie.
+  const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+  if (isPortalPath(pathname) && !isApi && !supabaseUser && !isDemoMode) {
     const redirect = NextResponse.redirect(new URL('/login', req.url));
     applyHeaders(redirect, pathname, requestId);
     return redirect;
