@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
     // Verify doctor exists and is approved
     const doctor = await db.doctorProfile.findUnique({
       where: { id: doctorId },
-      select: { id: true, userId: true, verified: true, verificationStatus: true },
+      select: { id: true, userId: true, verified: true, verificationStatus: true, consultationFee: true },
     });
     if (!doctor) return jsonError('Doctor not found', 404);
     if (!['verified', 'approved'].includes(doctor.verificationStatus)) {
@@ -184,6 +184,7 @@ export async function POST(req: NextRequest) {
         reason: reason || undefined,
         type: appointmentType,
         status: 'pending',
+        price: doctor.consultationFee,
       },
       include: { doctor: { include: { user: true } }, patient: true },
     });

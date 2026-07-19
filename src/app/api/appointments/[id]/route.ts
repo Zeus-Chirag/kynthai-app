@@ -193,10 +193,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // ── Patient cancel after doctor accepted → refund with fee ───────────────
   if (nextStatus === 'cancelled' && isPatient && appt.status === 'confirmed') {
     const refundAmount = appt.price - commission;
+    // Find the payment record to link the refund
+    const payment = await db.payment.findFirst({
+      where: { userId: appt.patientId, type: 'consultation', status: 'succeeded' },
+      orderBy: { createdAt: 'desc' },
+    });
     try {
       await db.refund.create({
         data: {
-          paymentId: appt.id,
+          paymentId: payment?.id || appt.id,
           appointmentId: appt.id,
           userId: appt.patientId,
           amount: refundAmount,
