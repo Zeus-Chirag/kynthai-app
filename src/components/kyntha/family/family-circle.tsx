@@ -145,6 +145,15 @@ export function FamilyCircle({ members, loading }: FamilyCircleProps) {
   const [showCelebration, setShowCelebration] = React.useState(false)
   const [pulseMembers, setPulseMembers] = React.useState<PulseMember[]>(members)
 
+  // Demo mode fallback: use seeded data when no members provided
+  const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+  const demoMembers: PulseMember[] = [
+    { memberId: 'fm1', name: 'Robert Wilson', relation: 'Father', color: 'emerald', score: 85, adherence: 85, total: 4, taken: 3, missed: 1, status: 'all_taken', lastTaken: null, conditions: [] },
+    { memberId: 'fm2', name: 'Emma Wilson', relation: 'Mother', color: 'teal', score: 78, adherence: 78, total: 2, taken: 1, missed: 1, status: 'in_progress', lastTaken: null, conditions: [] },
+    { memberId: 'fm3', name: 'Noah Wilson', relation: 'Child', color: 'cyan', score: 100, adherence: 100, total: 1, taken: 1, missed: 0, status: 'all_taken', lastTaken: null, conditions: [] },
+  ]
+  const displayMembers = (isDemoMode && (!members || members.length === 0)) ? demoMembers : pulseMembers
+
   React.useEffect(() => {
     setPulseMembers(members)
   }, [members])
@@ -153,8 +162,8 @@ export function FamilyCircle({ members, loading }: FamilyCircleProps) {
   React.useEffect(() => {
     let innerTimer: ReturnType<typeof setTimeout> | null = null
     const timer = setTimeout(() => {
-      const allGreen = members.length > 0 && members.every((m) => m.status === 'all_taken' || m.status === 'no_reminders')
-      if (allGreen && members.length > 0) {
+      const allGreen = displayMembers.length > 0 && displayMembers.every((m) => m.status === 'all_taken' || m.status === 'no_reminders')
+      if (allGreen && displayMembers.length > 0) {
         setShowCelebration(true)
         innerTimer = setTimeout(() => setShowCelebration(false), 5000)
       }
@@ -163,7 +172,7 @@ export function FamilyCircle({ members, loading }: FamilyCircleProps) {
       clearTimeout(timer)
       if (innerTimer) clearTimeout(innerTimer)
     }
-  }, [members])
+  }, [displayMembers])
 
   if (loading) {
     return (
@@ -197,7 +206,7 @@ export function FamilyCircle({ members, loading }: FamilyCircleProps) {
     )
   }
 
-  if (pulseMembers.length === 0) {
+  if (displayMembers.length === 0) {
     return (
       <div className="space-y-3">
         <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
@@ -227,7 +236,7 @@ export function FamilyCircle({ members, loading }: FamilyCircleProps) {
           <Users className="h-5 w-5 text-emerald-600" />
           Family Health Circle
         </h2>
-        {pulseMembers.every((m) => m.status === 'all_taken' || m.status === 'no_reminders') && (
+        {displayMembers.every((m) => m.status === 'all_taken' || m.status === 'no_reminders') && (
           <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px]">
             <CheckCircle2 className="h-3 w-3" />
             Perfect day!
@@ -237,7 +246,7 @@ export function FamilyCircle({ members, loading }: FamilyCircleProps) {
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {pulseMembers.map((m, i) => (
+        {displayMembers.map((m, i) => (
           <MemberCard
             key={m.memberId}
             member={m}
