@@ -80,6 +80,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     currency,
     completeOnboarding,
     setLoginPortal,
+    login,
   } = store;
 
   // Mirror devtools — suppress noisy message in console
@@ -92,7 +93,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Demo mode: auto-complete onboarding so the landing page is visible immediately.
+  // Demo mode: auto-complete onboarding and auto-login so the app is immediately usable.
   // SECURITY: never auto-consent in production — NODE_ENV='production' hard-blocks.
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -103,10 +104,55 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       window.location.replace('/');
       return;
     }
-    if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && !onboardingComplete) {
-      completeOnboarding('patient');
+    if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true') {
+      // Auto-complete onboarding if not done
+      if (!onboardingComplete) {
+        completeOnboarding('patient');
+      }
+      // Auto-login if no user session
+      if (!user) {
+        (async () => {
+          try {
+            // Check if already authenticated via Supabase session
+            const meRes = await fetch('/api/auth/me', { cache: 'no-store' });
+            const meData = await meRes.json();
+            if (meData.authenticated && meData.user) {
+              login(meData.user);
+              return;
+            }
+            // Auto-login with demo credentials
+            let csrfToken = document.cookie.match(/kyntha-csrf=([^;]+)/)?.[1];
+            if (!csrfToken) {
+              await fetch('/api/auth/csrf', { credentials: 'include' });
+              csrfToken = document.cookie.match(/kyntha-csrf=([^;]+)/)?.[1];
+            }
+            if (csrfToken) {
+              const loginRes = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+                credentials: 'include',
+                body: JSON.stringify({ email: 'demo@kyntha.app', password: 'Demo1234!' }),
+              });
+              if (loginRes.ok) {
+                const loginData = await loginRes.json();
+                login({
+                  id: loginData.id,
+                  email: loginData.email,
+                  name: loginData.name,
+                  role: loginData.role,
+                  phone: loginData.phone,
+                  subscriptionTier: loginData.subscriptionTier,
+                  isDemo: loginData.isDemo,
+                });
+              }
+            }
+          } catch {
+            // Ignore — user can login manually
+          }
+        })();
+      }
     }
-  }, [onboardingComplete, completeOnboarding]);
+  }, [onboardingComplete, completeOnboarding, user, login]);
 
   // URL wins if it corresponds to a known public page
   const routeScreen = ROUTE_SCREEN[pathname] ?? screen;
