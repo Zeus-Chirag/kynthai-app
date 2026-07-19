@@ -93,7 +93,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Demo mode: auto-complete onboarding and auto-login so the app is immediately usable.
+  // Demo mode: auto-complete onboarding and redirect to login.
   // SECURITY: never auto-consent in production — NODE_ENV='production' hard-blocks.
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -105,54 +105,15 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       return;
     }
     if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true') {
-      // Auto-complete onboarding if not done
       if (!onboardingComplete) {
         completeOnboarding('patient');
       }
-      // Auto-login if no user session
-      if (!user) {
-        (async () => {
-          try {
-            // Check if already authenticated via Supabase session
-            const meRes = await fetch('/api/auth/me', { cache: 'no-store' });
-            const meData = await meRes.json();
-            if (meData.authenticated && meData.user) {
-              login(meData.user);
-              return;
-            }
-            // Auto-login with demo credentials
-            let csrfToken = document.cookie.match(/kyntha-csrf=([^;]+)/)?.[1];
-            if (!csrfToken) {
-              await fetch('/api/auth/csrf', { credentials: 'include' });
-              csrfToken = document.cookie.match(/kyntha-csrf=([^;]+)/)?.[1];
-            }
-            if (csrfToken) {
-              const loginRes = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-                credentials: 'include',
-                body: JSON.stringify({ email: 'demo@kyntha.app', password: 'Demo1234!' }),
-              });
-              if (loginRes.ok) {
-                const loginData = await loginRes.json();
-                login({
-                  id: loginData.id,
-                  email: loginData.email,
-                  name: loginData.name,
-                  role: loginData.role,
-                  phone: loginData.phone,
-                  subscriptionTier: loginData.subscriptionTier,
-                  isDemo: loginData.isDemo,
-                });
-              }
-            }
-          } catch {
-            // Ignore — user can login manually
-          }
-        })();
+      // If no user logged in, redirect to login
+      if (!user && pathname === '/') {
+        router.replace('/login');
       }
     }
-  }, [onboardingComplete, completeOnboarding, user, login]);
+  }, [onboardingComplete, completeOnboarding, user, pathname, router]);
 
   // URL wins if it corresponds to a known public page
   const routeScreen = ROUTE_SCREEN[pathname] ?? screen;
