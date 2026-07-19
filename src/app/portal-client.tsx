@@ -116,8 +116,12 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
         isDemo: true,
       });
       completeOnboarding('caretaker');
+      // Redirect to family portal after auto-login
+      if (pathname === '/') {
+        router.replace('/family');
+      }
     }
-  }, [user, onboardingComplete, completeOnboarding, store]);
+  }, [user, onboardingComplete, completeOnboarding, store, pathname, router]);
 
   // URL wins if it corresponds to a known public page
   const routeScreen = ROUTE_SCREEN[pathname] ?? screen;
