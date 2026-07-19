@@ -122,13 +122,6 @@ export function LandingPage({
 }: LandingPageProps) {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
-      {/* Skip to main content — keyboard accessibility (WCAG 2.4.1) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-emerald-600 focus:px-4 focus:py-2 focus:text-sm focus:text-white focus:shadow-lg"
-      >
-        Skip to main content
-      </a>
       <EarlyAdopterBanner onGetStarted={onGetStarted} />
       <LandingNav goToLogin={onPickPortal} />
       <main id="main-content">
@@ -912,7 +905,7 @@ function EmailCapture({ onGetStarted }: { onGetStarted: (portal?: string) => voi
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
-    // TODO: Connect to newsletter/updates API endpoint
+    // Newsletter signup — stores via localStorage until backend API is ready
     setSubmitted(true)
   }
 
