@@ -295,6 +295,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
   } | null>(null);
   const [joiningCallApptId, setJoiningCallApptId] = React.useState<string | null>(null);
   const [updatingApptId, setUpdatingApptId] = React.useState<string | null>(null);
+  const [rescheduleApptId, setRescheduleApptId] = React.useState<string | null>(null);
+  const [rescheduleDate, setRescheduleDate] = React.useState('');
+  const [rescheduleTime, setRescheduleTime] = React.useState('');
 
   // Auto-fetch notes whenever the selected patient changes (even while dialog is open)
   React.useEffect(() => {
@@ -502,6 +505,42 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
       }
     },
     [toast, fetchDashboardData]
+  );
+
+  const handleReschedule = React.useCallback(
+    async () => {
+      if (!rescheduleApptId || !rescheduleDate || !rescheduleTime) {
+        toast({ title: 'Please select date and time', variant: 'destructive' });
+        return;
+      }
+      setUpdatingApptId(rescheduleApptId);
+      try {
+        const scheduledAt = new Date(`${rescheduleDate}T${rescheduleTime}`).toISOString();
+        const res = await fetch(`/api/appointments/${rescheduleApptId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scheduledAt }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.error || 'Failed to reschedule');
+        }
+        toast({ title: 'Appointment rescheduled' });
+        setRescheduleApptId(null);
+        setRescheduleDate('');
+        setRescheduleTime('');
+        fetchDashboardData(true);
+      } catch (error) {
+        toast({
+          title: 'Reschedule failed',
+          description: error instanceof Error ? error.message : 'Unknown error',
+          variant: 'destructive',
+        });
+      } finally {
+        setUpdatingApptId(null);
+      }
+    },
+    [rescheduleApptId, rescheduleDate, rescheduleTime, toast, fetchDashboardData]
   );
 
   // Fetch doctor availability
@@ -1247,7 +1286,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                                 size="sm"
                                 variant="ghost"
                                 className="h-8 text-xs text-muted-foreground"
-                                onClick={() => toast({ title: 'Reschedule coming soon' })}
+                                onClick={() => setRescheduleApptId(a.id)}
                               >
                                 {t('reschedule')}
                               </Button>
@@ -1975,6 +2014,45 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
               >
                 <Save className="h-3.5 w-3.5" />
                 Save schedule
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+      {/* Reschedule Dialog */}
+      {rescheduleApptId && (
+        <Dialog open={!!rescheduleApptId} onOpenChange={() => setRescheduleApptId(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Reschedule Appointment</DialogTitle>
+              <DialogDescription>Select a new date and time for this appointment.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reschedule-date">Date</Label>
+                <Input
+                  id="reschedule-date"
+                  type="date"
+                  value={rescheduleDate}
+                  onChange={e => setRescheduleDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reschedule-time">Time</Label>
+                <Input
+                  id="reschedule-time"
+                  type="time"
+                  value={rescheduleTime}
+                  onChange={e => setRescheduleTime(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setRescheduleApptId(null)}>Cancel</Button>
+              <Button onClick={handleReschedule} disabled={!rescheduleDate || !rescheduleTime || updatingApptId === rescheduleApptId}>
+                {updatingApptId === rescheduleApptId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Reschedule
               </Button>
             </DialogFooter>
           </DialogContent>

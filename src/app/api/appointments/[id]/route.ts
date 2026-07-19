@@ -49,6 +49,49 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== 'object') return jsonError('Invalid JSON', 400);
 
+  // Reschedule: update scheduledAt without changing status
+  if (body.scheduledAt && !body.status) {
+    const newDate = new Date(body.scheduledAt);
+    if (isNaN(newDate.getTime())) return jsonError('Invalid scheduledAt date', 400);
+    if (newDate < new Date()) return jsonError('Cannot reschedule to a past time', 400);
+
+    // Only pending or confirmed appointments can be rescheduled
+    if (!['pending', 'confirmed'].includes(appt.status)) {
+      return jsonError(`Cannot reschedule a ${appt.status} appointment`, 400);
+    }
+
+    // Only doctor or patient can reschedule
+    if (!isDoctor && !isPatient) return jsonError('Forbidden', 403);
+
+    const updated = await db.appointment.update({
+      where: { id },
+      data: { scheduledAt: newDate },
+      include: { doctor: { include: { user: true } }, patient: true },
+    });
+
+    await logAudit(u.id, 'appointment.reschedule', `appt=${appt.id} newTime=${newDate.toISOString()}`);
+
+    // Notify the other party
+    try {
+      const notifierId = isDoctor ? appt.patientId : appt.doctor.userId;
+      await sendNotification(
+        { userId: notifierId },
+        {
+          title: 'Appointment rescheduled',
+          body: `Your appointment has been rescheduled to ${newDate.toLocaleDateString()} at ${newDate.toLocaleTimeString()}.`,
+          type: 'appointment_update',
+          data: { appointmentId: appt.id, status: 'rescheduled' },
+        }
+      );
+    } catch { /* best-effort */ }
+
+    return jsonOk({
+      id: updated.id,
+      status: updated.status,
+      scheduledAt: updated.scheduledAt.toISOString(),
+    });
+  }
+
   const nextStatus = sanitizeText(body.status as string, 20) as
     'pending' | 'confirmed' | 'completed' | 'cancelled';
   if (!nextStatus) return jsonError('status is required', 400);
