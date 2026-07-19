@@ -105,9 +105,9 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#10b981" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#022c22" />
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-        <meta http-equiv="Pragma" content="no-cache" />
-        <meta http-equiv="Expires" content="0" />
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* Stripe publishable key for frontend payment components */}
         {process.env.NEXT_PUBLIC_STRIPE_PK && (
