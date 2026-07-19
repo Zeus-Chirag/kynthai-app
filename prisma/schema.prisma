@@ -1,11 +1,11 @@
 // Kyntha — AI Health Management Platform
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL") // e.g. postgresql://kyntha:password@db:5432/kyntha_us?sslmode=require
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // SQLite for dev, PostgreSQL for production
 }
 
 // ── Enums ───────────────────────────────────────────────────────────────
@@ -57,167 +57,174 @@ enum SubscriptionTier {
 // ── Models ─────────────────────────────────────────────────────────────
 
 model User {
-  id                    String           @id @default(cuid())
-  email                 String           @unique
-  name                  String?
-  name_enc              String?          @map("name_enc")
-  role                  UserRole         @default(patient)
-  phone                 String?
-  phone_enc             String?          @map("phone_enc")
-  password              String? // bcrypt hash (null for demo accounts)
-  emailVerified         Boolean          @default(false)
-  subscriptionTier      SubscriptionTier @default(free)
-  stripeCustomerId      String?          @unique
-  sessionToken          String?
-  sessionExpiry         DateTime?
-  consentAccepted       Boolean          @default(false)
-  dataProcessingConsent Boolean          @default(false)
-  aiTrainingConsent     Boolean          @default(false) // explicit opt-in for AI model training
-  notificationPrefs      String?         
-  emailOptOut           Boolean          @default(false) // CAN-SPAM: user unsubscribed from marketing emails
-  isDemo                Boolean          @default(false) // demo/seed account flag
-  failedLoginAttempts   Int              @default(0)
-  lockedUntil           DateTime?
-  dateOfBirth           DateTime? // age verification (must be 18+)
-  dateOfBirth_enc       String?          @map("dateOfBirth_enc")
-  allergies             String? // JSON array of allergy strings (e.g. ["Penicillin", "Sulfa"])
-  allergies_enc         String?          @map("allergies_enc")
-  passwordResetToken    String? // secure random token for password reset flow
-  passwordResetToken_enc String?         @map("passwordResetToken_enc")
-  passwordResetExpires  DateTime? // expiry window for reset token
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
-  deletedAt             DateTime?
+  id                         String           @id @default(cuid())
+  email                      String           @unique
+  name                       String?
+  name_enc                   String?          @map("name_enc")
+  role                       UserRole         @default(patient)
+  phone                      String?
+  phone_enc                  String?          @map("phone_enc")
+  password                   String? // bcrypt hash (null for demo accounts)
+  emailVerified              Boolean          @default(false)
+  subscriptionTier           SubscriptionTier @default(free)
+  stripeCustomerId           String?          @unique
+  sessionToken               String?
+  sessionExpiry              DateTime?
+  consentAccepted            Boolean          @default(false)
+  dataProcessingConsent      Boolean          @default(false)
+  aiTrainingConsent          Boolean          @default(false) // explicit opt-in for AI model training
+  notificationPrefs          String?
+  emailOptOut                Boolean          @default(false) // CAN-SPAM: user unsubscribed from marketing emails
+  isDemo                     Boolean          @default(false) // demo/seed account flag
+  failedLoginAttempts        Int              @default(0)
+  lockedUntil                DateTime?
+  dateOfBirth                DateTime? // age verification (must be 18+)
+  dateOfBirth_enc            String?          @map("dateOfBirth_enc")
+  allergies                  String? // JSON array of allergy strings (e.g. ["Penicillin", "Sulfa"])
+  allergies_enc              String?          @map("allergies_enc")
+  passwordResetToken         String? // secure random token for password reset flow
+  passwordResetToken_enc     String?          @map("passwordResetToken_enc")
+  passwordResetExpires       DateTime? // expiry window for reset token
+  emailVerificationToken     String? // verification token for email verification
+  emailVerificationToken_enc String?          @map("emailVerificationToken_enc")
+  emailVerificationExpires   DateTime? // expiry window for verification token
+  createdAt                  DateTime         @default(now())
+  updatedAt                  DateTime         @updatedAt
+  deletedAt                  DateTime?
+
+  medications           Medication[]
+  appointments          Appointment[]      @relation("PatientAppointments")
+  labBookings           LabBooking[]
+  medicineOrders        MedicineOrder[]
+  chronicConditions     ChronicCondition[]
+  doctorProfile         DoctorProfile?
+  labProfile            LabProfile?
+  prescriptionsReceived Prescription[]     @relation("PatientPrescriptions")
+  familiesOwned         Family[]           @relation("FamilyOwner")
+  memberships           FamilyMember[]
+  emergencyAlerts       EmergencyAlert[]   @relation("AlertReporter")
+  complaints            Complaint[]
+  auditLogs             AuditLog[]
+  payments              Payment[]
+  refunds               Refund[]
+  notificationLogs      NotificationLog[]
+  chatMessages          ChatMessage[]
 
   @@index([email])
   @@map("users")
-
-  medications             Medication[]
-  appointments            Appointment[]       @relation("PatientAppointments")
-  labBookings             LabBooking[]
-  medicineOrders          MedicineOrder[]
-  chronicConditions       ChronicCondition[]
-  doctorProfile           DoctorProfile?
-  labProfile              LabProfile?
-  prescriptionsReceived   Prescription[]     @relation("PatientPrescriptions")
-  familiesOwned           Family[]           @relation("FamilyOwner")
-  memberships             FamilyMember[]
-  emergencyAlerts         EmergencyAlert[]   @relation("AlertReporter")
-  auditLogs               AuditLog[]
-  payments                Payment[]
-  notificationLogs        NotificationLog[]
-  chatMessages            ChatMessage[]
 }
 
 model NotificationLog {
-  id          String   @id @default(cuid())
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  channel     String
-  type        String
-  title       String?
-  title_enc   String?  @map("title_enc")
-  body        String?
-  body_enc    String?  @map("body_enc")
-  recipient   String?
-  recipient_enc String? @map("recipient_enc")
-  status      String   @default("sent")
-  cost        Float    @default(0)
-  createdAt   DateTime @default(now())
+  id            String   @id @default(cuid())
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel       String
+  type          String
+  title         String?
+  title_enc     String?  @map("title_enc")
+  body          String?
+  body_enc      String?  @map("body_enc")
+  recipient     String?
+  recipient_enc String?  @map("recipient_enc")
+  status        String   @default("sent")
+  cost          Float    @default(0)
+  createdAt     DateTime @default(now())
 
   @@map("notification_logs")
 }
 
 model DoctorProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  specialization    String
-  licenseNumber     String?
-  licenseNumber_enc String?  @map("licenseNumber_enc")
-  experience        Int      @default(0)
-  consultationFee   Int      @default(100)
-  videoCallEnabled  Boolean  @default(false)
-  verified          Boolean  @default(false)
-  bio               String?
-  bio_enc           String?  @map("bio_enc")
-  rating            Float    @default(4.5)
-  reviewCount       Int      @default(0)
-  documents         String   @default("[]")
-  avatarColor       String   @default("emerald")
-  city              String   @default("")
-  subscriptionTier  String   @default("free")
-  subscriptionRenews DateTime?
-  patientSlotCap    Int      @default(5)
-  verificationStatus String   @default("pending")
-  rejectionReason   String?
-  rejectionReason_enc String? @map("rejectionReason_enc")
-  npiNumber          String?
-  submittedAt       DateTime?
+  id                  String                   @id @default(cuid())
+  userId              String                   @unique
+  user                User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization      String
+  licenseNumber       String?
+  licenseNumber_enc   String?                  @map("licenseNumber_enc")
+  experience          Int                      @default(0)
+  consultationFee     Int                      @default(100)
+  videoCallEnabled    Boolean                  @default(false)
+  verified            Boolean                  @default(false)
+  bio                 String?
+  bio_enc             String?                  @map("bio_enc")
+  rating              Float                    @default(4.5)
+  reviewCount         Int                      @default(0)
+  documents           String                   @default("[]")
+  avatarColor         String                   @default("emerald")
+  city                String                   @default("")
+  subscriptionTier    String                   @default("free")
+  subscriptionRenews  DateTime?
+  patientSlotCap      Int                      @default(5)
+  verificationStatus  String                   @default("pending")
+  rejectionReason     String?
+  rejectionReason_enc String?                  @map("rejectionReason_enc")
+  npiNumber           String?
+  submittedAt         DateTime?
   // US compliance: doctor SSN and federal Tax ID (EIN), encrypted at rest.
-  ssn               String?
-  ssn_enc           String?  @map("ssn_enc")
-  taxId             String?
-  taxId_enc         String?  @map("taxId_enc")
-  degreeType        String?
-  degreeType_enc    String?  @map("degreeType_enc")
-  medicalCouncil    String?
-  medicalCouncil_enc String? @map("medicalCouncil_enc")
-  appointments      Appointment[] @relation("DoctorAppointments")
-  prescriptionsGiven Prescription[] @relation("DoctorPrescriptions")
-  availabilitySlots DoctorAvailabilitySlot[] @relation("DoctorAvailabilitySlots")
-  consultMessages   ConsultMessage[] @relation("DoctorConsultMessages")
+  ssn                 String?
+  ssn_enc             String?                  @map("ssn_enc")
+  taxId               String?
+  taxId_enc           String?                  @map("taxId_enc")
+  degreeType          String?
+  degreeType_enc      String?                  @map("degreeType_enc")
+  medicalCouncil      String?
+  medicalCouncil_enc  String?                  @map("medicalCouncil_enc")
+  lastActiveAt        DateTime? // for presence tracking
+  appointments        Appointment[]            @relation("DoctorAppointments")
+  prescriptionsGiven  Prescription[]           @relation("DoctorPrescriptions")
+  availabilitySlots   DoctorAvailabilitySlot[] @relation("DoctorAvailabilitySlots")
+  consultMessages     ConsultMessage[]         @relation("DoctorConsultMessages")
 
   @@map("doctor_profiles")
 }
 
 model LabProfile {
-  id             String  @id @default(cuid())
-  userId         String  @unique
-  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  labName        String?
-  labName_enc    String? @map("labName_enc")
-  licenseNumber  String?
-  licenseNumber_enc String? @map("licenseNumber_enc")
-  address        String?
-  address_enc    String?  @map("address_enc")
-  testsOffered   String  @default("[]")
-  verified       Boolean @default(false)
-  rating         Float   @default(4.5)
-  reviewCount    Int     @default(0)
-  documents      String  @default("[]")
-  homeCollection Boolean @default(true)
-  city           String  @default("")
-  verificationStatus String @default("pending")
-  rejectionReason String?
-  rejectionReason_enc String? @map("rejectionReason_enc")
-  submittedAt    DateTime?
-  bookings       LabBooking[]
+  id                  String       @id @default(cuid())
+  userId              String       @unique
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  labName             String?
+  labName_enc         String?      @map("labName_enc")
+  licenseNumber       String?
+  licenseNumber_enc   String?      @map("licenseNumber_enc")
+  address             String?
+  address_enc         String?      @map("address_enc")
+  testsOffered        String       @default("[]")
+  verified            Boolean      @default(false)
+  rating              Float        @default(4.5)
+  reviewCount         Int          @default(0)
+  documents           String       @default("[]")
+  homeCollection      Boolean      @default(true)
+  city                String       @default("")
+  verificationStatus  String       @default("pending")
+  rejectionReason     String?
+  rejectionReason_enc String?      @map("rejectionReason_enc")
+  submittedAt         DateTime?
+  bookings            LabBooking[]
 
   @@map("lab_profiles")
 }
 
 model Appointment {
-  id              String          @id @default(cuid())
+  id              String            @id @default(cuid())
   doctorId        String
   patientId       String
-  doctor          DoctorProfile   @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Cascade)
-  patient         User            @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Cascade)
+  doctor          DoctorProfile     @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Cascade)
+  patient         User              @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Cascade)
   scheduledAt     DateTime
-  durationMinutes Int             @default(15)
-  type            String          @default("video")
+  durationMinutes Int               @default(15)
+  type            String            @default("video")
   status          AppointmentStatus @default(pending)
-  price           Int             @default(0)
-  commission      Int             @default(0)
+  price           Int               @default(0)
+  commission      Int               @default(0)
   reason          String?
-  reason_enc      String?         @map("reason_enc")
+  reason_enc      String?           @map("reason_enc")
   notes           String?
-  notes_enc       String?         @map("notes_enc")
+  notes_enc       String?           @map("notes_enc")
+  paymentCaptured Boolean           @default(false)
   deletedAt       DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
-  messages        ConsultMessage[]
+  messages ConsultMessage[]
 
   @@index([patientId])
   @@index([doctorId])
@@ -225,58 +232,58 @@ model Appointment {
 }
 
 model LabBooking {
-  id             String       @id @default(cuid())
-  labId          String
-  patientId      String
-  lab            LabProfile   @relation(fields: [labId], references: [id], onDelete: Cascade)
-  patient        User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  tests          String       @default("[]")
-  scheduledAt    DateTime
-  status         String       @default("pending")
-  price          Int          @default(0)
-  commission     Int          @default(0)
-  homeCollection Boolean      @default(true)
-  notes          String?
-  notes_enc      String?      @map("notes_enc")
-  resultsFile    String?
-  resultsNote    String?
-  resultsNote_enc String?      @map("resultsNote_enc")
+  id               String     @id @default(cuid())
+  labId            String
+  patientId        String
+  lab              LabProfile @relation(fields: [labId], references: [id], onDelete: Cascade)
+  patient          User       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  tests            String     @default("[]")
+  scheduledAt      DateTime
+  status           String     @default("pending")
+  price            Int        @default(0)
+  commission       Int        @default(0)
+  homeCollection   Boolean    @default(true)
+  notes            String?
+  notes_enc        String?    @map("notes_enc")
+  resultsFile      String?
+  resultsNote      String?
+  resultsNote_enc  String?    @map("resultsNote_enc")
   resultUploadedAt DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@index([labId])
   @@map("lab_bookings")
 }
 
 model DoctorAvailabilitySlot {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   doctorId  String
   doctor    DoctorProfile @relation("DoctorAvailabilitySlots", fields: [doctorId], references: [id], onDelete: Cascade)
-  day       String   // monday-sunday
-  start     String   // HH:MM
-  end       String   // HH:MM
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  day       String // monday-sunday
+  start     String // HH:MM
+  end       String // HH:MM
+  active    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   @@index([doctorId])
 }
 
 model ConsultMessage {
-  id            String   @id @default(cuid())
+  id            String         @id @default(cuid())
   appointmentId String?
-  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointment   Appointment?   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   doctorId      String?
   doctor        DoctorProfile? @relation("DoctorConsultMessages", fields: [doctorId], references: [id], onDelete: Cascade)
   senderId      String
-  senderRole    String   // doctor | patient
+  senderRole    String // doctor | patient
   content       String?
-  content_enc   String?  @map("content_enc")
-  read          Boolean  @default(false)
+  content_enc   String?        @map("content_enc")
+  read          Boolean        @default(false)
   deletedAt     DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@index([appointmentId, createdAt])
   @@index([doctorId, createdAt])
@@ -300,45 +307,45 @@ model MedicineOrder {
 }
 
 model ChronicCondition {
-  id            String   @id @default(cuid())
-  patientId     String
-  patient       User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  name          String?
-  name_enc      String?  @map("name_enc")
-  diagnosedDate String?
-  diagnosedDate_enc String? @map("diagnosedDate_enc")
-  severity      String   @default("mild")
-  medications   String   @default("[]")
-  medications_enc String? @map("medications_enc")
-  notes         String?
-  notes_enc     String?  @map("notes_enc")
-  active        Boolean  @default(true)
-  createdAt     DateTime @default(now())
+  id                String   @id @default(cuid())
+  patientId         String
+  patient           User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  name              String?
+  name_enc          String?  @map("name_enc")
+  diagnosedDate     String?
+  diagnosedDate_enc String?  @map("diagnosedDate_enc")
+  severity          String   @default("mild")
+  medications       String   @default("[]")
+  medications_enc   String?  @map("medications_enc")
+  notes             String?
+  notes_enc         String?  @map("notes_enc")
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
 
   @@index([patientId])
   @@map("chronic_conditions")
 }
 
 model Prescription {
-  id               String        @id @default(cuid())
-  doctorId         String
-  patientId        String
-  doctor           DoctorProfile @relation("DoctorPrescriptions", fields: [doctorId], references: [id], onDelete: Cascade)
-  patient          User          @relation("PatientPrescriptions", fields: [patientId], references: [id], onDelete: Cascade)
-  imageBase64      String?
-  imageBase64_enc  String?       @map("imageBase64_enc")
-  notes            String?
-  notes_enc        String?       @map("notes_enc")
-  medications      String        @default("[]")
-  medications_enc  String?       @map("medications_enc")
-  followUpDate     DateTime?
-  followUpNotes    String?
-  followUpNotes_enc String?      @map("followUpNotes_enc")
-  inviteToken      String?
-  inviteStatus     String?      @default("sent")
-  inviteExpiresAt  DateTime?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  doctorId          String
+  patientId         String
+  doctor            DoctorProfile @relation("DoctorPrescriptions", fields: [doctorId], references: [id], onDelete: Cascade)
+  patient           User          @relation("PatientPrescriptions", fields: [patientId], references: [id], onDelete: Cascade)
+  imageBase64       String?
+  imageBase64_enc   String?       @map("imageBase64_enc")
+  notes             String?
+  notes_enc         String?       @map("notes_enc")
+  medications       String        @default("[]")
+  medications_enc   String?       @map("medications_enc")
+  followUpDate      DateTime?
+  followUpNotes     String?
+  followUpNotes_enc String?       @map("followUpNotes_enc")
+  inviteToken       String?
+  inviteStatus      String?       @default("sent")
+  inviteExpiresAt   DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@index([doctorId, patientId])
   @@index([patientId])
@@ -347,31 +354,31 @@ model Prescription {
 }
 
 model Medication {
-  id              String        @id @default(cuid())
-  userId          String?
-  user            User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  familyMemberId  String?
-  familyMember    FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
-  name            String?
-  name_enc        String?       @map("name_enc")
-  dosage          String?
-  dosage_enc      String?       @map("dosage_enc")
-  times           String
-  frequency       String
-  instructions    String?
-  instructions_enc String?      @map("instructions_enc")
-  notes           String?
-  notes_enc       String?       @map("notes_enc")
-  color           String        @default("emerald")
-  imageUrl        String?
-  stockRemaining  Int?
-  active          Boolean       @default(true)
-  timeWindowEnd   String?       @default("09:00")
-  reminderInterval Int?         @default(10)
-  deletedAt       DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  reminders       Reminder[]
+  id                  String              @id @default(cuid())
+  userId              String?
+  user                User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyMemberId      String?
+  familyMember        FamilyMember?       @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+  name                String?
+  name_enc            String?             @map("name_enc")
+  dosage              String?
+  dosage_enc          String?             @map("dosage_enc")
+  times               String
+  frequency           String
+  instructions        String?
+  instructions_enc    String?             @map("instructions_enc")
+  notes               String?
+  notes_enc           String?             @map("notes_enc")
+  color               String              @default("emerald")
+  imageUrl            String?
+  stockRemaining      Int?
+  active              Boolean             @default(true)
+  timeWindowEnd       String?             @default("09:00")
+  reminderInterval    Int?                @default(10)
+  deletedAt           DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  reminders           Reminder[]
   medicineInventories MedicineInventory[]
 
   @@index([userId])
@@ -379,151 +386,176 @@ model Medication {
 }
 
 model Reminder {
-  id           String         @id @default(cuid())
-  medicationId String
-  medication   Medication      @relation(fields: [medicationId], references: [id], onDelete: Cascade)
-  date         DateTime
-  time         String
-  status       ReminderStatus @default(pending)
-  takenAt      DateTime?
-  reminderCount Int           @default(0)
-  escalated    Boolean        @default(false)
-  escalatedAt  DateTime?
-  deletedAt    DateTime?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id            String         @id @default(cuid())
+  medicationId  String
+  medication    Medication     @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  date          DateTime
+  time          String
+  status        ReminderStatus @default(pending)
+  takenAt       DateTime?
+  reminderCount Int            @default(0)
+  escalated     Boolean        @default(false)
+  escalatedAt   DateTime?
+  deletedAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@unique([medicationId, date, time])
 }
 
 model ChatMessage {
-  id        String          @id @default(cuid())
-  userId    String
-  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      ChatMessageRole @default(user)
-  content   String?
-  content_enc String?        @map("content_enc")
-  source    String?         // 'medicine-db' | 'llm' | 'cache'
-  deletedAt DateTime?
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  expiresAt DateTime?
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        ChatMessageRole @default(user)
+  content     String?
+  content_enc String?         @map("content_enc")
+  source      String? // 'medicine-db' | 'llm' | 'cache'
+  deletedAt   DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  expiresAt   DateTime?
 
   @@index([userId, createdAt])
   @@map("chat_messages")
 }
 
 model Family {
-  id          String    @id @default(cuid())
-  name        String
-  joinCode    String?   @unique // optional shareable code for easy family joining
-  ownerId     String
-  owner       User      @relation("FamilyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  members     FamilyMember[]
-  alerts      EmergencyAlert[]
-  videoCalls  VideoCall[]
+  id         String           @id @default(cuid())
+  name       String
+  joinCode   String?          @unique // optional shareable code for easy family joining
+  ownerId    String
+  owner      User             @relation("FamilyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  deletedAt  DateTime?
+  createdAt  DateTime         @default(now())
+  members    FamilyMember[]
+  alerts     EmergencyAlert[]
+  videoCalls VideoCall[]
 
   @@index([joinCode])
 }
 
 model FamilyMember {
-  id              String    @id @default(cuid())
-  familyId        String
-  family          Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  userId          String?
-  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name            String?
-  name_enc        String?   @map("name_enc")
-  relation        String
-  relation_enc    String?   @map("relation_enc")
-  age             Int?
-  role            String    @default("patient")
-  color           String    @default("emerald")
-  conditions      String    @default("[]")
-  conditions_enc  String?   @map("conditions_enc")
-  photoUrl        String?
-  inviteEmail     String?
-  inviteEmail_enc String?   @map("inviteEmail_enc")
-  inviteToken     String?
-  inviteToken_enc String?   @map("inviteToken_enc")
-  inviteStatus    String    @default("accepted")
-  inviteExpiresAt DateTime?
-  relationVerificationToken String?  // token proving the invitee's relationship identity
-  createdAt       DateTime  @default(now())
-  medications     Medication[]
+  id                        String       @id @default(cuid())
+  familyId                  String
+  family                    Family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  userId                    String?
+  user                      User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                      String?
+  name_enc                  String?      @map("name_enc")
+  relation                  String
+  relation_enc              String?      @map("relation_enc")
+  age                       Int?
+  role                      String       @default("patient")
+  color                     String       @default("emerald")
+  conditions                String       @default("[]")
+  conditions_enc            String?      @map("conditions_enc")
+  photoUrl                  String?
+  inviteEmail               String?
+  inviteEmail_enc           String?      @map("inviteEmail_enc")
+  inviteToken               String?
+  inviteToken_enc           String?      @map("inviteToken_enc")
+  inviteStatus              String       @default("accepted")
+  inviteExpiresAt           DateTime?
+  relationVerificationToken String? // token proving the invitee's relationship identity
+  createdAt                 DateTime     @default(now())
+  medications               Medication[]
 
   @@index([userId])
   @@map("family_members")
 }
 
 model EmergencyAlert {
-  id             String   @id @default(cuid())
-  familyId       String
-  family         Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  familyMemberId String?
-  memberName     String?
-  memberName_enc String?  @map("memberName_enc")
-  reporterId     String?
-  reporter       User?    @relation("AlertReporter", fields: [reporterId], references: [id], onDelete: Cascade)
-  type           String   @default("sos")
-  tier           String   @default("critical")
-  location       String?
-  location_enc   String?  @map("location_enc")
-  notes          String?
-  notes_enc      String?  @map("notes_enc")
-  status         String   @default("active")
-  notifiedDoctors String  @default("[]")
-  deletedAt      DateTime?
-  createdAt      DateTime @default(now())
-  resolvedAt     DateTime?
+  id              String    @id @default(cuid())
+  familyId        String
+  family          Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyMemberId  String?
+  memberName      String?
+  memberName_enc  String?   @map("memberName_enc")
+  reporterId      String?
+  reporter        User?     @relation("AlertReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  type            String    @default("sos")
+  tier            String    @default("critical")
+  location        String?
+  location_enc    String?   @map("location_enc")
+  notes           String?
+  notes_enc       String?   @map("notes_enc")
+  status          String    @default("active")
+  notifiedDoctors String    @default("[]")
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  resolvedAt      DateTime?
 
   @@index([familyMemberId])
   @@map("emergency_alerts")
 }
 
 model Payment {
-  id              String       @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   type            String
   amount          Int
-  currency        String       @default("USD")
+  currency        String        @default("USD")
   status          PaymentStatus @default(pending)
-  provider        String       @default("mock")
+  provider        String        @default("mock")
   providerRef     String?
-  providerEventId String?      @unique
+  providerEventId String?       @unique
   description     String?
-  description_enc String?      @map("description_enc")
-  createdAt       DateTime     @default(now())
+  description_enc String?       @map("description_enc")
+  createdAt       DateTime      @default(now())
+  refunds         Refund[]
 
   @@map("payments")
 }
 
+model Refund {
+  id             String    @id @default(cuid())
+  paymentId      String
+  payment        Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  appointmentId  String?
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount         Float     @default(0)
+  reason         String? // "doctor_no_show" | "lab_no_show" | "patient_cancel" | "technical_issue" | "complaint" | "admin_override"
+  stripeRefundId String? // Stripe's refund ID
+  status         String    @default("pending") // "pending" | "succeeded" | "failed"
+  requestedBy    String    @default("system") // "system" | "admin" | "user"
+  notes          String?
+  notes_enc      String?   @map("notes_enc")
+  processedAt    DateTime? // when the refund was processed
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([paymentId])
+  @@index([userId])
+  @@index([appointmentId])
+  @@map("refunds")
+}
+
 model AuditLog {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   userId       String?
-  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action       String   // e.g. "auth.login", "medication.create", "record.access"
-  category     String   @default("access") // "access" | "auth" | "modification" | "deletion" | "system"
-  resourceType String?  // e.g. "Medication", "LabResult", "Prescription", "ConsultationNote"
-  resourceId   String?  // ID of the specific resource accessed/modified
+  user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action       String // e.g. "auth.login", "medication.create", "record.access"
+  category     String    @default("access") // "access" | "auth" | "modification" | "deletion" | "system"
+  resourceType String? // e.g. "Medication", "LabResult", "Prescription", "ConsultationNote"
+  resourceId   String? // ID of the specific resource accessed/modified
   // HTTP context
-  httpMethod   String?  // "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
-  httpPath     String?  // e.g. "/api/medications/123"
-  statusCode   Int?     // Response HTTP status code
+  httpMethod   String? // "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+  httpPath     String? // e.g. "/api/medications/123"
+  statusCode   Int? // Response HTTP status code
   // Client context (PHI-safe: only non-PHI values stored here)
   userAgent    String?
   ip           String?
-  ip_enc       String?  @map("ip_enc")
+  ip_enc       String?   @map("ip_enc")
   // Outcome
-  outcome      String?  // "success" | "failure" | "forbidden" | "error"
-  riskScore    Int?     @default(0) // 0-100, higher = more suspicious
+  outcome      String? // "success" | "failure" | "forbidden" | "error"
+  riskScore    Int?      @default(0) // 0-100, higher = more suspicious
   // Details
   details      String?
-  metadata     String?  @default("{}") // JSON: { "changes": [...], "filters": {...}, "sessionId": "..." }
-  createdAt    DateTime @default(now())
+  metadata     String?   @default("{}") // JSON: { "changes": [...], "filters": {...}, "sessionId": "..." }
+  createdAt    DateTime  @default(now())
   deletedAt    DateTime?
 
   @@index([userId, createdAt])
@@ -535,14 +567,14 @@ model AuditLog {
 }
 
 model ConsultationNote {
-  id        String   @id @default(cuid())
-  doctorId  String
-  patientId String
-  content   String?
-  content_enc String? @map("content_enc")
-  type      String   @default("observation")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  doctorId    String
+  patientId   String
+  content     String?
+  content_enc String?  @map("content_enc")
+  type        String   @default("observation")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([doctorId, patientId])
   @@index([patientId])
@@ -552,16 +584,43 @@ model ConsultationNote {
 
 // ── Kyntha 2.0: New Tables ─────────────────────────────────────────
 
-model HealthScore {
+model FreeTierUsage {
   id        String   @id @default(cuid())
   userId    String
+  feature   String // "add_medication" | "ai_chat"
   date      DateTime
-  score     Int
-  breakdown String   @default("{}")
-  breakdown_enc String? @map("breakdown_enc")
-  deletedAt DateTime?
+  count     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, feature, date])
+  @@index([userId, feature, date])
+  @@map("free_tier_usage")
+}
+
+model FreeTierUsageAudit {
+  id        String   @id @default(cuid())
+  userId    String
+  feature   String
+  action    String
+  count     Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([feature])
+  @@map("free_tier_usage_audit")
+}
+
+model HealthScore {
+  id            String    @id @default(cuid())
+  userId        String
+  date          DateTime
+  score         Int
+  breakdown     String    @default("{}")
+  breakdown_enc String?   @map("breakdown_enc")
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@unique([userId, date])
   @@index([userId])
@@ -569,20 +628,20 @@ model HealthScore {
 }
 
 model HealthJournal {
-  id        String   @id @default(cuid())
-  userId    String
-  date      DateTime
-  symptoms  String   @default("[]")
-  symptoms_enc String? @map("symptoms_enc")
-  mood      String?
-  mood_enc  String?  @map("mood_enc")
-  notes     String?
-  notes_enc String?  @map("notes_enc")
-  vitals    String?
-  vitals_enc String? @map("vitals_enc")
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String    @id @default(cuid())
+  userId       String
+  date         DateTime
+  symptoms     String    @default("[]")
+  symptoms_enc String?   @map("symptoms_enc")
+  mood         String?
+  mood_enc     String?   @map("mood_enc")
+  notes        String?
+  notes_enc    String?   @map("notes_enc")
+  vitals       String?
+  vitals_enc   String?   @map("vitals_enc")
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@unique([userId, date])
   @@index([userId])
@@ -590,17 +649,17 @@ model HealthJournal {
 }
 
 model FamilyHealthAlert {
-  id        String   @id @default(cuid())
-  familyId  String
-  memberId  String
-  type      String
-  title     String?
-  title_enc String?  @map("title_enc")
-  message   String?
-  message_enc String? @map("message_enc")
-  severity  String   @default("info")
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  familyId    String
+  memberId    String
+  type        String
+  title       String?
+  title_enc   String?  @map("title_enc")
+  message     String?
+  message_enc String?  @map("message_enc")
+  severity    String   @default("info")
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   @@index([familyId])
   @@index([memberId])
@@ -608,95 +667,135 @@ model FamilyHealthAlert {
 }
 
 model MedicineInventory {
-  id           String       @id @default(cuid())
+  id           String     @id @default(cuid())
   userId       String
   medicationId String
-  medication   Medication   @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
   totalPills   Int
   remaining    Int
   refillDate   DateTime?
   expiryDate   DateTime?
   lastRefillAt DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@index([userId])
 }
 
 model UserStreak {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   type      String
-  count     Int      @default(0)
-  bestCount Int      @default(0)
+  count     Int       @default(0)
+  bestCount Int       @default(0)
   lastDate  DateTime
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([userId, type])
   @@index([userId])
 }
 
 model UserBadge {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   badgeType String
   deletedAt DateTime?
-  earnedAt  DateTime @default(now())
+  earnedAt  DateTime  @default(now())
 
   @@unique([userId, badgeType])
   @@index([userId])
 }
 
 model PrescriptionIntelligence {
-  id           String   @id @default(cuid())
-  userId       String
-  rawText      String?
-  rawText_enc  String?  @map("rawText_enc")
-  imageData    String?
-  imageData_enc String? @map("imageData_enc")
-  medications  String   @default("[]")
-  medications_enc String? @map("medications_enc")
-  schedule     String   @default("[]")
-  schedule_enc String?  @map("schedule_enc")
-  interactions String   @default("[]")
-  interactions_enc String? @map("interactions_enc")
-  warnings     String   @default("[]")
-  warnings_enc String?  @map("warnings_enc")
-  deletedAt    DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String    @id @default(cuid())
+  userId           String
+  rawText          String?
+  rawText_enc      String?   @map("rawText_enc")
+  imageData        String?
+  imageData_enc    String?   @map("imageData_enc")
+  medications      String    @default("[]")
+  medications_enc  String?   @map("medications_enc")
+  schedule         String    @default("[]")
+  schedule_enc     String?   @map("schedule_enc")
+  interactions     String    @default("[]")
+  interactions_enc String?   @map("interactions_enc")
+  warnings         String    @default("[]")
+  warnings_enc     String?   @map("warnings_enc")
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([userId])
   @@map("prescription_intelligence")
 }
 
+model Payout {
+  id            String    @id @default(cuid())
+  userId        String // user who received the payout (doctor)
+  doctorId      String
+  appointmentId String?
+  paymentId     String?
+  amount        Float
+  platformFee   Float     @default(0)
+  netAmount     Float     @default(0) // amount after platform fee
+  status        String    @default("pending")
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([userId])
+  @@index([doctorId])
+  @@index([appointmentId])
+  @@map("payouts")
+}
+
+model Complaint {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointmentId   String?
+  subject         String // complaint subject/title
+  description     String?
+  description_enc String?   @map("description_enc")
+  category        String? // "technical" | "billing" | "provider" | "other"
+  priority        String    @default("medium") // "low" | "medium" | "high" | "critical"
+  status          String    @default("pending")
+  resolution      String?
+  resolvedAt      DateTime?
+  fileToken       String? // reference to uploaded evidence file
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([appointmentId])
+  @@map("complaints")
+}
+
 model Referral {
-  id             String   @id @default(cuid())
+  id            String    @id @default(cuid())
   referrerId    String
-  code           String   @unique
-  referralCount  Int      @default(0)
-  deletedAt      DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  code          String    @unique
+  referralCount Int       @default(0)
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([referrerId])
   @@index([code])
 }
 
 model ReferralUsage {
-  id          String   @id @default(cuid())
-  referralId  String
-  usedById    String
-  referrerId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  referralId String
+  usedById   String
+  referrerId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([referralId])
   @@index([usedById])
   @@index([referrerId])
-
   @@map("referral_usage")
 }
 
@@ -715,22 +814,22 @@ model PrescriptionTemplate {
 // ── Video Consultation ────────────────────────────────────────────────
 
 model VideoCall {
-  id           String   @id @default(cuid())
-  familyId     String
-  family       Family   @relation(fields: [familyId], references: [id])
+  id            String                 @id @default(cuid())
+  familyId      String
+  family        Family                 @relation(fields: [familyId], references: [id])
   appointmentId String? // optional link to an Appointment
-  roomName     String
-  initiatedBy  String // userId who started the call
-  status       String   @default("ringing") // ringing | active | ended | missed | failed
-  startedAt    DateTime?
-  endedAt      DateTime?
-  durationSec  Int?     // calculated on end
-  recordingUrl String?  // HIPAA-compliant encrypted recording (if enabled)
-  qualityScore Int?     // optional self-reported or metric score 1-5
-  notes        String?  // optional clinical notes post-call
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  participants VideoCallParticipant[]
+  roomName      String
+  initiatedBy   String // userId who started the call
+  status        String                 @default("ringing") // ringing | active | ended | missed | failed
+  startedAt     DateTime?
+  endedAt       DateTime?
+  durationSec   Int? // calculated on end
+  recordingUrl  String? // HIPAA-compliant encrypted recording (if enabled)
+  qualityScore  Int? // optional self-reported or metric score 1-5
+  notes         String? // optional clinical notes post-call
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  participants  VideoCallParticipant[]
 
   @@index([familyId])
   @@index([appointmentId])
@@ -739,18 +838,29 @@ model VideoCall {
 }
 
 model VideoCallParticipant {
-  id           String   @id @default(cuid())
-  videoCallId  String
-  videoCall    VideoCall @relation(fields: [videoCallId], references: [id], onDelete: Cascade)
-  userId       String
-  userRole     String   // patient | doctor | caretaker
-  displayName  String?
-  joinedAt     DateTime @default(now())
-  leftAt       DateTime?
+  id                String    @id @default(cuid())
+  videoCallId       String
+  videoCall         VideoCall @relation(fields: [videoCallId], references: [id], onDelete: Cascade)
+  userId            String
+  userRole          String // patient | doctor | caretaker
+  displayName       String?
+  joinedAt          DateTime  @default(now())
+  leftAt            DateTime?
   connectionQuality String? // excellent | good | fair | poor
   iceCandidateType  String? // host | srflx | relay
 
   @@index([videoCallId])
   @@index([userId])
   @@map("video_call_participants")
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  category  String // bug | feature | general
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("feedback")
 }
