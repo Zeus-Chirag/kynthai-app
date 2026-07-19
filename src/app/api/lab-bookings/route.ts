@@ -1,11 +1,12 @@
 import { NextRequest } from 'next/server'
-import { Prisma } from '@prisma/client'
+// import type { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { sanitizeText, rateLimit } from '@/lib/security'
 import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, readJson, audit, parseJsonCol, checkConsent } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { sendNotification } from '@/lib/notifications'
 import { LAB_BASE_FEE_PCT, resolveTier, effectiveFeePct } from '@/lib/commission'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 // GET /api/lab-bookings?patientId=...
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
     return jsonError('Forbidden — patientId must match session', 403)
   }
 
-  const and: Prisma.LabBookingWhereInput[] = []
+  const and: any[] = []
 
   if (u.role === 'patient') {
     and.push({ patientId: u.id })
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
     return jsonError('patientId or labId query param required', 400)
   }
 
-  const where: Prisma.LabBookingWhereInput = { AND: and }
+  const where: any = { AND: and }
   const bookings = await db.labBooking.findMany({
     where,
     include: { patient: true, lab: { include: { user: true } } },
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
 
   await logAudit(user.id, 'lab_booking.list', { resourceType: 'LabBooking' })
   return jsonOk(
-    bookings.map((b) => ({
+    bookings.map((b: any) => ({
       id: b.id,
       labId: b.labId,
       labName: b.lab.labName,
@@ -130,6 +131,23 @@ export async function POST(req: NextRequest) {
       tests: JSON.stringify(tests),
     },
   })
+
+  // Create payment record for lab booking
+  try {
+    await db.payment.create({
+      data: {
+        userId: patient.id,
+        amount: total,
+        currency: 'USD',
+        type: 'lab_booking',
+        status: 'succeeded',
+        provider: 'mock',
+        description: `Lab test: ${tests.map(t => t.name).join(', ')} at ${lab.labName}`,
+      },
+    })
+  } catch (paymentErr) {
+    logger.phiSafeError(paymentErr, 'lab-bookings.payment.create')
+  }
 
   await logAudit(u.id, 'lab-bookings.book', `booking=${booking.id} lab=${lab.id} commission=${commission} feePct=${feePct}%`)
 

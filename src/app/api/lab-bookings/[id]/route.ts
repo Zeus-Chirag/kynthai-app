@@ -4,6 +4,7 @@ import { logAudit } from '@/lib/auth'
 import { sanitizeText, rateLimit } from '@/lib/security'
 import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, readJson, audit, checkConsent } from '@/lib/api-helpers'
 import { sendNotification } from '@/lib/notifications'
+import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
 /**
@@ -32,13 +33,21 @@ export async function PATCH(
   const booking = await db.labBooking.findUnique({ where: { id }, include: { lab: true } })
   if (!booking) return jsonError('Booking not found', 404)
 
-  // Only the owning lab or admin can update
-  if (booking.lab.userId !== u.id && u.role !== 'admin') {
-    return jsonError('Forbidden — only the owning lab can update bookings', 403)
+  // Only the owning lab, the patient (for cancellation), or admin can update
+  const isOwningLab = booking.lab.userId === u.id
+  const isPatient = booking.patientId === u.id
+  const isAdmin = u.role === 'admin'
+  if (!isOwningLab && !isPatient && !isAdmin) {
+    return jsonError('Forbidden — only the owning lab, patient, or admin can update bookings', 403)
   }
 
   const body = await readJson<{ status?: string; notes?: string }>(req)
   if (!body) return jsonError('Invalid JSON', 400)
+
+  // Patients can only cancel
+  if (isPatient && body.status && body.status !== 'cancelled') {
+    return jsonError('Patients can only cancel bookings', 403)
+  }
 
   const VALID_TRANSITIONS: Record<string, string[]> = {
     pending: ['sample_collected', 'cancelled'],
@@ -70,14 +79,58 @@ export async function PATCH(
   const updated = await db.labBooking.update({ where: { id }, data: updates })
   await logAudit(u.id, 'lab-bookings.patch', `booking=${id} status=${updated.status}`)
 
+  // ── Refund on cancellation (if payment was captured) ──────────────────
+  if (updated.status === 'cancelled' && booking.status !== 'cancelled') {
+    const isPatient = u.id === booking.patientId
+    const isLab = u.id === booking.lab.userId
+    const refundAmount = updated.price - updated.commission
+
+    if (refundAmount > 0 && (isPatient || isLab)) {
+      // Find the payment record for this booking
+      const payment = await db.payment.findFirst({
+        where: { userId: booking.patientId, type: 'lab_booking', status: 'succeeded' },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      if (payment) {
+        try {
+          await db.refund.create({
+            data: {
+              paymentId: payment.id,
+              appointmentId: null,
+              userId: booking.patientId,
+              amount: refundAmount,
+              reason: isPatient ? 'patient_cancel' : 'lab_cancel',
+              status: 'completed',
+              processedAt: new Date(),
+            },
+          })
+        } catch (refundErr) {
+          logger.phiSafeError(refundErr, 'lab-bookings.refund.create')
+        }
+      }
+
+      // Cancel any pending payout
+      try {
+        await db.payout.updateMany({
+          where: { appointmentId: id, status: 'pending' },
+          data: { status: 'failed' },
+        })
+      } catch { /* best-effort */ }
+    }
+  }
+
   // Notify patient on status change
   try {
-    if (updated.status !== booking.status && updated.status !== 'cancelled') {
+    if (updated.status !== booking.status) {
+      const statusMsg = updated.status === 'cancelled'
+        ? `Your lab booking has been cancelled. Refund of $${((updated.price - updated.commission) / 100).toFixed(2)} has been processed.`
+        : `${booking.lab.labName}: Your test status updated to "${statusLabel(updated.status)}".`
       await sendNotification(
         { userId: updated.patientId },
         {
-          title: statusLabel(updated.status),
-          body: `${booking.lab.labName}: Your test status updated to "${statusLabel(updated.status)}".`,
+          title: updated.status === 'cancelled' ? 'Lab booking cancelled' : statusLabel(updated.status),
+          body: statusMsg,
           type: 'lab_booking_update',
           data: { bookingId: updated.id, status: updated.status },
         },
