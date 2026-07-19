@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrendingUp, TrendingDown, Minus, Heart, Brain, Activity, Users } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface HealthScoreData {
   score: number
@@ -30,7 +31,7 @@ export function HealthScoreWidget() {
         setData(scoreData)
       }
     } catch (error) {
-      console.error('Failed to fetch health score:', error)
+      logger.warn('Failed to fetch health score:', error)
     } finally {
       setLoading(false)
     }

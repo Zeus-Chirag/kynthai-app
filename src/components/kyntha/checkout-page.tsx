@@ -24,6 +24,7 @@ import { StripeCardElement } from './stripe-card-element';
 import { useAppStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 import { KynthaBrand } from './logo';
 import { FadeIn, motion, AnimatePresence } from './animations';
 import {
@@ -124,7 +125,7 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
       }
       return { clientSecret: data.clientSecret, paymentId: data.paymentId };
     } catch (err) {
-      console.error('Payment initialization failed', err instanceof Error ? err.message : err);
+      logger.warn('Payment initialization failed', err instanceof Error ? err.message : err);
       toast({
         title: 'Payment setup failed',
         description: err instanceof Error ? err.message : 'Please try again.',

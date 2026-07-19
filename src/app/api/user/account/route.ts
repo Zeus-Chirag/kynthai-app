@@ -3,7 +3,72 @@ import { requireAuthWithCsrf, jsonError, jsonOk, audit } from '@/lib/api-helpers
 import { logAudit } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
+import { sanitizeText, isValidE164 } from '@/lib/security'
+import { z } from 'zod'
 export const dynamic = 'force-dynamic'
+
+const UpdateProfileSchema = z.object({
+  name: z.string().min(1).max(120).optional(),
+  phone: z.string().max(30).optional().nullable(),
+  dateOfBirth: z.string().optional().nullable(),
+})
+
+// PATCH /api/user/account — update profile info
+export async function PATCH(req: NextRequest) {
+  const { response, user } = await requireAuthWithCsrf(req)
+  if (response || !user) return response!
+
+  const body = await req.json().catch(() => null)
+  const parsed = UpdateProfileSchema.safeParse(body)
+  if (!parsed.success) {
+    return jsonError('Invalid input', 400, 'VALIDATION_ERROR')
+  }
+
+  const updates: Record<string, unknown> = {}
+
+  if (parsed.data.name !== undefined) {
+    updates.name = sanitizeText(parsed.data.name, 120)
+  }
+  if (parsed.data.phone !== undefined) {
+    if (parsed.data.phone && !isValidE164(parsed.data.phone)) {
+      return jsonError('Phone must be in E.164 format (e.g. +15551234567)', 400)
+    }
+    updates.phone = parsed.data.phone || null
+  }
+  if (parsed.data.dateOfBirth !== undefined) {
+    if (parsed.data.dateOfBirth) {
+      const dob = new Date(parsed.data.dateOfBirth)
+      if (isNaN(dob.getTime())) return jsonError('Invalid date of birth', 400)
+      updates.dateOfBirth = dob
+    } else {
+      updates.dateOfBirth = null
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return jsonError('No valid fields to update', 400)
+  }
+
+  try {
+    const updated = await db.user.update({
+      where: { id: user.id },
+      data: updates,
+    })
+
+    await logAudit(user.id, 'profile.update', `fields=${Object.keys(updates).join(',')}`)
+
+    return jsonOk({
+      id: updated.id,
+      name: updated.name,
+      email: updated.email,
+      phone: updated.phone,
+      dateOfBirth: updated.dateOfBirth?.toISOString() ?? null,
+    })
+  } catch (error) {
+    logger.phiSafeError(error, 'user.account.PATCH')
+    return jsonError('Failed to update profile', 500)
+  }
+}
 
 // DELETE /api/user/account
 // US privacy right to erasure — permanently deletes the user's account and all associated data.

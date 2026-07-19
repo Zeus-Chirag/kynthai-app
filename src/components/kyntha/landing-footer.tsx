@@ -89,7 +89,7 @@ export function LandingFooter() {
               { label: 'Refund & Cancellation', href: '/refund-cancellation' },
               { label: 'Grievance', href: '/grievance' },
               { label: 'Cookie Policy', href: '/cookies' },
-              { label: 'Data Subject Rights (CCPA)', href: '/ccpa-rights' },
+              { label: 'Data Subject Rights (CCPA)', href: '/ccpa' },
               { label: 'Accessibility', href: '/accessibility' },
               { label: 'Medical Disclaimer', href: '/medical-disclaimer' },
             ]}

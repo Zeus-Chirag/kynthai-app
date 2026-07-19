@@ -176,13 +176,11 @@ export const useAppStore = create<AppState>()(
         return {
           ...prev,
           screen: 'landing' as AppScreen,
-          loginPortal: 'caretaker' as LoginPortal,
+          loginPortal: (prev.loginPortal ?? 'caretaker') as LoginPortal,
           checkoutTier: 'plus' as 'plus' | 'family_pro',
-          onboardingComplete: false,
+          onboardingComplete: prev.onboardingComplete ?? false,
           currency: 'USD' as Currency,
           language: 'en' as Locale,
-          // Preserve user, doctorOnline, labOnline, alarm settings from
-          // persisted state — these are still valid.
         } as Partial<AppState>;
       },
       onRehydrateStorage: () => state => {

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Flame, Trophy, Star, Shield, Heart, Brain, Award, Zap } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface Streak {
   type: string
@@ -57,7 +58,7 @@ export function StreaksAndBadges() {
         setBadges(badgesData.badges || [])
       }
     } catch (error) {
-      console.error('Failed to fetch streaks/badges:', error)
+      logger.warn('Failed to fetch streaks/badges:', error)
     } finally {
       setLoading(false)
     }

@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   CalendarDays,
   CheckCircle2,
@@ -26,28 +26,28 @@ import {
   Loader2,
   FileText,
   Sparkles,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
-import { useTheme } from 'next-themes'
-import { KynthaBrand } from '@/components/kyntha/logo'
-import { useAppStore, type AuthUser } from '@/lib/store'
-import { useRouter } from 'next/navigation'
-import { t, getLanguage, setLanguage, initLanguage } from '@/lib/i18n'
-import { getGreeting } from '@/lib/greeting'
-import { ProfileHub } from '@/components/kyntha/patient/profile-hub'
-import { PatientCare } from './patient-care'
-import { OfflineIndicator } from '@/components/kyntha/offline-indicator'
-import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/use-toast'
-import { PortalFooter } from '@/components/kyntha/portal-footer'
-import { AnimatePresence, motion } from 'framer-motion'
-import { FadeIn } from '@/components/kyntha/animations'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { useTheme } from 'next-themes';
+import { KynthaBrand } from '@/components/kyntha/logo';
+import { useAppStore, type AuthUser } from '@/lib/store';
+import { useRouter } from 'next/navigation';
+import { t, getLanguage, setLanguage, initLanguage } from '@/lib/i18n';
+import { getGreeting } from '@/lib/greeting';
+import { ProfileHub } from '@/components/kyntha/patient/profile-hub';
+import { PatientCare } from './patient-care';
+import { OfflineIndicator } from '@/components/kyntha/offline-indicator';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { PortalFooter } from '@/components/kyntha/portal-footer';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FadeIn } from '@/components/kyntha/animations';
 import {
   Dialog,
   DialogContent,
@@ -55,11 +55,11 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { VideoCall } from '@/components/kyntha/video-call'
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { VideoCall } from '@/components/kyntha/video-call';
 import {
   DOCTOR_BASE_FEE_PCT,
   LOYALTY_TIERS,
@@ -69,322 +69,501 @@ import {
   platformFee,
   partnerKeeps,
   PAYOUT_POLICY,
-} from '@/lib/commission'
+} from '@/lib/commission';
 interface DoctorProfile {
-  id: string
-  specialization: string
-  licenseNumber: string
-  experience: number
-  consultationFee: number
-  city: string
-  bio: string
-  videoCallEnabled: boolean
-  verified: boolean
+  id: string;
+  specialization: string;
+  licenseNumber: string;
+  experience: number;
+  consultationFee: number;
+  city: string;
+  bio: string;
+  videoCallEnabled: boolean;
+  verified: boolean;
 }
 
 interface Appointment {
-  id: string
-  patientName: string
-  time: string
-  date: string
-  type: 'video' | 'in-person'
-  status: 'upcoming' | 'completed' | 'cancelled'
-  fee: number
+  id: string;
+  patientName: string;
+  time: string;
+  date: string;
+  type: 'video' | 'in-person';
+  status: 'pending' | 'upcoming' | 'completed' | 'cancelled';
+  fee: number;
 }
 
 interface Prescription {
-  id: string
-  patientName: string
-  patientId?: string
-  medication: string
-  medications?: Array<{ name: string; dosage: string; frequency: string }>
-  date: string
-  followUpDate?: string | null
-  status?: string
+  id: string;
+  patientName: string;
+  patientId?: string;
+  medication: string;
+  medications?: Array<{ name: string; dosage: string; frequency: string }>;
+  date: string;
+  followUpDate?: string | null;
+  status?: string;
 }
 
 const APPOINTMENTS: Appointment[] = [
-  { id: 'a1', patientName: 'Alex Johnson', time: '10:30 AM', date: 'Today', type: 'video', status: 'upcoming', fee: 75 },
-  { id: 'a2', patientName: 'Jordan Smith', time: '12:00 PM', date: 'Today', type: 'video', status: 'upcoming', fee: 75 },
-  { id: 'a3', patientName: 'Casey Lee', time: '09:00 AM', date: 'Yesterday', type: 'video', status: 'completed', fee: 75 },
-  { id: 'a4', patientName: 'Taylor Reed', time: '02:00 PM', date: 'Yesterday', type: 'in-person', status: 'completed', fee: 55 },
-]
+  {
+    id: 'a1',
+    patientName: 'Alex Johnson',
+    time: '10:30 AM',
+    date: 'Today',
+    type: 'video',
+    status: 'upcoming',
+    fee: 75,
+  },
+  {
+    id: 'a2',
+    patientName: 'Jordan Smith',
+    time: '12:00 PM',
+    date: 'Today',
+    type: 'video',
+    status: 'upcoming',
+    fee: 75,
+  },
+  {
+    id: 'a3',
+    patientName: 'Casey Lee',
+    time: '09:00 AM',
+    date: 'Yesterday',
+    type: 'video',
+    status: 'completed',
+    fee: 75,
+  },
+  {
+    id: 'a4',
+    patientName: 'Taylor Reed',
+    time: '02:00 PM',
+    date: 'Yesterday',
+    type: 'in-person',
+    status: 'completed',
+    fee: 55,
+  },
+  {
+    id: 'a5',
+    patientName: 'Morgan Patel',
+    time: '03:30 PM',
+    date: 'Today',
+    type: 'video',
+    status: 'pending',
+    fee: 75,
+  },
+];
 
 const PRESCRIPTIONS: Prescription[] = [
-  { id: 'rx1', patientId: 'p1', patientName: 'Alex Johnson', medication: 'Lisinopril 10mg', date: 'Today', status: 'active', followUpDate: null, medications: [{ name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' }] },
-  { id: 'rx2', patientId: 'p2', patientName: 'Jordan Smith', medication: 'Atorvastatin 20mg', date: 'Today', status: 'active', followUpDate: null, medications: [{ name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily' }] },
-  { id: 'rx3', patientId: 'p3', patientName: 'Casey Lee', medication: 'Amoxicillin 500mg', date: 'Yesterday', status: 'active', followUpDate: null, medications: [{ name: 'Amoxicillin', dosage: '500mg', frequency: 'Three times daily' }] },
-]
+  {
+    id: 'rx1',
+    patientId: 'p1',
+    patientName: 'Alex Johnson',
+    medication: 'Lisinopril 10mg',
+    date: 'Today',
+    status: 'active',
+    followUpDate: null,
+    medications: [{ name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' }],
+  },
+  {
+    id: 'rx2',
+    patientId: 'p2',
+    patientName: 'Jordan Smith',
+    medication: 'Atorvastatin 20mg',
+    date: 'Today',
+    status: 'active',
+    followUpDate: null,
+    medications: [{ name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily' }],
+  },
+  {
+    id: 'rx3',
+    patientId: 'p3',
+    patientName: 'Casey Lee',
+    medication: 'Amoxicillin 500mg',
+    date: 'Yesterday',
+    status: 'active',
+    followUpDate: null,
+    medications: [{ name: 'Amoxicillin', dosage: '500mg', frequency: 'Three times daily' }],
+  },
+];
 
 // Free-tier patient slot cap mirrors the 5-patient limit enforced server-side
 // in POST /api/doctors/patients (returns 402 when exceeded).
-const FREE_PATIENT_CAP = 5
+const FREE_PATIENT_CAP = 5;
 
 const PRO_FEATURES = [
   'unlimited_patients',
   'priority_placement',
   'advanced_analytics',
   'lower_commission',
-] as const
+] as const;
 
 export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: DoctorProfile }) {
-  const { logout, setScreen, doctorOnline, setDoctorOnline } = useAppStore()
-  const router = useRouter()
-  const isDemo = !!user.isDemo
-  const [lang, setLangState] = React.useState('en')
-  const [profileOpen, setProfileOpen] = React.useState(false)
+  const { logout, setScreen, doctorOnline, setDoctorOnline } = useAppStore();
+  const router = useRouter();
+  const isDemo = !!user.isDemo;
+  const [lang, setLangState] = React.useState('en');
+  const [profileOpen, setProfileOpen] = React.useState(false);
 
   const handleLogout = React.useCallback(() => {
-    logout()
-    router.replace('/')
-  }, [logout, router])
+    logout();
+    router.replace('/');
+  }, [logout, router]);
 
   React.useEffect(() => {
-    initLanguage()
-    setLangState(getLanguage())
-  }, [])
+    initLanguage();
+    setLangState(getLanguage());
+  }, []);
 
   const toggleLang = () => {
-    const next = lang === 'en' ? 'hi' : 'en'
-    setLanguage(next)
-    setLangState(next)
-  }
-  const { toast } = useToast()
-  const [videoOn, setVideoOn] = React.useState(profile.videoCallEnabled)
-  const [downloadingPdfId, setDownloadingPdfId] = React.useState<string | null>(null)
+    const next = lang === 'en' ? 'hi' : 'en';
+    setLanguage(next);
+    setLangState(next);
+  };
+  const { toast } = useToast();
+  const [videoOn, setVideoOn] = React.useState(profile.videoCallEnabled);
+  const [downloadingPdfId, setDownloadingPdfId] = React.useState<string | null>(null);
 
-  const downloadPdf = React.useCallback(async (prescriptionId: string) => {
-    setDownloadingPdfId(prescriptionId)
-    try {
-      const res = await fetch('/api/doctors/prescription-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prescriptionId }),
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data?.error || 'Failed to generate prescription')
+  const downloadPdf = React.useCallback(
+    async (prescriptionId: string) => {
+      setDownloadingPdfId(prescriptionId);
+      try {
+        const res = await fetch('/api/doctors/prescription-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prescriptionId }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.error || 'Failed to generate prescription');
+        }
+        const html = await res.text();
+        const blob = new Blob([html], { type: 'text/html; charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `prescription-${prescriptionId.slice(0, 8)}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast({
+          title: 'Prescription downloaded',
+          description: 'Open in browser and use Print → Save as PDF.',
+        });
+      } catch (error) {
+        toast({
+          title: 'Download failed',
+          description: error instanceof Error ? error.message : 'Unknown error',
+          variant: 'destructive',
+        });
+      } finally {
+        setDownloadingPdfId(null);
       }
-      const html = await res.text()
-      const blob = new Blob([html], { type: 'text/html; charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `prescription-${prescriptionId.slice(0, 8)}.html`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      toast({ title: 'Prescription downloaded', description: 'Open in browser and use Print → Save as PDF.' })
-    } catch (error) {
-      toast({
-        title: 'Download failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
-      })
-    } finally {
-      setDownloadingPdfId(null)
-    }
-  }, [toast])
-  const [view, setView] = React.useState<'overview' | 'appointments' | 'patients' | 'prescriptions'>('overview')
-  const [prescribeOpen, setPrescribeOpen] = React.useState(false)
-  const [prescribePatientEmail, setPrescribePatientEmail] = React.useState('')
-  const [notesOpen, setNotesOpen] = React.useState(false)
-  const [notesPatientId, setNotesPatientId] = React.useState('')
-  const [notesContent, setNotesContent] = React.useState('')
-  const [notesType, setNotesType] = React.useState<'observation' | 'diagnosis' | 'follow-up'>('observation')
-  const [notesList, setNotesList] = React.useState<Array<{ id: string; content: string; type: string; createdAt: string }>>([])
-  const [aiNotesOpen, setAiNotesOpen] = React.useState(false)
-  const [aiTranscript, setAiTranscript] = React.useState('')
-  const [aiGenerating, setAiGenerating] = React.useState(false)
-  const [patientCount, setPatientCount] = React.useState(0)
-  const [appointmentSearch, setAppointmentSearch] = React.useState('')
-  const [lowAdherenceCount, setLowAdherenceCount] = React.useState(0)
-  const [refreshing, setRefreshing] = React.useState(false)
+    },
+    [toast]
+  );
+  const [view, setView] = React.useState<
+    'overview' | 'appointments' | 'patients' | 'prescriptions'
+  >('overview');
+  const [prescribeOpen, setPrescribeOpen] = React.useState(false);
+  const [prescribePatientEmail, setPrescribePatientEmail] = React.useState('');
+  const [notesOpen, setNotesOpen] = React.useState(false);
+  const [notesPatientId, setNotesPatientId] = React.useState('');
+  const [notesContent, setNotesContent] = React.useState('');
+  const [notesType, setNotesType] = React.useState<'observation' | 'diagnosis' | 'follow-up'>(
+    'observation'
+  );
+  const [notesList, setNotesList] = React.useState<
+    Array<{ id: string; content: string; type: string; createdAt: string }>
+  >([]);
+  const [aiNotesOpen, setAiNotesOpen] = React.useState(false);
+  const [aiTranscript, setAiTranscript] = React.useState('');
+  const [aiGenerating, setAiGenerating] = React.useState(false);
+  const [patientCount, setPatientCount] = React.useState(0);
+  const [appointmentSearch, setAppointmentSearch] = React.useState('');
+  const [lowAdherenceCount, setLowAdherenceCount] = React.useState(0);
+  const [refreshing, setRefreshing] = React.useState(false);
   const [selectedPatient, setSelectedPatient] = React.useState<{
-    id: string
-    name: string
-    email: string
-    medications: number
-    adherence: number
-    todayReminders: number
-    takenToday: number
-    weekReminders: number
-    takenWeek: number
-    inviteLink?: string | null
-  } | null>(null)
-  const [joiningCallApptId, setJoiningCallApptId] = React.useState<string | null>(null)
+    id: string;
+    name: string;
+    email: string;
+    medications: number;
+    adherence: number;
+    todayReminders: number;
+    takenToday: number;
+    weekReminders: number;
+    takenWeek: number;
+    inviteLink?: string | null;
+  } | null>(null);
+  const [joiningCallApptId, setJoiningCallApptId] = React.useState<string | null>(null);
+  const [updatingApptId, setUpdatingApptId] = React.useState<string | null>(null);
 
   // Auto-fetch notes whenever the selected patient changes (even while dialog is open)
   React.useEffect(() => {
     if (!notesPatientId || !notesOpen) {
-      if (!notesOpen) setNotesList([])
-      return
+      if (!notesOpen) setNotesList([]);
+      return;
     }
-    let cancelled = false
+    let cancelled = false;
     async function fetchNotes() {
       try {
-        const res = await fetch(`/api/doctors/notes?patientId=${notesPatientId}`, { cache: 'no-store' })
-        if (cancelled) return
+        const res = await fetch(`/api/doctors/notes?patientId=${notesPatientId}`, {
+          cache: 'no-store',
+        });
+        if (cancelled) return;
         if (res.ok) {
-          const data = await res.json()
-          setNotesList(data.notes ?? [])
+          const data = await res.json();
+          setNotesList(data.notes ?? []);
         } else {
-          setNotesList([])
+          setNotesList([]);
         }
       } catch {
-        if (!cancelled) setNotesList([])
+        if (!cancelled) setNotesList([]);
       }
     }
-    void fetchNotes()
-    return () => { cancelled = true }
-  }, [notesPatientId, notesOpen])
+    void fetchNotes();
+    return () => {
+      cancelled = true;
+    };
+  }, [notesPatientId, notesOpen]);
 
   // Availability
-  type TimeSlot = { start: string; end: string }
-  type WeeklySchedule = Record<string, TimeSlot[]>
+  type TimeSlot = { start: string; end: string };
+  type WeeklySchedule = Record<string, TimeSlot[]>;
   const defaultSchedule: WeeklySchedule = {
-    monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [],
-  }
-  const [schedule, setSchedule] = React.useState<WeeklySchedule>(defaultSchedule)
-  const [availOpen, setAvailOpen] = React.useState(false)
-  const [editSchedule, setEditSchedule] = React.useState<WeeklySchedule>(defaultSchedule)
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
+    friday: [],
+    saturday: [],
+    sunday: [],
+  };
+  const [schedule, setSchedule] = React.useState<WeeklySchedule>(defaultSchedule);
+  const [availOpen, setAvailOpen] = React.useState(false);
+  const [editSchedule, setEditSchedule] = React.useState<WeeklySchedule>(defaultSchedule);
 
   // Doctor-side Pro flag. The DEMO_PROFILE in doctor-app.tsx doesn't carry a
   // subscriptionTier for the doctor (the user.subscriptionTier field is the
   // patient-side tier), so we keep a local flag and let the doctor flip it
   // from the paywall for demo purposes.
-  const [isPro, setIsPro] = React.useState(false)
+  const [isPro, setIsPro] = React.useState(false);
   const [renewsAt] = React.useState(() => {
-    const d = new Date()
-    d.setFullYear(d.getFullYear() + 1)
-    return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-  })
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+    return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  });
 
   // Live data from the dashboard API with sample data as fallback
   const [dashboardData, setDashboardData] = React.useState<{
-    appointments: typeof APPOINTMENTS
-    patients: { id: string; name: string }[]
-    prescriptions: typeof PRESCRIPTIONS
-    stats: { completed: number; upcoming: number; grossEarnings: number }
-  } | null>(null)
+    appointments: typeof APPOINTMENTS;
+    patients: { id: string; name: string }[];
+    prescriptions: typeof PRESCRIPTIONS;
+    stats: { completed: number; upcoming: number; grossEarnings: number };
+  } | null>(null);
   // Track whether API returned (even if empty) vs. still loading
-  const [apiLoaded, setApiLoaded] = React.useState(false)
-  const [apiError, setApiError] = React.useState<string | null>(null)
+  const [apiLoaded, setApiLoaded] = React.useState(false);
+  const [apiError, setApiError] = React.useState<string | null>(null);
 
   const fetchDashboardData = React.useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true)
+    if (isRefresh) setRefreshing(true);
     try {
       const [dashRes, adherenceRes] = await Promise.all([
         fetch('/api/doctors/dashboard', { cache: 'no-store' }),
         fetch('/api/doctors/patients/adherence', { cache: 'no-store' }).catch(() => null),
-      ])
-      const dashData = dashRes.ok ? await dashRes.json() : {}
-      const adherenceData = adherenceRes?.ok ? await adherenceRes.json() : null
+      ]);
+      const dashData = dashRes.ok ? await dashRes.json() : {};
+      const adherenceData = adherenceRes?.ok ? await adherenceRes.json() : null;
 
-      const apiAppointments = ((dashData as Record<string, unknown[]>).appointments ?? []).map((a: unknown) => {
-        const rec = a as Record<string, unknown>
-        return {
-          id: String(rec.id ?? ''),
-          patientName: String((rec.patient as Record<string, string>)?.name ?? rec.patientName ?? 'Patient'),
-          time: String(rec.time ?? rec.scheduledAt ?? ''),
-          date: String(rec.date ?? 'Today'),
-          type: (rec.type ?? 'video') as 'video' | 'in-person',
-          status: (rec.status ?? 'upcoming') as 'upcoming' | 'completed' | 'cancelled',
-          fee: Number(rec.fee ?? rec.price ?? 0),
+      const apiAppointments = ((dashData as Record<string, unknown[]>).appointments ?? []).map(
+        (a: unknown) => {
+          const rec = a as Record<string, unknown>;
+          return {
+            id: String(rec.id ?? ''),
+            patientName: String(
+              (rec.patient as Record<string, string>)?.name ?? rec.patientName ?? 'Patient'
+            ),
+            time: String(rec.time ?? rec.scheduledAt ?? ''),
+            date: String(rec.date ?? 'Today'),
+            type: (rec.type ?? 'video') as 'video' | 'in-person',
+            status: (rec.status ?? 'upcoming') as 'pending' | 'upcoming' | 'completed' | 'cancelled',
+            fee: Number(rec.fee ?? rec.price ?? 0),
+          };
         }
-      })
-      const apiPatients = ((dashData as Record<string, unknown[]>).patients ?? []).map((p: unknown) => {
-        const rec = p as Record<string, unknown>
-        return {
-          id: String(rec.id ?? ''),
-          name: String(rec.name ?? (rec.patient as Record<string, string>)?.name ?? 'Patient'),
+      );
+      const apiPatients = ((dashData as Record<string, unknown[]>).patients ?? []).map(
+        (p: unknown) => {
+          const rec = p as Record<string, unknown>;
+          return {
+            id: String(rec.id ?? ''),
+            name: String(rec.name ?? (rec.patient as Record<string, string>)?.name ?? 'Patient'),
+          };
         }
-      })
-      const apiPrescriptions = ((dashData as Record<string, unknown[]>).prescriptions ?? []).map((p: unknown) => {
-        const rec = p as Record<string, unknown>
-        const meds = Array.isArray(rec.medications)
-          ? rec.medications
-          : typeof rec.medications === 'string'
-            ? (() => { try { return JSON.parse(rec.medications) } catch { return [] } })()
-            : []
-        return {
-          id: String(rec.id ?? ''),
-          patientName: String(rec.patientName ?? (rec.patient as Record<string, string>)?.name ?? 'Patient'),
-          patientId: String(rec.patientId ?? ''),
-          medication: meds.length > 0 ? meds.map((m: Record<string, string>) => `${m.name} ${m.dosage}`).join(', ') : String(rec.medication ?? ''),
-          medications: meds.map((m: Record<string, string>) => ({ name: m.name ?? '', dosage: m.dosage ?? '', frequency: m.frequency ?? '' })),
-          date: String(rec.date ?? rec.createdAt ?? 'Today'),
-          followUpDate: rec.followUpDate ? String(rec.followUpDate) : null,
-          status: String(rec.inviteStatus ?? 'active'),
+      );
+      const apiPrescriptions = ((dashData as Record<string, unknown[]>).prescriptions ?? []).map(
+        (p: unknown) => {
+          const rec = p as Record<string, unknown>;
+          const meds = Array.isArray(rec.medications)
+            ? rec.medications
+            : typeof rec.medications === 'string'
+              ? (() => {
+                  try {
+                    return JSON.parse(rec.medications);
+                  } catch {
+                    return [];
+                  }
+                })()
+              : [];
+          return {
+            id: String(rec.id ?? ''),
+            patientName: String(
+              rec.patientName ?? (rec.patient as Record<string, string>)?.name ?? 'Patient'
+            ),
+            patientId: String(rec.patientId ?? ''),
+            medication:
+              meds.length > 0
+                ? meds.map((m: Record<string, string>) => `${m.name} ${m.dosage}`).join(', ')
+                : String(rec.medication ?? ''),
+            medications: meds.map((m: Record<string, string>) => ({
+              name: m.name ?? '',
+              dosage: m.dosage ?? '',
+              frequency: m.frequency ?? '',
+            })),
+            date: String(rec.date ?? rec.createdAt ?? 'Today'),
+            followUpDate: rec.followUpDate ? String(rec.followUpDate) : null,
+            status: String(rec.inviteStatus ?? 'active'),
+          };
         }
-      })
-      const appointments = apiAppointments
-      const patients = apiPatients
-      const prescriptions = apiPrescriptions
-      const completed = appointments.filter((a) => a.status === 'completed').length
-      const upcoming = appointments.filter((a) => a.status === 'upcoming').length
-      const grossEarnings = appointments.filter((a) => a.status === 'completed').reduce((s, a) => s + a.fee, 0)
-      setDashboardData({ appointments, patients, prescriptions, stats: { completed, upcoming, grossEarnings } })
-      setPatientCount(patients.length)
+      );
+      const appointments = apiAppointments;
+      const patients = apiPatients;
+      const prescriptions = apiPrescriptions;
+      const completed = appointments.filter(a => a.status === 'completed').length;
+      const upcoming = appointments.filter(a => a.status === 'upcoming').length;
+      const grossEarnings = appointments
+        .filter(a => a.status === 'completed')
+        .reduce((s, a) => s + a.fee, 0);
+      setDashboardData({
+        appointments,
+        patients,
+        prescriptions,
+        stats: { completed, upcoming, grossEarnings },
+      });
+      setPatientCount(patients.length);
 
-      const adherencePatients = (adherenceData?.patients ?? []) as Array<{ id: string; name: string; email: string; medications: number; adherence: number; todayReminders: number; takenToday: number; weekReminders: number; takenWeek: number; inviteLink?: string | null }>
-      const lowCount = adherencePatients.filter((p) => p.adherence < 60).length
-      setLowAdherenceCount(lowCount)
-      setApiLoaded(true)
+      const adherencePatients = (adherenceData?.patients ?? []) as Array<{
+        id: string;
+        name: string;
+        email: string;
+        medications: number;
+        adherence: number;
+        todayReminders: number;
+        takenToday: number;
+        weekReminders: number;
+        takenWeek: number;
+        inviteLink?: string | null;
+      }>;
+      const lowCount = adherencePatients.filter(p => p.adherence < 60).length;
+      setLowAdherenceCount(lowCount);
+      setApiLoaded(true);
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Failed to load dashboard data')
-      setApiLoaded(true)
+      setApiError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      setApiLoaded(true);
     } finally {
-      if (isRefresh) setRefreshing(false)
+      if (isRefresh) setRefreshing(false);
     }
-  }, [])
+  }, []);
 
   React.useEffect(() => {
-    fetchDashboardData()
-  }, [fetchDashboardData])
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  const handleAppointmentAction = React.useCallback(
+    async (appointmentId: string, newStatus: 'confirmed' | 'completed' | 'cancelled') => {
+      setUpdatingApptId(appointmentId);
+      try {
+        const res = await fetch(`/api/appointments/${appointmentId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.error || 'Failed to update appointment');
+        }
+        toast({ title: 'Appointment updated', description: `Status changed to ${newStatus}` });
+        fetchDashboardData(true);
+      } catch (error) {
+        toast({
+          title: 'Update failed',
+          description: error instanceof Error ? error.message : 'Unknown error',
+          variant: 'destructive',
+        });
+      } finally {
+        setUpdatingApptId(null);
+      }
+    },
+    [toast, fetchDashboardData]
+  );
 
   // Fetch doctor availability
   React.useEffect(() => {
     fetch('/api/doctors/availability', { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((d) => { if (d.schedule) setSchedule(d.schedule) })
-      .catch(() => {})
-  }, [])
+      .then(r => r.json())
+      .then(d => {
+        if (d.schedule) setSchedule(d.schedule);
+      })
+      .catch(() => {});
+  }, []);
 
   // Stats — use live data, sample only as demo fallback when API failed
-  const isRealData = dashboardData !== null
-  const completed = isRealData ? (dashboardData?.stats?.completed ?? 0) : APPOINTMENTS.filter((a) => a.status === 'completed').length
-  const upcoming = isRealData ? (dashboardData?.stats?.upcoming ?? 0) : APPOINTMENTS.filter((a) => a.status === 'upcoming').length
-  const grossEarnings = isRealData ? (dashboardData?.stats?.grossEarnings ?? 0) : APPOINTMENTS.filter((a) => a.status === 'completed').reduce((s, a) => s + a.fee, 0)
-  const liveAppointments = isRealData ? (dashboardData?.appointments ?? []) : APPOINTMENTS
-  const livePrescriptions = isRealData ? (dashboardData?.prescriptions ?? []) : PRESCRIPTIONS
-  const hasRealData = apiLoaded && dashboardData !== null && (dashboardData.appointments.length > 0 || dashboardData.patients.length > 0)
-  const livePatients = dashboardData?.patients ?? []
+  const isRealData = dashboardData !== null;
+  const completed = isRealData
+    ? (dashboardData?.stats?.completed ?? 0)
+    : APPOINTMENTS.filter(a => a.status === 'completed').length;
+  const upcoming = isRealData
+    ? (dashboardData?.stats?.upcoming ?? 0)
+    : APPOINTMENTS.filter(a => a.status === 'upcoming').length;
+  const grossEarnings = isRealData
+    ? (dashboardData?.stats?.grossEarnings ?? 0)
+    : APPOINTMENTS.filter(a => a.status === 'completed').reduce((s, a) => s + a.fee, 0);
+  const liveAppointments = isRealData ? (dashboardData?.appointments ?? []) : APPOINTMENTS;
+  const livePrescriptions = isRealData ? (dashboardData?.prescriptions ?? []) : PRESCRIPTIONS;
+  const hasRealData =
+    apiLoaded &&
+    dashboardData !== null &&
+    (dashboardData.appointments.length > 0 || dashboardData.patients.length > 0);
+  const livePatients = dashboardData?.patients ?? [];
 
   // Loyalty tier — derived from lifetime fulfilled orders.
-  const totalCompletedLifetime = isRealData ? completed : APPOINTMENTS.filter((a) => a.status === 'completed').length
-  const currentTier: LoyaltyTier = resolveTier(totalCompletedLifetime)
-  const tierInfo = LOYALTY_TIERS[currentTier]
-  const nextTier = tierInfo.next ? LOYALTY_TIERS[tierInfo.next] : null
-  const progress = nextTier && nextTier.min > tierInfo.min
-    ? Math.min(100, Math.round(((totalCompletedLifetime - tierInfo.min) / (nextTier.min - tierInfo.min)) * 100))
-    : 100
+  const totalCompletedLifetime = isRealData
+    ? completed
+    : APPOINTMENTS.filter(a => a.status === 'completed').length;
+  const currentTier: LoyaltyTier = resolveTier(totalCompletedLifetime);
+  const tierInfo = LOYALTY_TIERS[currentTier];
+  const nextTier = tierInfo.next ? LOYALTY_TIERS[tierInfo.next] : null;
+  const progress =
+    nextTier && nextTier.min > tierInfo.min
+      ? Math.min(
+          100,
+          Math.round(
+            ((totalCompletedLifetime - tierInfo.min) / (nextTier.min - tierInfo.min)) * 100
+          )
+        )
+      : 100;
 
   // Commission: 20% base fee minus loyalty discount (Bronze 0, Silver 1, Gold 2, Platinum 3).
-  const baseFeePct = DOCTOR_BASE_FEE_PCT
-  const effectiveFee = effectiveFeePct(baseFeePct, currentTier)
-  const loyaltySavingPct = baseFeePct - effectiveFee
-  const feeAmount = platformFee(grossEarnings, effectiveFee)
-  const youReceive = partnerKeeps(grossEarnings, effectiveFee)
-  const perConsultFee = platformFee(profile.consultationFee, effectiveFee)
-  const perConsultKeeps = partnerKeeps(profile.consultationFee, effectiveFee)
+  const baseFeePct = DOCTOR_BASE_FEE_PCT;
+  const effectiveFee = effectiveFeePct(baseFeePct, currentTier);
+  const loyaltySavingPct = baseFeePct - effectiveFee;
+  const feeAmount = platformFee(grossEarnings, effectiveFee);
+  const youReceive = partnerKeeps(grossEarnings, effectiveFee);
+  const perConsultFee = platformFee(profile.consultationFee, effectiveFee);
+  const perConsultKeeps = partnerKeeps(profile.consultationFee, effectiveFee);
 
   // Paywall helpers
-  const slotsUsed = Math.min(patientCount, FREE_PATIENT_CAP)
-  const slotsPct = Math.round((slotsUsed / FREE_PATIENT_CAP) * 100)
-  const slotsLeft = FREE_PATIENT_CAP - slotsUsed
-  const nearCap = slotsUsed >= FREE_PATIENT_CAP - 2 // 3+/5 → prompt upgrade
+  const slotsUsed = Math.min(patientCount, FREE_PATIENT_CAP);
+  const slotsPct = Math.round((slotsUsed / FREE_PATIENT_CAP) * 100);
+  const slotsLeft = FREE_PATIENT_CAP - slotsUsed;
+  const nearCap = slotsUsed >= FREE_PATIENT_CAP - 2; // 3+/5 → prompt upgrade
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
@@ -395,7 +574,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
           <div className="flex items-center">
             <KynthaBrand iconSize={32} />
           </div>
-          
+
           {/* Doctor Profile - Secondary, Right Side */}
           <div className="flex items-center gap-1">
             <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3">
@@ -406,7 +585,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
               </Avatar>
               <div className="text-left">
                 <p className="text-xs text-muted-foreground leading-tight">{getGreeting()}</p>
-                <p className="text-sm font-semibold leading-tight">Dr. {isDemo ? 'Guest' : (user.name?.split(' ').slice(-1)[0] ?? 'Doctor')}</p>
+                <p className="text-sm font-semibold leading-tight">
+                  Dr. {isDemo ? 'Guest' : (user.name?.split(' ').slice(-1)[0] ?? 'Doctor')}
+                </p>
               </div>
             </button>
             <div className="flex items-center gap-1">
@@ -426,9 +607,15 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                     ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20'
                     : 'bg-muted text-muted-foreground hover:bg-accent'
                 }`}
-                title={doctorOnline ? 'Go offline - stop accepting consultations' : 'Go online - accept consultations'}
+                title={
+                  doctorOnline
+                    ? 'Go offline - stop accepting consultations'
+                    : 'Go online - accept consultations'
+                }
               >
-                <span className={`h-2 w-2 rounded-full ${doctorOnline ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`} />
+                <span
+                  className={`h-2 w-2 rounded-full ${doctorOnline ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`}
+                />
                 {doctorOnline ? t('online') : t('offline')}
               </button>
               <Badge
@@ -453,7 +640,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
       </header>
 
       {/* Demo banner */}
-      {isDemo && (
+      {isDemo && process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-center text-[11px] text-amber-700 dark:text-amber-300">
           Demo mode — sample data, changes won&apos;t be saved
         </div>
@@ -464,7 +651,18 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
         {apiError && (
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-center gap-3">
             <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-            <p className="text-xs text-amber-700 dark:text-amber-300">Could not load live data. Showing sample data. <button onClick={() => { setApiError(null); fetchDashboardData() }} className="underline font-medium">Retry</button></p>
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              Could not load live data. Showing sample data.{' '}
+              <button
+                onClick={() => {
+                  setApiError(null);
+                  fetchDashboardData();
+                }}
+                className="underline font-medium"
+              >
+                Retry
+              </button>
+            </p>
           </div>
         )}
         {/* Pull-to-refresh button */}
@@ -489,7 +687,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 p-5 text-white shadow-lg shadow-emerald-600/20">
                   <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
                   <div className="relative">
-                    <p className="text-sm opacity-90">{profile.specialization} · {profile.city}</p>
+                    <p className="text-sm opacity-90">
+                      {profile.specialization} · {profile.city}
+                    </p>
                     <h1 className="mt-1 text-2xl font-bold tracking-tight">
                       Dr. {isDemo ? 'Guest' : user.name}
                     </h1>
@@ -501,19 +701,37 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <StatCard icon={<CalendarDays className="h-4 w-4" />} label={t('appointments')} value={liveAppointments.length} tint="emerald" />
-                  <StatCard icon={<Clock className="h-4 w-4" />} label={t('upcoming')} value={upcoming} tint="cyan" />
-                  <StatCard icon={<CheckCircle2 className="h-4 w-4" />} label={t('completed')} value={completed} tint="teal" />
-                  <StatCard icon={<Users className="h-4 w-4" />} label={t('patients')} value={patientCount} tint="amber" />
+                  <StatCard
+                    icon={<CalendarDays className="h-4 w-4" />}
+                    label={t('appointments')}
+                    value={liveAppointments.length}
+                    tint="emerald"
+                  />
+                  <StatCard
+                    icon={<Clock className="h-4 w-4" />}
+                    label={t('upcoming')}
+                    value={upcoming}
+                    tint="cyan"
+                  />
+                  <StatCard
+                    icon={<CheckCircle2 className="h-4 w-4" />}
+                    label={t('completed')}
+                    value={completed}
+                    tint="teal"
+                  />
+                  <StatCard
+                    icon={<Users className="h-4 w-4" />}
+                    label={t('patients')}
+                    value={patientCount}
+                    tint="amber"
+                  />
                 </div>
 
                 {/* Subscription / paywall */}
                 <Card
                   className={cn(
                     'overflow-hidden border-0',
-                    isPro
-                      ? 'ring-1 ring-amber-500/30'
-                      : nearCap && 'ring-1 ring-amber-500/30',
+                    isPro ? 'ring-1 ring-amber-500/30' : nearCap && 'ring-1 ring-amber-500/30'
                   )}
                 >
                   <div
@@ -521,16 +739,21 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                       'relative bg-gradient-to-br p-5 text-white',
                       isPro
                         ? 'from-amber-500 via-amber-600 to-orange-600'
-                        : 'from-slate-700 via-slate-800 to-slate-900',
+                        : 'from-slate-700 via-slate-800 to-slate-900'
                     )}
                   >
                     <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
                     <div className="relative flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-xs opacity-80 uppercase tracking-wider">{t('subscription')}</p>
+                        <p className="text-xs opacity-80 uppercase tracking-wider">
+                          {t('subscription')}
+                        </p>
                         <div className="mt-1 flex items-center gap-2">
                           {isPro ? <Crown className="h-6 w-6" /> : <Users className="h-6 w-6" />}
-                          <span className="text-2xl font-bold">                          {isPro ? t('pro') : t('free')}</span>
+                          <span className="text-2xl font-bold">
+                            {' '}
+                            {isPro ? t('pro') : t('free')}
+                          </span>
                         </div>
                         <p className="mt-1 text-xs opacity-90">
                           {isPro
@@ -538,7 +761,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                             : `${slotsUsed} / ${FREE_PATIENT_CAP} patient slots used`}
                         </p>
                       </div>
-                          <Badge className="bg-white/20 text-white border-0">
+                      <Badge className="bg-white/20 text-white border-0">
                         {isPro ? t('active') : `${slotsLeft} ${t('left')}`}
                       </Badge>
                     </div>
@@ -572,7 +795,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                                 'font-semibold',
                                 nearCap
                                   ? 'text-amber-600 dark:text-amber-400'
-                                  : 'text-emerald-600 dark:text-emerald-400',
+                                  : 'text-emerald-600 dark:text-emerald-400'
                               )}
                             >
                               {slotsUsed} / {FREE_PATIENT_CAP}
@@ -581,7 +804,8 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                           <Progress value={slotsPct} className="h-2" />
                           {nearCap && (
                             <p className="mt-1.5 text-[11px] text-amber-600 dark:text-amber-400">
-                              You&apos;re near the Free-tier cap. Upgrade to Pro to add unlimited patients.
+                              You&apos;re near the Free-tier cap. Upgrade to Pro to add unlimited
+                              patients.
                             </p>
                           )}
                         </div>
@@ -592,14 +816,23 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                           <div className="flex items-baseline justify-between gap-2">
                             <p className="text-sm font-semibold">Upgrade to Pro</p>
                             <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                              $29.99<span className="text-xs font-normal text-muted-foreground">/month</span>
+                              $29.99
+                              <span className="text-xs font-normal text-muted-foreground">
+                                /month
+                              </span>
                               <span className="mx-1 text-muted-foreground">·</span>
-                              $299.99<span className="text-xs font-normal text-muted-foreground">/year</span>
+                              $299.99
+                              <span className="text-xs font-normal text-muted-foreground">
+                                /year
+                              </span>
                             </p>
                           </div>
                           <ul className="grid sm:grid-cols-2 gap-1.5">
-                            {PRO_FEATURES.map((f) => (
-                              <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            {PRO_FEATURES.map(f => (
+                              <li
+                                key={f}
+                                className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                              >
                                 <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                 <span>{t(f)}</span>
                               </li>
@@ -625,14 +858,21 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                     <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
                     <div className="relative flex items-start justify-between">
                       <div className="min-w-0">
-                        <p className="text-xs opacity-80 uppercase tracking-wider">{t('loyalty_tier')}</p>
+                        <p className="text-xs opacity-80 uppercase tracking-wider">
+                          {t('loyalty_tier')}
+                        </p>
                         <div className="mt-1 flex items-center gap-2">
                           <span className="text-2xl">{tierInfo.icon}</span>
                           <span className="text-2xl font-bold">{currentTier}</span>
                         </div>
-                        <p className="mt-1 text-xs opacity-90">{totalCompletedLifetime} lifetime appointments</p>
+                        <p className="mt-1 text-xs opacity-90">
+                          {totalCompletedLifetime} lifetime appointments
+                        </p>
                         <p className="mt-1 text-xs opacity-90 font-medium">
-                          Platform fee: {effectiveFee}% {loyaltySavingPct > 0 && <span className="opacity-90">(−{loyaltySavingPct}% loyalty)</span>}
+                          Platform fee: {effectiveFee}%{' '}
+                          {loyaltySavingPct > 0 && (
+                            <span className="opacity-90">(−{loyaltySavingPct}% loyalty)</span>
+                          )}
                         </p>
                       </div>
                       <Trophy className="h-8 w-8 opacity-80 shrink-0" />
@@ -643,12 +883,21 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                       <>
                         <div className="flex items-center justify-between text-xs mb-2">
                           <span className="text-muted-foreground">Progress to {tierInfo.next}</span>
-                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">{progress}%</span>
+                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                            {progress}%
+                          </span>
                         </div>
                         <Progress value={progress} className="h-2" />
                         <p className="mt-2 text-[11px] text-muted-foreground">
-                          {nextTier.min - totalCompletedLifetime} more appointments to unlock {tierInfo.next} perks
-                          {tierInfo.next && <span className="text-emerald-600 dark:text-emerald-400"> (fee → {effectiveFeePct(baseFeePct, tierInfo.next)}%)</span>}.
+                          {nextTier.min - totalCompletedLifetime} more appointments to unlock{' '}
+                          {tierInfo.next} perks
+                          {tierInfo.next && (
+                            <span className="text-emerald-600 dark:text-emerald-400">
+                              {' '}
+                              (fee → {effectiveFeePct(baseFeePct, tierInfo.next)}%)
+                            </span>
+                          )}
+                          .
                         </p>
                       </>
                     ) : (
@@ -669,22 +918,30 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-lg border border-border/60 p-3">
                         <p className="text-[11px] text-muted-foreground">This Week</p>
-                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{upcoming}</p>
+                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                          {upcoming}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">upcoming appointments</p>
                       </div>
                       <div className="rounded-lg border border-border/60 p-3">
                         <p className="text-[11px] text-muted-foreground">Completed</p>
-                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{completed}</p>
+                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                          {completed}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">total consultations</p>
                       </div>
                       <div className="rounded-lg border border-border/60 p-3">
                         <p className="text-[11px] text-muted-foreground">Patients</p>
-                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{patientCount}</p>
+                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                          {patientCount}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">in your panel</p>
                       </div>
                       <div className="rounded-lg border border-border/60 p-3">
                         <p className="text-[11px] text-muted-foreground">Prescriptions</p>
-                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{livePrescriptions.length}</p>
+                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                          {livePrescriptions.length}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">issued this month</p>
                       </div>
                     </div>
@@ -721,23 +978,46 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                         size="sm"
                         variant="outline"
                         className="h-7 text-xs gap-1"
-                        onClick={() => { setEditSchedule(schedule); setAvailOpen(true) }}
+                        onClick={() => {
+                          setEditSchedule(schedule);
+                          setAvailOpen(true);
+                        }}
                       >
                         <Edit3 className="h-3 w-3" />
                         Edit
                       </Button>
                     </div>
                     <div className="space-y-1.5">
-                      {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map((day) => {
-                        const slots = schedule[day] ?? []
-                        const hasSlots = slots.length > 0
+                      {(
+                        [
+                          'monday',
+                          'tuesday',
+                          'wednesday',
+                          'thursday',
+                          'friday',
+                          'saturday',
+                          'sunday',
+                        ] as const
+                      ).map(day => {
+                        const slots = schedule[day] ?? [];
+                        const hasSlots = slots.length > 0;
                         return (
                           <div key={day} className="flex items-center gap-2 text-xs">
-                            <span className={cn('w-20 font-medium capitalize', hasSlots ? 'text-foreground' : 'text-muted-foreground')}>{day.slice(0, 3)}</span>
+                            <span
+                              className={cn(
+                                'w-20 font-medium capitalize',
+                                hasSlots ? 'text-foreground' : 'text-muted-foreground'
+                              )}
+                            >
+                              {day.slice(0, 3)}
+                            </span>
                             {hasSlots ? (
                               <div className="flex flex-wrap gap-1">
                                 {slots.map((s, i) => (
-                                  <span key={i} className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-emerald-700 dark:text-emerald-300 font-medium">
+                                  <span
+                                    key={i}
+                                    className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-emerald-700 dark:text-emerald-300 font-medium"
+                                  >
                                     {s.start}–{s.end}
                                   </span>
                                 ))}
@@ -746,7 +1026,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                               <span className="text-muted-foreground/60">Off</span>
                             )}
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </CardContent>
@@ -760,7 +1040,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                         <Wallet className="h-4 w-4 text-emerald-600" />
                         {t('pricing_earnings')}
                       </h3>
-                      <Badge variant="secondary" className="text-[10px]">Per session</Badge>
+                      <Badge variant="secondary" className="text-[10px]">
+                        Per session
+                      </Badge>
                     </div>
                     <div className="grid grid-cols-3 gap-2 sm:gap-3">
                       <div className="rounded-xl border border-border/60 p-2 sm:p-3 text-center">
@@ -768,13 +1050,15 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                         <p className="text-base sm:text-lg font-bold">${profile.consultationFee}</p>
                       </div>
                       <div className="rounded-xl border border-border/60 p-2 sm:p-3 text-center">
-                        <p className="text-[11px] text-muted-foreground">Platform fee ({effectiveFee}%)</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          Platform fee ({effectiveFee}%)
+                        </p>
                         <p className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400">
                           −${perConsultFee}
                         </p>
                         {loyaltySavingPct > 0 && (
                           <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">
-                            saving ${Math.round(profile.consultationFee * loyaltySavingPct / 100)}
+                            saving ${Math.round((profile.consultationFee * loyaltySavingPct) / 100)}
                           </p>
                         )}
                       </div>
@@ -787,20 +1071,29 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                     </div>
                     <Separator className="my-3" />
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Recent gross ({completed} sessions)</span>
-                      <span className="font-semibold">${grossEarnings.toLocaleString('en-US')}</span>
+                      <span className="text-muted-foreground">
+                        Recent gross ({completed} sessions)
+                      </span>
+                      <span className="font-semibold">
+                        ${grossEarnings.toLocaleString('en-US')}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between text-xs mt-1">
                       <span className="text-muted-foreground">Platform fee ({effectiveFee}%)</span>
-                      <span className="font-semibold text-rose-600 dark:text-rose-400">−${feeAmount.toLocaleString('en-US')}</span>
+                      <span className="font-semibold text-rose-600 dark:text-rose-400">
+                        −${feeAmount.toLocaleString('en-US')}
+                      </span>
                     </div>
                     <Separator className="my-2" />
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-medium">Net payout</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">${youReceive.toLocaleString('en-US')}</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        ${youReceive.toLocaleString('en-US')}
+                      </span>
                     </div>
                     <p className="mt-2 text-[10px] text-muted-foreground">
-                      {PAYOUT_POLICY.cadence} payout · min ${PAYOUT_POLICY.minPayoutUsd} · via {PAYOUT_POLICY.methods.join('/')}
+                      {PAYOUT_POLICY.cadence} payout · min ${PAYOUT_POLICY.minPayoutUsd} · via{' '}
+                      {PAYOUT_POLICY.methods.join('/')}
                     </p>
                   </CardContent>
                 </Card>
@@ -811,217 +1104,310 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
 
         {view === 'appointments' && (
           <>
-        {/* Appointments */}
-                <div>
-                  <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-base font-semibold flex items-center gap-2">
-                      <CalendarDays className="h-4 w-4 text-emerald-600" />
-                      {t('appointments')}
-                    </h2>
-                  </div>
-                  {liveAppointments.length === 0 && hasRealData ? (
-                    <Card className="border-dashed">
-                      <CardContent className="p-8 text-center">
-                        <CalendarDays className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
-                        <p className="text-sm font-medium text-muted-foreground">{t('no_appointments')}</p>
-                        <p className="text-xs text-muted-foreground/70 mt-1">{t('first_consultation')}</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                  <>
+            {/* Appointments */}
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4 text-emerald-600" />
+                  {t('appointments')}
+                </h2>
+              </div>
+              {liveAppointments.length === 0 && hasRealData ? (
+                <Card className="border-dashed">
+                  <CardContent className="p-8 text-center">
+                    <CalendarDays className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {t('no_appointments')}
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      {t('first_consultation')}
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
                   <input
                     type="text"
                     placeholder={t('search_by_patient')}
                     value={appointmentSearch}
-                    onChange={(e) => setAppointmentSearch(e.target.value)}
+                    onChange={e => setAppointmentSearch(e.target.value)}
                     className="w-full rounded-xl border border-border/60 bg-background px-3.5 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 mb-3"
                   />
                   <div className="space-y-2 max-h-96 overflow-y-auto custom-scroll pr-1">
                     {liveAppointments
-                      .filter((a) => !appointmentSearch || a.patientName.toLowerCase().includes(appointmentSearch.toLowerCase()))
-                      .map((a) => (
-                      <Card key={a.id} className={cn(a.status === 'upcoming' && 'ring-1 ring-emerald-500/20')}>
-                        <CardContent className="p-3 flex items-center gap-3">
-                          <span className={cn(
-                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                            a.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                            a.status === 'cancelled' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
-                            'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                          )}>
-                            {a.type === 'video' ? <Video className="h-5 w-5" /> : <Users className="h-5 w-5" />}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold truncate">{a.patientName}</p>
-                            <p className="text-xs text-muted-foreground">{a.date} · {a.time}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold">${a.fee}</span>
-                            <Badge
-                              variant="secondary"
+                      .filter(
+                        a =>
+                          !appointmentSearch ||
+                          a.patientName.toLowerCase().includes(appointmentSearch.toLowerCase())
+                      )
+                      .map(a => (
+                        <Card
+                          key={a.id}
+                          className={cn(a.status === 'upcoming' && 'ring-1 ring-emerald-500/20')}
+                        >
+                          <CardContent className="p-3 flex items-center gap-3">
+                            <span
                               className={cn(
-                                'text-[10px]',
-                                a.status === 'completed' && 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-                                a.status === 'upcoming' && 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-                                a.status === 'cancelled' && 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                                a.status === 'completed'
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                  : a.status === 'cancelled'
+                                    ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                               )}
                             >
-                              {a.status}
-                            </Badge>
-                          </div>
-                        </CardContent>
-                        {a.status === 'upcoming' && (
-                          <div className="px-3 pb-3 flex gap-2">
-                            <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => setJoiningCallApptId(a.id)}>
-                              <Video className="h-3 w-3" />
-                              {t('join')}
-                            </Button>
-                            <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground">
-                              {t('reschedule')}
-                            </Button>
-                          </div>
-                        )}
-                      </Card>
-                    ))}
+                              {a.type === 'video' ? (
+                                <Video className="h-5 w-5" />
+                              ) : (
+                                <Users className="h-5 w-5" />
+                              )}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold truncate">{a.patientName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {a.date} · {a.time}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold">${a.fee}</span>
+                              <Badge
+                                variant="secondary"
+                                className={cn(
+                                  'text-[10px]',
+                                  a.status === 'pending' &&
+                                    'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+                                  a.status === 'upcoming' &&
+                                    'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+                                  a.status === 'completed' &&
+                                    'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+                                  a.status === 'cancelled' &&
+                                    'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                )}
+                              >
+                                {a.status}
+                              </Badge>
+                            </div>
+                          </CardContent>
+                          {a.status === 'pending' && (
+                            <div className="px-3 pb-3 flex gap-2">
+                              <Button
+                                size="sm"
+                                className="flex-1 h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                                disabled={updatingApptId === a.id}
+                                onClick={() => handleAppointmentAction(a.id, 'confirmed')}
+                              >
+                                {updatingApptId === a.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  'Accept'
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-8 text-xs border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400"
+                                disabled={updatingApptId === a.id}
+                                onClick={() => handleAppointmentAction(a.id, 'cancelled')}
+                              >
+                                {updatingApptId === a.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  'Reject'
+                                )}
+                              </Button>
+                            </div>
+                          )}
+                          {a.status === 'upcoming' && (
+                            <div className="px-3 pb-3 flex gap-2">
+                              <Button
+                                size="sm"
+                                className="flex-1 h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                                disabled={updatingApptId === a.id}
+                                onClick={() => handleAppointmentAction(a.id, 'completed')}
+                              >
+                                {updatingApptId === a.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <>
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    Complete
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-8 text-xs"
+                                onClick={() => setJoiningCallApptId(a.id)}
+                              >
+                                <Video className="h-3 w-3" />
+                                {t('join')}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 text-xs text-muted-foreground"
+                                onClick={() => toast({ title: 'Reschedule coming soon' })}
+                              >
+                                {t('reschedule')}
+                              </Button>
+                            </div>
+                          )}
+                        </Card>
+                      ))}
                   </div>
-                  </>
-                  )}
-                </div>
-
-
+                </>
+              )}
+            </div>
           </>
         )}
 
         {view === 'patients' && (
           <>
-        {/* Patient Care — full prescribe + adherence + nudge + invite flow */}
-                <div className="pt-2">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-base font-semibold flex items-center gap-2">
-                      <Users className="h-4 w-4 text-emerald-600" />
-                      {t('patient_care')}
-                    </h2>
-                  </div>
-                   <PatientCare
-                     onPatientClick={(p) => setSelectedPatient({
-                       id: p.id,
-                       name: p.name,
-                       email: p.email,
-                       medications: p.medications,
-                       adherence: p.adherence,
-                       todayReminders: p.todayReminders,
-                       takenToday: p.takenToday,
-                       weekReminders: p.weekReminders,
-                       takenWeek: p.takenWeek,
-                       inviteLink: p.inviteLink,
-                     })}
-                   />
-                </div>
-
-
+            {/* Patient Care — full prescribe + adherence + nudge + invite flow */}
+            <div className="pt-2">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <Users className="h-4 w-4 text-emerald-600" />
+                  {t('patient_care')}
+                </h2>
+              </div>
+              <PatientCare
+                onPatientClick={p =>
+                  setSelectedPatient({
+                    id: p.id,
+                    name: p.name,
+                    email: p.email,
+                    medications: p.medications,
+                    adherence: p.adherence,
+                    todayReminders: p.todayReminders,
+                    takenToday: p.takenToday,
+                    weekReminders: p.weekReminders,
+                    takenWeek: p.takenWeek,
+                    inviteLink: p.inviteLink,
+                  })
+                }
+              />
+            </div>
           </>
         )}
 
         {view === 'prescriptions' && (
           <>
-        {/* Prescriptions */}
-                <div>
-                  <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-base font-semibold flex items-center gap-2">
-                      <Pill className="h-4 w-4 text-emerald-600" />
-                      {t('prescription_history')}
-                    </h2>
-                    <Badge variant="secondary" className="text-[10px]">{livePrescriptions.length} total</Badge>
-                  </div>
-                  <div className="space-y-2 max-h-96 overflow-y-auto custom-scroll pr-1">
-                    {livePrescriptions.map((rx) => (
-                      <Card key={rx.id}>
-                        <CardContent className="p-3 space-y-2">
-                          <div className="flex items-center gap-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                              <Pill className="h-4 w-4" />
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold truncate">{rx.patientName}</p>
-                              <p className="text-[11px] text-muted-foreground">{rx.date}</p>
+            {/* Prescriptions */}
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <Pill className="h-4 w-4 text-emerald-600" />
+                  {t('prescription_history')}
+                </h2>
+                <Badge variant="secondary" className="text-[10px]">
+                  {livePrescriptions.length} total
+                </Badge>
+              </div>
+              <div className="space-y-2 max-h-96 overflow-y-auto custom-scroll pr-1">
+                {livePrescriptions.map(rx => (
+                  <Card key={rx.id}>
+                    <CardContent className="p-3 space-y-2">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                          <Pill className="h-4 w-4" />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate">{rx.patientName}</p>
+                          <p className="text-[11px] text-muted-foreground">{rx.date}</p>
+                        </div>
+                        <Badge variant="outline" className="text-[10px]">
+                          {rx.status === 'accepted'
+                            ? 'Accepted'
+                            : rx.status === 'sent'
+                              ? 'Sent'
+                              : 'Active'}
+                        </Badge>
+                      </div>
+                      {rx.medications && rx.medications.length > 0 && (
+                        <div className="ml-12 space-y-1">
+                          {rx.medications.map((m, i) => (
+                            <div key={i} className="flex items-center gap-2 text-[11px]">
+                              <span className="text-emerald-600 dark:text-emerald-400">•</span>
+                              <span className="font-medium">{m.name}</span>
+                              <span className="text-muted-foreground">{m.dosage}</span>
+                              <span className="text-muted-foreground">· {m.frequency}</span>
                             </div>
-                            <Badge variant="outline" className="text-[10px]">
-                              {rx.status === 'accepted' ? 'Accepted' : rx.status === 'sent' ? 'Sent' : 'Active'}
-                            </Badge>
-                          </div>
-                          {rx.medications && rx.medications.length > 0 && (
-                            <div className="ml-12 space-y-1">
-                              {rx.medications.map((m, i) => (
-                                <div key={i} className="flex items-center gap-2 text-[11px]">
-                                  <span className="text-emerald-600 dark:text-emerald-400">•</span>
-                                  <span className="font-medium">{m.name}</span>
-                                  <span className="text-muted-foreground">{m.dosage}</span>
-                                  <span className="text-muted-foreground">· {m.frequency}</span>
-                                </div>
-                              ))}
-                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {rx.followUpDate && (
+                        <p className="ml-12 text-[11px] text-muted-foreground">
+                          Follow-up:{' '}
+                          {new Date(rx.followUpDate).toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </p>
+                      )}
+                      <div className="ml-12 flex gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs"
+                          onClick={() => {
+                            setPrescribePatientEmail('');
+                            setPrescribeOpen(true);
+                          }}
+                        >
+                          <Pill className="h-3 w-3" />
+                          {t('prescribe_again')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs text-muted-foreground"
+                          onClick={async () => {
+                            setNotesPatientId(rx.patientId ?? '');
+                            setNotesContent('');
+                            setNotesType('observation');
+                            setNotesOpen(true);
+                          }}
+                        >
+                          {t('view_notes')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs gap-1"
+                          onClick={async () => {
+                            await downloadPdf(rx.id);
+                          }}
+                          disabled={downloadingPdfId === rx.id}
+                        >
+                          {downloadingPdfId === rx.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <FileText className="h-3 w-3" />
                           )}
-                          {rx.followUpDate && (
-                            <p className="ml-12 text-[11px] text-muted-foreground">
-                              Follow-up: {new Date(rx.followUpDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                            </p>
-                          )}
-                          <div className="ml-12 flex gap-2 pt-1">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7 text-xs"
-                              onClick={() => {
-                                setPrescribePatientEmail('')
-                                setPrescribeOpen(true)
-                              }}
-                            >
-                              <Pill className="h-3 w-3" />
-                              {t('prescribe_again')}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 text-xs text-muted-foreground"
-                              onClick={async () => {
-                                setNotesPatientId(rx.patientId ?? '')
-                                setNotesContent('')
-                                setNotesType('observation')
-                                setNotesOpen(true)
-                              }}
-                            >
-                              {t('view_notes')}
-                            </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs gap-1"
-                                onClick={async () => {
-                                  await downloadPdf(rx.id)
-                                }}
-                                disabled={downloadingPdfId === rx.id}
-                              >
-                                {downloadingPdfId === rx.id
-                                  ? <Loader2 className="h-3 w-3 animate-spin" />
-                                  : <FileText className="h-3 w-3" />
-                                }
-                                {downloadingPdfId === rx.id ? '...' : 'PDF'}
-                              </Button>
-                            </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                    {livePrescriptions.length === 0 && hasRealData && (
-                      <Card className="border-dashed">
-                        <CardContent className="p-8 text-center">
-                          <Pill className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
-                          <p className="text-sm font-medium text-muted-foreground">{t('no_prescriptions')}</p>
-                          <p className="text-xs text-muted-foreground/70 mt-1">{t('create_from_patient_care')}</p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                </div>
-
+                          {downloadingPdfId === rx.id ? '...' : 'PDF'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                {livePrescriptions.length === 0 && hasRealData && (
+                  <Card className="border-dashed">
+                    <CardContent className="p-8 text-center">
+                      <Pill className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {t('no_prescriptions')}
+                      </p>
+                      <p className="text-xs text-muted-foreground/70 mt-1">
+                        {t('create_from_patient_care')}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
           </>
         )}
       </main>
@@ -1031,14 +1417,19 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
       {/* Bottom tab navigation */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">
         <div className="mx-auto flex max-w-3xl items-stretch justify-around px-2 py-2">
-          {([
+          {[
             { id: 'overview' as const, label: t('overview'), icon: LayoutDashboard },
             { id: 'appointments' as const, label: t('appointments'), icon: CalendarDays },
-            { id: 'patients' as const, label: t('patients'), icon: Users, badge: lowAdherenceCount },
+            {
+              id: 'patients' as const,
+              label: t('patients'),
+              icon: Users,
+              badge: lowAdherenceCount,
+            },
             { id: 'prescriptions' as const, label: t('prescriptions'), icon: Pill },
-          ]).map((tItem) => {
-            const Icon = tItem.icon
-            const active = view === tItem.id
+          ].map(tItem => {
+            const Icon = tItem.icon;
+            const active = view === tItem.id;
             return (
               <button
                 key={tItem.id}
@@ -1067,12 +1458,10 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                 </span>
                 {tItem.label}
               </button>
-            )
+            );
           })}
         </div>
       </nav>
-
-
 
       <ProfileHub
         open={profileOpen}
@@ -1090,9 +1479,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>{t('quick_prescribe')}</DialogTitle>
-              <DialogDescription>
-                {t('quick_prescribe_desc')}
-              </DialogDescription>
+              <DialogDescription>{t('quick_prescribe_desc')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-2">
               <div className="space-y-1.5">
@@ -1101,17 +1488,19 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                   id="quick-email"
                   type="email"
                   value={prescribePatientEmail}
-                  onChange={(e) => setPrescribePatientEmail(e.target.value)}
+                  onChange={e => setPrescribePatientEmail(e.target.value)}
                   placeholder="patient@example.com"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setPrescribeOpen(false)}>{t('cancel')}</Button>
+              <Button variant="outline" onClick={() => setPrescribeOpen(false)}>
+                {t('cancel')}
+              </Button>
               <Button
                 onClick={() => {
-                  setPrescribeOpen(false)
-                  setView('patients')
+                  setPrescribeOpen(false);
+                  setView('patients');
                 }}
                 className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
               >
@@ -1132,12 +1521,17 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
             </DialogHeader>
             <div className="space-y-3 py-2 max-h-60 overflow-y-auto">
               {notesList.length > 0 ? (
-                notesList.map((n) => (
+                notesList.map(n => (
                   <div key={n.id} className="rounded-lg border border-border/60 p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <Badge variant="secondary" className="text-[10px]">{n.type}</Badge>
+                      <Badge variant="secondary" className="text-[10px]">
+                        {n.type}
+                      </Badge>
                       <span className="text-[10px] text-muted-foreground">
-                        {new Date(n.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                        {new Date(n.createdAt).toLocaleDateString('en-US', {
+                          day: 'numeric',
+                          month: 'short',
+                        })}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">{n.content}</p>
@@ -1151,7 +1545,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
             <div className="space-y-2 border-t border-border/40 pt-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">AI Clinical Notes</span>
+                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                  AI Clinical Notes
+                </span>
                 <Button
                   size="sm"
                   variant="outline"
@@ -1167,17 +1563,20 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                     rows={3}
                     placeholder="Enter visit transcript or symptoms (e.g. 'Patient presents with fever, cough, and body ache for 3 days')..."
                     value={aiTranscript}
-                    onChange={(e) => setAiTranscript(e.target.value)}
+                    onChange={e => setAiTranscript(e.target.value)}
                     className="text-xs"
                   />
                   <Button
                     size="sm"
                     onClick={async () => {
                       if (!aiTranscript.trim() || !notesPatientId) {
-                        toast({ title: 'Enter transcript and select a patient', variant: 'destructive' })
-                        return
+                        toast({
+                          title: 'Enter transcript and select a patient',
+                          variant: 'destructive',
+                        });
+                        return;
                       }
-                      setAiGenerating(true)
+                      setAiGenerating(true);
                       try {
                         const res = await fetch('/api/doctors/ai-notes', {
                           method: 'POST',
@@ -1187,33 +1586,44 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                             transcript: aiTranscript.trim(),
                             symptoms: [],
                           }),
-                        })
+                        });
                         if (res.ok) {
-                          const data = await res.json()
-                          setNotesList((prev) => [data.note, ...prev])
-                          setAiTranscript('')
-                          setAiNotesOpen(false)
-                          toast({ title: 'AI notes generated', description: `Confidence: ${data.suggestions?.confidence ?? 'N/A'}%` })
+                          const data = await res.json();
+                          setNotesList(prev => [data.note, ...prev]);
+                          setAiTranscript('');
+                          setAiNotesOpen(false);
+                          toast({
+                            title: 'AI notes generated',
+                            description: `Confidence: ${data.suggestions?.confidence ?? 'N/A'}%`,
+                          });
                         } else {
-                          const err = await res.json().catch(() => ({}))
-                          throw new Error(err?.error || 'AI generation failed')
+                          const err = await res.json().catch(() => ({}));
+                          throw new Error(err?.error || 'AI generation failed');
                         }
                       } catch (e) {
                         toast({
                           title: 'AI notes failed',
                           description: e instanceof Error ? e.message : 'Unknown error',
                           variant: 'destructive',
-                        })
+                        });
                       } finally {
-                        setAiGenerating(false)
+                        setAiGenerating(false);
                       }
                     }}
                     disabled={aiGenerating}
                     className="gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white h-7 text-xs"
                   >
-                    {aiGenerating
-                      ? <><Loader2 className="h-3 w-3 animate-spin" />Analyzing...</>
-                      : <><Sparkles className="h-3 w-3" />Generate Note</>}
+                    {aiGenerating ? (
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3" />
+                        Generate Note
+                      </>
+                    )}
                   </Button>
                 </div>
               )}
@@ -1221,7 +1631,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
             {/* Manual Notes entry */}
             <div className="space-y-2 pt-3">
               <div className="flex gap-2">
-                {(['observation', 'diagnosis', 'follow-up'] as const).map((t) => (
+                {(['observation', 'diagnosis', 'follow-up'] as const).map(t => (
                   <Button
                     key={t}
                     size="sm"
@@ -1237,26 +1647,34 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                 rows={3}
                 placeholder={t('add_note')}
                 value={notesContent}
-                onChange={(e) => setNotesContent(e.target.value)}
+                onChange={e => setNotesContent(e.target.value)}
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setNotesOpen(false)}>{t('close')}</Button>
+              <Button variant="outline" onClick={() => setNotesOpen(false)}>
+                {t('close')}
+              </Button>
               <Button
                 onClick={async () => {
-                  if (!notesContent.trim()) return
+                  if (!notesContent.trim()) return;
                   try {
                     const res = await fetch('/api/doctors/notes', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ patientId: notesPatientId, content: notesContent.trim(), type: notesType }),
-                    })
+                      body: JSON.stringify({
+                        patientId: notesPatientId,
+                        content: notesContent.trim(),
+                        type: notesType,
+                      }),
+                    });
                     if (res.ok) {
-                      const data = await res.json()
-                      setNotesList((prev) => [data.note, ...prev])
-                      setNotesContent('')
+                      const data = await res.json();
+                      setNotesList(prev => [data.note, ...prev]);
+                      setNotesContent('');
                     }
-                  } catch { /* ignore */ }
+                  } catch {
+                    /* ignore */
+                  }
                 }}
                 className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
               >
@@ -1269,7 +1687,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
 
       {/* Patient profile dialog */}
       {selectedPatient && (
-        <Dialog open={!!selectedPatient} onOpenChange={(o) => !o && setSelectedPatient(null)}>
+        <Dialog open={!!selectedPatient} onOpenChange={o => !o && setSelectedPatient(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>{t('patient_profile')}</DialogTitle>
@@ -1294,12 +1712,16 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-border/60 p-3">
                   <p className="text-[11px] text-muted-foreground">Adherence</p>
-                  <p className={cn(
-                    'text-lg font-bold',
-                    selectedPatient.adherence >= 80 ? 'text-emerald-600 dark:text-emerald-400' :
-                    selectedPatient.adherence >= 60 ? 'text-amber-600 dark:text-amber-400' :
-                    'text-rose-600 dark:text-rose-400'
-                  )}>
+                  <p
+                    className={cn(
+                      'text-lg font-bold',
+                      selectedPatient.adherence >= 80
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : selectedPatient.adherence >= 60
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-rose-600 dark:text-rose-400'
+                    )}
+                  >
                     {selectedPatient.adherence}%
                   </p>
                 </div>
@@ -1313,10 +1735,18 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                 <p className="text-xs font-semibold text-muted-foreground">Today&apos;s progress</p>
                 <div className="flex items-center gap-2 text-xs">
                   <Progress
-                    value={selectedPatient.todayReminders ? Math.round((selectedPatient.takenToday / selectedPatient.todayReminders) * 100) : 0}
+                    value={
+                      selectedPatient.todayReminders
+                        ? Math.round(
+                            (selectedPatient.takenToday / selectedPatient.todayReminders) * 100
+                          )
+                        : 0
+                    }
                     className="h-1.5 flex-1"
                   />
-                  <span className="font-medium">{selectedPatient.takenToday}/{selectedPatient.todayReminders} taken</span>
+                  <span className="font-medium">
+                    {selectedPatient.takenToday}/{selectedPatient.todayReminders} taken
+                  </span>
                 </div>
               </div>
 
@@ -1324,23 +1754,31 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                 <p className="text-xs font-semibold text-muted-foreground">7-day progress</p>
                 <div className="flex items-center gap-2 text-xs">
                   <Progress value={selectedPatient.adherence} className="h-1.5 flex-1" />
-                  <span className="font-medium">{selectedPatient.takenWeek}/{selectedPatient.weekReminders} taken</span>
+                  <span className="font-medium">
+                    {selectedPatient.takenWeek}/{selectedPatient.weekReminders} taken
+                  </span>
                 </div>
               </div>
 
               {selectedPatient.adherence < 60 && (
                 <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3">
-                  <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">Low adherence alert</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">This patient needs follow-up or a nudge.</p>
+                  <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                    Low adherence alert
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    This patient needs follow-up or a nudge.
+                  </p>
                 </div>
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedPatient(null)}>Close</Button>
+              <Button variant="outline" onClick={() => setSelectedPatient(null)}>
+                Close
+              </Button>
               <Button
                 onClick={() => {
-                  setSelectedPatient(null)
-                  setView('patients')
+                  setSelectedPatient(null);
+                  setView('patients');
                 }}
                 className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white gap-1.5"
               >
@@ -1358,25 +1796,82 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Edit availability</DialogTitle>
-              <DialogDescription>Set your weekly schedule. Patients can book during these hours.</DialogDescription>
+              <DialogDescription>
+                Set your weekly schedule. Patients can book during these hours.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-2">
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => {
-                  const full: WeeklySchedule = { monday: [{ start: '09:00', end: '18:00' }], tuesday: [{ start: '09:00', end: '18:00' }], wednesday: [{ start: '09:00', end: '18:00' }], thursday: [{ start: '09:00', end: '18:00' }], friday: [{ start: '09:00', end: '18:00' }], saturday: [{ start: '09:00', end: '18:00' }], sunday: [] }
-                  setEditSchedule(full)
-                }}>Full day (9–6)</Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => {
-                  const morn: WeeklySchedule = { monday: [{ start: '09:00', end: '13:00' }], tuesday: [{ start: '09:00', end: '13:00' }], wednesday: [{ start: '09:00', end: '13:00' }], thursday: [{ start: '09:00', end: '13:00' }], friday: [{ start: '09:00', end: '13:00' }], saturday: [{ start: '09:00', end: '13:00' }], sunday: [] }
-                  setEditSchedule(morn)
-                }}>Morning only (9–1)</Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => {
-                  const eve: WeeklySchedule = { monday: [{ start: '14:00', end: '18:00' }], tuesday: [{ start: '14:00', end: '18:00' }], wednesday: [{ start: '14:00', end: '18:00' }], thursday: [{ start: '14:00', end: '18:00' }], friday: [{ start: '14:00', end: '18:00' }], saturday: [{ start: '14:00', end: '18:00' }], sunday: [] }
-                  setEditSchedule(eve)
-                }}>Evening only (2–6)</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    const full: WeeklySchedule = {
+                      monday: [{ start: '09:00', end: '18:00' }],
+                      tuesday: [{ start: '09:00', end: '18:00' }],
+                      wednesday: [{ start: '09:00', end: '18:00' }],
+                      thursday: [{ start: '09:00', end: '18:00' }],
+                      friday: [{ start: '09:00', end: '18:00' }],
+                      saturday: [{ start: '09:00', end: '18:00' }],
+                      sunday: [],
+                    };
+                    setEditSchedule(full);
+                  }}
+                >
+                  Full day (9–6)
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    const morn: WeeklySchedule = {
+                      monday: [{ start: '09:00', end: '13:00' }],
+                      tuesday: [{ start: '09:00', end: '13:00' }],
+                      wednesday: [{ start: '09:00', end: '13:00' }],
+                      thursday: [{ start: '09:00', end: '13:00' }],
+                      friday: [{ start: '09:00', end: '13:00' }],
+                      saturday: [{ start: '09:00', end: '13:00' }],
+                      sunday: [],
+                    };
+                    setEditSchedule(morn);
+                  }}
+                >
+                  Morning only (9–1)
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    const eve: WeeklySchedule = {
+                      monday: [{ start: '14:00', end: '18:00' }],
+                      tuesday: [{ start: '14:00', end: '18:00' }],
+                      wednesday: [{ start: '14:00', end: '18:00' }],
+                      thursday: [{ start: '14:00', end: '18:00' }],
+                      friday: [{ start: '14:00', end: '18:00' }],
+                      saturday: [{ start: '14:00', end: '18:00' }],
+                      sunday: [],
+                    };
+                    setEditSchedule(eve);
+                  }}
+                >
+                  Evening only (2–6)
+                </Button>
               </div>
-              {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map((day) => {
-                const slots = editSchedule[day] ?? []
+              {(
+                [
+                  'monday',
+                  'tuesday',
+                  'wednesday',
+                  'thursday',
+                  'friday',
+                  'saturday',
+                  'sunday',
+                ] as const
+              ).map(day => {
+                const slots = editSchedule[day] ?? [];
                 return (
                   <div key={day} className="rounded-lg border border-border/60 p-3">
                     <div className="flex items-center justify-between mb-2">
@@ -1385,7 +1880,12 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                         size="sm"
                         variant="ghost"
                         className="h-6 text-[10px] text-muted-foreground"
-                        onClick={() => setEditSchedule((prev) => ({ ...prev, [day]: [...slots, { start: '09:00', end: '12:00' }] }))}
+                        onClick={() =>
+                          setEditSchedule(prev => ({
+                            ...prev,
+                            [day]: [...slots, { start: '09:00', end: '12:00' }],
+                          }))
+                        }
                       >
                         + Add slot
                       </Button>
@@ -1399,11 +1899,15 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                             <Input
                               type="time"
                               value={slot.start}
-                              onChange={(e) => {
-                                const newSlots = [...slots]
-                                const currentSlot = newSlots[idx] ?? { start: '', end: '' }
-                                newSlots[idx] = { ...currentSlot, start: e.target.value as string, end: currentSlot.end }
-                                setEditSchedule((prev) => ({ ...prev, [day]: newSlots }))
+                              onChange={e => {
+                                const newSlots = [...slots];
+                                const currentSlot = newSlots[idx] ?? { start: '', end: '' };
+                                newSlots[idx] = {
+                                  ...currentSlot,
+                                  start: e.target.value as string,
+                                  end: currentSlot.end,
+                                };
+                                setEditSchedule(prev => ({ ...prev, [day]: newSlots }));
                               }}
                               className="h-7 w-28 text-xs"
                             />
@@ -1411,11 +1915,15 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                             <Input
                               type="time"
                               value={slot.end}
-                              onChange={(e) => {
-                                const newSlots = [...slots]
-                                const currentSlot = newSlots[idx] ?? { start: '', end: '' }
-                                newSlots[idx] = { ...currentSlot, end: e.target.value as string, start: currentSlot.start }
-                                setEditSchedule((prev) => ({ ...prev, [day]: newSlots }))
+                              onChange={e => {
+                                const newSlots = [...slots];
+                                const currentSlot = newSlots[idx] ?? { start: '', end: '' };
+                                newSlots[idx] = {
+                                  ...currentSlot,
+                                  end: e.target.value as string,
+                                  start: currentSlot.start,
+                                };
+                                setEditSchedule(prev => ({ ...prev, [day]: newSlots }));
                               }}
                               className="h-7 w-28 text-xs"
                             />
@@ -1424,8 +1932,8 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                               variant="ghost"
                               className="h-7 w-7 text-muted-foreground hover:text-destructive"
                               onClick={() => {
-                                const newSlots = slots.filter((_, i) => i !== idx)
-                                setEditSchedule((prev) => ({ ...prev, [day]: newSlots }))
+                                const newSlots = slots.filter((_, i) => i !== idx);
+                                setEditSchedule(prev => ({ ...prev, [day]: newSlots }));
                               }}
                             >
                               <X className="h-3.5 w-3.5" />
@@ -1435,26 +1943,33 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                       </div>
                     )}
                   </div>
-                )
+                );
               })}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setAvailOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setAvailOpen(false)}>
+                Cancel
+              </Button>
               <Button
                 onClick={async () => {
                   try {
-                    const entries = Object.entries(editSchedule).map(([day, slots]) => ({ day, slots }))
+                    const entries = Object.entries(editSchedule).map(([day, slots]) => ({
+                      day,
+                      slots,
+                    }));
                     const res = await fetch('/api/doctors/availability', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ schedule: entries }),
-                    })
+                    });
                     if (res.ok) {
-                      const data = await res.json()
-                      setSchedule(data.schedule)
-                      setAvailOpen(false)
+                      const data = await res.json();
+                      setSchedule(data.schedule);
+                      setAvailOpen(false);
                     }
-                  } catch { /* ignore */ }
+                  } catch {
+                    /* ignore */
+                  }
                 }}
                 className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white gap-1.5"
               >
@@ -1476,7 +1991,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
         />
       )}
     </div>
-  )
+  );
 }
 
 function StatCard({
@@ -1485,17 +2000,17 @@ function StatCard({
   value,
   tint,
 }: {
-  icon: React.ReactNode
-  label: string
-  value: React.ReactNode
-  tint: 'emerald' | 'cyan' | 'teal' | 'amber'
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  tint: 'emerald' | 'cyan' | 'teal' | 'amber';
 }) {
   const cls = {
     emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
     cyan: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
     teal: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
     amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  }[tint]
+  }[tint];
   return (
     <Card>
       <CardContent className="p-3">
@@ -1508,6 +2023,5 @@ function StatCard({
         <div className={cn('text-xl font-bold', cls.split(' ').slice(1).join(' '))}>{value}</div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSessionUser, logAudit } from '@/lib/auth'
+import { logAudit } from '@/lib/auth'
 import { requireAuth, requireAuthWithCsrf, jsonOk, jsonError } from '@/lib/api-helpers'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'

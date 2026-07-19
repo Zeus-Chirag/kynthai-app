@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   Stethoscope,
   Microscope,
@@ -19,17 +19,17 @@ import {
   TrendingUp,
   Banknote,
   Receipt,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { PRICING } from '@/lib/currency'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Progress } from '@/components/ui/progress'
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { PRICING } from '@/lib/currency';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -37,13 +37,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { useTheme } from 'next-themes'
-import { useToast } from '@/hooks/use-toast'
-import { KynthaBrand } from '@/components/kyntha/logo'
-import { useAppStore, type AuthUser } from '@/lib/store'
-import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/dialog';
+import { useTheme } from 'next-themes';
+import { useToast } from '@/hooks/use-toast';
+import { KynthaBrand } from '@/components/kyntha/logo';
+import { useAppStore, type AuthUser } from '@/lib/store';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import {
   DOCTOR_BASE_FEE_PCT,
   LAB_BASE_FEE_PCT,
@@ -53,34 +53,34 @@ import {
   effectiveFeePct,
   platformFee,
   PAYOUT_POLICY,
-} from '@/lib/commission'
+} from '@/lib/commission';
 
-type AdminTab = 'revenue' | 'doctors' | 'labs' | 'retention' | 'fraud'
+type AdminTab = 'revenue' | 'doctors' | 'labs' | 'retention' | 'fraud';
 
 interface DoctorApp {
-  id: string
-  name: string
-  email: string
-  specialization: string
-  licenseNumber: string
-  city: string
-  experience: number
-  fee: number
-  status: 'pending' | 'approved' | 'rejected'
-  submittedAt: string
-  documents: { name: string; type: string }[]
+  id: string;
+  name: string;
+  email: string;
+  specialization: string;
+  licenseNumber: string;
+  city: string;
+  experience: number;
+  fee: number;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+  documents: { name: string; type: string }[];
 }
 
 interface LabApp {
-  id: string
-  labName: string
-  email: string
-  licenseNumber: string
-  city: string
-  testCount: number
-  status: 'pending' | 'approved' | 'rejected'
-  submittedAt: string
-  documents: { name: string; type: string }[]
+  id: string;
+  labName: string;
+  email: string;
+  licenseNumber: string;
+  city: string;
+  testCount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+  documents: { name: string; type: string }[];
 }
 
 const DOCTOR_APPS: DoctorApp[] = [
@@ -131,7 +131,7 @@ const DOCTOR_APPS: DoctorApp[] = [
     submittedAt: '2 days ago',
     documents: [{ name: 'License.pdf', type: 'PDF' }],
   },
-]
+];
 
 const LAB_APPS: LabApp[] = [
   {
@@ -159,19 +159,75 @@ const LAB_APPS: LabApp[] = [
     submittedAt: '3 days ago',
     documents: [{ name: 'License.pdf', type: 'PDF' }],
   },
-]
+];
 
-const CHURN_RISKS: { id: string; name: string; tier: string; days: number; reason: string; risk: 'high' | 'medium' | 'low' }[] = [
-  { id: 'c1', name: 'Patient Jordan', tier: 'plus', days: 12, reason: 'No AI chats in 12 days', risk: 'high' },
-  { id: 'c2', name: 'Patient Taylor', tier: 'free', days: 8, reason: 'Skipped 5 doses this week', risk: 'medium' },
-  { id: 'c3', name: 'Patient Morgan', tier: 'plus', days: 5, reason: 'No medication adds', risk: 'low' },
-]
+const CHURN_RISKS: {
+  id: string;
+  name: string;
+  tier: string;
+  days: number;
+  reason: string;
+  risk: 'high' | 'medium' | 'low';
+}[] = [
+  {
+    id: 'c1',
+    name: 'Patient Jordan',
+    tier: 'plus',
+    days: 12,
+    reason: 'No AI chats in 12 days',
+    risk: 'high',
+  },
+  {
+    id: 'c2',
+    name: 'Patient Taylor',
+    tier: 'free',
+    days: 8,
+    reason: 'Skipped 5 doses this week',
+    risk: 'medium',
+  },
+  {
+    id: 'c3',
+    name: 'Patient Morgan',
+    tier: 'plus',
+    days: 5,
+    reason: 'No medication adds',
+    risk: 'low',
+  },
+];
 
-const FRAUD_FLAGS: { id: string; entity: string; type: string; issue: string; severity: 'high' | 'medium' | 'low'; time: string }[] = [
-  { id: 'f1', entity: 'Dr. Imran', type: 'Doctor', issue: 'License number not found in registry', severity: 'high', time: '3h ago' },
-  { id: 'f2', entity: 'QuickLab', type: 'Lab', issue: 'Duplicate CLIA certificate', severity: 'high', time: '6h ago' },
-  { id: 'f3', entity: 'Patient X', type: 'Patient', issue: 'Multiple accounts (same phone)', severity: 'medium', time: '1d ago' },
-]
+const FRAUD_FLAGS: {
+  id: string;
+  entity: string;
+  type: string;
+  issue: string;
+  severity: 'high' | 'medium' | 'low';
+  time: string;
+}[] = [
+  {
+    id: 'f1',
+    entity: 'Dr. Imran',
+    type: 'Doctor',
+    issue: 'License number not found in registry',
+    severity: 'high',
+    time: '3h ago',
+  },
+  {
+    id: 'f2',
+    entity: 'QuickLab',
+    type: 'Lab',
+    issue: 'Duplicate CLIA certificate',
+    severity: 'high',
+    time: '6h ago',
+  },
+  {
+    id: 'f3',
+    entity: 'Patient X',
+    type: 'Patient',
+    issue: 'Multiple accounts (same phone)',
+    severity: 'medium',
+    time: '1d ago',
+  },
+];
 
 /* ------------------ Owner-level revenue model (demo data) ------------------ */
 // In production these numbers come from aggregations over Payment + Appointment
@@ -179,66 +235,108 @@ const FRAUD_FLAGS: { id: string; entity: string; type: string; issue: string; se
 // dashboard would render against the real DB.
 
 interface PartnerRevenueRow {
-  id: string
-  name: string
-  type: 'Doctor' | 'Lab'
-  lifetimeOrders: number
-  grossUsd: number
-  tier: LoyaltyTier
+  id: string;
+  name: string;
+  type: 'Doctor' | 'Lab';
+  lifetimeOrders: number;
+  grossUsd: number;
+  tier: LoyaltyTier;
 }
 
 const PARTNER_REVENUE: PartnerRevenueRow[] = [
-  { id: 'pr1', name: 'Dr. Anjali Mehta', type: 'Doctor', lifetimeOrders: 212, grossUsd: 18400, tier: resolveTier(212) },
-  { id: 'pr2', name: 'Dr. Rajiv Khanna', type: 'Doctor', lifetimeOrders: 91, grossUsd: 9600, tier: resolveTier(91) },
-  { id: 'pr3', name: 'Dr. Sara Pinto', type: 'Doctor', lifetimeOrders: 24, grossUsd: 1850, tier: resolveTier(24) },
-  { id: 'pr4', name: 'MediTest Labs', type: 'Lab', lifetimeOrders: 178, grossUsd: 14200, tier: resolveTier(178) },
-  { id: 'pr5', name: 'NorthInd PathLabs', type: 'Lab', lifetimeOrders: 322, grossUsd: 26800, tier: resolveTier(322) },
-  { id: 'pr6', name: 'QuickLab', type: 'Lab', lifetimeOrders: 33, grossUsd: 2850, tier: resolveTier(33) },
-]
+  {
+    id: 'pr1',
+    name: 'Dr. Anjali Mehta',
+    type: 'Doctor',
+    lifetimeOrders: 212,
+    grossUsd: 18400,
+    tier: resolveTier(212),
+  },
+  {
+    id: 'pr2',
+    name: 'Dr. Rajiv Khanna',
+    type: 'Doctor',
+    lifetimeOrders: 91,
+    grossUsd: 9600,
+    tier: resolveTier(91),
+  },
+  {
+    id: 'pr3',
+    name: 'Dr. Sara Pinto',
+    type: 'Doctor',
+    lifetimeOrders: 24,
+    grossUsd: 1850,
+    tier: resolveTier(24),
+  },
+  {
+    id: 'pr4',
+    name: 'MediTest Labs',
+    type: 'Lab',
+    lifetimeOrders: 178,
+    grossUsd: 14200,
+    tier: resolveTier(178),
+  },
+  {
+    id: 'pr5',
+    name: 'NorthInd PathLabs',
+    type: 'Lab',
+    lifetimeOrders: 322,
+    grossUsd: 26800,
+    tier: resolveTier(322),
+  },
+  {
+    id: 'pr6',
+    name: 'QuickLab',
+    type: 'Lab',
+    lifetimeOrders: 33,
+    grossUsd: 2850,
+    tier: resolveTier(33),
+  },
+];
 
 // Subscription revenue (patient side) — monthly recurring.
 // Uses USD pricing.
 const SUB_REVENUE = {
   plusCount: 420,
-  plusMonthlyUsd: 420 * PRICING.USD.plus.monthly,  // $9.99/month
+  plusMonthlyUsd: 420 * PRICING.USD.plus.monthly, // $9.99/month
   familyProCount: 130,
-  familyProMonthlyUsd: 130 * PRICING.USD.family_pro.monthly,  // $19.99/month
-}
+  familyProMonthlyUsd: 130 * PRICING.USD.family_pro.monthly, // $19.99/month
+};
 
 export function AdminDashboard({ user }: { user: AuthUser }) {
-  const { theme, setTheme } = useTheme()
-  const { logout, setScreen } = useAppStore()
-  const router = useRouter()
-  const isDemo = !!user.isDemo
-  const [tab, setTab] = React.useState<AdminTab>('revenue')
-  const [reviewApp, setReviewApp] = React.useState<DoctorApp | LabApp | null>(null)
-  const [reviewType, setReviewType] = React.useState<'doctor' | 'lab' | null>(null)
+  const { theme, setTheme } = useTheme();
+  const { logout, setScreen } = useAppStore();
+  const router = useRouter();
+  const isDemo = !!user.isDemo;
+  const [tab, setTab] = React.useState<AdminTab>('revenue');
+  const [reviewApp, setReviewApp] = React.useState<DoctorApp | LabApp | null>(null);
+  const [reviewType, setReviewType] = React.useState<'doctor' | 'lab' | null>(null);
 
-  const pendingDoctors = DOCTOR_APPS.filter((d) => d.status === 'pending').length
-  const pendingLabs = LAB_APPS.filter((l) => l.status === 'pending').length
-  const activeDoctors = DOCTOR_APPS.filter((d) => d.status === 'approved').length
-  const churnCount = CHURN_RISKS.length
-  const fraudCount = FRAUD_FLAGS.length
+  const pendingDoctors = DOCTOR_APPS.filter(d => d.status === 'pending').length;
+  const pendingLabs = LAB_APPS.filter(l => l.status === 'pending').length;
+  const activeDoctors = DOCTOR_APPS.filter(d => d.status === 'approved').length;
+  const churnCount = CHURN_RISKS.length;
+  const fraudCount = FRAUD_FLAGS.length;
 
   // ---- Owner-level revenue aggregations ----
-  const doctorCommission = PARTNER_REVENUE.filter((p) => p.type === 'Doctor').reduce(
+  const doctorCommission = PARTNER_REVENUE.filter(p => p.type === 'Doctor').reduce(
     (s, p) => s + platformFee(p.grossUsd, effectiveFeePct(DOCTOR_BASE_FEE_PCT, p.tier)),
     0
-  )
-  const labCommission = PARTNER_REVENUE.filter((p) => p.type === 'Lab').reduce(
+  );
+  const labCommission = PARTNER_REVENUE.filter(p => p.type === 'Lab').reduce(
     (s, p) => s + platformFee(p.grossUsd, effectiveFeePct(LAB_BASE_FEE_PCT, p.tier)),
     0
-  )
-  const totalPartnerGross = PARTNER_REVENUE.reduce((s, p) => s + p.grossUsd, 0)
-  const platformCommission = doctorCommission + labCommission
-  const subscriptionMrr = SUB_REVENUE.plusMonthlyUsd + SUB_REVENUE.familyProMonthlyUsd
-  const totalMrr = platformCommission / 12 + subscriptionMrr / 12
-  const avgTakeRate = totalPartnerGross > 0 ? (platformCommission / totalPartnerGross) * 100 : 0
+  );
+  const totalPartnerGross = PARTNER_REVENUE.reduce((s, p) => s + p.grossUsd, 0);
+  const platformCommission = doctorCommission + labCommission;
+  const subscriptionMrr = SUB_REVENUE.plusMonthlyUsd + SUB_REVENUE.familyProMonthlyUsd;
+  const totalMrr = platformCommission / 12 + subscriptionMrr / 12;
+  const avgTakeRate = totalPartnerGross > 0 ? (platformCommission / totalPartnerGross) * 100 : 0;
 
   const openReview = (app: DoctorApp | LabApp, type: 'doctor' | 'lab') => {
-    setReviewApp(app)
-    setReviewType(type)
-  }
+    setReviewApp(app);
+    setReviewType(type);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
@@ -258,7 +356,10 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <Badge
+              variant="secondary"
+              className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+            >
               <ShieldAlert className="h-3 w-3" />
               Super admin
             </Badge>
@@ -266,7 +367,8 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
               size="icon"
               variant="ghost"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              title="Toggle theme" aria-label="Toggle dark mode"
+              title="Toggle theme"
+              aria-label="Toggle dark mode"
             >
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
@@ -286,7 +388,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
       </header>
 
       {/* Demo banner */}
-      {isDemo && (
+      {isDemo && process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-center text-[11px] text-amber-700 dark:text-amber-300">
           Demo mode — sample data, changes won&apos;t be saved
         </div>
@@ -325,7 +427,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           />
         </div>
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as AdminTab)} className="w-full">
+        <Tabs value={tab} onValueChange={v => setTab(v as AdminTab)} className="w-full">
           {/* Mobile: 2-col grid so labels stay readable; sm+: 5-col strip */}
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto p-1 gap-1">
             <TabsTrigger value="revenue" className="py-1.5 text-xs col-span-3 sm:col-span-1">
@@ -366,7 +468,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           <TabsContent value="doctors" className="mt-4">
             <ApplicationsTab
               title="Doctor applications"
-              apps={DOCTOR_APPS.map((d) => ({
+              apps={DOCTOR_APPS.map(d => ({
                 id: d.id,
                 name: d.name,
                 subtitle: d.specialization,
@@ -376,9 +478,9 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
                 submittedAt: d.submittedAt,
                 documents: d.documents,
               }))}
-              onReview={(id) => {
-                const app = DOCTOR_APPS.find((d) => d.id === id)
-                if (app) openReview(app, 'doctor')
+              onReview={id => {
+                const app = DOCTOR_APPS.find(d => d.id === id);
+                if (app) openReview(app, 'doctor');
               }}
             />
           </TabsContent>
@@ -386,7 +488,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           <TabsContent value="labs" className="mt-4">
             <ApplicationsTab
               title="Lab applications"
-              apps={LAB_APPS.map((l) => ({
+              apps={LAB_APPS.map(l => ({
                 id: l.id,
                 name: l.labName,
                 subtitle: `${l.testCount} tests`,
@@ -396,9 +498,9 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
                 submittedAt: l.submittedAt,
                 documents: l.documents,
               }))}
-              onReview={(id) => {
-                const app = LAB_APPS.find((l) => l.id === id)
-                if (app) openReview(app, 'lab')
+              onReview={id => {
+                const app = LAB_APPS.find(l => l.id === id);
+                if (app) openReview(app, 'lab');
               }}
             />
           </TabsContent>
@@ -417,12 +519,12 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
         app={reviewApp}
         type={reviewType}
         onClose={() => {
-          setReviewApp(null)
-          setReviewType(null)
+          setReviewApp(null);
+          setReviewType(null);
         }}
       />
     </div>
-  )
+  );
 }
 
 /* ------------------------------- Revenue tab -------------------------------- */
@@ -437,18 +539,18 @@ function RevenueTab({
   avgTakeRate,
   partners,
 }: {
-  platformCommission: number
-  doctorCommission: number
-  labCommission: number
-  totalPartnerGross: number
-  subscriptionMrr: number
-  totalMrr: number
-  avgTakeRate: number
-  partners: PartnerRevenueRow[]
+  platformCommission: number;
+  doctorCommission: number;
+  labCommission: number;
+  totalPartnerGross: number;
+  subscriptionMrr: number;
+  totalMrr: number;
+  avgTakeRate: number;
+  partners: PartnerRevenueRow[];
 }) {
-  const fmtUsd = (n: number) => `${n.toLocaleString('en-US')}`
-  const doctorShare = platformCommission > 0 ? (doctorCommission / platformCommission) * 100 : 0
-  const labShare = platformCommission > 0 ? (labCommission / platformCommission) * 100 : 0
+  const fmtUsd = (n: number) => `${n.toLocaleString('en-US')}`;
+  const doctorShare = platformCommission > 0 ? (doctorCommission / platformCommission) * 100 : 0;
+  const labShare = platformCommission > 0 ? (labCommission / platformCommission) * 100 : 0;
 
   return (
     <div className="space-y-4">
@@ -472,7 +574,9 @@ function RevenueTab({
               </span>
               <span className="font-medium truncate">Commission (FY)</span>
             </div>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{fmtUsd(platformCommission)}</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {fmtUsd(platformCommission)}
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1">From partners</p>
           </CardContent>
         </Card>
@@ -484,7 +588,9 @@ function RevenueTab({
               </span>
               <span className="font-medium truncate">Avg take rate</span>
             </div>
-            <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{avgTakeRate.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
+              {avgTakeRate.toFixed(1)}%
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1">Blended</p>
           </CardContent>
         </Card>
@@ -496,7 +602,9 @@ function RevenueTab({
               </span>
               <span className="font-medium truncate">Sub MRR</span>
             </div>
-            <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">{fmtUsd(subscriptionMrr)}</div>
+            <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">
+              {fmtUsd(subscriptionMrr)}
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1">Patient subscriptions</p>
           </CardContent>
         </Card>
@@ -508,7 +616,9 @@ function RevenueTab({
               </span>
               <span className="font-medium truncate">Est. total MRR</span>
             </div>
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{fmtUsd(Math.round(totalMrr))}</div>
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+              {fmtUsd(Math.round(totalMrr))}
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1">Commission ÷ 12 + subs</p>
           </CardContent>
         </Card>
@@ -525,7 +635,9 @@ function RevenueTab({
                   <Stethoscope className="h-3 w-3 text-emerald-600" />
                   Doctors ({DOCTOR_BASE_FEE_PCT}% base fee)
                 </span>
-                <span className="font-semibold">{fmtUsd(doctorCommission)} · {doctorShare.toFixed(0)}%</span>
+                <span className="font-semibold">
+                  {fmtUsd(doctorCommission)} · {doctorShare.toFixed(0)}%
+                </span>
               </div>
               <Progress value={doctorShare} className="h-2" />
             </div>
@@ -535,7 +647,9 @@ function RevenueTab({
                   <Microscope className="h-3 w-3 text-teal-600" />
                   Labs ({LAB_BASE_FEE_PCT}% base fee)
                 </span>
-                <span className="font-semibold">{fmtUsd(labCommission)} · {labShare.toFixed(0)}%</span>
+                <span className="font-semibold">
+                  {fmtUsd(labCommission)} · {labShare.toFixed(0)}%
+                </span>
               </div>
               <Progress value={labShare} className="h-2" />
             </div>
@@ -547,7 +661,9 @@ function RevenueTab({
           </div>
           <div className="flex items-center justify-between text-xs mt-1">
             <span className="text-muted-foreground">Total platform commission</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">{fmtUsd(platformCommission)}</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+              {fmtUsd(platformCommission)}
+            </span>
           </div>
         </CardContent>
       </Card>
@@ -560,27 +676,33 @@ function RevenueTab({
             {partners
               .slice()
               .sort((a, b) => b.grossUsd - a.grossUsd)
-              .map((p) => {
-                const baseFee = p.type === 'Doctor' ? DOCTOR_BASE_FEE_PCT : LAB_BASE_FEE_PCT
-                const effFee = effectiveFeePct(baseFee, p.tier)
-                const fee = platformFee(p.grossUsd, effFee)
+              .map(p => {
+                const baseFee = p.type === 'Doctor' ? DOCTOR_BASE_FEE_PCT : LAB_BASE_FEE_PCT;
+                const effFee = effectiveFeePct(baseFee, p.tier);
+                const fee = platformFee(p.grossUsd, effFee);
                 return (
                   <div
                     key={p.id}
                     className="flex items-center gap-3 rounded-xl border border-border/60 p-3"
                   >
                     <Avatar className="h-9 w-9 shrink-0">
-                      <AvatarFallback className={cn(
-                        'bg-gradient-to-br text-white text-xs',
-                        p.type === 'Doctor' ? 'from-emerald-500 to-teal-600' : 'from-teal-500 to-emerald-600'
-                      )}>
+                      <AvatarFallback
+                        className={cn(
+                          'bg-gradient-to-br text-white text-xs',
+                          p.type === 'Doctor'
+                            ? 'from-emerald-500 to-teal-600'
+                            : 'from-teal-500 to-emerald-600'
+                        )}
+                      >
                         {p.name.replace(/^Dr\.\s*/, '')[0] ?? 'P'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium truncate">{p.name}</p>
-                        <Badge variant="outline" className="text-[10px]">{p.type}</Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          {p.type}
+                        </Badge>
                         <Badge
                           variant="secondary"
                           className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -594,10 +716,12 @@ function RevenueTab({
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-semibold">{fmtUsd(p.grossUsd)}</p>
-                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400">+{fmtUsd(fee)} fee</p>
+                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
+                        +{fmtUsd(fee)} fee
+                      </p>
                     </div>
                   </div>
-                )
+                );
               })}
           </div>
         </CardContent>
@@ -613,29 +737,31 @@ function RevenueTab({
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold">Payout policy</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                Partners are paid on a <span className="font-medium text-foreground">{PAYOUT_POLICY.cadence}</span> schedule
-                with a minimum of <span className="font-medium text-foreground">${PAYOUT_POLICY.minPayoutUsd}</span> via{' '}
-                {PAYOUT_POLICY.methods.join(', ')}. Withholding tax deducted per US tax law.
+                Partners are paid on a{' '}
+                <span className="font-medium text-foreground">{PAYOUT_POLICY.cadence}</span>{' '}
+                schedule with a minimum of{' '}
+                <span className="font-medium text-foreground">${PAYOUT_POLICY.minPayoutUsd}</span>{' '}
+                via {PAYOUT_POLICY.methods.join(', ')}. Withholding tax deducted per US tax law.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 /* ----------------------------- Applications tab ----------------------------- */
 
 interface AppRow {
-  id: string
-  name: string
-  subtitle: string
-  meta: string
-  license: string
-  status: 'pending' | 'approved' | 'rejected'
-  submittedAt: string
-  documents: { name: string; type: string }[]
+  id: string;
+  name: string;
+  subtitle: string;
+  meta: string;
+  license: string;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+  documents: { name: string; type: string }[];
 }
 
 function ApplicationsTab({
@@ -643,9 +769,9 @@ function ApplicationsTab({
   apps,
   onReview,
 }: {
-  title: string
-  apps: AppRow[]
-  onReview: (id: string) => void
+  title: string;
+  apps: AppRow[];
+  onReview: (id: string) => void;
 }) {
   return (
     <div className="space-y-3">
@@ -662,7 +788,7 @@ function ApplicationsTab({
         </Card>
       ) : (
         <div className="space-y-2">
-          {apps.map((a) => (
+          {apps.map(a => (
             <Card key={a.id} className={cn(a.status === 'pending' && 'ring-1 ring-amber-500/30')}>
               <CardContent className="p-3">
                 <div className="flex items-start gap-3">
@@ -687,7 +813,11 @@ function ApplicationsTab({
                     </div>
                   </div>
                   {a.status === 'pending' && (
-                    <Button size="sm" onClick={() => onReview(a.id)} className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                    <Button
+                      size="sm"
+                      onClick={() => onReview(a.id)}
+                      className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                    >
                       Review
                     </Button>
                   )}
@@ -698,7 +828,7 @@ function ApplicationsTab({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /* ------------------------------- Retention tab ------------------------------ */
@@ -706,7 +836,14 @@ function ApplicationsTab({
 function RetentionTab({
   risks,
 }: {
-  risks: { id: string; name: string; tier: string; days: number; reason: string; risk: 'high' | 'medium' | 'low' }[]
+  risks: {
+    id: string;
+    name: string;
+    tier: string;
+    days: number;
+    reason: string;
+    risk: 'high' | 'medium' | 'low';
+  }[];
 }) {
   return (
     <div className="space-y-3">
@@ -725,23 +862,27 @@ function RetentionTab({
         </Card>
       ) : (
         <div className="space-y-2">
-          {risks.map((r) => (
+          {risks.map(r => (
             <Card key={r.id}>
               <CardContent className="p-3 flex items-center gap-3">
-                <span className={cn(
-                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                  r.risk === 'high'
-                    ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                    : r.risk === 'medium'
-                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                )}>
+                <span
+                  className={cn(
+                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                    r.risk === 'high'
+                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                      : r.risk === 'medium'
+                        ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                        : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  )}
+                >
                   <TrendingDown className="h-5 w-5" />
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-sm">{r.name}</h3>
-                    <Badge variant="secondary" className="text-[10px] capitalize">{r.tier}</Badge>
+                    <Badge variant="secondary" className="text-[10px] capitalize">
+                      {r.tier}
+                    </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{r.reason}</p>
                 </div>
@@ -750,9 +891,11 @@ function RetentionTab({
                     variant="secondary"
                     className={cn(
                       'text-[10px] capitalize',
-                      r.risk === 'high' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
-                      r.risk === 'medium' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
-                      'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      r.risk === 'high'
+                        ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                        : r.risk === 'medium'
+                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                     )}
                   >
                     {r.risk} risk
@@ -765,7 +908,7 @@ function RetentionTab({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /* -------------------------------- Fraud tab -------------------------------- */
@@ -773,15 +916,20 @@ function RetentionTab({
 function FraudTab({
   flags,
 }: {
-  flags: { id: string; entity: string; type: string; issue: string; severity: 'high' | 'medium' | 'low'; time: string }[]
+  flags: {
+    id: string;
+    entity: string;
+    type: string;
+    issue: string;
+    severity: 'high' | 'medium' | 'low';
+    time: string;
+  }[];
 }) {
   return (
     <div className="space-y-3">
       <div>
         <h2 className="text-base font-semibold">Fraud flags</h2>
-        <p className="text-xs text-muted-foreground">
-          Automated flags requiring manual review.
-        </p>
+        <p className="text-xs text-muted-foreground">Automated flags requiring manual review.</p>
       </div>
       {flags.length === 0 ? (
         <Card>
@@ -792,23 +940,27 @@ function FraudTab({
         </Card>
       ) : (
         <div className="space-y-2">
-          {flags.map((f) => (
+          {flags.map(f => (
             <Card key={f.id} className={cn(f.severity === 'high' && 'ring-1 ring-rose-500/30')}>
               <CardContent className="p-3 flex items-center gap-3">
-                <span className={cn(
-                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                  f.severity === 'high'
-                    ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                    : f.severity === 'medium'
-                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                )}>
+                <span
+                  className={cn(
+                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                    f.severity === 'high'
+                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                      : f.severity === 'medium'
+                        ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                        : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  )}
+                >
                   <ShieldAlert className="h-5 w-5" />
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-sm">{f.entity}</h3>
-                    <Badge variant="outline" className="text-[10px]">{f.type}</Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      {f.type}
+                    </Badge>
                     <span className="text-[11px] text-muted-foreground">{f.time}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{f.issue}</p>
@@ -817,9 +969,11 @@ function FraudTab({
                   variant="secondary"
                   className={cn(
                     'text-[10px] capitalize',
-                    f.severity === 'high' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
-                    f.severity === 'medium' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
-                    'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    f.severity === 'high'
+                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                      : f.severity === 'medium'
+                        ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                        : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   )}
                 >
                   {f.severity}
@@ -830,7 +984,7 @@ function FraudTab({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 /* ------------------------------- Review modal ------------------------------- */
@@ -840,52 +994,60 @@ function ReviewDialog({
   type,
   onClose,
 }: {
-  app: DoctorApp | LabApp | null
-  type: 'doctor' | 'lab' | null
-  onClose: () => void
+  app: DoctorApp | LabApp | null;
+  type: 'doctor' | 'lab' | null;
+  onClose: () => void;
 }) {
-  const { toast } = useToast()
-  const [reason, setReason] = React.useState('')
-  const [acting, setActing] = React.useState<'approve' | 'reject' | null>(null)
+  const { toast } = useToast();
+  const [reason, setReason] = React.useState('');
+  const [acting, setActing] = React.useState<'approve' | 'reject' | null>(null);
 
   React.useEffect(() => {
-    setReason('')
-    setActing(null)
-  }, [app])
+    setReason('');
+    setActing(null);
+  }, [app]);
 
-  if (!app || !type) return null
+  if (!app || !type) return null;
 
-  const isDoctor = type === 'doctor'
-  const docApp = isDoctor ? (app as DoctorApp) : null
-  const labApp = !isDoctor ? (app as LabApp) : null
-  const displayName = docApp?.name ?? labApp?.labName ?? 'Applicant'
-  const documents = app.documents
+  const isDoctor = type === 'doctor';
+  const docApp = isDoctor ? (app as DoctorApp) : null;
+  const labApp = !isDoctor ? (app as LabApp) : null;
+  const displayName = docApp?.name ?? labApp?.labName ?? 'Applicant';
+  const documents = app.documents;
 
   const act = (action: 'approve' | 'reject') => {
     if (action === 'reject' && !reason.trim()) {
-      toast({ title: 'Reason required', description: 'Provide a reason for rejection.', variant: 'destructive' })
-      return
+      toast({
+        title: 'Reason required',
+        description: 'Provide a reason for rejection.',
+        variant: 'destructive',
+      });
+      return;
     }
-    setActing(action)
+    setActing(action);
     setTimeout(() => {
-      setActing(null)
+      setActing(null);
       toast({
         title: action === 'approve' ? 'Application approved' : 'Application rejected',
         description:
           action === 'approve'
             ? `${displayName} has been notified and activated.`
             : `${displayName} has been notified with your reason.`,
-      })
-      onClose()
-    }, 800)
-  }
+      });
+      onClose();
+    }, 800);
+  };
 
   return (
-    <Dialog open={!!app} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={!!app} onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto custom-scroll">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {isDoctor ? <Stethoscope className="h-4 w-4 text-emerald-600" /> : <Microscope className="h-4 w-4 text-emerald-600" />}
+            {isDoctor ? (
+              <Stethoscope className="h-4 w-4 text-emerald-600" />
+            ) : (
+              <Microscope className="h-4 w-4 text-emerald-600" />
+            )}
             Review application
           </DialogTitle>
           <DialogDescription>
@@ -954,7 +1116,7 @@ function ReviewDialog({
             <Textarea
               id="reason"
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              onChange={e => setReason(e.target.value)}
               placeholder="e.g. License not found in registry. Please resubmit with a valid KMC number."
               rows={3}
             />
@@ -968,7 +1130,11 @@ function ReviewDialog({
             disabled={!!acting}
             className="border-destructive/30 text-destructive hover:bg-destructive/10"
           >
-            {acting === 'reject' ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+            {acting === 'reject' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <XCircle className="h-4 w-4" />
+            )}
             Reject
           </Button>
           <Button
@@ -976,13 +1142,17 @@ function ReviewDialog({
             disabled={!!acting}
             className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
           >
-            {acting === 'approve' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {acting === 'approve' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
             Approve
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -991,7 +1161,7 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium text-right">{value}</span>
     </div>
-  )
+  );
 }
 
 /* --------------------------------- Helpers --------------------------------- */
@@ -1009,7 +1179,7 @@ function StatusBadge({ status }: { status: 'pending' | 'approved' | 'rejected' }
     >
       {status}
     </Badge>
-  )
+  );
 }
 
 function StatCard({
@@ -1019,18 +1189,18 @@ function StatCard({
   sub,
   tint,
 }: {
-  icon: React.ReactNode
-  label: string
-  value: React.ReactNode
-  sub: string
-  tint: 'emerald' | 'teal' | 'amber' | 'rose'
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  sub: string;
+  tint: 'emerald' | 'teal' | 'amber' | 'rose';
 }) {
   const cls = {
     emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
     teal: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
     amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
     rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
-  }[tint]
+  }[tint];
   return (
     <Card>
       <CardContent className="p-4">
@@ -1044,5 +1214,5 @@ function StatCard({
         <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>
       </CardContent>
     </Card>
-  )
+  );
 }

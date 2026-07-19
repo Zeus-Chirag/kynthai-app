@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Pill, AlertTriangle, ShoppingCart, Clock, Plus, RefreshCw } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface MedicineInventoryItem {
   id: string
@@ -29,7 +30,7 @@ export function MedicineCabinet() {
         setInventory(data.inventory || [])
       }
     } catch (error) {
-      console.error('Failed to fetch inventory:', error)
+      logger.warn('Failed to fetch inventory:', error)
     } finally {
       setLoading(false)
     }
@@ -48,7 +49,7 @@ export function MedicineCabinet() {
       })
       fetchInventory()
     } catch (error) {
-      console.error('Failed to update stock:', error)
+      logger.warn('Failed to update stock:', error)
     }
   }
 

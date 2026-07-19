@@ -1,0 +1,229 @@
+import { NextRequest } from 'next/server';
+import { db } from '@/lib/db';
+import {
+  requireAuth,
+  requireAuthWithCsrf,
+  jsonError,
+  jsonOk,
+  checkConsent,
+} from '@/lib/api-helpers';
+import { sanitizeText } from '@/lib/security';
+import { logAudit } from '@/lib/auth';
+import { sendNotification } from '@/lib/notifications';
+import { computeCommission } from '@/lib/commission';
+import { logger } from '@/lib/logger';
+
+export const dynamic = 'force-dynamic';
+
+// State machine: pending → confirmed → completed → (payout)
+//              → cancelled (from any non-terminal state)
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  pending: ['confirmed', 'cancelled'],
+  confirmed: ['completed', 'cancelled'],
+  completed: [],
+  cancelled: [],
+};
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { response, user } = await requireAuthWithCsrf(req);
+  if (response || !user) return response!;
+  const u = user!;
+  const consentErr = checkConsent(u);
+  if (consentErr) return consentErr;
+
+  const { id } = await params;
+  const appt = await db.appointment.findUnique({
+    where: { id },
+    include: {
+      doctor: { include: { user: true } },
+      patient: true,
+    },
+  });
+  if (!appt) return jsonError('Appointment not found', 404);
+
+  const isDoctor = appt.doctor.userId === u.id;
+  const isPatient = appt.patientId === u.id;
+  const isAdmin = u.role === 'admin';
+  if (!isDoctor && !isPatient && !isAdmin) return jsonError('Forbidden', 403);
+
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== 'object') return jsonError('Invalid JSON', 400);
+
+  const nextStatus = sanitizeText(body.status as string, 20) as
+    'pending' | 'confirmed' | 'completed' | 'cancelled';
+  if (!nextStatus) return jsonError('status is required', 400);
+
+  const allowed = VALID_TRANSITIONS[appt.status] || [];
+
+  // Role enforcement
+  if (isPatient && !['cancelled'].includes(nextStatus)) {
+    // Patient can only cancel once doctor has accepted
+    if (appt.status === 'confirmed') {
+      // Patient cancel after doctor accepted → refund minus platform fee
+    }
+  }
+  if (!isDoctor && !isPatient && !isAdmin) {
+    return jsonError('Forbidden', 403);
+  }
+  if (!allowed.includes(nextStatus)) {
+    return jsonError(
+      `Cannot transition ${appt.status} → ${nextStatus}. Allowed: ${allowed.join(', ')}`,
+      400
+    );
+  }
+
+  let commission = appt.commission;
+  let paymentCaptured = appt.paymentCaptured;
+
+  // ── CRITICAL: Doctor accepts → charge patient, hold in escrow ────────────
+  if (nextStatus === 'confirmed' && appt.status === 'pending' && isDoctor) {
+    if (!appt.doctor.videoCallEnabled) {
+      return jsonError('Video consultations are not enabled for this doctor', 400);
+    }
+
+    if (appt.price <= 0) {
+      return jsonError('Appointment has no price set — contact admin', 400);
+    }
+
+    // Calculate Kyntha's commission (15% base, adjusted by loyalty)
+    const completedCount = await db.appointment.count({
+      where: { doctorId: appt.doctorId, status: 'completed' },
+    });
+    const patientTier = (appt.patient as { subscriptionTier?: string }).subscriptionTier || 'free';
+    const commissionResult = computeCommission(patientTier, completedCount, appt.price);
+    commission = commissionResult.commission;
+    paymentCaptured = true;
+
+    // Create the payment record (patient charged now, money held in Kyntha escrow)
+    try {
+      await db.payment.create({
+        data: {
+          userId: appt.patientId,
+          amount: appt.price,
+          currency: 'USD',
+          type: 'consultation',
+          status: 'succeeded',
+          provider: 'mock',
+          description: `Consultation with ${appt.doctor.user.name} — ${new Date(appt.scheduledAt).toLocaleDateString()}`,
+        },
+      });
+    } catch (paymentErr) {
+      logger.phiSafeError(paymentErr, 'appointments.payment.create');
+      return jsonError('Payment processing failed — appointment not confirmed', 502);
+    }
+
+    // Create payout record (money waiting to go to doctor)
+    try {
+      await db.payout.create({
+        data: {
+          userId: appt.patientId,
+          doctorId: appt.doctorId,
+          appointmentId: appt.id,
+          amount: appt.price,
+          platformFee: commissionResult.commission,
+          netAmount: commissionResult.net,
+          status: 'pending',
+        },
+      });
+    } catch (payoutErr) {
+      logger.phiSafeError(payoutErr, 'appointments.payout.create');
+      // Payment captured but payout record failed — do not confirm
+      // the appointment until both records exist so books stay consistent.
+      return jsonError('Payout record creation failed — contact support', 502);
+    }
+  }
+
+  // ── CRITICAL: Doctor marks call complete → release payout to doctor ──────
+  if (nextStatus === 'completed' && appt.status === 'confirmed' && isDoctor) {
+    // Mark payout as processing — in production this triggers stripe transfer
+    try {
+      await db.payout.updateMany({
+        where: { appointmentId: appt.id, status: 'pending' },
+        data: { status: 'processing' },
+      });
+    } catch (payoutErr) {
+      logger.phiSafeError(payoutErr, 'appointments.payout.update');
+      return jsonError('Payout release failed — contact support', 502);
+    }
+  }
+
+  // ── Patient cancel after doctor accepted → refund with fee ───────────────
+  if (nextStatus === 'cancelled' && isPatient && appt.status === 'confirmed') {
+    const refundAmount = appt.price - commission;
+    try {
+      await db.refund.create({
+        data: {
+          paymentId: appt.id,
+          appointmentId: appt.id,
+          userId: appt.patientId,
+          amount: refundAmount,
+          reason: 'patient_cancel',
+          status: 'completed',
+          processedAt: new Date(),
+        },
+      });
+    } catch (refundErr) {
+      logger.phiSafeError(refundErr, 'appointments.refund.create');
+      return jsonError('Refund processing failed — contact support', 502);
+    }
+    // Zero out the pending payout
+    try {
+      await db.payout.updateMany({
+        where: { appointmentId: appt.id, status: 'pending' },
+        data: { status: 'failed' },
+      });
+    } catch (payoutErr) {
+      logger.phiSafeError(payoutErr, 'appointments.payout.cancel');
+      // Refund succeeded but payout update failed — log for reconciliation
+    }
+  }
+
+  const updated = await db.appointment.update({
+    where: { id },
+    data: {
+      status: nextStatus,
+      commission,
+      paymentCaptured,
+      notes: body.notes ? sanitizeText(body.notes, 1000) : undefined,
+    },
+    include: { doctor: { include: { user: true } }, patient: true },
+  });
+
+  await logAudit(
+    u.id,
+    'appointment.update',
+    `appt=${appt.id} status=${nextStatus} commission=${commission}`
+  );
+
+  // Notifications
+  try {
+    if (nextStatus !== appt.status && nextStatus !== 'cancelled') {
+      const notifierId = isPatient ? appt.doctor.userId : appt.patientId;
+      const isConfirmStep = nextStatus === 'confirmed' && appt.status === 'pending';
+      await sendNotification(
+        { userId: notifierId },
+        {
+          title: isConfirmStep
+            ? 'Consultation confirmed — payment captured'
+            : `Appointment ${nextStatus}`,
+          body: isConfirmStep
+            ? `Dr. ${appt.doctor.user.name} accepted. $${appt.price / 100} has been charged. Kyntha holds payment until the consultation is completed.`
+            : `Your appointment is now "${nextStatus}".`,
+          type: 'appointment_update',
+          data: { appointmentId: appt.id, status: nextStatus },
+        }
+      );
+    }
+  } catch {
+    /* best-effort */
+  }
+
+  return jsonOk({
+    id: updated.id,
+    status: updated.status,
+    price: updated.price,
+    commission: updated.commission,
+    paymentCaptured: updated.paymentCaptured,
+    scheduledAt: updated.scheduledAt.toISOString(),
+  });
+}

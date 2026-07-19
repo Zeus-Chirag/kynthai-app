@@ -39,6 +39,7 @@ import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { getGreeting } from '@/lib/greeting';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 import { AiChat } from '@/components/medication/ai-chat';
 import { CareHub as CaretakerCareHub } from './care-hub';
 import { ProfileHub } from '@/components/kyntha/patient/profile-hub';
@@ -230,7 +231,8 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
   const isDemo = !!user.isDemo;
   const [profileOpen, setProfileOpen] = React.useState(false);
 
-  const handleLogout = React.useCallback(() => {
+  const handleLogout = React.useCallback(async () => {
+    try { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); } catch {}
     logout();
     router.replace('/');
   }, [logout, router]);
@@ -330,7 +332,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
 
         if (!cancelled) setMemberMeds(medsMap);
       } catch (err) {
-        console.error('Failed to load family medications:', err);
+        logger.warn('Failed to load family medications:', err);
       }
     }
     load();
@@ -416,7 +418,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
       </header>
 
       {/* Demo banner */}
-      {isDemo && (
+      {isDemo && process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-center text-[11px] text-amber-700 dark:text-amber-300">
           Demo mode — sample data, changes won&apos;t be saved
         </div>

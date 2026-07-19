@@ -65,8 +65,13 @@ export async function checkCsrf(req: NextRequest): Promise<NextResponse | null> 
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return null
   }
-  const store = await cookies()
-  const cookieToken = store.get(CSRF_COOKIE)?.value
+
+  // Read CSRF cookie from the raw Cookie header (works in both Node.js and Edge runtime).
+  // Using cookies() from next/headers fails in Edge middleware (proxy.ts).
+  const cookieHeader = req.headers.get('cookie') ?? ''
+  const cookieMatch = cookieHeader.match(new RegExp(`(?:^|;\\s*)${CSRF_COOKIE}=([^;]*)`))
+  const cookieToken = cookieMatch ? decodeURIComponent(cookieMatch[1]) : undefined
+
   const headerToken = req.headers.get(CSRF_HEADER)
   // Both tokens must be present and match
   if (!cookieToken || !headerToken) {

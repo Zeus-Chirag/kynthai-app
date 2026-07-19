@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Activity, CheckCircle, AlertTriangle, Heart, TrendingUp, Clock, Users } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface FeedItem {
   id: string
@@ -27,7 +28,7 @@ export function FamilyHealthFeed() {
         setFeed(data.feed || [])
       }
     } catch (error) {
-      console.error('Failed to fetch feed:', error)
+      logger.warn('Failed to fetch feed:', error)
     } finally {
       setLoading(false)
     }

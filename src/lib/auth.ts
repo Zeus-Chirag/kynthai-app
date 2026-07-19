@@ -76,35 +76,47 @@ export async function clearSessionCookie() {
 export async function getSessionUser() {
   try {
     const store = await cookies()
+
+    // Try old session cookie first
     const token = store.get(SESSION_COOKIE)?.value
-    if (!token) return null
-    const hashedToken = hashToken(token)
-    const user = await db.user.findFirst({ where: { sessionToken: hashedToken, sessionExpiry: { gt: new Date() } } })
-
-    // Refresh session if less than 7 days remain before expiry (extends by 30 more days)
-    if (user) {
-      const daysUntilExpiry = Math.floor((new Date(user.sessionExpiry!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-
-      if (daysUntilExpiry <= 7) { // Refresh when ≤7 days remain before expiry
-        const newExpiry = new Date()
-        newExpiry.setDate(newExpiry.getDate() + SESSION_TTL_DAYS)
-        await db.user.update({
-          where: { id: user.id },
-          data: { sessionExpiry: newExpiry },
-        })
+    if (token) {
+      const hashedToken = hashToken(token)
+      const user = await db.user.findFirst({ where: { sessionToken: hashedToken, sessionExpiry: { gt: new Date() } } })
+      if (user) {
+        const daysUntilExpiry = Math.floor((new Date(user.sessionExpiry!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+        if (daysUntilExpiry <= 7) {
+          const newExpiry = new Date()
+          newExpiry.setDate(newExpiry.getDate() + SESSION_TTL_DAYS)
+          await db.user.update({ where: { id: user.id }, data: { sessionExpiry: newExpiry } })
+        }
+        return user
       }
     }
 
-    return user
+    // Fallback: try Supabase session cookie
+    const allCookies = store.getAll()
+    const sbCookie = allCookies.find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))
+    if (sbCookie?.value) {
+      try {
+        const raw = sbCookie.value.replace('base64-', '')
+        const std = raw.replace(/-/g, '+').replace(/_/g, '/')
+        const payload = JSON.parse(Buffer.from(std, 'base64').toString('utf-8'))
+        const userId = payload.user?.id
+        if (userId) {
+          const user = await db.user.findUnique({ where: { id: userId } })
+          return user
+        }
+      } catch {
+        // Cookie parse failed
+      }
+    }
+
+    return null
   } catch (error) {
-    // During Next.js build (page data collection), cookies() throws —
-    // silently treat as unauthenticated instead of crashing the build.
     if (process.env.NEXT_PHASE === 'phase-production-build') {
       return null
     }
-    // HIPAA: never log raw DB errors — they may contain PHI
     logger.phiSafeError(error, 'getSessionUser')
-    // Throw 500 instead of silently logging the user out on DB failure.
     throw new Error('Session lookup failed')
   }
 }
@@ -197,5 +209,58 @@ export async function logAudit(
   } else {
     // Fire-and-forget for data access events to avoid blocking responses
     await recordAudit(userId, action, ctx)
+  }
+}
+
+// ── Email Verification ─────────────────────────────────────────────────────
+
+const VERIFY_TTL_MINUTES = 60
+
+export function generateEmailVerificationToken(): string {
+  return crypto.randomBytes(32).toString('hex')
+}
+
+export async function createEmailVerificationToken(
+  userId: string
+): Promise<string | null> {
+  try {
+    const token = generateEmailVerificationToken()
+    const hashed = hashToken(token)
+    const expires = new Date()
+    expires.setMinutes(expires.getMinutes() + VERIFY_TTL_MINUTES)
+    await db.user.update({
+      where: { id: userId },
+      data: { emailVerificationToken: hashed, emailVerificationExpires: expires },
+    })
+    return token
+  } catch {
+    return null
+  }
+}
+
+export async function consumeEmailVerificationToken(
+  token: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!token) return { ok: false, error: 'Invalid request' }
+  try {
+    const hashed = hashToken(token)
+    const user = await db.user.findFirst({
+      where: {
+        emailVerificationToken: hashed,
+        emailVerificationExpires: { gt: new Date() },
+      },
+    })
+    if (!user) return { ok: false, error: 'Invalid or expired token' }
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+      },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Verification failed' }
   }
 }

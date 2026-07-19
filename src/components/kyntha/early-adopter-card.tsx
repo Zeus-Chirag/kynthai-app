@@ -13,7 +13,7 @@ interface EarlyAdopterCardProps {
 }
 
 // Early Adopter — founding member pricing (no fake countdown)
-// TODO: Wire to a backend API when real slot tracking is implemented.
+// Slot tracking — uses localStorage for demo
 
 export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
   const { currency } = useAppStore();

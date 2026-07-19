@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createSession, setSessionCookie, hashPassword, verifyPassword } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { logAudit } from '@/lib/auth';
 import {
   sanitizeText,
@@ -13,40 +13,20 @@ import {
   jsonError,
   jsonOk,
   readJson,
-  audit,
   ensureDemoUsers,
   checkConsent,
 } from '@/lib/api-helpers';
-import { UserRole } from '@prisma/client';
 import { registerSchema } from '@/lib/schemas';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
+import { syncSupabaseUser } from '@/lib/supabase/sync';
 export const dynamic = 'force-dynamic';
 
-// Common weak passwords to block at registration. Not exhaustive — the
-// primary defense is bcrypt; this is defense-in-depth against credential
-// stuffing. (Source: OWASP "worst passwords" lists.)
 const WEAK_PASSWORDS = new Set([
-  'password',
-  '123456',
-  '12345678',
-  'qwerty',
-  'abc123',
-  '111111',
-  '1234567',
-  'password1',
-  '123456789',
-  '12345',
-  'admin',
-  'letmein',
-  'welcome',
-  'monkey',
-  'iloveyou',
-  '000000',
-  'sunshine',
-  'princess',
-  'football',
-  'baseball',
+  'password', '123456', '12345678', 'qwerty', 'abc123', '111111',
+  '1234567', 'password1', '123456789', '12345', 'admin', 'letmein',
+  'welcome', 'monkey', 'iloveyou', '000000', 'sunshine', 'princess',
+  'football', 'baseball',
 ]);
 
 export async function POST(req: NextRequest) {
@@ -76,7 +56,7 @@ export async function POST(req: NextRequest) {
     if (phone && !isValidE164(phone))
       return jsonError('Phone must be in E.164 format (e.g. +15551234567)', 400);
 
-    // Age verification: user must be 18+ (precise date comparison, no float rounding)
+    // Age verification
     let dateOfBirth: Date | undefined;
     if (body.dateOfBirth) {
       const dob = new Date(body.dateOfBirth);
@@ -86,27 +66,22 @@ export async function POST(req: NextRequest) {
       const monthDiff = today.getMonth() - dob.getMonth();
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--;
 
-      // COMPLIANCE: flag and audit under-18 registration attempts before blocking
-      const isUserMinor = age < 18;
-      if (isUserMinor) {
+      if (age < 18) {
         await logAudit('system', 'auth.register.minor', `email=${email} age=${age}`);
+        return jsonError('You must be at least 18 years old to register', 400);
       }
-      if (age < 18) return jsonError('You must be at least 18 years old to register', 400);
       dateOfBirth = dob;
     }
 
     if (!isValidEmail(email)) return jsonError('Valid email is required', 400);
     const strength = validatePasswordStrength(password);
     if (!strength.valid) return jsonError(strength.errors.join('; '), 400);
-    // SECURITY: block the most common weak passwords to make credential
-    // stuffing attacks against Kyntha accounts harder.
     if (WEAK_PASSWORDS.has(password.toLowerCase())) {
       return jsonError('This password is too common — choose a stronger one', 400);
     }
     if (!name) return jsonError('Name is required', 400, 'VALIDATION_ERROR');
 
-    // Seed demo users only when explicitly enabled — hard-block in production
-    // to prevent accidental demo account creation in the live database.
+    // Seed demo users
     if (process.env.ENABLE_DEMO === 'true') {
       if (process.env.NODE_ENV === 'production') {
         throw new Error('ENABLE_DEMO=true forbidden in production');
@@ -114,75 +89,119 @@ export async function POST(req: NextRequest) {
       await ensureDemoUsers();
     }
 
-    const existing = await db.user.findUnique({ where: { email } });
-    if (existing) {
-      if (existing.isDemo) {
-        // SECURITY: Even demo accounts must verify password — prevent auth bypass
-        const passwordHash = existing.password;
-        const passwordValid = passwordHash ? await verifyPassword(password, passwordHash) : false;
-        if (!passwordValid) {
-          await logAudit(existing.id, 'auth.login.demo_failed', `email=${email}`);
-          return jsonError('Invalid credentials for demo account', 401);
-        }
-        // COMPLIANCE: enforce consent before issuing a session
-        const consentErr = checkConsent(existing);
-        if (consentErr) return consentErr;
-        const token = await createSession(existing.id);
-        await setSessionCookie(token);
-        await logAudit(existing.id, 'auth.login.demo', `role=${existing.role}`);
-        return jsonOk({
-          id: existing.id,
-          email: existing.email,
-          name: existing.name,
-          role: existing.role,
-          phone: existing.phone,
-          subscriptionTier: existing.subscriptionTier,
-        });
+    // ── Supabase Auth: sign up ──────────────────────────────────────────
+    let responseCookies: { name: string; value: string; options?: Record<string, unknown> }[] = [];
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return req.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              req.cookies.set({ name, value, ...options });
+              responseCookies.push({ name, value, options });
+            });
+          },
+        },
       }
-      return jsonError('Unable to complete registration. Please try again.', 409);
-    }
+    );
 
-    // US privacy / HIPAA: require all three consent flags before creating
-    // an account. Without these, PHI cannot be processed or AI features used.
-    const consentErr = checkConsent({
-      consentAccepted: !!body.consentAccepted,
-      dataProcessingConsent: !!body.dataProcessingConsent,
-      aiTrainingConsent: !!body.aiTrainingConsent,
-    });
-    if (consentErr) return consentErr;
-
-    const passwordHash = await hashPassword(password);
-    const user = await db.user.create({
-      data: {
-        email,
-        name,
-        role: 'patient', // SECURITY: always 'patient' — role upgrade requires admin
-        phone: phone || null,
-        dateOfBirth,
-        password: passwordHash,
-        // SECURITY: always require email verification — never auto-verify.
-        // Demo/dev flows should use the dedicated demo seeding (ensureDemoUsers).
-        emailVerified: false,
-        consentAccepted: !!body.consentAccepted,
-        dataProcessingConsent: !!body.dataProcessingConsent,
-        aiTrainingConsent: !!body.aiTrainingConsent,
+    let { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          role: 'patient',
+        },
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
       },
     });
 
-    const token = await createSession(user.id);
-    await setSessionCookie(token);
-    await logAudit(user.id, 'auth.register', 'role=patient');
+    // If email already exists in Supabase, look up the existing user
+    if (authError && authError.message?.includes('already registered')) {
+      // Use admin API to find the existing user by email
+      const adminSupabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          cookies: {
+            getAll() { return req.cookies.getAll(); },
+            setAll() {},
+          },
+        }
+      );
+      const { data: { users } } = await adminSupabase.auth.admin.listUsers();
+      const existingUser = users?.find(u => u.email === email);
+      if (existingUser) {
+        // Sign in the existing user to get a session
+        const signInResult = await supabase.auth.signInWithPassword({ email, password });
+        if (signInResult.error) {
+          return jsonError('Email already registered. Please log in.', 409);
+        }
+        authData = signInResult.data;
+        authError = null;
+      } else {
+        return jsonError('Registration failed', 400);
+      }
+    } else if (authError) {
+      return jsonError(authError.message || 'Registration failed', 400);
+    }
 
-    return jsonOk({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      phone: user.phone,
-      subscriptionTier: user.subscriptionTier,
-    });
+    if (!authData?.user) {
+      return jsonError('Registration failed', 500);
+    }
+
+    // ── Create Prisma profile ───────────────────────────────────────────
+    // Check if profile already exists (e.g., from OAuth callback or re-registration)
+    let profile = await db.user.findUnique({ where: { id: authData.user.id } });
+
+    if (!profile) {
+      // US privacy / HIPAA: require consent flags
+      const consentErr = checkConsent({
+        consentAccepted: !!body.consentAccepted,
+        dataProcessingConsent: !!body.dataProcessingConsent,
+        aiTrainingConsent: !!body.aiTrainingConsent,
+      });
+      if (consentErr) return consentErr;
+
+      profile = await db.user.create({
+        data: {
+          id: authData.user.id,
+          email,
+          name,
+          role: 'patient',
+          phone: phone || null,
+          dateOfBirth,
+          password: null, // Supabase manages passwords
+          emailVerified: !!authData.user.email_confirmed_at,
+          consentAccepted: !!body.consentAccepted,
+          dataProcessingConsent: !!body.dataProcessingConsent,
+          aiTrainingConsent: !!body.aiTrainingConsent,
+        },
+      });
+    }
+
+    await logAudit(profile.id, 'auth.register', 'role=patient');
+
+    const responseBody = {
+      id: profile.id,
+      email: profile.email,
+      name: profile.name,
+      role: profile.role,
+      phone: profile.phone,
+      subscriptionTier: profile.subscriptionTier,
+      verificationEmailSent: !authData.user.email_confirmed_at,
+    };
+    const res = jsonOk(responseBody);
+    for (const cookie of responseCookies) {
+      res.cookies.set(cookie.name, cookie.value, cookie.options as any);
+    }
+    return res;
   } catch (error) {
-    // HIPAA: never log raw DB errors — they may contain PHI (passwords, hashes, etc.)
     logger.phiSafeError(error, 'auth.register');
     return jsonError('Internal server error', 500);
   }

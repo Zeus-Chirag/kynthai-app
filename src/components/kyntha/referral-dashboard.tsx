@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 import { ShareSheet } from './share-sheet'
 
 interface ReferralData {
@@ -43,7 +44,7 @@ export function ReferralDashboard() {
         setData(referralData)
       }
     } catch (error) {
-      console.error('Failed to fetch referral data:', error)
+      logger.warn('Failed to fetch referral data:', error)
     } finally {
       setLoading(false)
     }

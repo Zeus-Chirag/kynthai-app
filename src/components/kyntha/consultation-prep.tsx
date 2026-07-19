@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { FileText, Download, Calendar, Pill, AlertTriangle, MessageSquare, ClipboardList } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface ConsultationData {
   patientName: string
@@ -31,7 +32,7 @@ export function ConsultationPrep() {
         setData(prepData)
       }
     } catch (error) {
-      console.error('Failed to fetch consultation data:', error)
+      logger.warn('Failed to fetch consultation data:', error)
     } finally {
       setLoading(false)
     }
@@ -46,7 +47,7 @@ export function ConsultationPrep() {
         setData(report)
       }
     } catch (error) {
-      console.error('Failed to generate report:', error)
+      logger.warn('Failed to generate report:', error)
     } finally {
       setGenerating(false)
     }

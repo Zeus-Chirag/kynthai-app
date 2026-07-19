@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * portal-loaders.ts
@@ -9,16 +9,16 @@
  * portal route, not eagerly at root-page hydration.
  */
 
-import dynamic from 'next/dynamic'
-import { type ReactNode, Suspense } from 'react'
-import { ErrorBoundary } from '@/components/kyntha/error-boundary'
+import dynamic from 'next/dynamic';
+import { type ReactNode, Suspense } from 'react';
+import { ErrorBoundary } from '@/components/kyntha/error-boundary';
 
 function PortalSkeleton() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
     </div>
-  )
+  );
 }
 
 function PortalError({ error, reset }: { error: Error; reset: () => void }) {
@@ -39,7 +39,7 @@ function PortalError({ error, reset }: { error: Error; reset: () => void }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -50,37 +50,56 @@ function PortalError({ error, reset }: { error: Error; reset: () => void }) {
  * Patients CANNOT access doctor/lab portals, doctors CANNOT access patient portals, etc.
  * An unauthenticated user or a user with the wrong role gets null.
  */
-export function loadPortal(role: string, user?: { id?: string; name?: string; email?: string; role?: string; subscriptionTier?: string; isDemo?: boolean } | null): { key: string; node: ReactNode } {
+export function loadPortal(
+  role: string,
+  user?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+    subscriptionTier?: string;
+    isDemo?: boolean;
+  } | null
+): { key: string; node: ReactNode } {
   const loaders: Record<string, () => Promise<{ default: React.ComponentType<any> }>> = {
-    patient:   () => import('@/components/kyntha/patient/patient-app').then(m => ({ default: m.PatientApp })),
-    doctor:    () => import('@/components/kyntha/doctor/doctor-app').then(m => ({ default: m.DoctorApp })),
-    lab:       () => import('@/components/kyntha/lab/lab-app').then(m => ({ default: m.LabApp })),
-    caretaker: () => import('@/components/kyntha/caretaker/caretaker-app').then(m => ({ default: m.CaretakerApp })),
-    family:    () => import('@/components/kyntha/family/family-portal').then(m => ({ default: m.FamilyPortal })),
-    admin:     () => import('@/components/kyntha/admin/admin-dashboard').then(m => ({ default: m.AdminDashboard })),
-  }
+    patient: () =>
+      import('@/components/kyntha/patient/patient-app').then(m => ({ default: m.PatientApp })),
+    doctor: () =>
+      import('@/components/kyntha/doctor/doctor-app').then(m => ({ default: m.DoctorApp })),
+    lab: () => import('@/components/kyntha/lab/lab-app').then(m => ({ default: m.LabApp })),
+    caretaker: () =>
+      import('@/components/kyntha/caretaker/caretaker-app').then(m => ({
+        default: m.CaretakerApp,
+      })),
+    family: () =>
+      import('@/components/kyntha/family/family-portal').then(m => ({ default: m.FamilyPortal })),
+    admin: () =>
+      import('@/components/kyntha/admin/admin-dashboard').then(m => ({
+        default: m.AdminDashboard,
+      })),
+  };
   const keys: Record<string, string> = {
-    patient:   'patient-portal',
-    doctor:    'doctor-portal',
-    lab:       'lab-portal',
+    patient: 'patient-portal',
+    doctor: 'doctor-portal',
+    lab: 'lab-portal',
     caretaker: 'caretaker-portal',
-    family:    'family-portal',
-    admin:     'admin-portal',
-  }
+    family: 'family-portal',
+    admin: 'admin-portal',
+  };
 
-  const load = loaders[role]
-  if (!load) return { key: role, node: null }
+  const load = loaders[role];
+  if (!load) return { key: role, node: null };
 
   // SECURITY-CRITICAL: Verify the user is authenticated AND has the correct role
   if (!user || user.role !== role) {
-    return { key: keys[role] ?? role, node: null }
+    return { key: keys[role] ?? role, node: null };
   }
 
-  const Comp = dynamic(load, { ssr: false, loading: () => <PortalSkeleton /> })
+  const Comp = dynamic(load, { ssr: false, loading: () => <PortalSkeleton /> });
   const wrapped = (
-    <ErrorBoundary fallback={(props) => <PortalError {...props} />}>
-      <Comp />
+    <ErrorBoundary fallback={props => <PortalError {...props} />}>
+      <Comp user={user} />
     </ErrorBoundary>
-  )
-  return { key: keys[role] ?? role, node: wrapped }
+  );
+  return { key: keys[role] ?? role, node: wrapped };
 }

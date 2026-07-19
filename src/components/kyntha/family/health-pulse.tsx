@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Heart, AlertTriangle, CheckCircle, Clock, Users } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 export interface FamilyMemberPulse {
   id: string
@@ -82,7 +83,7 @@ export function FamilyHealthPulse({ onDataLoaded }: { onDataLoaded?: (members: F
         } catch { /* pulse is optional */ }
       }
     } catch (error) {
-      console.error('Failed to fetch family data:', error)
+      logger.warn('Failed to fetch family data:', error)
     } finally {
       setLoading(false)
     }

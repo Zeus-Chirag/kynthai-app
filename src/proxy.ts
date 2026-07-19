@@ -18,8 +18,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimitWithInfo } from './lib/rate-limit';
 import { validateEnv } from './lib/env';
-import { getSessionUser } from '@/lib/auth';
-import { recordAudit, AuditCategory } from '@/lib/audit-logger';
+import { recordAudit, AuditCategory } from './lib/audit-logger';
 import { logger } from '@/lib/logger';
 import { checkCsrf } from '@/lib/csrf';
 
@@ -168,7 +167,6 @@ const AUTH_REQUIRED_PREFIXES = [
   '/api/insights',
   '/api/health-report',
   '/api/chronic',
-  '/api/user',
   '/api/doctors',
   '/api/reminders',
   '/api/challenges',
@@ -207,7 +205,7 @@ function expectedRoleForPortal(pathname: string): string | null {
 
 function getApiLimit(pathname: string): number {
   if (pathname === '/api/auth/me') return 60;
-  if (pathname.startsWith('/api/auth/')) return 10;
+  if (pathname.startsWith('/api/auth/')) return 30;
   if (pathname.startsWith('/api/payments')) return 5;
   if (pathname.startsWith('/api/chat')) return 20;
   if (pathname.startsWith('/api/emergency')) return 100; // emergency is high-tolerance
@@ -256,9 +254,6 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.headers.set('X-Request-Id', requestId);
   res.headers.set('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=(self)');
-  // Cross-Origin isolation for Spectre mitigations and advanced features
-  res.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
-  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
 
   // Static assets cache
   if (
@@ -278,10 +273,21 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
   }
 
   const isProd = process.env.NODE_ENV === 'production';
+  // ponytail: HSTS must only be emitted over a real TLS connection. Sending it
+  // over plain HTTP permanently locks browsers (esp. Safari) into https:// for
+  // this origin, breaking local/dev non-TLS serving. Determine TLS from the
+  // forwarded proto / x-forwarded-proto header (Caddy/ELB) or req url.
+  const isHttps =
+    (res as any).requestProtocol === 'https' ||
+    res.headers.get('x-forwarded-proto') === 'https' ||
+    false;
   const csp = isProd
     ? [
         "default-src 'self'",
-        "script-src 'self' https://js.stripe.com",
+        // ponytail: Next.js injects inline bootstrap/hydration scripts, so
+        // 'unsafe-inline' is required or the app never hydrates (stuck on the
+        // static landing hero). Kept for parity with the app's dev CSP.
+        "script-src 'self' 'unsafe-inline' https://js.stripe.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob: https: http:",
         "font-src 'self' data:",
@@ -291,7 +297,8 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
         "base-uri 'self'",
         "form-action 'self'",
         "object-src 'none'",
-        'upgrade-insecure-requests',
+        // ponytail: only upgrade when actually served over TLS, else this blocks local HTTP
+        ...(isHttps ? ['upgrade-insecure-requests'] : []),
       ].join('; ')
     : [
         "default-src 'self'",
@@ -310,7 +317,9 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
   res.headers.set('Content-Security-Policy', csp);
   res.headers.set('X-Frame-Options', 'DENY');
 
-  if (isProd) {
+  // ponytail: HSTS only over real TLS. Never over plain HTTP — it bricks the
+  // origin in browsers (Safari caches the upgrade and can't fall back).
+  if (isProd && isHttps) {
     res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
 }
@@ -379,6 +388,23 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
   const res = NextResponse.next();
   res.headers.set('X-Request-Id', requestId);
 
+  // ── Supabase Auth: check session presence ──────────────────────────────
+  // Parse user ID from the cookie JWT (no network call, no Supabase client).
+  let supabaseUser: { id: string } | null = null;
+  try {
+    const cookies = req.cookies.getAll();
+    const sessionCookie = cookies.find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'));
+    if (sessionCookie?.value) {
+      const raw = sessionCookie.value.replace('base64-', '');
+      // Supabase uses URL-safe base64 (replaces +/ with -_)
+      const std = raw.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(Buffer.from(std, 'base64').toString('utf-8'));
+      if (payload.user?.id) supabaseUser = { id: payload.user.id };
+    }
+  } catch {
+    // Cookie parsing failed — treat as unauthenticated
+  }
+
   // ── Static assets ──────────────────────────────────────────────────────
   if (pathname.startsWith('/_next/static/')) {
     res.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
@@ -407,8 +433,9 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
 
   // ── Audit endpoint: session cookie required ─────────────────────────────
   if (pathname === '/api/audit' || pathname.startsWith('/api/audit/')) {
-    const sessionCookie = req.cookies.get('kyntha_session')?.value;
-    if (!sessionCookie) {
+    // Check for Supabase session cookies (sb-* prefix)
+    const hasSupabaseSession = req.cookies.getAll().some(c => c.name.startsWith('sb-'));
+    if (!hasSupabaseSession) {
       recordAudit(null, 'security.audit_endpoint_unauthorized', {
         category: AuditCategory.SECURITY,
         outcome: 'failure',
@@ -438,51 +465,18 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
   }
 
   // ── Portal role guard ─────────────────────────────────────────────────
-  if (isPortalPath(pathname) && !isApi) {
-    const portalRole = expectedRoleForPortal(pathname)!;
-    let sessionUser: Awaited<ReturnType<typeof getSessionUser>> | null = null;
-    try {
-      sessionUser = await getSessionUser();
-    } catch (error) {
-      logger.phiSafeError(error, 'proxy.portal_session_lookup');
-      return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 });
-    }
-    if (!sessionUser) {
-      const redirect = NextResponse.redirect(new URL('/login', req.url));
-      applyHeaders(redirect, pathname, requestId);
-      return redirect;
-    }
-    if (sessionUser.role !== portalRole) {
-      try {
-        await recordAudit(sessionUser.id, 'security.portal_unauthorized', {
-          category: AuditCategory.SECURITY,
-          outcome: 'failure',
-          httpMethod: method,
-          httpPath: pathname,
-          metadata: { requiredRole: portalRole, actualRole: sessionUser.role },
-        });
-      } catch {
-        // non-blocking
-      }
-      const resForbidden = NextResponse.json(
-        { error: 'Access denied — this portal requires the ' + portalRole + ' role.' },
-        { status: 403 }
-      );
-      applyHeaders(resForbidden, pathname, requestId);
-      return resForbidden;
-    }
+  // Role-based access is enforced by each portal's client-side auth guard.
+  // The proxy only checks session presence (supabaseUser above).
+  if (isPortalPath(pathname) && !isApi && !supabaseUser) {
+    const redirect = NextResponse.redirect(new URL('/login', req.url));
+    applyHeaders(redirect, pathname, requestId);
+    return redirect;
   }
 
   // ── Rate limit ──────────────────────────────────────────────────────────
   if (isApi) {
     const limit = getApiLimit(pathname);
-    let sessionUserId: string | undefined;
-    try {
-      const su = await getSessionUser();
-      sessionUserId = su?.id;
-    } catch {
-      // fail-open for availability; per-IP limit still applies
-    }
+    const sessionUserId = supabaseUser?.id;
     const rateLimitKey = sessionUserId ?? rawIp; // unmasked IP for precise per-IP limiting
     const rateLimitResult = await rateLimitWithInfo(
       'proxy:' + rateLimitKey + ':' + pathname,
@@ -524,14 +518,7 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
 
   // ── Auth-required path guard ───────────────────────────────────────────
   if (requiresAuth(pathname)) {
-    let sessionUser: Awaited<ReturnType<typeof getSessionUser>> | null = null;
-    try {
-      sessionUser = await getSessionUser();
-    } catch (error) {
-      logger.phiSafeError(error, 'proxy.auth_session_lookup');
-      applyHeaders(res, pathname, requestId);
-      return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 });
-    }
+    const sessionUser = supabaseUser;
 
     if (!sessionUser && !isPublicApi(pathname)) {
       applyHeaders(res, pathname, requestId);

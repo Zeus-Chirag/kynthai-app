@@ -23,6 +23,7 @@ import {
   Weight,
   Plus,
   ChevronRight,
+  FlaskConical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,6 +38,14 @@ import {
   SheetDescription,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -54,6 +63,8 @@ import { OfflineIndicator } from '@/components/kyntha/offline-indicator';
 import { PortalFooter } from '@/components/kyntha/portal-footer';
 import { ShareSheet } from '@/components/kyntha/share-sheet';
 import { FadeIn } from '@/components/kyntha/animations';
+import { LabResultsViewer } from '@/components/kyntha/patient/lab-results-viewer';
+import { BookAppointment } from '@/components/kyntha/patient/book-appointment';
 import dynamic from 'next/dynamic';
 
 // ── dynamic video-call load ───────────────────────────────────────────────
@@ -92,13 +103,14 @@ const MarketView = dynamic(
 // types & data
 // ════════════════════════════════════════════════════════════════════════════
 
-type Tab = 'home' | 'meds' | 'market' | 'ai' | 'journal' | 'sos';
+type Tab = 'home' | 'meds' | 'market' | 'lab' | 'ai' | 'journal' | 'sos';
 type TabVariant = Tab;
 
 const TABS: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'meds', label: 'Meds', icon: Pill },
   { id: 'market', label: 'Care', icon: ShoppingBag },
+  { id: 'lab', label: 'Lab', icon: FlaskConical },
   { id: 'ai', label: 'AI', icon: Sparkles },
   { id: 'journal', label: 'Journal', icon: BookOpen },
   { id: 'sos', label: 'SOS', icon: Siren },
@@ -194,7 +206,7 @@ interface Appointment {
   date: string;
   time: string;
   type: 'in-person' | 'video';
-  status: 'upcoming' | 'confirmed' | 'completed';
+  status: 'pending' | 'upcoming' | 'confirmed' | 'completed' | 'cancelled';
 }
 
 const DEMO_APPOINTMENTS: Appointment[] = [
@@ -215,6 +227,15 @@ const DEMO_APPOINTMENTS: Appointment[] = [
     time: '2:30 PM',
     type: 'video',
     status: 'upcoming',
+  },
+  {
+    id: 'a3',
+    doctor: 'Dr. Priya Gupta',
+    specialty: 'Dermatology',
+    date: '2026-07-25',
+    time: '11:00 AM',
+    type: 'video',
+    status: 'pending',
   },
 ];
 
@@ -288,11 +309,23 @@ function MetricCard({ m, index }: { m: HealthMetric; index: number }) {
   );
 }
 
-function ApptRow({ appt, onJoinCall }: { appt: Appointment; onJoinCall?: (id: string) => void }) {
+function ApptRow({
+  appt,
+  onJoinCall,
+  onCancel,
+  cancellingId,
+}: {
+  appt: Appointment;
+  onJoinCall?: (id: string) => void;
+  onCancel?: (id: string) => void;
+  cancellingId?: string | null;
+}) {
   const sc: Record<string, string> = {
-    confirmed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    upcoming: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    completed: 'bg-muted text-muted-foreground',
+    pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    confirmed: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    upcoming: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    completed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    cancelled: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
   };
   return (
     <div className="flex items-center gap-3 rounded-xl border border-border/60 p-3">
@@ -308,7 +341,7 @@ function ApptRow({ appt, onJoinCall }: { appt: Appointment; onJoinCall?: (id: st
           {appt.date} · {appt.type === 'video' ? '📹 Video' : '📍 In-person'}
         </p>
       </div>
-      <Badge variant="secondary" className={`text-[10px] shrink-0 ${sc[appt.status]}`}>
+      <Badge variant="secondary" className={`text-[10px] shrink-0 ${sc[appt.status] ?? sc.pending}`}>
         {appt.status}
       </Badge>
       {appt.type === 'video' && appt.status === 'confirmed' && onJoinCall && (
@@ -317,6 +350,15 @@ function ApptRow({ appt, onJoinCall }: { appt: Appointment; onJoinCall?: (id: st
           className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
         >
           Join
+        </button>
+      )}
+      {appt.status === 'confirmed' && onCancel && (
+        <button
+          onClick={() => onCancel(appt.id)}
+          disabled={cancellingId === appt.id}
+          className="shrink-0 rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-400 disabled:opacity-50"
+        >
+          {cancellingId === appt.id ? '...' : 'Cancel'}
         </button>
       )}
     </div>
@@ -336,14 +378,19 @@ function HomeTab({
   isDemo,
   onNavigate,
   onJoinCall,
+  onCancelAppointment,
+  cancellingApptId,
 }: {
   user: AuthUser;
   isFree: boolean;
   isDemo: boolean;
   onNavigate: (t: Tab) => void;
   onJoinCall: (id: string) => void;
+  onCancelAppointment?: (id: string) => void;
+  cancellingApptId?: string | null;
 }) {
   const [journalOpen, setJournalOpen] = React.useState(false);
+  const [bookingOpen, setBookingOpen] = React.useState(false);
   const { toast } = useToast();
   const appointments = DEMO_APPOINTMENTS.filter(a => a.status !== 'completed');
   const adherence = isDemo ? 83 : 92;
@@ -415,16 +462,32 @@ function HomeTab({
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Appointments
           </h3>
-          <button
-            onClick={() => onNavigate('market')}
-            className="text-xs text-emerald-600 hover:underline"
-          >
-            See all
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setBookingOpen(true)}
+              className="text-xs text-emerald-600 font-medium hover:underline"
+            >
+              + Book
+            </button>
+            <button
+              onClick={() => onNavigate('market')}
+              className="text-xs text-emerald-600 hover:underline"
+            >
+              See all
+            </button>
+          </div>
         </div>
         <div className="space-y-2.5">
           {appointments.length > 0 ? (
-            appointments.map(a => <ApptRow key={a.id} appt={a} onJoinCall={onJoinCall} />)
+            appointments.map(a => (
+              <ApptRow
+                key={a.id}
+                appt={a}
+                onJoinCall={onJoinCall}
+                onCancel={onCancelAppointment}
+                cancellingId={cancellingApptId}
+              />
+            ))
           ) : (
             <p className="text-sm text-muted-foreground text-center py-4">
               No upcoming appointments
@@ -536,6 +599,8 @@ function HomeTab({
         </SheetContent>
       </Sheet>
 
+      <BookAppointment open={bookingOpen} onOpenChange={setBookingOpen} />
+
       <PortalFooter />
     </div>
   );
@@ -560,6 +625,18 @@ function MarketTab() {
       <h2 className="text-xl font-bold">Find Care</h2>
       <p className="text-sm text-muted-foreground">Browse verified doctors and book appointments</p>
       <MarketView />
+      <PortalFooter />
+    </div>
+  );
+}
+
+// ── Lab tab ────────────────────────────────────────────────────────────────
+function LabTab({ isDemo }: { isDemo: boolean }) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold">Lab Results</h2>
+      <p className="text-sm text-muted-foreground">View and download your lab test results</p>
+      <LabResultsViewer isDemo={isDemo} />
       <PortalFooter />
     </div>
   );
@@ -812,12 +889,45 @@ export function PatientApp({ user }: { user: AuthUser }) {
   } | null>(null);
   const [shareOpen, setShareOpen] = React.useState(false);
   const [joiningCallApptId, setJoiningCallApptId] = React.useState<string | null>(null);
+  const [cancellingApptId, setCancellingApptId] = React.useState<string | null>(null);
+  const [cancelConfirmId, setCancelConfirmId] = React.useState<string | null>(null);
+
+  const handleCancelAppointment = React.useCallback(
+    async (appointmentId: string) => {
+      setCancelConfirmId(null);
+      setCancellingApptId(appointmentId);
+      try {
+        const res = await fetch(`/api/appointments/${appointmentId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'cancelled' }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.error || 'Failed to cancel appointment');
+        }
+        toast({ title: 'Appointment cancelled' });
+      } catch (error) {
+        toast({
+          title: 'Cancel failed',
+          description: error instanceof Error ? error.message : 'Unknown error',
+          variant: 'destructive',
+        });
+      } finally {
+        setCancellingApptId(null);
+      }
+    },
+    [toast]
+  );
 
   const isFree = (user?.subscriptionTier ?? 'free') === 'free';
-  const isDemo = !!user.isDemo;
-  const initial = isDemo ? 'K' : (user.name?.[0] ?? 'U').toUpperCase();
+  const isDemo = !!user?.isDemo;
+  const initial = isDemo ? 'K' : (user?.name?.[0] ?? 'U').toUpperCase();
 
-  const handleLogout = React.useCallback(() => {
+  const handleLogout = React.useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch { /* ignore */ }
     logout();
     router.replace('/');
   }, [logout, router]);
@@ -889,7 +999,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
         </div>
       </header>
 
-      {isDemo && (
+      {isDemo && process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-center text-[11px] text-amber-700 dark:text-amber-300">
           Demo mode — sample data
         </div>
@@ -905,6 +1015,8 @@ export function PatientApp({ user }: { user: AuthUser }) {
                 isDemo={isDemo}
                 onNavigate={setTab}
                 onJoinCall={setJoiningCallApptId}
+                onCancelAppointment={(id) => setCancelConfirmId(id)}
+                cancellingApptId={cancellingApptId}
               />
             </FadeIn>
           )}
@@ -916,6 +1028,11 @@ export function PatientApp({ user }: { user: AuthUser }) {
           {tab === 'market' && (
             <FadeIn key="market">
               <MarketTab />
+            </FadeIn>
+          )}
+          {tab === 'lab' && (
+            <FadeIn key="lab">
+              <LabTab isDemo={isDemo} />
             </FadeIn>
           )}
           {tab === 'ai' && (
@@ -958,6 +1075,30 @@ export function PatientApp({ user }: { user: AuthUser }) {
           shareText={`${user.name}'s health summary — 7 day streak, 92% adherence`}
         />
       )}
+
+      {/* Cancel appointment confirmation dialog */}
+      <Dialog open={!!cancelConfirmId} onOpenChange={(open) => { if (!open) setCancelConfirmId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Appointment?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this appointment? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setCancelConfirmId(null)}>
+              Keep
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={cancellingApptId === cancelConfirmId}
+              onClick={() => cancelConfirmId && handleCancelAppointment(cancelConfirmId)}
+            >
+              {cancellingApptId === cancelConfirmId ? 'Cancelling...' : 'Cancel Appointment'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">

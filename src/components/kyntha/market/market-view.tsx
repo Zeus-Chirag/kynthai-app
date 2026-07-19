@@ -479,7 +479,7 @@ function MedicinesTab() {
     <div className="space-y-3">
       <EmptyState
         icon={Pill}
-        text="Medicine ordering — coming soon"
+        text="Medicine ordering — available soon"
         subtext="Delivery charges apply on all orders. Premium subscribers (Plus & Family Pro) enjoy discounted delivery fees. Nothing is free — Stay tuned for launch."
       />
     </div>

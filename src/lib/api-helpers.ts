@@ -224,8 +224,64 @@ export async function requireAuth(
 ): Promise<{ response: NextResponse | null; user: User | null }> {
   const limited = await rateLimitProduction(req);
   if (limited) return { response: limited, user: null };
-  const user = await getSessionUser();
-  if (!user) return { response: jsonError('Unauthorized', 401), user: null };
+
+  // Use Supabase auth for session validation
+  const { createServerClient } = await import('@supabase/ssr');
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return req.cookies.getAll(); },
+        setAll() {},
+      },
+    }
+  );
+  const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
+  if (error || !supabaseUser) return { response: jsonError('Unauthorized', 401), user: null };
+
+  // Look up Prisma profile
+  const { getSupabaseProfile } = await import('@/lib/supabase/sync');
+  const profile = await getSupabaseProfile(supabaseUser);
+  if (!profile) return { response: jsonError('User profile not found', 404), user: null };
+
+  // Build a minimal User object for downstream code
+  const user = {
+    id: profile.id,
+    email: profile.email,
+    name: profile.name,
+    name_enc: null,
+    role: profile.role as any,
+    phone: profile.phone ?? null,
+    phone_enc: null,
+    password: null,
+    emailVerified: true,
+    subscriptionTier: (profile.subscriptionTier ?? 'free') as any,
+    stripeCustomerId: null,
+    sessionToken: null,
+    sessionExpiry: null,
+    consentAccepted: profile.consentAccepted ?? true,
+    dataProcessingConsent: profile.dataProcessingConsent ?? true,
+    aiTrainingConsent: profile.aiTrainingConsent ?? true,
+    notificationPrefs: null,
+    emailOptOut: false,
+    isDemo: profile.isDemo ?? false,
+    failedLoginAttempts: 0,
+    lockedUntil: null,
+    dateOfBirth: null,
+    dateOfBirth_enc: null,
+    allergies: null,
+    allergies_enc: null,
+    passwordResetToken: null,
+    passwordResetToken_enc: null,
+    passwordResetExpires: null,
+    emailVerificationToken: null,
+    emailVerificationToken_enc: null,
+    emailVerificationExpires: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+  } as User;
 
   // US privacy / HIPAA enforcement: block any unconsented user from accessing PHI endpoints.
   const consentErr = checkConsent(user, req);
@@ -338,6 +394,9 @@ export async function requireSystemToken(req: NextRequest) {
       passwordResetToken: null,
       passwordResetToken_enc: null,
       passwordResetExpires: null,
+      emailVerificationToken: null,
+      emailVerificationToken_enc: null,
+      emailVerificationExpires: null,
     };
     return { response: null, user: systemUser };
   }

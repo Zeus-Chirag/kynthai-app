@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Calendar, Plus, Save, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface JournalEntry {
   id: string
@@ -49,7 +50,7 @@ export function HealthJournal() {
         setEntries(data.entries || [])
       }
     } catch (error) {
-      console.error('Failed to fetch journal entries:', error)
+      logger.warn('Failed to fetch journal entries:', error)
     } finally {
       setLoading(false)
     }
@@ -85,7 +86,7 @@ export function HealthJournal() {
         fetchEntries()
       }
     } catch (error) {
-      console.error('Failed to save journal entry:', error)
+      logger.warn('Failed to save journal entry:', error)
     }
   }
 

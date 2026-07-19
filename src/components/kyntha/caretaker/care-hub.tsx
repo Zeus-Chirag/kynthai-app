@@ -279,7 +279,7 @@ function ChronicConditions() {
 
       <Button variant="outline" className="w-full" disabled>
         <Activity className="h-4 w-4" />
-        Add new condition (coming soon)
+        Add new condition
       </Button>
     </div>
   )

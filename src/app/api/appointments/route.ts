@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { Prisma } from '@prisma/client';
+// import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import { logAudit } from '@/lib/auth';
 import { sanitizeText, rateLimit } from '@/lib/security';
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     return jsonError('Forbidden — patientId must match session', 403);
   }
 
-  const and: Prisma.AppointmentWhereInput[] = [];
+  const and: any[] = [];
   if (patientId) and.push({ patientId });
   if (doctorId) {
     // IDOR: doctor may only view appointments for their own doctor profile.
@@ -83,12 +83,12 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const where: Prisma.AppointmentWhereInput = { AND: and };
+  const where: any = { AND: and };
 
   const take = limit + 1;
   const findArgs: any = {
     where,
-    include: { patient: true, doctor: { include: { user: true, specialization: true } } },
+    include: { patient: true, doctor: { include: { user: true } } },
     orderBy: { scheduledAt: 'desc' } as const,
     take,
   };
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
       select: { id: true, userId: true, verified: true, verificationStatus: true },
     });
     if (!doctor) return jsonError('Doctor not found', 404);
-    if (doctor.verificationStatus !== 'verified') {
+    if (!['verified', 'approved'].includes(doctor.verificationStatus)) {
       return jsonError('Doctor is not available for booking', 400);
     }
 

@@ -106,10 +106,27 @@ export default function RootLayout({
         <meta name="theme-color" content="#10b981" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#022c22" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Stripe publishable key for frontend payment components */}
+        {process.env.NEXT_PUBLIC_STRIPE_PK && (
+          <meta name="stripe-pk" content={process.env.NEXT_PUBLIC_STRIPE_PK} />
+        )}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-foreground`}
       >
+        {/* Chunk load error auto-retry — prevents black screens in Safari */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            var retryKey='kyntha-chunk-retry';
+            window.addEventListener('error',function(e){
+              if(e.message && e.message.indexOf('ChunkLoadError')!==-1){
+                var n=parseInt(sessionStorage.getItem(retryKey)||'0',10);
+                if(n<2){sessionStorage.setItem(retryKey,String(n+1));window.location.reload();}
+                else{sessionStorage.removeItem(retryKey);}
+              }
+            },true);
+          })();
+        `}} />
         {/* ACCESSIBILITY: Skip link for keyboard/screen-reader users */}
         <a
           href="#main-content"
