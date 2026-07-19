@@ -18,6 +18,7 @@ import { chatMessageSchema, chatQuerySchema } from '@/lib/schemas';
 import { sanitizeText } from '@/lib/security';
 import { getCached, setCached } from '@/lib/ai-cache';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
+import { buildDeidentifiedContext } from '@/lib/phi-filter';
 import { getZai, ZAI_MODEL, isAiAvailable } from '@/lib/zai';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
 import { logger } from '@/lib/logger';
@@ -226,66 +227,47 @@ export async function POST(req: NextRequest) {
 
     const zai = await getZai();
 
-    // ── PHI / AI BOUNDARY — AUDIT & MINIMIZATION ─────────────────────────────
+    // ── PHI / AI BOUNDARY — AUDIT & DE-IDENTIFICATION ────────────────────────
     // Consent already verified at line 114 (checkConsent).
     // The patient context assembled below is transmitted to a third-party
     // AI processor (ZenMux / stepfun) and leaves this infrastructure.
-    // We log PHI categories (not raw values) for auditability.
+    // We use buildDeidentifiedContext() to strip PII before transmission.
     // Retention: included messages are persisted with 30-day TTL (messageExpiry).
     // ──────────────────────────────────────────────────────────────────────────
-    // Build patient context for personalized responses
-    const patientContextParts: string[] = [];
-
-    // [PHI: ALLERGIES] — transmitted to third-party AI
-    if (u.allergies) {
-      patientContextParts.push(
-        `PATIENT ALLERGIES: ${u.allergies} — NEVER recommend medications containing these allergens.`
-      );
-    }
-
-    // [PHI: AGE / DATE OF BIRTH] — transmitted to third-party AI
-    if (u.dateOfBirth) {
-      const age = Math.floor(
-        (Date.now() - new Date(u.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)
-      );
-      patientContextParts.push(`AGE: ${age} years old`);
-    }
-
-    // ── Fetch ALL patient context in ONE parallel round-trip ──────────────────
-    // Promise.allSettled prevents one failing query from killing the whole batch.
+    // Fetch ALL patient context in ONE parallel round-trip
     const allCtxResults = await Promise.allSettled([
-      // [PHI: MEDICATIONS — name, dosage, frequency]
+      // Medications
       db.medication.findMany({
         where: { userId: u.id, active: true },
         select: { name: true, dosage: true, frequency: true },
       }),
-      // [PHI: CHRONIC CONDITIONS — name, severity]
+      // Chronic conditions
       db.chronicCondition.findMany({
         where: { patientId: u.id, active: true },
         select: { name: true, severity: true },
       }),
-      // [PHI: HEALTH JOURNAL — date, symptoms, mood, notes]
+      // Health journal
       db.healthJournal.findMany({
         where: { userId: u.id },
         orderBy: { date: 'desc' },
         take: 3,
         select: { date: true, symptoms: true, mood: true, notes: true },
       }),
-      // [PHI: CHAT HISTORY — role, content]
+      // Chat history
       db.chatMessage.findMany({
         where: { userId: u.id },
         orderBy: { createdAt: 'desc' },
         take: 5,
         select: { role: true, content: true },
       }),
-      // [PHI: EMERGENCY ALERTS — type, memberName, notes, tier]
+      // Emergency alerts
       db.emergencyAlert.findMany({
         where: { reporterId: u.id, status: 'active' },
         orderBy: { createdAt: 'desc' },
         take: 3,
         select: { type: true, memberName: true, notes: true, tier: true },
       }),
-      // [PHI: FAMILY HEALTH ALERTS — type, title, message, severity; caretaker/family_pro only]
+      // Family health alerts (caretaker/family_pro only)
       u.role === 'caretaker' || u.subscriptionTier === 'family_pro'
         ? db.familyHealthAlert.findMany({
             where: { read: false },
@@ -294,7 +276,7 @@ export async function POST(req: NextRequest) {
             select: { type: true, title: true, message: true, severity: true },
           })
         : Promise.resolve([]),
-      // [PHI: FAMILY MEMBERS — name, relation, conditions; caretaker/family_pro only]
+      // Family members (caretaker/family_pro only)
       u.role === 'caretaker' || u.subscriptionTier === 'family_pro'
         ? db.family.findMany({
             where: { ownerId: u.id },
@@ -314,108 +296,27 @@ export async function POST(req: NextRequest) {
       return fallback[index] ?? [];
     }) as any[];
 
-    // [PHI SECTION] Medications context — pushed to AI prompt
-    // Medications context
-    const meds = (allCtx as unknown as readonly any[])[0];
-    if (meds.length > 0) {
-      const medList = meds.map((m: any) => `${m.name} ${m.dosage} (${m.frequency})`).join(', ');
-      patientContextParts.push(`CURRENT MEDICATIONS: ${medList}`);
-    }
+    // DE-IDENTIFY: Strip PII before sending to third-party AI
+    const patientContext = buildDeidentifiedContext({
+      allergies: u.allergies,
+      dateOfBirth: u.dateOfBirth?.toISOString() ?? undefined,
+      medications: (allCtx[0] ?? []) as any[],
+      conditions: (allCtx[1] ?? []) as any[],
+      journals: (allCtx[2] ?? []) as any[],
+      chatHistory: (allCtx[3] ?? []) as any[],
+      emergencyAlerts: (allCtx[4] ?? []) as any[],
+      familyAlerts: (allCtx[5] ?? []) as any[],
+      familyMembers: ((allCtx[6] ?? []).flatMap((f: any) => f.members ?? []) as any[]),
+    });
 
-    // [PHI SECTION] Chronic conditions — pushed to AI prompt
-    // Chronic conditions
-    const conditions = (allCtx as unknown as readonly any[])[1];
-    if (conditions.length > 0) {
-      const condList = conditions.map((c: any) => `${c.name} (${c.severity})`).join(', ');
-      patientContextParts.push(`CHRONIC CONDITIONS: ${condList}`);
-    }
-
-    // Health journal
-    const recentJournals = (allCtx as unknown as readonly any[])[2];
-    if (recentJournals.length > 0) {
-      const entries = recentJournals
-        .map((j: any) => {
-          const parts: string[] = [`Date: ${j.date}`];
-          if (j.mood) parts.push(`Mood: ${j.mood}`);
-          try {
-            const symps = JSON.parse(j.symptoms || '[]');
-            if (Array.isArray(symps) && symps.length > 0) {
-              const names = symps
-                .map((s: Record<string, unknown>) =>
-                  typeof s.name === 'string' ? s.name : String(s)
-                )
-                .join(', ');
-              parts.push(`Symptoms: ${names}`);
-            }
-          } catch {
-            /* ignore */
-          }
-          if (j.notes) parts.push(`Notes: ${j.notes}`);
-          return parts.join(' | ');
-        })
-        .join('\n');
-      patientContextParts.push(`RECENT HEALTH JOURNAL:\n${entries}`);
-    }
-
-    // [PHI SECTION] Chat history — pushed to AI prompt
-    // Chat history
-    const recentChats = (allCtx as unknown as readonly any[])[3];
-    if (recentChats.length > 0) {
-      const chatSummary = recentChats
-        .reverse()
-        .map(
-          (m: any) => `${m.role === 'user' ? 'Patient' : 'Dr. Kyntha'}: ${m.content.slice(0, 200)}`
-        )
-        .join('\n');
-      patientContextParts.push(`RECENT CHAT HISTORY:\n${chatSummary}`);
-    }
-
-    // [PHI SECTION] Active health alerts — pushed to AI prompt
-    // Alerts  (allCtx[4] = emergencyAlert[], allCtx[5] = familyHealthAlert[])
-    const allAlerts = [...(allCtx[4] ?? []), ...(allCtx[5] ?? [])] as Array<{
-      type?: string;
-      memberName?: string;
-      title?: string;
-      message?: string;
-      severity?: string;
-      tier?: string;
-      notes?: string;
-    }>;
-    if (allAlerts.length > 0) {
-      const alertList = allAlerts
-        .map(a => {
-          if (a.type && a.memberName)
-            return `[${a.tier ?? a.severity}] ${a.type}: ${a.memberName} — ${a.notes ?? ''}`;
-          return `[${a.severity}] ${a.type}: ${a.title} — ${a.message}`;
-        })
-        .join('\n');
-      patientContextParts.push(`ACTIVE HEALTH ALERTS:\n${alertList}`);
-    }
-
-    // [PHI SECTION] Family members with conditions — pushed to AI prompt
-    // Family members (caretaker only)
-    const familyRows = (allCtx as unknown as readonly any[])[6];
-    if (familyRows.length > 0) {
-      for (const fam of familyRows) {
-        if (fam.members.length > 0) {
-          const members = fam.members
-            .map((m: any) => {
-              const conds = m.conditions && m.conditions !== '[]' ? ` (${m.conditions})` : '';
-              return `${m.name} (${m.relation}${conds})`;
-            })
-            .join(', ');
-          patientContextParts.push(`FAMILY MEMBERS (${fam.name}): ${members}`);
-        }
-      }
-    }
-
-    const patientContext =
+    const patientContextParts = patientContext.split('\n').filter(Boolean);
+    const formattedContext =
       patientContextParts.length > 0
         ? `\n\nPATIENT CONTEXT (always consider this when answering):\n${patientContextParts.join('\n')}`
         : '';
 
     const messages: { role: string; content: string }[] = [
-      { role: 'system', content: SYSTEM_PROMPT + patientContext },
+      { role: 'system', content: SYSTEM_PROMPT + formattedContext },
       ...history,
       { role: 'user', content: message },
     ];
@@ -438,8 +339,8 @@ export async function POST(req: NextRequest) {
         'familyHealth',
       ],
       timestamp: new Date().toISOString(),
-      hasPatientContext: patientContextParts.length > 0,
-      contextSize: patientContext.length,
+hasPatientContext: formattedContext.length > 0,
+       contextSize: formattedContext.length,
     };
     // NOTE: Do not log raw PHI values. This metadata-only log is for audit boundaries only.
     // Timeout boundary: wrapped by withAiTimeout(AI_TIMEOUTS.DEFAULT) below.
