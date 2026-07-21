@@ -14,7 +14,7 @@ function FAQ() {
   const faqs: Array<{ q: string; a: string }> = [
     {
       q: 'Is my health data safe?',
-      a: 'Yes. Kyntha is designed with HIPAA-aligned safeguards. Your data is encrypted at rest and in transit. We never sell your personal data. You can export or delete it anytime.',
+      a: 'Yes. Kyntha is designed with Privacy-first safeguards. Your data is encrypted at rest and in transit. We never sell your personal data. You can export or delete it anytime.',
     },
     {
       q: 'What payment methods are supported?',

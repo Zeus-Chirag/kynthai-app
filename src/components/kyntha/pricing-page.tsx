@@ -81,7 +81,7 @@ const TIERS: Tier[] = [
       'Prescription scanning (1 / day)',
       'Book doctor consults',
       'Order medicines & lab tests',
-      'HIPAA and CCPA/CPRA compliant',
+      'CCPA and CPRA compliant',
     ],
   },
   {
@@ -642,7 +642,7 @@ export function PricingPage() {
                     </div>
                   </div>
                   <p className="mt-3 text-[11px] text-muted-foreground">
-                    Refunds, chargebacks, and cancelled orders are excluded from earnings. HIPAA
+                    Refunds, chargebacks, and cancelled orders are excluded from earnings. US privacy
                     compliant with full audit trail.
                   </p>
                 </div>
@@ -655,7 +655,7 @@ export function PricingPage() {
         <Reveal>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-x-6 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" /> HIPAA-aligned
+              <ShieldCheck className="h-4 w-4 text-emerald-600" /> Privacy-first
             </span>
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-600" /> Built for US families

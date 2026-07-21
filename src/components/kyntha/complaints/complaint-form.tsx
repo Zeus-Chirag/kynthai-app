@@ -65,7 +65,7 @@ const CATEGORIES = [
     value: 'privacy',
     label: 'Privacy / Data',
     icon: '🔒',
-    desc: 'Data breach, wrong info shared, HIPAA concern',
+    desc: 'Data breach, wrong info shared, US privacy concern',
   },
   { value: 'other', label: 'Other', icon: '📋', desc: 'Anything else' },
 ] as const;

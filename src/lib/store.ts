@@ -102,6 +102,7 @@ export const selectors = {
   _hydrated: (s: AppState) => s._hydrated,
   alarmEnabled: (s: AppState) => s.alarmEnabled,
   alarmMode: (s: AppState) => s.alarmMode,
+  login: (s: AppState) => s.login,
 } as const;
 
 export const useAppStore = create<AppState>()(

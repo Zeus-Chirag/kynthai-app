@@ -44,7 +44,7 @@ export function LaunchCTA({ onPickPortal }: { onPickPortal: (portal: LoginPortal
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          HIPAA-aligned · AES-256 encryption · US-hosted
+          Privacy-first · encryption · US-hosted
         </p>
       </div>
     </section>

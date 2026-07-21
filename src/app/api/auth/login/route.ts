@@ -45,45 +45,77 @@ export async function POST(req: NextRequest) {
     if (!isValidEmail(email)) return jsonError('Valid email is required', 400);
 
     // ── Supabase Auth: sign in ──────────────────────────────────────────
-    let responseCookies: { name: string; value: string; options?: Record<string, unknown> }[] = [];
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            const cookies = req.cookies.getAll();
-            return cookies;
+    let supabaseResponseCookies: { name: string; value: string; options?: Record<string, unknown> }[] = [];
+    let user: any = null;
+    let usedLocalAuth = false;
+
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() {
+              const cookies = req.cookies.getAll();
+              return cookies;
+            },
+            setAll(cookiesToSet) {
+              cookiesToSet.forEach(({ name, value, options }) => {
+                req.cookies.set({ name, value, ...options });
+                supabaseResponseCookies.push({ name, value, options });
+              });
+            },
           },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              req.cookies.set({ name, value, ...options });
-              responseCookies.push({ name, value, options });
-            });
-          },
-        },
+        }
+      );
+
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError || !authData.user) {
+        console.log('[login] Supabase auth failed, falling back to local auth:', authError?.message);
+        // Local auth: check Prisma database with bcrypt
+        const localUser = await db.user.findUnique({ where: { email } });
+        if (localUser?.password) {
+          const bcrypt = await import('bcryptjs');
+          const valid = await bcrypt.compare(password, localUser.password);
+          if (valid) {
+            user = localUser;
+            usedLocalAuth = true;
+          }
+        }
+        if (!user) {
+          await logSecurityEvent('unknown', 'auth.login.failed', `ip=${ip} email=${email}`);
+          return jsonError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+        }
+      } else {
+        // Supabase auth succeeded - get Prisma profile
+        user = await getSupabaseProfile(authData.user);
+        if (!user) {
+          const { syncSupabaseUser } = await import('@/lib/supabase/sync');
+          user = await syncSupabaseUser(authData.user);
+          if (!user) {
+            return jsonError('Failed to create user profile', 500, 'PROFILE_CREATE_FAILED');
+          }
+        }
       }
-    );
-
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError || !authData.user) {
-      console.error('[login] Supabase auth error:', authError?.message, authError?.status);
-      await logSecurityEvent('unknown', 'auth.login.failed', `ip=${ip} email=${email}`);
-      return jsonError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
-    }
-
-    // ── Get Prisma profile (auto-create if missing) ──────────────────────
-    let user = await getSupabaseProfile(authData.user);
-    if (!user) {
-      // Auto-create Prisma profile from Supabase auth data
-      const { syncSupabaseUser } = await import('@/lib/supabase/sync');
-      user = await syncSupabaseUser(authData.user);
+    } catch (supabaseError) {
+      console.log('[login] Supabase client error, falling back to local auth:', supabaseError);
+      // Supabase client creation failed (e.g., invalid URL/keys), fall back to local auth
+      const localUser = await db.user.findUnique({ where: { email } });
+      if (localUser?.password) {
+        const bcrypt = await import('bcryptjs');
+        const valid = await bcrypt.compare(password, localUser.password);
+        if (valid) {
+          user = localUser;
+          usedLocalAuth = true;
+        }
+      }
       if (!user) {
-        return jsonError('Failed to create user profile', 500, 'PROFILE_CREATE_FAILED');
+        await logSecurityEvent('unknown', 'auth.login.failed', `ip=${ip} email=${email}`);
+        return jsonError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
       }
     }
 
@@ -96,7 +128,7 @@ export async function POST(req: NextRequest) {
     if (consentErr) return consentErr;
 
     const isUserMinor = isUserMinorFlag({
-      dateOfBirth: null,
+      dateOfBirth: user.dateOfBirth ?? null,
     } as any);
 
     await logAudit(user.id, 'auth.login', `role=${user.role}`);
@@ -112,9 +144,19 @@ export async function POST(req: NextRequest) {
       isUserMinor,
     };
     const res = jsonOk(responseBody);
-    // Set Supabase session cookies on the response
-    for (const cookie of responseCookies) {
+    // Set session cookie (Supabase cookies if available, otherwise local session)
+    for (const cookie of supabaseResponseCookies) {
       res.cookies.set(cookie.name, cookie.value, cookie.options as any);
+    }
+    // If using local auth (no Supabase cookies), set a simple session cookie
+    if (usedLocalAuth) {
+      res.cookies.set('kyntha-session', user.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      });
     }
     return res;
   } catch (error) {

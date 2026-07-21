@@ -51,7 +51,7 @@ export function FounderStory() {
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
                 {[
-                  { label: 'HIPAA-aligned from day one', icon: ShieldCheck },
+                  { label: 'Privacy-first from day one', icon: ShieldCheck },
                   { label: 'US-hosted, US-built', icon: Server },
                   { label: 'No surprise billing', icon: DollarSign },
                   { label: 'You own your data', icon: Lock },

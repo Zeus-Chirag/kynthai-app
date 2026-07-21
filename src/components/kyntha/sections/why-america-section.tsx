@@ -47,7 +47,7 @@ export function WhyAmericaSection() {
     },
     {
       icon: ShieldCheck,
-      title: 'Local & HIPAA-aligned',
+      title: 'Local & US privacy-aligned',
       body: 'US-hosted infrastructure meets US expectations. Data never leaves American soil.',
       accent: 'from-emerald-600 to-teal-700',
     },
@@ -97,7 +97,7 @@ export function WhyAmericaSection() {
         <div className="h-4 w-px bg-border hidden sm:block" />
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-emerald-600" />
-          <span className="text-sm font-medium">HIPAA-aligned</span>
+          <span className="text-sm font-medium">Privacy-first</span>
         </div>
         <div className="h-4 w-px bg-border hidden sm:block" />
         <div className="flex items-center gap-2">

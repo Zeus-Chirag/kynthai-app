@@ -12,8 +12,8 @@
  */
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/store';
-import { Suspense, useEffect, useState } from 'react';
+import { useAppStore, selectors } from '@/lib/store';
+import { Suspense, useEffect } from 'react';
 import { loadPortal } from './portal-loaders';
 import { LandingPage } from '@/components/kyntha/landing-page';
 import { LoginPage } from '@/components/kyntha/login-page';
@@ -69,18 +69,34 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     pathname in ROUTE_SCREEN ||
     /^\/(patient|doctor|lab|caretaker|admin)$/.test(pathname);
   const router = useRouter();
-  const store = useAppStore();
-  const {
-    user,
-    screen,
-    onboardingComplete,
-    loginPortal,
-    checkoutTier,
-    checkoutFounder,
-    currency,
-    completeOnboarding,
-    setLoginPortal,
-  } = store;
+
+  // Path constants used for hydration guard and routing logic
+  const PUBLIC_PATHS = new Set([
+    '/login',
+    '/register',
+    '/pricing',
+    '/checkout',
+    '/privacy',
+    '/terms',
+    '/cookies',
+    '/accessibility',
+    '/medical-disclaimer',
+    '/refund-cancellation',
+  ]);
+  const PORTAL_PATHS = new Set(['/patient', '/doctor', '/lab', '/caretaker', '/family', '/admin']);
+
+  // Use selectors to subscribe only to needed state — avoids re-renders on _hydrated changes
+  const user = useAppStore(selectors.user);
+  const screen = useAppStore(selectors.screen);
+  const onboardingComplete = useAppStore(selectors.onboardingComplete);
+  const loginPortal = useAppStore(selectors.loginPortal);
+  const checkoutTier = useAppStore(selectors.checkoutTier);
+  const checkoutFounder = useAppStore(selectors.checkoutFounder);
+  const currency = useAppStore(selectors.currency);
+  const hydrated = useAppStore(selectors._hydrated);
+  const completeOnboarding = useAppStore((s) => s.completeOnboarding);
+  const setLoginPortal = useAppStore((s) => s.setLoginPortal);
+  const store = useAppStore(); // for login()
 
   // Mirror devtools — suppress noisy message in console
   useEffect(() => {
@@ -121,8 +137,25 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
         router.replace('/family');
       }
     }
-  }, [user, onboardingComplete, completeOnboarding, store, pathname, router]);
+  }, [user, onboardingComplete, completeOnboarding, pathname, router]);
 
+  // ─── Hydration guard ─────────────────────────────────────────────────────
+  // Public & portal routes render `children` immediately (they don't read
+  // store state that changes during server-side hydration).
+  // For other routes (dynamic portal logic), wait for store hydration to
+  // avoid "Rendered more hooks than during the previous render" errors.
+  // Special case: landing page (/) renders via screen resolution logic below,
+  // not via children, so don't block it on hydration.
+  const isPublicOrPortalPath = PUBLIC_PATHS.has(pathname) || PORTAL_PATHS.has(pathname);
+  const isLandingPage = pathname === '/';
+  if (isPublicOrPortalPath) {
+    return <ErrorBoundary>{children}</ErrorBoundary>;
+  }
+  if (!isLandingPage && !hydrated) {
+    return <ErrorBoundary>{children}</ErrorBoundary>;
+  }
+
+  // ─── Screen resolution logic ──────────────────────────────────────────────
   // URL wins if it corresponds to a known public page
   const routeScreen = ROUTE_SCREEN[pathname] ?? screen;
   const resolvedScreen = [...PORTAL_SCREENS, ...PUBLIC_SCREENS].includes(routeScreen as any)
@@ -137,25 +170,6 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     }
   } else {
     if (PORTAL_SCREENS.includes(routeScreen as any)) effectiveScreen = 'landing';
-  }
-
-  // Public routes render their own page segments through `children`.
-  // Portal routes should also render `children` so their auth guards and
-  // redirects can run; PortalClient must not suppress them here.
-  const PUBLIC_PATHS = new Set([
-    '/login',
-    '/pricing',
-    '/checkout',
-    '/privacy',
-    '/terms',
-    '/cookies',
-    '/accessibility',
-    '/medical-disclaimer',
-    '/refund-cancellation',
-  ]);
-  const PORTAL_PATHS = new Set(['/patient', '/doctor', '/lab', '/caretaker', '/family', '/admin']);
-  if (PUBLIC_PATHS.has(pathname) || PORTAL_PATHS.has(pathname)) {
-    return <ErrorBoundary>{children}</ErrorBoundary>;
   }
 
   // ── Portal apps — loaded via portal-loaders.tsx ───────────────────────────

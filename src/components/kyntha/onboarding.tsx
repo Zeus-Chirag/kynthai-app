@@ -171,7 +171,7 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
                       <strong className="text-foreground">Data Processing</strong> —
                       I consent to Kyntha collecting and processing my personal and
                       health information for service delivery, including treatment,
-                      payment, and healthcare operations under HIPAA, and
+                      payment, and healthcare operations under US privacy, and
                       analytics as described in the Privacy Policy.
                     </span>
                   </label>

@@ -622,7 +622,7 @@ export function ProfileHub({
               </span>
               <div className="flex-1">
                 <p className="text-sm font-medium">Privacy &amp; Security</p>
-                <p className="text-xs text-muted-foreground">HIPAA · data export</p>
+                <p className="text-xs text-muted-foreground">US privacy · data export</p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
@@ -723,7 +723,7 @@ const CONSENT_ITEMS: {
   {
     key: 'dataProcessingConsent',
     label: 'Data processing',
-    desc: 'Store and process personal and health data for service delivery under HIPAA',
+    desc: 'Store and process personal and health data for service delivery under US privacy',
     icon: HeartPulse,
     tint: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
   },

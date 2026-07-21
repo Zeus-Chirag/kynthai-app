@@ -9,7 +9,7 @@ export function ProofStrip() {
   const items = [
     {
       icon: Lock,
-      label: 'HIPAA-ready data handling',
+      label: 'Privacy-first data handling',
       sub: 'Encrypted in transit & at rest',
       accent: 'border-emerald-500/30 bg-emerald-500/5',
     },
@@ -34,7 +34,7 @@ export function ProofStrip() {
     {
       icon: Globe,
       label: 'Built for US families',
-      sub: 'HIPAA-aligned · CCPA-compliant',
+      sub: 'Privacy-first · CCPA-compliant',
       accent: 'border-emerald-500/30 bg-emerald-500/5',
     },
     {

@@ -15,7 +15,7 @@ const RIGHTS = [
   {
     num: '2',
     title: 'Information About Your Rights',
-    text: 'You have the right to be informed of your rights and responsibilities as a platform user in a language you can understand. This statement and the HIPAA Notice of Privacy Practices are available at kyntha.app/patient-rights and kyntha.app/privacy-practices.',
+    text: 'You have the right to be informed of your rights and responsibilities as a platform user in a language you can understand. This statement and the Notice of Privacy Practices are available at kyntha.app/patient-rights and kyntha.app/privacy-practices.',
   },
   {
     num: '3',
@@ -100,7 +100,7 @@ export default function PatientRightsPage() {
         <div className="mt-8 rounded-xl border border-border/60 bg-muted/20 p-5 text-xs text-muted-foreground">
           <p className="font-semibold text-foreground">Need help exercising these rights?</p>
           <p className="mt-1">
-            HIPAA Privacy Officer:{' '}
+            privacy officer:{' '}
             <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">
               privacy@kyntha.app
             </a>{' '}

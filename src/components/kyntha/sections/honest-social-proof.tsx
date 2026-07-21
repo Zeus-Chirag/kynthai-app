@@ -75,8 +75,8 @@ function HonestSocialProof() {
                 {[
                   'Transparent pricing in USD — no hidden fees, no surprise charges.',
                   'Your data belongs to you — export or delete anytime, no questions asked.',
-                  'HIPAA-aligned architecture with AES-256 encryption at rest and in transit.',
-                  'US-hosted on AWS — your data never leaves American soil.',
+                  'Privacy-first architecture with encryption at rest and in transit.',
+                  'US-hosted on Supabase Cloud — your data never leaves American soil.',
                 ].map(item => (
                   <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
@@ -94,7 +94,7 @@ function HonestSocialProof() {
             { label: 'Building in public', Icon: Sparkles },
             { label: 'AI-powered reminders', Icon: Bell },
             { label: 'Medicine interaction checker', Icon: Pill },
-            { label: 'HIPAA-aligned', Icon: ShieldCheck },
+            { label: 'Privacy-first', Icon: ShieldCheck },
           ].map(s => (
             <div
               key={s.label}

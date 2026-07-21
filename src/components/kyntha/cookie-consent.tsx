@@ -1,5 +1,5 @@
 /**
- * CookieConsent — US privacy compliance banner (CCPA/CPRA + HIPAA).
+ * CookieConsent — US privacy compliance banner (CCPA/CPRA + US privacy).
  *
  * Shows on first visit, asks for consent before setting non-essential
  * cookies. Stores the user's choice in localStorage for 12 months.
@@ -7,7 +7,7 @@
  * CALIFORNIA CONSUMER RIGHTS: California residents have the right to opt
  * out of the sale or sharing of personal information under CCPA/CPRA.
  * Health data is treated as Protected Health Information (PHI) under
- * HIPAA and the HITECH Act, which impose heightened security safeguards.
+ * US privacy and the HITECH Act, which impose heightened security safeguards.
  *
  * FLOW: "Accept all" is explicit opt-in (enables analytics/marketing
  * cookies). "Essential only" opts the user out of non-essential cookies.

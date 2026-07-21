@@ -401,6 +401,13 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
       const payload = JSON.parse(Buffer.from(std, 'base64').toString('utf-8'));
       if (payload.user?.id) supabaseUser = { id: payload.user.id };
     }
+    // Also check for local session cookie (kyntha-session)
+    if (!supabaseUser) {
+      const localSessionCookie = cookies.find(c => c.name === 'kyntha-session');
+      if (localSessionCookie?.value) {
+        supabaseUser = { id: localSessionCookie.value };
+      }
+    }
   } catch {
     // Cookie parsing failed — treat as unauthenticated
   }

@@ -51,7 +51,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               className="mb-6 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium"
             >
               <ShieldCheck className="h-3.5 w-3.5" />
-              Built for the US · HIPAA-aligned · Secure billing
+              Built for the US · Privacy-first · Secure billing
             </Badge>
           </motion.div>
 
@@ -91,7 +91,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           >
             Missed doses, confusing labels, scheduling headaches — Kyntha brings smart reminders,
             AI-guided medication information, verified consults, and home diagnostic tests together.
-            Built in the US, for US families, in USD, with HIPAA-aligned safeguards.
+            Built in the US, for US families, in USD, with Privacy-first safeguards.
           </motion.p>
 
           {/* CTA buttons */}
@@ -130,7 +130,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs font-medium text-muted-foreground"
           >
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> HIPAA-aligned
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Privacy-first
             </span>
             <span className="h-1 w-1 rounded-full bg-border" aria-hidden />
             <span className="inline-flex items-center gap-1.5">

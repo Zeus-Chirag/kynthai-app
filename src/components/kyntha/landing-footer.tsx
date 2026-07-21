@@ -32,7 +32,7 @@ export function LandingFooter() {
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-              HIPAA-aligned · Secure billing
+              Privacy-first · Secure billing
             </div>
             <a
               href="mailto:privacy@kyntha.app"

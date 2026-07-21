@@ -465,7 +465,7 @@ export default function SettingsClient() {
           <CardContent className="space-y-3">
             {[
               { key: 'consentAccepted', label: 'Terms of Service', desc: 'Kyntha Terms & Privacy Policy' },
-              { key: 'dataProcessingConsent', label: 'Data processing', desc: 'Store and process health data under HIPAA' },
+              { key: 'dataProcessingConsent', label: 'Data processing', desc: 'Store and process health data under US privacy' },
               { key: 'aiTrainingConsent', label: 'AI training data', desc: 'Allow de-identified data to improve AI' },
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between">

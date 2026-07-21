@@ -149,10 +149,10 @@ const FAQ_SCHEMA = {
     },
     {
       '@type': 'Question' as const,
-      name: 'Is Kyntha HIPAA aligned?',
+      name: 'Is my data safe with Kyntha?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'Kyntha is designed with HIPAA-aligned safeguards including AES-256 encryption at rest and in transit. No PHI data is sold to third parties. You can export or delete your data anytime. We provide a BAA upon request.',
+        text: 'Kyntha uses encryption at rest and in transit to protect your data. No health data is sold to third parties. You can export or delete your data anytime. For questions: privacy@kyntha.app.',
       },
     },
     {
@@ -160,7 +160,7 @@ const FAQ_SCHEMA = {
       name: 'Where is my data stored?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'Kyntha is US-hosted on AWS infrastructure. Your health data never leaves American soil for processing.',
+        text: 'Kyntha is US-hosted on Supabase Cloud. Your health data never leaves American soil for processing.',
       },
     },
   ],

@@ -339,7 +339,7 @@ export function PhoneMockup({
         className="-right-16 bottom-36 hidden lg:flex"
         delay={2}
         icon={<ShieldCheck className="h-3.5 w-3.5 text-blue-600" />}
-        title="HIPAA-safe upload"
+        title="Privacy-safe upload"
         sub="Lab report scanned"
       />
     </motion.div>

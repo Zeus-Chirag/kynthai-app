@@ -24,7 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useAppStore, type AuthUser, type LoginPortal } from '@/lib/store';
+import { useAppStore, selectors, type AuthUser, type LoginPortal } from '@/lib/store';
 import { logger } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -101,7 +101,11 @@ async function apiCall(path: string, body: Record<string, unknown>) {
 export function LoginPage({
   initialMode = 'signin',
 }: { initialMode?: 'signin' | 'register' } = {}) {
-  const { loginPortal, setLoginPortal, login, setScreen, user } = useAppStore();
+  const loginPortal = useAppStore(selectors.loginPortal);
+  const setLoginPortal = useAppStore((s) => s.setLoginPortal);
+  const login = useAppStore((s) => s.login);
+  const setScreen = useAppStore((s) => s.setScreen);
+  const user = useAppStore(selectors.user);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -488,69 +492,70 @@ export function LoginPage({
                 {/* ───────────────────────────────────────────────────────────────────── */}
 
                 <form id="login-form" onSubmit={submit} className="space-y-4">
-                  {mode === 'register' && (
-                    <>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="name">Full name</Label>
-                        <Input
-                          id="name"
-                          placeholder="Aarav Sharma"
-                          value={name}
-                          onChange={e => setName(e.target.value)}
-                          autoComplete="name"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="phone">Phone (optional)</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          placeholder="+1 (555) 123-4567"
-                          value={phone}
-                          onChange={e => setPhone(e.target.value)}
-                          autoComplete="tel"
-                        />
-                        <p className="text-[11px] text-muted-foreground">
-                          Used only for account security and care-team alerts.
-                        </p>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="dob">
-                          Date of birth <span className="text-rose-500">*</span>
-                        </Label>
-                        <Input
-                          id="dob"
-                          type="date"
-                          value={dateOfBirth}
-                          onChange={e => setDateOfBirth(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="emergency1">
-                          Emergency contact 1 <span className="text-rose-500">*</span>
-                        </Label>
-                        <Input
-                          id="emergency1"
-                          type="tel"
-                          placeholder="+1 (555) 123-4567"
-                          value={emergencyContact1}
-                          onChange={e => setEmergencyContact1(e.target.value)}
-                          autoComplete="tel"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor="emergency2">Emergency contact 2 (optional)</Label>
-                        <Input
-                          id="emergency2"
-                          type="tel"
-                          placeholder="+1 (555) 123-4567"
-                          value={emergencyContact2}
-                          onChange={e => setEmergencyContact2(e.target.value)}
-                          autoComplete="tel"
-                        />
-                      </div>
-                    </>
-                  )}
+                  {/* Registration fields - always rendered, hidden when mode === 'signin' */}
+                  <div
+                    className={cn('space-y-3.5', mode === 'register' ? 'block' : 'hidden')}
+                  >
+                    <div className="space-y-1.5">
+                      <Label htmlFor="name">Full name</Label>
+                      <Input
+                        id="name"
+                        placeholder="Aarav Sharma"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        autoComplete="name"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone">Phone (optional)</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+1 (555) 123-4567"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        autoComplete="tel"
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        Used only for account security and care-team alerts.
+                      </p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="dob">
+                        Date of birth <span className="text-rose-500">*</span>
+                      </Label>
+                      <Input
+                        id="dob"
+                        type="date"
+                        value={dateOfBirth}
+                        onChange={e => setDateOfBirth(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="emergency1">
+                        Emergency contact 1 <span className="text-rose-500">*</span>
+                      </Label>
+                      <Input
+                        id="emergency1"
+                        type="tel"
+                        placeholder="+1 (555) 123-4567"
+                        value={emergencyContact1}
+                        onChange={e => setEmergencyContact1(e.target.value)}
+                        autoComplete="tel"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="emergency2">Emergency contact 2 (optional)</Label>
+                      <Input
+                        id="emergency2"
+                        type="tel"
+                        placeholder="+1 (555) 123-4567"
+                        value={emergencyContact2}
+                        onChange={e => setEmergencyContact2(e.target.value)}
+                        autoComplete="tel"
+                      />
+                    </div>
+                  </div>
 
                   <div className="space-y-1.5">
                     <Label htmlFor="email">Email</Label>
@@ -590,68 +595,72 @@ export function LoginPage({
                     </div>
                   </div>
 
-                  {mode === 'register' && (
-                    <div className="space-y-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-                      <label className="flex items-start gap-2.5">
-                        <Checkbox
-                          checked={termsConsent}
-                          onCheckedChange={v => setTermsConsent(v === true)}
-                          className="mt-0.5"
-                        />
-                        <span className="text-xs text-muted-foreground">
-                          I agree to the{' '}
-                          <button
-                            type="button"
-                            onClick={() => router.push('/terms')}
-                            className="font-medium text-emerald-600 underline"
-                          >
-                            Terms of Service
-                          </button>{' '}
-                          and{' '}
-                          <button
-                            type="button"
-                            onClick={() => router.push('/privacy')}
-                            className="font-medium text-emerald-600 underline"
-                          >
-                            Privacy Policy
-                          </button>
-                          .
-                        </span>
-                      </label>
-                      <label className="flex items-start gap-2.5">
-                        <Checkbox
-                          checked={dataConsent}
-                          onCheckedChange={v => setDataConsent(v === true)}
-                          className="mt-0.5"
-                        />
-                        <span className="text-xs text-muted-foreground">
-                          I consent to processing of my personal and health data under US health
-                          data laws.{' '}
-                          <span className="font-medium text-foreground">HIPAA-aligned</span>.
-                        </span>
-                      </label>
-                      <label className="flex items-start gap-2.5">
-                        <Checkbox
-                          checked={aiTrainingConsent}
-                          onCheckedChange={v => setAiTrainingConsent(v === true)}
-                          className="mt-0.5"
-                        />
-                        <span className="text-xs text-muted-foreground">
-                          I consent to letting Kyntha use <em>de-identified</em> health data to
-                          improve AI features. My personal data is never shared or identifiable. See
-                          the{' '}
-                          <button
-                            type="button"
-                            onClick={() => router.push('/privacy')}
-                            className="font-medium text-emerald-600 underline"
-                          >
-                            Privacy Policy
-                          </button>{' '}
-                          for details.
-                        </span>
-                      </label>
-                    </div>
-                  )}
+                  {/* Consent checkboxes - always rendered to satisfy React 19 hooks rules */}
+                  <div
+                    className={cn(
+                      'space-y-3 rounded-xl border border-border/60 bg-muted/30 p-3',
+                      mode === 'register' ? 'block' : 'hidden'
+                    )}
+                  >
+                    <label className="flex items-start gap-2.5">
+                      <Checkbox
+                        checked={termsConsent}
+                        onCheckedChange={v => setTermsConsent(v === true)}
+                        className="mt-0.5"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        I agree to the{' '}
+                        <button
+                          type="button"
+                          onClick={() => router.push('/terms')}
+                          className="font-medium text-emerald-600 underline"
+                        >
+                          Terms of Service
+                        </button>{' '}
+                        and{' '}
+                        <button
+                          type="button"
+                          onClick={() => router.push('/privacy')}
+                          className="font-medium text-emerald-600 underline"
+                        >
+                          Privacy Policy
+                        </button>
+                        .
+                      </span>
+                    </label>
+                    <label className="flex items-start gap-2.5">
+                      <Checkbox
+                        checked={dataConsent}
+                        onCheckedChange={v => setDataConsent(v === true)}
+                        className="mt-0.5"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        I consent to processing of my personal and health data under US health
+                        data laws.{' '}
+                        <span className="font-medium text-foreground">Privacy-first</span>.
+                      </span>
+                    </label>
+                    <label className="flex items-start gap-2.5">
+                      <Checkbox
+                        checked={aiTrainingConsent}
+                        onCheckedChange={v => setAiTrainingConsent(v === true)}
+                        className="mt-0.5"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        I consent to letting Kyntha use <em>de-identified</em> health data to
+                        improve AI features. My personal data is never shared or identifiable. See
+                        the{' '}
+                        <button
+                          type="button"
+                          onClick={() => router.push('/privacy')}
+                          className="font-medium text-emerald-600 underline"
+                        >
+                          Privacy Policy
+                        </button>{' '}
+                        for details.
+                      </span>
+                    </label>
+                  </div>
 
                   <Button
                     id="login-submit-btn"
@@ -667,7 +676,7 @@ export function LoginPage({
 
                 <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  Data encrypted in transit &amp; at rest · HIPAA-aligned
+                  Data encrypted in transit &amp; at rest · Privacy-first
                 </div>
               </CardContent>
             </Card>

@@ -9,27 +9,27 @@ function USTrust() {
   const badges = [
     {
       icon: Scale,
-      label: 'HIPAA-aligned',
-      sub: 'Privacy · Security · Breach Notification Rules',
-      description: 'Aligned with HIPAA Privacy and Security Rules',
+      label: 'Privacy-First',
+      sub: 'Data protection by design',
+      description: 'Your data stays yours',
       highlight: true,
     },
     {
       icon: ShieldPlus,
-      label: 'SOC 2 Type II (In Progress)',
-      sub: 'Audit underway',
-      description: 'Trust services criteria — in progress',
+      label: 'Encrypted Storage',
+      sub: 'Industry-standard encryption',
+      description: 'Encryption at rest and in transit',
     },
     {
       icon: Server,
-      label: 'AES-256 Encryption',
-      sub: 'At rest and in transit',
-      description: '256-bit key encryption for all sensitive data',
+      label: 'Secure Infrastructure',
+      sub: 'Protected cloud hosting',
+      description: 'Data on secure US-based servers',
     },
     {
       icon: Globe,
       label: 'US-Hosted Data',
-      sub: 'AWS US-East / US-West',
+      sub: 'Supabase Cloud (US region)',
       description: 'All data stored on US soil',
     },
   ];
@@ -45,14 +45,13 @@ function USTrust() {
             variant="secondary"
             className="mb-3 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
           >
-            Trust & Compliance
+            Trust & Security
           </Badge>
           <h3 id="compliance-heading" className="text-2xl font-bold tracking-tight">
             Your data is safe, <span className="text-emerald-600">by design</span>.
           </h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            HIPAA-aligned architecture · AES-256 encryption · US-hosted servers · SOC 2 audit in
-            progress
+            Encryption at rest and in transit · US-hosted servers · Privacy-first architecture
           </p>
         </div>
 
@@ -89,9 +88,8 @@ function USTrust() {
 
         {/* Legal footnote */}
         <p className="mx-auto mt-6 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">
-          Kyntha Health Technologies LLC is HIPAA-aligned. All technical safeguards are operational.
-          PHI is encrypted using AES-256-GCM via transparent Prisma middleware. Data hosting on AWS
-          within US-East and US-West regions. For questions: privacy@kyntha.app.
+          Kyntha Health Technologies LLC operates secure data handling practices. Data is encrypted at
+          rest and in transit. Infrastructure hosted on Supabase Cloud, US region. For questions: privacy@kyntha.app.
         </p>
       </div>
     </section>

@@ -28,7 +28,7 @@ export default function RootPage({ children }: RootPageProps) {
         url: BASE,
         logo: BASE + '/logo.png',
         description:
-          'Kyntha is an AI-powered health companion for American families, offering medicine reminders, health tracking, doctor video consultations, lab test bookings, and family health management, HIPAA-aligned.',
+          'Kyntha is an AI-powered health companion for American families, offering medicine reminders, health tracking, doctor video consultations, lab test bookings, and family health management, Privacy-first.',
         address: {
           '@type': 'PostalAddress',
           streetAddress: 'TBD — update upon registration',
@@ -62,7 +62,7 @@ export default function RootPage({ children }: RootPageProps) {
           'AI Health Assistant',
           'Telemedicine',
           'Lab Test Booking',
-          'HIPAA-Aligned Healthcare',
+          'Privacy-first Healthcare',
         ],
         areaServed: { '@type': 'Country', name: 'United States' },
       },
@@ -72,7 +72,7 @@ export default function RootPage({ children }: RootPageProps) {
         url: BASE,
         name: "Kyntha - America's AI Health Companion for Families",
         description:
-          'AI-powered medicine reminders, doctor video consultations, lab tests and family health management for American households. Free to start, HIPAA-aligned, encrypted.',
+          'AI-powered medicine reminders, doctor video consultations, lab tests and family health management for American households. Free to start, Privacy-first, encrypted.',
         isPartOf: { '@id': BASE + '/#website' },
         about: { '@id': BASE + '/#organization' },
         inLanguage: 'en-US',

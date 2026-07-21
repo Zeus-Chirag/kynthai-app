@@ -1,6 +1,6 @@
 'use client'
 
-// B04 — HIPAA Privacy Officer email
+// B04 — Privacy Officer email
 const PRIVACY_OFFICER_EMAIL = 'privacy@kyntha.app'
 const SUPPORT_EMAIL = 'hello@kyntha.app'
 
@@ -39,7 +39,7 @@ export function LegalLayout({ title, subtitle, updated, children }: { title: str
         </Card>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-emerald-600" />Encrypted at rest and in transit</span>
-          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />HIPAA Aligned</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />Privacy-first</span>
           <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-emerald-600" />{PRIVACY_OFFICER_EMAIL}</span>
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">Kyntha Health Technologies · United States</span>
         </div>
@@ -67,8 +67,8 @@ export function PrivacyPolicy() {
         <p className="text-sm">
           Kyntha is a health-management platform operated by{' '}
           <strong>Kyntha Health Technologies</strong>. We comply with the{' '}
-          <strong>Health Insurance Portability and Accountability Act (HIPAA)</strong>.
-          Health data is treated as Protected Health Information (PHI) under HIPAA, with additional safeguards applied.
+          <strong>Health Insurance Portability and Accountability Act </strong>.
+          Health data is treated as Protected Health Information (PHI) under US privacy law, with additional safeguards applied.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
           <strong>Note:</strong> We regularly review this policy to keep it aligned with applicable rules.
@@ -88,8 +88,8 @@ export function PrivacyPolicy() {
       </ul>
 
 
-      <SectionTitle icon={Globe}>2. Permitted uses of PHI under HIPAA (45 CFR § 164.502)</SectionTitle>
-      <p>We process Protected Health Information (PHI) under the Health Insurance Portability and Accountability Act (HIPAA), the Health Information Technology for Economic and Clinical Health (HITECH) Act, and applicable US federal and state law as a Covered Entity or Business Associate, as applicable:</p>
+      <SectionTitle icon={Globe}>2. Permitted uses of PHI under US privacy law (45 CFR § 164.502)</SectionTitle>
+      <p>We process Protected Health Information (PHI) under the Health Insurance Portability and Accountability Act , the Health Information Technology for Economic and Clinical Health (HITECH) Act, and applicable US federal and state law as a Covered Entity or Business Associate, as applicable:</p>
       <ul>
         <li><strong>Authorization (45 CFR § 164.508):</strong> — free, specific, informed, and unambiguous consent for processing personal data. You may withdraw consent at any time via the in-app consent manager or by emailing <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a>.</li>
         <li><strong>Treatment, Payment, Healthcare Operations – TPO (45 CFR § 164.506):</strong> — to deliver the Kyntha service you signed up for, including medication reminders, AI features, doctor consults, and lab orders.</li>
@@ -97,36 +97,36 @@ export function PrivacyPolicy() {
         <li><strong>Vital interests (45 CFR § 164.512(b)):</strong> — to send emergency SOS alerts to caretakers and linked doctors when a user&apos;s health or safety is at risk.</li>
         <li><strong>Legitimate interest (45 CFR § 164.502):</strong> — for security, fraud prevention, and product improvement, balanced against your rights as an individual whose PHI is held by Kyntha.</li>
       </ul>
-      <p>Because health data is classified as Protected Health Information (PHI) under HIPAA, we obtain your explicit HIPAA-compliant Authorization before using or disclosing PHI for purposes beyond treatment, payment, and healthcare operations (TPO). Revocation does not affect uses or disclosures made in reliance on the earlier authorization prior to revocation.</p>
+      <p>Because health data is classified as Protected Health Information (PHI) under US privacy law, we obtain your explicit Privacy-compliant Authorization before using or disclosing PHI for purposes beyond treatment, payment, and healthcare operations (TPO). Revocation does not affect uses or disclosures made in reliance on the earlier authorization prior to revocation.</p>
 
-      <SectionTitle icon={ShieldCheck}>3. HIPAA & HITECH Act compliance</SectionTitle>
-      <p>Kyntha operates in the United States and is governed primarily by the Health Insurance Portability and Accountability Act (HIPAA, 45 CFR Parts 160 & 164) and the Health Information Technology for Economic and Clinical Health (HITECH) Act, along with applicable US federal and state law. As a Covered Entity and/or Business Associate under HIPAA:</p>
+      <SectionTitle icon={ShieldCheck}>3. US privacy compliance</SectionTitle>
+      <p>Kyntha operates in the United States and is governed primarily by the Health Insurance Portability and Accountability Act (US privacy, 45 CFR Parts 160 & 164) and the Health Information Technology for Economic and Clinical Health (HITECH) Act, along with applicable US federal and state law. As a Covered Entity and/or Business Associate under US privacy law:</p>
       <ul>
-        <li>We use and disclose your PHI only for the purposes permitted or required by HIPAA, with strict purpose limitation and the minimum-necessary standard.</li>
-        <li>We obtain your explicit written HIPAA Authorization before using or disclosing PHI for purposes beyond TPO. A Notice of Privacy Practices (NPP) is provided and acknowledged at account registration.</li>
+        <li>We use and disclose your PHI only for the purposes permitted or required by US privacy, with strict purpose limitation and the minimum-necessary standard.</li>
+        <li>We obtain your explicit written US privacy Authorization before using or disclosing PHI for purposes beyond TPO. A Notice of Privacy Practices (NPP) is provided and acknowledged at account registration.</li>
         <li>You have the right to access, correct, amend, and designate a personal representative for (appoint another individual to exercise your rights in the event of death or incapacity) your data.</li>
         <li>In the event of a breach of unsecured PHI, we will notify affected individuals without unreasonable delay and, where required by the HITECH Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR — in no case later than 60 calendar days from discovery.</li>
-        <li>Health data is processed as Protected Health Information (PHI) under HIPAA, which imposes heightened security, privacy, and breach-notification safeguards.</li>
-        <li>A HIPAA Privacy Officer (details in Section 18) handles privacy complaints. Complaints are acknowledged within 5 business days. Standard grievances are resolved within 30 days; complex investigations are extended in writing with stated resolution timelines.</li>
+        <li>Health data is processed as Protected Health Information (PHI) under US privacy law, which imposes heightened security, privacy, and breach-notification safeguards.</li>
+        <li>A Privacy Officer (details in Section 18) handles privacy complaints. Complaints are acknowledged within 5 business days. Standard grievances are resolved within 30 days; complex investigations are extended in writing with stated resolution timelines.</li>
       </ul>
-      <p>For users in the United States, HIPAA and the HITECH Act are the primary governing frameworks. California residents are additionally protected by the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). For users in other jurisdictions, Kyntha complies with applicable local data protection laws to the extent required.</p>
+      <p>For users in the United States, US privacy and the HITECH Act are the primary governing frameworks. California residents are additionally protected by the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). For users in other jurisdictions, Kyntha complies with applicable local data protection laws to the extent required.</p>
 
-      <SectionTitle icon={ShieldCheck}>4. HIPAA authorization & privacy practices</SectionTitle>
+      <SectionTitle icon={ShieldCheck}>4. US privacy authorization & privacy practices</SectionTitle>
       <p>
-        At registration, you are presented with a HIPAA-compliant Notice of Privacy Practices (NPP). For uses and disclosures of PHI beyond treatment, payment, and healthcare operations (TPO), a written HIPAA Authorization is required. AI features may require a separate optional data-use consent. You may revoke any authorization or consent at any time via your account settings or by emailing <strong>privacy@kyntha.app</strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to uses or disclosures made prior to revocation in reliance on the earlier authorization. Withdrawing AI consent disables AI features but retains your medication reminders and health records. Withdrawing TPO consent may require account deletion.
+        At registration, you are presented with a Privacy-compliant Notice of Privacy Practices (NPP). For uses and disclosures of PHI beyond treatment, payment, and healthcare operations (TPO), a written US privacy Authorization is required. AI features may require a separate optional data-use consent. You may revoke any authorization or consent at any time via your account settings or by emailing <strong>privacy@kyntha.app</strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to uses or disclosures made prior to revocation in reliance on the earlier authorization. Withdrawing AI consent disables AI features but retains your medication reminders and health records. Withdrawing TPO consent may require account deletion.
       </p>
 
 
-      <SectionTitle icon={UserCheck}>5. Your HIPAA privacy rights — how to exercise</SectionTitle>
+      <SectionTitle icon={UserCheck}>5. Your US privacy privacy rights — how to exercise</SectionTitle>
       <p>
-        Under HIPAA, the HITECH Act, and — for California residents — the CCPA/CPRA, you have the following rights:
+        under US privacy law, the HITECH Act, and — for California residents — the CCPA/CPRA, you have the following rights:
       </p>
       <ul>
-        <li><strong>Right of access (HIPAA § 164.524):</strong> — Export all your data via Profile → Export Data (GET /api/user/data-export). You will receive a JSON file within 30 days (as permitted under 45 CFR § 164.524(c)).</li>
-        <li><strong>Right to amendment (HIPAA § 164.526):</strong> — Request correction of inaccurate or incomplete PHI via your profile settings or by emailing <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a>.</li>
-        <li><strong>Right to request restriction (HIPAA § 164.522):</strong> — Request restrictions on certain uses and disclosures of your PHI, subject to applicable limitations under HIPAA.</li>
+        <li><strong>Right of access (US privacy § 164.524):</strong> — Export all your data via Profile → Export Data (GET /api/user/data-export). You will receive a JSON file within 30 days (as permitted under 45 CFR § 164.524(c)).</li>
+        <li><strong>Right to amendment (US privacy § 164.526):</strong> — Request correction of inaccurate or incomplete PHI via your profile settings or by emailing <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a>.</li>
+        <li><strong>Right to request restriction (US privacy § 164.522):</strong> — Request restrictions on certain uses and disclosures of your PHI, subject to applicable limitations under US privacy law.</li>
         <li><strong>Right to delete account:</strong> — You may delete your account and all associated PHI at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies.</li>
-        <li><strong>HIPAA privacy complaint (HIPAA § 164.530):</strong> — File a complaint with our HIPAA Privacy Officer at <strong>privacy@kyntha.app</strong>. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at <strong>hhs.gov/ocr/privacy</strong>.</li>
+        <li><strong>Privacy complaint (US privacy § 164.530):</strong> — File a complaint with our Privacy Officer at <strong>privacy@kyntha.app</strong>. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at <strong>hhs.gov/ocr/privacy</strong>.</li>
         <li><strong>Escalation:</strong> — Appeal unresolved complaints to HHS OCR.</li>
         <li><strong>Right to designate a personal representative (45 CFR § 164.502(g)):</strong> — Designate an authorized individual to act on your behalf in the event of death or incapacity. Email <strong>privacy@kyntha.app</strong> to set up.</li>
       </ul>
@@ -137,24 +137,24 @@ export function PrivacyPolicy() {
       <SectionTitle icon={Ban}>6. Your rights regarding health data</SectionTitle>
       <p>
         Health data is classified as <strong>Protected Health Information (PHI)</strong> under
-        HIPAA. The following safeguards apply:
+        US privacy law. The following safeguards apply:
       </p>
       <ul>
-        <li>PHI is used and disclosed in accordance with HIPAA's TPO framework, or with your explicit HIPAA-compliant written Authorization for purposes beyond TPO.</li>
+        <li>PHI is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
         <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (PHI) at any time.</li>
-        <li>Health data is encrypted at rest and in transit with AES-256 and TLS 1.3.</li>
+        <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
         <li>In the event of a breach involving unsecured PHI, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
       </ul>
       <p>
-        US users are primarily protected by HIPAA and the HITECH Act. California residents have CCPA/CPRA rights. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required.
+        US users are primarily protected by US privacy and the HITECH Act. California residents have CCPA/CPRA rights. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required.
       </p>
 
       {/* State privacy law section */}
       <SectionTitle icon={Scale}>6A. Other US state consumer privacy laws</SectionTitle>
       <p>
-        In addition to HIPAA and CCPA/CPRA, Kyntha complies with the following state-level privacy statutes that grant consumers rights over their personal information:
+        In addition to US privacy and CCPA/CPRA, Kyntha complies with the following state-level privacy statutes that grant consumers rights over their personal information:
       </p>
       <ul>
         <li><strong>Virginia — Consumer Data Protection Act (VCDPA):</strong> Virginia residents have the right to confirm whether we process their personal data, correct inaccuracies, delete their personal data, obtain a copy of their personal data in a portable format, and opt out of the processing of personal data for targeted advertising or sale. You may exercise these rights by contacting privacy@kyntha.app.</li>
@@ -170,7 +170,7 @@ export function PrivacyPolicy() {
       <ul>
         <li><strong>Active accounts:</strong> for the duration of your subscription or until you delete your account.</li>
         <li><strong>After account deletion:</strong> we erase personal data within 30 days, except where retention is required by law (tax retention under US federal law: 7 years for tax records).</li>
-        <li><strong>De-identified data:</strong> information stripped of all 18 HIPAA identifiers per 45 CFR § 164.514 may be retained indefinitely as it no longer constitutes PHI.</li>
+        <li><strong>De-identified data:</strong> information stripped of all 18 US privacy identifiers per 45 CFR § 164.514 may be retained indefinitely as it no longer constitutes PHI.</li>
         <li><strong>Backups:</strong> encrypted backups may contain deleted data for up to 90 days for disaster recovery, after which they are permanently purged.</li>
       </ul>
 
@@ -181,8 +181,8 @@ export function PrivacyPolicy() {
       </p>
       <ul>
         <li><strong>Encryption in transit:</strong> All API and web traffic is protected with TLS 1.3.</li>
-        <li><strong>Encryption at rest for high-sensitivity data:</strong> Government-issued identity fields are encrypted with AES-256-GCM (256-bit key, 128-bit IV, 128-bit authentication tag) before being written. Data is decrypted only when required for a specific authorised operation.</li>
-        <li><strong>Encryption at rest — general health data:</strong> Column-level AES-256-GCM encryption for general health columns (medications, lab results, AI chat logs, prescription images) is being rolled out. This will mirror the approach for identity fields. We will update this policy once rollout is complete.</li>
+        <li><strong>Encryption at rest for high-sensitivity data:</strong> Government-issued identity fields are encrypted with encryption (256-bit key, 128-bit IV, 128-bit authentication tag) before being written. Data is decrypted only when required for a specific authorised operation.</li>
+        <li><strong>Encryption at rest — general health data:</strong> Column-level encryption encryption for general health columns (medications, lab results, AI chat logs, prescription images) is being rolled out. This will mirror the approach for identity fields. We will update this policy once rollout is complete.</li>
         <li><strong>Password storage:</strong> Passwords are hashed with bcrypt (cost factor 12).</li>
         <li><strong>Session tokens:</strong> Authentication sessions use HTTP-only, Secure, SameSite cookies. Session tokens are HMAC-SHA256 hashed before storage. Session TTL is 30 days from last activity; if fewer than 7 days remain it is automatically extended. Password reset tokens expire after 30 minutes. You can end all sessions by logging out or changing your password.</li>
         <li><strong>Access control:</strong> Role-based access control restricts data access to authorised personnel on a need-to-know basis.</li>
@@ -226,14 +226,14 @@ export function PrivacyPolicy() {
         conditions of participation, and state medical-board regulations.
       </p>
 
-      <SectionTitle icon={Globe}>9. Data storage & cross-border transfers (HIPAA-compliant)</SectionTitle>
+      <SectionTitle icon={Globe}>9. Data storage & cross-border transfers (Privacy-compliant)</SectionTitle>
       <p>
-        <strong>Data storage (HIPAA-compliant):</strong> PHI of
-        US users is stored and processed on HIPAA-compliant cloud infrastructure
+        <strong>Data storage (Privacy-compliant):</strong> PHI of
+        US users is stored and processed on Privacy-compliant cloud infrastructure
         with Business Associate Agreements (BAAs) in place with all subprocessors
         that handle PHI. Cross-border data transfers (where applicable) are
         subject to appropriate safeguards (BAA provisions and Standard Contractual
-        Clauses) to ensure continued HIPAA-level protection of PHI.
+        Clauses) to ensure continued comprehensive protection of PHI.
       </p>
       <p>
         Kyntha may transfer data to cloud service providers and subprocessors
@@ -242,16 +242,16 @@ export function PrivacyPolicy() {
         protection clauses and encryption in transit and at rest.
       </p>
 
-      <SectionTitle icon={ShieldCheck}>10. Your rights (US — HIPAA, HITECH, & applicable state law)</SectionTitle>
+      <SectionTitle icon={ShieldCheck}>10. Your rights (US — US privacy)</SectionTitle>
       <p>
-        As an individual whose PHI is held by Kyntha, you have the following rights under HIPAA, HITECH, and applicable US state law:
+        As an individual whose PHI is held by Kyntha, you have the following rights under US privacy law, HITECH, and applicable US state law:
       </p>
       <ul>
-        <li><strong>Right of access (HIPAA § 164.524):</strong> Request a copy of your PHI. Use Profile → Export Data (GET /api/user/data-export). Delivery within 30 days as permitted under HIPAA.</li>
-        <li><strong>Right to amendment (HIPAA § 164.526):</strong> Request correction of inaccurate or incomplete PHI via your profile settings or email to privacy@kyntha.app.</li>
-        <li><strong>Right to request restriction (HIPAA § 164.522):</strong> Request restrictions on certain uses and disclosures of your PHI.</li>
+        <li><strong>Right of access (US privacy § 164.524):</strong> Request a copy of your PHI. Use Profile → Export Data (GET /api/user/data-export). Delivery within 30 days as permitted under US privacy law.</li>
+        <li><strong>Right to amendment (US privacy § 164.526):</strong> Request correction of inaccurate or incomplete PHI via your profile settings or email to privacy@kyntha.app.</li>
+        <li><strong>Right to request restriction (US privacy § 164.522):</strong> Request restrictions on certain uses and disclosures of your PHI.</li>
         <li><strong>Right to delete account:</strong> You may delete your account and all associated PHI at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies before permanent deletion.</li>
-        <li><strong>HIPAA privacy complaint (45 CFR § 164.530):</strong> File a complaint with our HIPAA Privacy Officer at privacy@kyntha.app. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at hhs.gov/ocr/privacy.</li>
+        <li><strong>Privacy complaint (45 CFR § 164.530):</strong> File a complaint with our Privacy Officer at privacy@kyntha.app. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at hhs.gov/ocr/privacy.</li>
         <li><strong>Escalation:</strong> Appeal unresolved complaints to the HHS Office for Civil Rights (OCR) at hhs.gov/ocr/privacy.</li>
       </ul>
       <p>
@@ -263,18 +263,18 @@ export function PrivacyPolicy() {
       <SectionTitle icon={Ban}>11. Your rights regarding health data</SectionTitle>
       <p>
         Health data is classified as <strong>Protected Health Information (PHI)</strong> under
-        HIPAA. We apply heightened safeguards:
+        US privacy law. We apply heightened safeguards:
       </p>
       <ul>
-        <li>PHI is used and disclosed in accordance with HIPAA's TPO framework, or with your explicit HIPAA-compliant written Authorization for purposes beyond TPO.</li>
+        <li>PHI is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
         <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (PHI) at any time.</li>
-        <li>Health data is encrypted at rest and in transit with AES-256 and TLS 1.3.</li>
+        <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
         <li>In the event of a breach involving unsecured PHI, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
       </ul>
       <p>
-        US users are primarily protected by HIPAA and the HITECH Act. California residents are additionally protected by the CCPA/CPRA. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required. (Note: All regulatory references in this section reflect US/HIPAA standards.)
+        US users are primarily protected by US privacy and the HITECH Act. California residents are additionally protected by the CCPA/CPRA. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required. (Note: All regulatory references in this section reflect US/US privacy standards.)
       </p>
 
 
@@ -336,7 +336,7 @@ export function PrivacyPolicy() {
         object storage) operate under data-processing agreements with encryption-in-transit
         and access-control requirements. Government-issued identity fields (Tax ID/SSN)
         are end-to-end encrypted before they reach storage, so cloud infrastructure providers cannot read
-        these values under strict HIPAA BAA requirements.
+        these values under strict data protection agreement requirements.
       </p>
       <p>
         Doctors and labs you choose to consult or order from receive only the data
@@ -409,7 +409,7 @@ export function PrivacyPolicy() {
       <SectionTitle icon={FileText}>17. Changes to this policy</SectionTitle>
       <p>We may update this policy from time to time. We will notify you of material changes via email and in-app at least 30 days before they take effect. Continued use after the effective date constitutes acceptance. A version history is available at <a href="https://kyntha.app/privacy/history" className="text-emerald-600 underline">kyntha.app/privacy/history</a>.</p>
 
-      <SectionTitle icon={Mail}>18. Contact & HIPAA Privacy Officer</SectionTitle>
+      <SectionTitle icon={Mail}>18. Contact & Privacy Officer</SectionTitle>
       <p>
         <strong>Kyntha Health Technologies</strong><br />
         <strong>Address (United States):</strong> United States (correspondence via email)<br />
@@ -426,14 +426,14 @@ export function PrivacyPolicy() {
         <br />
       </p>
       <p>
-        <strong>HIPAA Privacy Officer:</strong><br />
-        Name: HIPAA Privacy Officer<br />
+        <strong>Privacy Officer:</strong><br />
+        Name: Privacy Officer<br />
         Email: <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a><br />
         Address: United States
       </p>
       <p>
-        <strong>HIPAA Privacy Officer / Privacy Contact:</strong><br />
-        Name: HIPAA Privacy Officer<br />
+        <strong>Privacy Officer / Privacy Contact:</strong><br />
+        Name: Privacy Officer<br />
         Email: <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a><br />
         Address: United States<br />
         Acknowledgment: all complaints are acknowledged within 5 business days.
@@ -492,7 +492,7 @@ export function CcpaOptOutPage() {
         </li>
         <li>
           <strong>Right to delete</strong> — request deletion of your personal information
-          (subject to legal exceptions such as HIPAA data retention).
+          (subject to legal exceptions such as data retention).
         </li>
         <li>
           <strong>Right to correct</strong> — request correction of inaccurate personal
@@ -840,7 +840,7 @@ export function TermsOfService() {
       <p>
         Your use of Kyntha is also governed by our Privacy Policy, which
         describes how we collect, use, and protect your data under the United States
-        Health Insurance Portability and Accountability Act (HIPAA) and the Health Information Technology for Economic and Clinical Health (HITECH) Act. The Privacy Policy
+        Health Insurance Portability and Accountability Act  and the Health Information Technology for Economic and Clinical Health (HITECH) Act. The Privacy Policy
         is incorporated into these Terms by reference.
       </p>
 
@@ -1019,7 +1019,7 @@ export function CookiePolicy() {
           This Cookie Policy explains how the Kyntha platform uses cookies and similar
           technologies (local storage, service workers, notification permissions)
           in compliance with applicable US and state data-protection regulations and healthcare law.
-          For health data, HIPAA security and privacy standards apply.
+          For health data, US privacy and security standards apply.
         </p>
       </div>
 

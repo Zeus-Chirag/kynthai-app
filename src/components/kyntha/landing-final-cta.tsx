@@ -58,7 +58,7 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/80">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3 w-3" />
-              HIPAA-compliant
+              Privacy-first
             </span>
             <span className="inline-flex items-center gap-1.5">
               <DollarSign className="h-3 w-3" />

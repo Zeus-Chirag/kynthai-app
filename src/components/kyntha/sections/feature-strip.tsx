@@ -5,7 +5,7 @@ import { Sparkles, Bell, Users, ShieldCheck } from 'lucide-react';
 
 export function FeatureStrip() {
   const items = [
-    { label: 'HIPAA-aligned', icon: ShieldCheck },
+    { label: 'Privacy-first', icon: ShieldCheck },
     { label: 'AI-Powered', icon: Sparkles },
     { label: 'Family First', icon: Users },
     { label: 'Smart Reminders', icon: Bell },

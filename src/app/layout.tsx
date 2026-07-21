@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: '%s | Kyntha US',
   },
   description:
-    'AI-powered medicine reminders, doctor consults, lab tests & family health management — built for the US. Free to start, HIPAA-aligned, secure and compliant.',
+    'AI-powered medicine reminders, doctor consults, lab tests & family health management — built for the US. Free to start, Privacy-first, secure and compliant.',
   keywords: [
     'Kyntha',
     'AI health US',
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     'doctor consultation US',
     'lab tests US',
     'health reminders US',
-    'HIPAA aligned health app',
+    'Privacy-first health app',
     'AI healthcare US',
     'medicine reminder app',
     'health management US',

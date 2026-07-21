@@ -67,11 +67,11 @@ const AI_FEATURE_COUNT = 11
 /* ------------------------------------------------------------------ */
 function ProofStrip() {
   const items = [
-    { emoji: '🔒', label: 'HIPAA-ready data handling', sub: 'Encrypted in transit & at rest', accent: 'border-emerald-500/30 bg-emerald-500/5' },
+    { emoji: '🔒', label: 'Privacy-first data handling', sub: 'Encrypted in transit & at rest', accent: 'border-emerald-500/30 bg-emerald-500/5' },
     { emoji: '💳', label: 'Cards + Apple / Google Pay', sub: 'No hidden fees — USD pricing', accent: 'border-teal-500/30 bg-teal-500/5' },
     { emoji: '🆓', label: 'Free to start', sub: 'No credit card required', accent: 'border-emerald-500/30 bg-emerald-500/5' },
     { emoji: '✅', label: 'Doctors reviewed', sub: 'License & government ID verified', accent: 'border-teal-500/30 bg-teal-500/5' },
-    { emoji: '🇺🇸', label: 'Built for US families', sub: 'HIPAA-aligned · CCPA-compliant', accent: 'border-emerald-500/30 bg-emerald-500/5' },
+    { emoji: '🇺🇸', label: 'Built for US families', sub: 'Privacy-first · CCPA-compliant', accent: 'border-emerald-500/30 bg-emerald-500/5' },
     { emoji: '🆘', label: 'SOS emergency flow', sub: 'Emergency alert to your contacts', accent: 'border-red-500/20 bg-red-500/3' },
   ]
 
@@ -314,7 +314,7 @@ function HowItWorks() {
 
 function FeatureStrip() {
   const items = [
-    { label: 'HIPAA-aligned', icon: ShieldCheck },
+    { label: 'Privacy-first', icon: ShieldCheck },
     { label: 'AI-Powered', icon: Sparkles },
     { label: 'Family First', icon: Users },
     { label: 'Smart Reminders', icon: Bell },
@@ -820,7 +820,7 @@ function FounderStory() {
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
                 {[
-                  { label: 'HIPAA-aligned from day one', icon: ShieldCheck },
+                  { label: 'Privacy-first from day one', icon: ShieldCheck },
                   { label: 'US-hosted, US-built', icon: Server },
                   { label: 'No surprise billing', icon: DollarSign },
                   { label: 'You own your data', icon: Lock },
@@ -887,7 +887,7 @@ function LaunchCTA({ onGetStarted }: { onGetStarted: (portal?: string) => void }
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          HIPAA-aligned · AES-256 encryption · US-hosted
+          Privacy-first · encryption · US-hosted
         </p>
       </div>
     </section>
@@ -1022,8 +1022,8 @@ function HonestSocialProof() {
                 {[
                   'Transparent pricing in USD — no hidden fees, no surprise charges.',
                   'Your data belongs to you — export or delete anytime, no questions asked.',
-                  'HIPAA-aligned architecture with AES-256 encryption at rest and in transit.',
-                  'US-hosted on AWS — your data never leaves American soil.',
+                  'Privacy-first architecture with encryption at rest and in transit.',
+                  'US-hosted on Supabase Cloud — your data never leaves American soil.',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
@@ -1041,7 +1041,7 @@ function HonestSocialProof() {
             { label: 'Building in public', Icon: Sparkles },
             { label: 'AI-powered reminders', Icon: Bell },
             { label: 'Medicine interaction checker', Icon: Pill },
-            { label: 'HIPAA-aligned', Icon: ShieldCheck },
+            { label: 'Privacy-first', Icon: ShieldCheck },
           ].map((s) => (
             <div key={s.label} className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/80 px-3 py-1.5 text-sm font-medium text-foreground/70">
               <s.Icon className="h-3.5 w-3.5 text-emerald-600" />
@@ -1307,27 +1307,27 @@ function USTrust() {
   const badges = [
     {
       icon: Scale,
-      label: 'HIPAA-aligned',
-      sub: 'Privacy · Security · Breach Notification Rules',
-      description: 'Aligned with HIPAA Privacy and Security Rules',
+      label: 'Privacy-First',
+      sub: 'Data protection by design',
+      description: 'Your data stays yours',
       highlight: true,
     },
     {
       icon: ShieldPlus,
-      label: 'SOC 2 Type II (In Progress)',
-      sub: 'Audit underway',
-      description: 'Trust services criteria — in progress',
+      label: 'Encrypted Storage',
+      sub: 'Industry-standard encryption',
+      description: 'Encryption at rest and in transit',
     },
     {
       icon: Server,
-      label: 'AES-256 Encryption',
-      sub: 'At rest and in transit',
-      description: '256-bit key encryption for all sensitive data',
+      label: 'Secure Infrastructure',
+      sub: 'Protected cloud hosting',
+      description: 'Data on secure US-based servers',
     },
     {
       icon: Globe,
       label: 'US-Hosted Data',
-      sub: 'AWS US-East / US-West',
+      sub: 'Supabase Cloud (US region)',
       description: 'All data stored on US soil',
     },
   ]
@@ -1343,13 +1343,13 @@ function USTrust() {
             variant="secondary"
             className="mb-3 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
           >
-            Trust & Compliance
+            Trust & Security
           </Badge>
           <h3 id="compliance-heading" className="text-2xl font-bold tracking-tight">
             Your data is safe, <span className="text-emerald-600">by design</span>.
           </h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            HIPAA-aligned architecture · AES-256 encryption · US-hosted servers · SOC 2 audit in progress
+            Encryption at rest and in transit · US-hosted servers · Privacy-first architecture
           </p>
         </div>
 
@@ -1386,9 +1386,8 @@ function USTrust() {
 
         {/* Legal footnote */}
         <p className="mx-auto mt-6 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">
-          Kyntha Health Technologies LLC is HIPAA-aligned. All technical safeguards are operational.
-          PHI is encrypted using AES-256-GCM via transparent Prisma middleware.
-          Data hosting on AWS within US-East and US-West regions.
+          Kyntha Health Technologies LLC operates secure data handling practices.
+          Data hosting on Supabase Cloud, US region.
           For questions: privacy@kyntha.app.
         </p>
       </div>
@@ -1403,7 +1402,7 @@ function FAQ() {
   const faqs: Array<{ q: string; a: string }> = [
     {
       q: 'Is my health data safe?',
-      a: "Yes. Kyntha is designed with HIPAA-aligned safeguards. Your data is encrypted at rest and in transit. We never sell your personal data. You can export or delete it anytime.",
+      a: "Yes. Kyntha is designed with Privacy-first safeguards. Your data is encrypted at rest and in transit. We never sell your personal data. You can export or delete it anytime.",
     },
     {
       q: 'What payment methods are supported?',

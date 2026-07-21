@@ -2,19 +2,60 @@ import { PrismaClient } from '@prisma/client'
 import { installEncryptionMiddleware } from './prisma-encryption-middleware'
 import { logger } from './logger'
 import { maskArgs } from './data-masking'
+import path from 'path'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
+  prismaInitError: Error | undefined
 }
 
-export const db: PrismaClient =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+// Resolve Prisma datasource URL — handle relative `file:` paths against project root
+function resolveDatabaseUrl(url: string): string {
+  if (!url.startsWith('file:')) return url
+  const filePath = url.slice(5) // strip 'file:'
+  if (path.isAbsolute(filePath)) return url
+  // Resolve relative path against project root (where this file's parent is)
+  const absolutePath = path.resolve(process.cwd(), filePath)
+  return `file:${absolutePath}`
+}
+
+// Lazy Prisma client initialization to handle dev server hot reload edge cases
+function createPrismaClient(): PrismaClient {
+  const rawUrl = process.env.DATABASE_URL
+  if (!rawUrl || (!rawUrl.startsWith('file:') && !rawUrl.startsWith('postgresql://'))) {
+    throw new Error(`Invalid DATABASE_URL: must start with 'file:' or 'postgresql://' (got: ${rawUrl})`)
+  }
+  const url = resolveDatabaseUrl(rawUrl)
+  return new PrismaClient({
+    datasources: { db: { url } },
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     errorFormat: 'pretty',
   })
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+let _db: PrismaClient | undefined
+let _initError: Error | undefined
+
+function getDb(): PrismaClient {
+  if (_db) return _db
+  if (_initError) throw _initError
+  
+  try {
+    _db = globalForPrisma.prisma ?? createPrismaClient()
+    globalForPrisma.prisma = _db
+    return _db
+  } catch (err) {
+    _initError = err as Error
+    throw err
+  }
+}
+
+export const db = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    const client = getDb()
+    return (client as any)[prop]
+  }
+})
 
 // ══ HIPAA: field-level encryption middleware (AES-256-GCM) ══════════════════
 // Install lazily to avoid build-time issues with PrismaClient.$use in Next.js data collection.

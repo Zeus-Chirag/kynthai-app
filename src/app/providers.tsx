@@ -27,8 +27,8 @@ function DeferredAuthGuard() {
       }
     }
   }, [])
-  if (!ready) return null
-  return <AuthGuard />
+  // Render AuthGuard with disableMountCheck on server to avoid hydration mismatch
+  return <AuthGuard disableMountCheck={!ready} />
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
