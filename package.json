@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "unset DATABASE_URL && next dev -p 3000",
-    "build": "unset DATABASE_URL && NODE_ENV=production next build",
-    "start": "unset DATABASE_URL && next start",
+    "build": "DATABASE_URL=\"$DATABASE_URL\" npx prisma generate && NODE_ENV=production next build",
+    "start": "NODE_ENV=production next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
