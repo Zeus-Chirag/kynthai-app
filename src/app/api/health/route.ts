@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     await db.$queryRaw`SELECT 1`
     checks.database = 'ok'
   } catch (err) {
-    checks.database = 'error'
+    checks.database = `error: ${err instanceof Error ? err.message : String(err)}`
     healthy = false
     logger.phiSafeError(err, 'health_check.db')
   }
