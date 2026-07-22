@@ -299,7 +299,7 @@ export async function requireAuth(
     deletedAt: null,
   } as User;
 
-  // US privacy enforcement: block any unconsented user from accessing PHI endpoints.
+  // US privacy enforcement: block any unconsented user from accessing sensitive health data endpoints.
   const consentErr = checkConsent(user, req);
   if (consentErr) return { response: consentErr, user: null };
 
@@ -308,7 +308,7 @@ export async function requireAuth(
 
 /**
  * requireAuthWithVerified: same as requireAuth but ALSO enforces email
- * verification. Use this for PHI endpoints that require verified identity.
+ * verification. Use this for sensitive health data endpoints that require verified identity.
  */
 export async function requireAuthWithVerified(
   req: NextRequest
@@ -469,7 +469,7 @@ export function assertOwnership(sessionUserId: string, resourceUserId?: string |
 /**
  * Check that the user has consented to data processing (health data).
  * Returns a NextResponse error (400/403) if consent is missing, or null if OK.
- * Call this in any endpoint that returns or processes PHI.
+ * Call this in any endpoint that returns or processes sensitive health data.
  */
 export function checkConsent(
   user: {
@@ -581,10 +581,10 @@ export async function audit(
 }
 
 /**
- * Audit PHI access — specifically for record reads/copies (health data access).
+ * Audit sensitive health data access — specifically for record reads/copies (health data access).
  * Records resource type, resource ID, and access outcome.
  */
-export async function auditPHIAccess(
+export async function auditSensitiveHealthDataAccess(
   userId: string,
   resourceType: string,
   resourceId: string,
@@ -601,10 +601,10 @@ export async function auditPHIAccess(
 }
 
 /**
- * Audit PHI modification — for create/update/delete operations.
+ * Audit sensitive health data modification — for create/update/delete operations.
  * Uses synchronous write to ensure the audit trail is not lost.
  */
-export async function auditPHIModify(
+export async function auditSensitiveHealthDataModify(
   userId: string,
   resourceType: string,
   resourceId: string,
@@ -663,7 +663,7 @@ export async function ensureDemoUsers(): Promise<void> {
         where: { id: existing.id },
         data: { password: DEMO_PASSWORD, isDemo: true },
       });
-      // Ensure pre-existing demo accounts have full consent so PHI routes don't 403.
+      // Ensure pre-existing demo accounts have full consent so sensitive health data routes don't 403.
       await db.user.update({
         where: { id: existing.id },
         data: {

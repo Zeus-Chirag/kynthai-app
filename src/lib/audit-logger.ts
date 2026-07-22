@@ -48,7 +48,7 @@ export interface AuditLogQuery {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-export const PHI_RESOURCES: Record<string, { sensitivity: 'high' | 'medium' | 'low' }> = {
+export const SENSITIVE_HEALTH_DATA_RESOURCES: Record<string, { sensitivity: 'high' | 'medium' | 'low' }> = {
   User: { sensitivity: 'high' },
   Medication: { sensitivity: 'high' },
   LabResult: { sensitivity: 'high' },
@@ -205,15 +205,11 @@ export async function recordAuditSync(
 
 // ─── Convenience ──────────────────────────────────────────────────────────
 
-export async function logAuthEvent(userId: string, subAction: string, ctx: Omit<AuditContext, 'category'> = {}): Promise<{ ok: boolean }> {
-  return recordAuditSync(userId, `auth.${subAction}`, { ...ctx, category: 'auth' as AuditCategory })
-}
-
-export async function logPHIAccess(userId: string, resourceType: string, resourceId: string, action = 'record.access', ctx: Omit<AuditContext, 'resourceType' | 'resourceId'> = {}): Promise<{ ok: boolean }> {
+export async function logSensitiveHealthDataAccess(userId: string, resourceType: string, resourceId: string, action = 'record.access', ctx: Omit<AuditContext, 'resourceType' | 'resourceId'> = {}): Promise<{ ok: boolean }> {
   return recordAudit(userId, action, { ...ctx, resourceType, resourceId, category: 'access' as AuditCategory })
 }
 
-export async function logPHIModification(userId: string, resourceType: string, resourceId: string, action: string, ctx: Omit<AuditContext, 'resourceType' | 'resourceId' | 'category'> = {}): Promise<{ ok: boolean }> {
+export async function logSensitiveHealthDataModification(userId: string, resourceType: string, resourceId: string, action: string, ctx: Omit<AuditContext, 'resourceType' | 'resourceId' | 'category'> = {}): Promise<{ ok: boolean }> {
   return recordAuditSync(userId, action, { ...ctx, resourceType, resourceId, category: 'modification' as AuditCategory })
 }
 

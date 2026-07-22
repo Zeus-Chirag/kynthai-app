@@ -71,9 +71,9 @@ function getRequestId(): string {
   }
 }
 
-// ── PHI Sanitisation ──────────────────────────────────────────────────────────
+// ── Sensitive Health Data Sanitisation ────────────────────────────────────────────
 
-const PHI_QUERY_KEYS = new Set([
+const SENSITIVE_HEALTH_DATA_QUERY_KEYS = new Set([
   'patientId',
   'userId',
   'doctorId',
@@ -95,9 +95,9 @@ const PHI_QUERY_KEYS = new Set([
 ]);
 
 function sanitizeAuditQuery(params: URLSearchParams): Record<string, string> {
-  const out: Record<string, string> = {};
+  const out: Record<string, string> = {}
   for (const [key, value] of params.entries()) {
-    if (PHI_QUERY_KEYS.has(key.toLowerCase())) {
+    if (SENSITIVE_HEALTH_DATA_QUERY_KEYS.has(key.toLowerCase())) {
       out[key] = '[REDACTED]';
     } else if (value.length > 100) {
       out[key] = value.slice(0, 100) + '...[truncated]';
@@ -265,7 +265,7 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
     res.headers.set('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
   }
 
-  // API responses: never cache (may contain PHI)
+  // API responses: never cache (may contain sensitive health data)
   if (pathname.startsWith('/api/')) {
     res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.headers.set('Pragma', 'no-cache');
@@ -454,7 +454,7 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
     }
   }
 
-  // ── Edge audit log API requests (PHI-safe) ─────────────────────────────
+  // ── Edge audit log API requests (health-data-safe) ────────────────────────────
   if (isApi && !isPublicApi(pathname)) {
     const origin = req.headers.get('origin') ?? 'direct';
     recordAudit(null, 'request.edge', {

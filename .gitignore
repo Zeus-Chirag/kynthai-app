@@ -28,6 +28,14 @@ bun.lockb
 ._.DS_Store
 .AppleDouble
 .Trashes
+
+# env files (secrets)
+.env
+.env.local
+.env.production
+.env.staging
+.env.*.bak
+.env.vercel
 *.pem
 
 # editor / IDE
