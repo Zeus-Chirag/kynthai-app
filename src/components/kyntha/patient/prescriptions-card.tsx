@@ -171,7 +171,7 @@ export function PrescriptionsCard({
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{rx.doctorName}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {rx.specialization || 'Provider'} · {timeAgo(rx.createdAt)}
                 </p>
               </div>
@@ -196,7 +196,7 @@ export function PrescriptionsCard({
                   <span className="font-medium">{m.name}</span>
                   <span className="text-muted-foreground">{m.dosage}</span>
                   {m.frequency && (
-                    <span className="text-xs text-muted-foreground">· {m.frequency}</span>
+                    <span className="text-sm text-muted-foreground">· {m.frequency}</span>
                   )}
                 </div>
               ))}
@@ -204,7 +204,7 @@ export function PrescriptionsCard({
 
             {/* Notes */}
             {rx.notes && (
-              <p className="text-xs text-muted-foreground bg-muted/40 rounded-lg p-2.5">
+              <p className="text-sm text-muted-foreground bg-muted/40 rounded-lg p-2.5">
                 {rx.notes}
               </p>
             )}

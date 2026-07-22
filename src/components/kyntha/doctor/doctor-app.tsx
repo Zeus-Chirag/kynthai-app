@@ -85,7 +85,7 @@ export function DoctorApp({ user }: { user: AuthUser }) {
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
           <p className="text-sm font-medium text-foreground">Loading your dashboard</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Preparing verification status and schedules…
           </p>
         </div>
@@ -161,7 +161,7 @@ function PendingState({
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
                 <Stethoscope className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="text-left text-xs text-muted-foreground">
+                <div className="text-left text-sm text-muted-foreground">
                   <p className="font-semibold text-foreground mb-1">What happens next?</p>
                   <ul className="space-y-1 list-disc list-inside">
                     <li>Admin verifies your license & documents</li>

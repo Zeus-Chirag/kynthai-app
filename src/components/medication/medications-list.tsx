@@ -344,7 +344,7 @@ export function MedicationsList({
                           )}
                         </div>
 
-                        <div className="flex items-center gap-1.5 flex-wrap mt-1.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5 flex-wrap mt-1.5 text-sm text-muted-foreground">
                           <Clock className="h-3 w-3" />
                           {med.times.map(t => (
                             <span
@@ -357,12 +357,12 @@ export function MedicationsList({
                         </div>
 
                         {med.instructions && (
-                          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                             {med.instructions}
                           </p>
                         )}
                         {med.notes && (
-                          <p className="text-xs mt-1 line-clamp-1">
+                          <p className="text-sm mt-1 line-clamp-1">
                             <span className="text-muted-foreground">Note:</span> {med.notes}
                           </p>
                         )}
@@ -422,7 +422,7 @@ export function MedicationsList({
       )}
 
       {!loading && meds.length > 0 && (
-        <p className="text-xs text-muted-foreground text-center">
+        <p className="text-sm text-muted-foreground text-center">
           {meds.length} medication{meds.length !== 1 ? 's' : ''} ·{' '}
           {meds.filter(m => m.active).length} active
         </p>

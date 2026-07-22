@@ -171,7 +171,7 @@ export function CareHub({ familyMemberId, memberName, familyPulse, pulseLoading 
                       </Badge>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
+                  <p className="mt-0.5 text-sm text-muted-foreground line-clamp-2">
                     {t.description}
                   </p>
                 </div>
@@ -197,7 +197,7 @@ export function CareHub({ familyMemberId, memberName, familyPulse, pulseLoading 
                   </span>
                   <div>
                     <SheetTitle className="text-base">{tool.title}</SheetTitle>
-                    <SheetDescription className="text-xs">
+                    <SheetDescription className="text-sm">
                       {memberName ? `For ${memberName}` : tool.description}
                     </SheetDescription>
                   </div>
@@ -231,7 +231,7 @@ function ChronicConditions() {
           <HeartPulse className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="font-semibold text-sm">Chronic Condition Tracker</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Track vitals over time. Connect a device or log readings manually.
               AI will flag anomalies and trends for the selected member.
             </p>
@@ -244,7 +244,7 @@ function ChronicConditions() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="font-semibold text-sm">{c.name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Latest reading</p>
+              <p className="text-sm text-muted-foreground mt-0.5">Latest reading</p>
             </div>
             <div className="text-right">
               <p

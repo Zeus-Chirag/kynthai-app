@@ -84,7 +84,7 @@ export function LabApp({ user }: { user: AuthUser }) {
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
           <p className="text-sm font-medium text-foreground">Loading your lab dashboard</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Checking verification status and bookings…
           </p>
         </div>

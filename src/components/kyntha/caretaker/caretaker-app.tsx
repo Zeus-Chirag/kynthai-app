@@ -406,8 +406,8 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
                 </AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-xs text-muted-foreground leading-tight">{getGreeting()}</p>
-                <p className="text-sm font-semibold leading-tight">{displayName}</p>
+                <p className="text-sm text-muted-foreground leading-tight">{getGreeting()}</p>
+                <p className="text-base font-semibold leading-tight">{displayName}</p>
               </div>
             </button>
             <div className="flex items-center gap-1">
@@ -457,7 +457,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
                     <CardContent className="p-8 text-center text-muted-foreground">
                       <Pill className="h-10 w-10 mx-auto mb-3 opacity-40" />
                       <p className="text-sm font-medium">Select a family member</p>
-                      <p className="text-xs mt-1">
+                      <p className="text-sm mt-1">
                         Choose someone above to manage their medications.
                       </p>
                     </CardContent>
@@ -713,7 +713,7 @@ function FamilyTab({
                         </Badge>
                         <span className="text-[11px] text-muted-foreground">{a.time}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{a.message}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{a.message}</p>
                     </div>
                   </div>
                   <div className="mt-2 flex gap-2">
@@ -1034,7 +1034,7 @@ function SosTab({
                 <p className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">
                   Emergency triggered for {selected.name}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Help is on the way. Stay calm and keep the patient comfortable.
                 </p>
               </div>
@@ -1068,7 +1068,7 @@ function SosTab({
                   Medical summary shared
                 </p>
                 <Card className="bg-muted/40">
-                  <CardContent className="p-3 text-xs leading-relaxed">
+                  <CardContent className="p-3 text-sm leading-relaxed">
                     {response.summary}
                   </CardContent>
                 </Card>
@@ -1272,7 +1272,7 @@ function StatCard({
   return (
     <Card>
       <CardContent className="p-3">
-        <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1.5">
+        <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-1.5">
           <span className={cn('inline-flex h-5 w-5 items-center justify-center rounded-md', cls)}>
             {icon}
           </span>
