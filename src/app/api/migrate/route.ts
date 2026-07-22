@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
       { column: 'password', type: 'TEXT' },
       { column: 'emailVerified', type: 'TIMESTAMP' },
       { column: 'subscriptionTier', type: 'TEXT' },
+      { column: 'stripeCustomerId', type: 'TEXT' },
+      { column: 'stripeSubscriptionId', type: 'TEXT' },
+      { column: 'stripePriceId', type: 'TEXT' },
+      { column: 'stripeCurrentPeriodEnd', type: 'TIMESTAMP' },
     ]
 
     for (const col of userEncryptedColumns) {
