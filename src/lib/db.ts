@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import { installEncryptionMiddleware } from './prisma-encryption-middleware'
 import { logger } from './logger'
 import { maskArgs } from './data-masking'
 import path from 'path'
@@ -39,9 +38,13 @@ let _initError: Error | undefined
 function getDb(): PrismaClient {
   if (_db) return _db
   if (_initError) throw _initError
-  
+
   try {
-    _db = globalForPrisma.prisma ?? createPrismaClient()
+    _db = globalForPrisma.prisma ?? new PrismaClient({
+      datasources: { db: { url: resolveDatabaseUrl(process.env.DATABASE_URL!) } },
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      errorFormat: 'pretty',
+    })
     globalForPrisma.prisma = _db
     return _db
   } catch (err) {
@@ -50,27 +53,7 @@ function getDb(): PrismaClient {
   }
 }
 
-export const db = new Proxy({} as PrismaClient, {
-  get(target, prop) {
-    const client = getDb()
-    return (client as any)[prop]
-  }
-})
-
-// ══ HIPAA: field-level encryption middleware (AES-256-GCM) ══════════════════
-// Install lazily to avoid build-time issues with PrismaClient.$use in Next.js data collection.
-// $use is attached to the shared Prisma instance rather than a transient one.
-;(async () => {
-  try {
-    await new Promise<void>((resolve) => setTimeout(resolve, 0))
-    const target = globalForPrisma.prisma ?? db
-    if (typeof (target as any).$use === 'function') {
-      installEncryptionMiddleware(target)
-    }
-  } catch {
-    // Never block app startup because of middleware install.
-  }
-})()
+export const db = getDb()
 
 // ── Connection lifecycle ──────────────────────────────────────────────
 
@@ -82,7 +65,7 @@ export async function disconnectDb(): Promise<void> {
   try {
     await db.$disconnect()
   } catch (err) {
-    // HIPAA: never log raw DB connection errors
+    // Security: never log raw DB connection errors
     logger.phiSafeError(err, 'db.disconnect')
   }
 }
@@ -90,34 +73,26 @@ export async function disconnectDb(): Promise<void> {
 /**
  * Handle unhandled promise rejections by disconnecting before exit.
  */
-process.on('unhandledRejection', (reason: unknown) => {
-  console.error('[db] Unhandled Rejection — disconnecting before exit:', reason)
-  void disconnectDb().then(() => process.exit(1))
-})
+;(() => {
+  if (process.env.NODE_ENV !== 'test') {
+    process.on('SIGINT', async () => {
+      await disconnectDb()
+      process.exit(0)
+    })
 
-/**
- * Disconnect cleanly on SIGINT / SIGTERM.
- * SECURITY: In production, always run graceful shutdown to prevent
- * Prisma connection pool leaks and potential data corruption.
- */
-if (process.env.NODE_ENV !== 'test') {
-  process.on('SIGINT', async () => {
-    await disconnectDb()
-    process.exit(0)
-  })
+    process.on('SIGTERM', async () => {
+      await disconnectDb()
+      process.exit(0)
+    })
 
-  process.on('SIGTERM', async () => {
-    await disconnectDb()
-    process.exit(0)
-  })
-
-  // SECURITY: Catch unhandled exceptions to prevent silent crashes
-  process.on('uncaughtException', (error: Error) => {
-    logger.phiSafeError(error, 'uncaughtException')
-    // Exit with error code for container restart
-    process.exit(1)
-  })
-}
+    // SECURITY: Catch unhandled exceptions to prevent silent crashes
+    process.on('uncaughtException', (error: Error) => {
+      logger.phiSafeError(error, 'uncaughtException')
+      // Exit with error code for container restart
+      process.exit(1)
+    })
+  }
+})()
 
 /**
  * Log a query-count summary when the process is about to exit (dev only).
@@ -140,9 +115,9 @@ export function logQueryStats(): void {
   }
 }
 
-// ══ HIPAA: Global PHI Console Override ═══════════════════════════════════════
+// ══ Health Data Protection: Global sensitive health data Console Override ═══════════════════════════════════════
 // Safety net: in production, all console.* output is masked via maskArgs to
-// prevent accidental PHI leakage from any unmasked call site.
+// prevent accidental sensitive health data leakage from any unmasked call site.
 if (process.env.NODE_ENV === 'production') {
   const _maskArgs = maskArgs
   const _origError = console.error.bind(console)

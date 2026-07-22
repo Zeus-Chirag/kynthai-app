@@ -1,5 +1,5 @@
 /**
- * PHI Filter — strips patient-identifying information before sending data
+ * sensitive health data Filter — strips patient-identifying information before sending data
  * to third-party AI services.
  *
  * What we keep (medically useful for AI):

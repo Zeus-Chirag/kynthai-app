@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   const tierErr = await checkAiTier(user, 'medicine identification')
   if (tierErr) return tierErr
 
-  // HIPAA: audit medicine identification (AI call)
+  // Audit: medicine identification (AI call)
   await logAudit(user.id, 'medicine.identify')
 
   try {

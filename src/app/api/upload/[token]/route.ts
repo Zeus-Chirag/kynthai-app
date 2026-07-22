@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic'
  *   2. Token ownership check: fileToken = {sha256(userId)[:8]}_{randomFileId}.
  *      The prefix in the token must match the requester's prefix.
  *   3. File is served with Content-Disposition: attachment and
- *      Cache-Control: no-store to prevent browser caching of PHI.
+ *      Cache-Control: no-store to prevent browser caching of sensitive health data.
  *   4. Consent checks apply — the user must have consented to data processing.
  *
  * Files stored in private-uploads/ are AES-256-GCM encrypted; the client
@@ -50,7 +50,7 @@ export async function GET(
   }
 
   // Ownership check: the prefix must be the requester's SHA-256 prefix
-  // HIPAA: prefix length increased to 12 chars (was 8) to prevent enumeration
+  // Health Data Protection: prefix length increased to 12 chars (was 8) to prevent enumeration
   const requesterPrefix = crypto.createHash('sha256').update(session.id).digest('hex').slice(0, 12)
   if (userPrefix !== requesterPrefix) {
     return jsonError('Forbidden — file does not belong to you', 403)

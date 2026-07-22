@@ -37,14 +37,14 @@ export async function GET(req: NextRequest) {
         id: n.id,
         patientId: n.patientId,
         doctorId: n.doctorId,
-        // HIPAA: consultation notes contain PHI — decrypt happens via Prisma middleware
+        // Health Data Protection: consultation notes contain sensitive health data — decrypt happens via Prisma middleware
         content: n.content,
         type: n.type,
         createdAt: n.createdAt.toISOString(),
       })),
     })
   } catch (error) {
-    // HIPAA: never log raw DB errors — they may contain PHI
+    // Security: never log raw DB errors — they may contain sensitive health data
     logger.phiSafeError(error, 'doctors.notes.GET')
     return jsonError('Failed to load notes', 500)
   }
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (error) {
-    // HIPAA: never log raw DB errors — they may contain PHI
+    // Security: never log raw DB errors — they may contain sensitive health data
     logger.phiSafeError(error, 'doctors.notes.POST')
     return jsonError('Failed to save note', 500)
   }

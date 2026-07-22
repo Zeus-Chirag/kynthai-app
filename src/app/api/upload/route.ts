@@ -34,7 +34,7 @@ export const dynamic = 'force-dynamic';
  *   in the DB.
  */
 
-const MAX_SIZE = 5 * 1024 * 1024; // 5 MB — strict cap for PHI documents
+const MAX_SIZE = 5 * 1024 * 1024; // 5 MB — strict cap for sensitive health data documents
 
 // Strict allowlist: only formats required for prescriptions and lab reports.
 const ALLOWED_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png']);
@@ -46,7 +46,7 @@ const PRIVATE_UPLOAD_ROOT = join(process.cwd(), 'private-uploads');
 /**
  * Per-user directory inside the private store.
  * Uses SHA-256 prefix of userId — avoids exposing raw user IDs in filesystem paths.
- * HIPAA: 12-char prefix increased from 16 to prevent internal structure enumeration but stay consistent with token prefix.
+ * Health Data Protection: 12-char prefix increased from 16 to prevent internal structure enumeration but stay consistent with token prefix.
  */
 function getUserDir(userId: string): string {
   // Use consistent 12-char prefix to match upload route
@@ -71,7 +71,16 @@ function encryptBuffer(buffer: Buffer): Buffer {
   }
   // Dev fallback — reuses lib/encryption.ts which hashes SESSION_SECRET.
   // PRODUCTION MUST set ENCRYPTION_KEY (64 hex chars).
-  return Buffer.from(encryptPayload(buffer.toString('base64')), 'base64');
+  const encryptedString = encryptPayload(buffer);
+  // encryptedString is "iv:authTag:encrypted" (all base64)
+  const parts = encryptedString.split(':');
+  if (parts.length !== 3) {
+    throw new Error('Invalid encrypted format');
+  }
+  const iv = Buffer.from(parts[0], 'base64');
+  const tag = Buffer.from(parts[1], 'base64');
+  const ct = Buffer.from(parts[2], 'base64');
+  return Buffer.concat([iv, tag, ct]);
 }
 
 export async function POST(req: NextRequest) {
@@ -132,7 +141,7 @@ export async function POST(req: NextRequest) {
   await chmod(filepath, 0o600);
 
   // Opaque fileToken: server-reversible reference, NOT a public path or URL.
-  // HIPAA: First 12 chars = SHA-256(userId) prefix so the access endpoint can
+  // Health Data Protection: First 12 chars = SHA-256(userId) prefix so the access endpoint can
   // locate the file without exposing the internal directory structure.
   // Length increased from 8 to 12 to prevent rainbow-table reconstruction attacks.
   const userPrefix = crypto.createHash('sha256').update(session.id).digest('hex').slice(0, 12);

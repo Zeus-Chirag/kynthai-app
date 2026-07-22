@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   const { response, user } = await requireAuth(req);
   if (response || !user) return response!;
 
-  // HIPAA: audit this PHI access
+  // Audit: this sensitive health data access
   await logAudit(user.id, 'badges.read', { resourceType: 'UserBadge' });
   try {
     const userId = user.id;

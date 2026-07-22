@@ -17,13 +17,13 @@ function runtimeRequire(name: string): unknown {
 /**
  * External service integration layer for Kyntha.
  *
- * PHI BOUNDARY NOTICE:
+ * sensitive health data BOUNDARY NOTICE:
  * Callers must scrub raw patient health information from payloads before
  * invoking email, SMS, WhatsApp, push, analytics, or payment functions
- * below, unless the downstream provider has executed a HIPAA Business Associate Agreement (BAA) and the
+ * below, unless the downstream provider has executed a Health Data Protection Business Associate Agreement (BAA) and the
  * data transfer is strictly necessary for the service. Internal audit
  * logging is emitted in mock mode; in production, logs must not contain
- * raw PHI values.
+ * raw sensitive health data values.
  *
  * Each service auto-detects its API key from environment variables. If the
  * key is present, real SDK clients are instantiated and real network calls
@@ -279,13 +279,13 @@ export function isEmailEnabled(): boolean {
 }
 
 export async function sendEmailReal(p: EmailPayload): Promise<SendResult> {
-  // ── PHI BOUNDARY ──────────────────────────────────────────────────────────
-  // Email (SendGrid) is generally NOT a HIPAA-covered transmission path.
-  // Scrub subject / body / html of raw PHI before calling this function.
+  // ── sensitive health data BOUNDARY ──────────────────────────────────────────────────────────
+  // Email (SendGrid) is generally NOT a Health Data Protection-covered transmission path.
+  // Scrub subject / body / html of raw sensitive health data before calling this function.
   // Only send transactional, non-clinical content.
   // ──────────────────────────────────────────────────────────────────────────
   if (!isEmailEnabled()) {
-    // Email disabled in this environment; avoid logging PHI.
+    // Email disabled in this environment; avoid logging sensitive health data.
     return { ok: true, provider: 'mock-email', messageId: `mock_${Date.now()}`, mock: true }
   }
   try {
@@ -340,8 +340,8 @@ export function isSMSEnabled(): boolean {
 }
 
 export async function sendSMSReal(p: SmsPayload): Promise<SendResult> {
-  // ── PHI BOUNDARY ──────────────────────────────────────────────────────────
-  // SMS (Twilio) is a high-risk channel for PHI leakage. Only send
+  // ── sensitive health data BOUNDARY ──────────────────────────────────────────────────────────
+  // SMS (Twilio) is a high-risk channel for sensitive health data leakage. Only send
   // non-sensitive notifications. Never include diagnoses, medications,
   // or free-text health content unless a BAA and encryption are in place.
   // ──────────────────────────────────────────────────────────────────────────
@@ -394,8 +394,8 @@ export function isWhatsAppEnabled(): boolean {
 }
 
 export async function sendWhatsAppReal(p: WhatsAppPayload): Promise<SendResult> {
-  // ── PHI BOUNDARY ──────────────────────────────────────────────────────────
-  // WhatsApp Business API messages must be scrubbed of raw PHI unless
+  // ── sensitive health data BOUNDARY ──────────────────────────────────────────────────────────
+  // WhatsApp Business API messages must be scrubbed of raw sensitive health data unless
   // Meta/WhatsApp is a covered processor with valid BAA. Use only for
   // appointment reminders or generic notifications.
   // ──────────────────────────────────────────────────────────────────────────
@@ -494,9 +494,9 @@ export function isPushEnabled(): boolean {
 }
 
 export async function sendPushReal(p: PushPayload): Promise<SendResult> {
-  // ── PHI BOUNDARY ──────────────────────────────────────────────────────────
-  // FCM push notifications must not carry raw PHI in title/body or data.
-  // Firebase is not automatically a HIPAA Business Associate; verify BAA
+  // ── sensitive health data BOUNDARY ──────────────────────────────────────────────────────────
+  // FCM push notifications must not carry raw sensitive health data in title/body or data.
+  // Firebase is not automatically a Health Data Protection Business Associate; verify BAA
   // before sending any health-related content via push.
   // ──────────────────────────────────────────────────────────────────────────
   if (!isPushEnabled()) {
@@ -557,9 +557,9 @@ export function isPostHogEnabled(): boolean {
 }
 
 export async function captureEvent(
-  // ── PHI BOUNDARY ──────────────────────────────────────────────────────────
+  // ── sensitive health data BOUNDARY ──────────────────────────────────────────────────────────
   // PostHog is an analytics processor. Ensure `properties` does not contain
-  // raw PHI (diagnoses, medications, journal content, identifiers beyond
+  // raw sensitive health data (diagnoses, medications, journal content, identifiers beyond
   // internal userId / distinctId). Only send non-sensitive interaction events.
   // ──────────────────────────────────────────────────────────────────────────
   distinctId: string,

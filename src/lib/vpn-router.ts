@@ -4,14 +4,14 @@
  * Architecture:
  *   Kyntha is a US-only healthcare platform. When using the app from India
  *   (development, support, or admin operations), all API traffic is routed
- *   through a WireGuard VPN tunnel to keep PHI within US jurisdiction.
+ *   through a WireGuard VPN tunnel to keep sensitive health data within US jurisdiction.
  *
  * Strategy (env-driven):
  *   VPN_ENABLED=true  → tunnel all /api/* through VPN interface
  *   VPN_ENABLED=false → direct connection (in-production US deployment)
  *   VPN_ENABLED=auto → detect geo and route if outside US (default)
  *
- * This module does NOT store any PHI. It only manages network routing.
+ * This module does NOT store any sensitive health data. It only manages network routing.
  */
 
 const VPN_ENABLED = process.env.VPN_ENABLED ?? 'auto'; // 'auto' | 'true' | 'false'

@@ -1,8 +1,8 @@
 /**
- * Data masking utilities for HIPAA compliance.
+ * Data masking utilities for Health Data Protection compliance.
  *
  * Use these helpers when logging, reporting errors, or sending telemetry
- * so that PHI/PII never appears in production logs.
+ * so that sensitive health data/PII never appears in production logs.
  */
 
 export type SensitiveField =
@@ -101,7 +101,7 @@ export function mask(field: SensitiveField, value: string): string {
   return fn(value)
 }
 
-/** Mask an object's known PHI keys for safe logging */
+/** Mask an object's known sensitive health data keys for safe logging */
 export function maskObject<T extends Record<string, any>>(
   obj: T,
   fieldKeys: Partial<Record<keyof T, SensitiveField>>
@@ -115,7 +115,7 @@ export function maskObject<T extends Record<string, any>>(
   return out
 }
 
-/** Mask all string values in an unknown payload that look like PHI */
+/** Mask all string values in an unknown payload that look like sensitive health data */
 export function maskArgs(args: unknown[]): unknown[] {
   return args.map(arg => {
     if (typeof arg === 'string') return mask('anyString', arg)

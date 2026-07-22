@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
   const u = user!
 
-  // HIPAA: audit prescription scan (AI-powered PHI access: allergies + medications)
+  // Audit: prescription scan (AI-powered sensitive health data access: allergies + medications)
   await logAudit(user.id, 'prescription_intelligence.create', {
     resourceType: 'PrescriptionIntelligence',
     ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown' },

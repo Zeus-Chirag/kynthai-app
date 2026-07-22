@@ -40,19 +40,19 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
     }
 
     switch (rule.id) {
-      case 'HIPAA-001': {
+      case 'Health Data Protection-001': {
         // Check privacy officer email consistency in legal pages
         const { execSync } = await import('child_process')
         try {
           const match = execSync(
-            "grep -rn 'hello@kyntha\.app' src/ legal/ --include='*.tsx' --include='*.ts' --include='*.md' | grep -v node_modules | grep -v '.next' | grep -i 'privacy\|HIPAA\|grievance\|complaint' | wc -l"
+            "grep -rn 'hello@kyntha\.app' src/ legal/ --include='*.tsx' --include='*.ts' --include='*.md' | grep -v node_modules | grep -v '.next' | grep -i 'privacy\|Health Data Protection\|grievance\|complaint' | wc -l"
           ).toString().trim()
           const count = parseInt(match, 10)
           if (count > 0) {
             results.push({
               rule,
               status: 'fail',
-              evidence: `${count} file(s) reference hello@kyntha.app in privacy/HIPAA contexts.`,
+              evidence: `${count} file(s) reference hello@kyntha.app in privacy/Health Data Protection contexts.`,
               recommendation: rule.remediation,
             })
           } else {
@@ -63,17 +63,17 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
         }
         break
       }
-      case 'HIPAA-002': {
+      case 'Health Data Protection-002': {
         const hasRoute = true // /privacy-practices page.tsx exists in codebase
         results.push({
           rule,
           status: hasRoute ? 'pass' : 'fail',
           evidence: hasRoute ? 'src/app/privacy-practices/page.tsx exists.' : 'Missing /privacy-practices route.',
-          recommendation: hasRoute ? undefined : 'Create /privacy-practices page from HIPAANPP.md.',
+          recommendation: hasRoute ? undefined : 'Create /privacy-practices page from Health Data ProtectionNPP.md.',
         })
         break
       }
-      case 'HIPAA-003': {
+      case 'Health Data Protection-003': {
         const rightsFile = 'legal/PATIENT-RIGHTS.md'
         try {
           const fs = await import('fs')
@@ -91,7 +91,7 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
         }
         break
       }
-      case 'HIPAA-004': {
+      case 'Health Data Protection-004': {
         // Lightweight check: verify middleware file exists
         const fs = await import('fs')
         const hasMiddleware = fs.existsSync('src/lib/prisma-encryption-middleware.ts')
@@ -103,7 +103,7 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
         })
         break
       }
-      case 'HIPAA-005': {
+      case 'Health Data Protection-005': {
         const { execSync } = await import('child_process')
         try {
           const out = execSync("grep -c 'sslmode=require' .env.production || true").toString().trim()
@@ -119,7 +119,7 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
         }
         break
       }
-      case 'HIPAA-006': {
+      case 'Health Data Protection-006': {
         const envContent = await import('fs').then(fs => fs.readFileSync('.env.production', 'utf8'))
         const hasKey64 = envContent.includes('ENCRYPTION_KEY=REPLACE_WITH_GENERATED_64_CHAR_HEX_ENCRYPTION_KEY')
         results.push({

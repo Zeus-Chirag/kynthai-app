@@ -5,10 +5,10 @@
  * (no errors, no performance monitoring). This file is safe to import
  * in both client and server — it self-detects the environment.
  *
- * HIPAA: All error events are sanitized before transmission.
+ * Health Data Protection: All error events are sanitized before transmission.
  * - No stack traces longer than 300 chars
  * - No sensitive keys (password, token, ssn, medical, diagnosis, etc.) in extra
- * - No raw 'cause' objects (may contain Prisma error details with PHI)
+ * - No raw 'cause' objects (may contain Prisma error details with sensitive health data)
  * - All string values capped at 200 chars
  *
  * Installation:
@@ -21,7 +21,7 @@ import * as Sentry from '@sentry/nextjs'
 
 const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
 
-/** HIPAA-sensitive keys that must never be sent to error tracking services */
+/** Health Data Protection-sensitive keys that must never be sent to error tracking services */
 const SENSITIVE_KEYS = new Set([
   'password', 'passwordResetToken', 'sessionToken', 'token', 'secret', 'ssn',
   'medicalRecord', 'diagnosis', 'prescription', 'medication', 'labResult',
@@ -74,7 +74,7 @@ function sanitizeEvent(event: unknown): unknown {
         if (typeof clean.stack === 'string' && clean.stack.length > MAX_STACK_LENGTH) {
           clean.stack = clean.stack.slice(0, MAX_STACK_LENGTH) + '...[truncated]'
         }
-        // Strip raw cause — may contain Prisma errors with PHI
+        // Strip raw cause — may contain Prisma errors with sensitive health data
         ;(clean as Record<string, unknown>).cause = undefined
         return clean
       })
@@ -123,7 +123,7 @@ export function initSentry() {
       'Network request failed',
       'Failed to fetch',
     ],
-    // HIPAA: strip all PHI before sending to Sentry servers — cast return to any
+    // Health Data Protection: strip all sensitive health data before sending to Sentry servers — cast return to any
     // to satisfy TypeScript's strict event typing without suppressing the linter.
     beforeSend(event: any): any {
       if (event.request?.url?.includes('localhost')) {
@@ -137,7 +137,7 @@ export function initSentry() {
 /** Manually capture an error to Sentry (safe to call even if Sentry isn't initialized). */
 export function captureError(error: Error | string, context?: Record<string, unknown>): void {
   if (!SENTRY_DSN) {
-    // HIPAA: never log to console in production; use logger instead
+    // Security: never log to console in production; use logger instead
     if (process.env.NODE_ENV !== 'production') {
       console.error('[captureError]', error, context ? sanitizeValue(context) : undefined)
     }

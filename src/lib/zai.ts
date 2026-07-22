@@ -1,11 +1,11 @@
 import OpenAI from 'openai'
 
 // ──────────────────────────────────────────────────────────────────────────────
-// PHI / AI PROCESSOR BOUNDARY
+// sensitive health data / AI PROCESSOR BOUNDARY
 // ──────────────────────────────────────────────────────────────────────────────
 // This module is the gateway to ZenMux (stepfun). All outbound chat requests
 // may include patient health context and leave our infrastructure. Audit
-// boundaries and PHI-minimization checks are enforced in the caller (chat route).
+// boundaries and sensitive health data-minimization checks are enforced in the caller (chat route).
 // Do not import or call from client-side code.
 // ──────────────────────────────────────────────────────────────────────────────
 

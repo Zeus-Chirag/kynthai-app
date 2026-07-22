@@ -1,7 +1,7 @@
 /**
  * Audit Log API — GET /api/audit
  *
- * HIPAA-Compliant audit log querying. Admin-only.
+ * Health Data Protection-Compliant audit log querying. Admin-only.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { AuditCategory, queryAuditLogs, auditLog } from '@/lib/audit-logger'

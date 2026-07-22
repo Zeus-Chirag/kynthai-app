@@ -8,7 +8,7 @@ export enum LogLevel {
 import { maskArgs } from './data-masking'
 
 /**
- * PHI-SAFE logging: never log raw PHI values.
+ * sensitive health data-SAFE logging: never log raw sensitive health data values.
  * The maskArgs function ensures that EMAIL, PHONE, SSN, and other
  * sensitive fields are masked before being written to logs.
  */
@@ -49,9 +49,9 @@ class Logger {
     }
   }
 
-  // ── PHI-Safe audit helpers ──────────────────────────────────────────
+  // ── sensitive health data-Safe audit helpers ──────────────────────────────────────────
   /**
-   * Log an audit event with guaranteed PHI-safe content.
+   * Log an audit event with guaranteed sensitive health data-safe content.
    * Only user IDs, action names, and status codes are logged here.
    * Full audit records (with IP, UA, resource IDs) go to the DB via audit-logger.ts.
    */
@@ -72,7 +72,7 @@ class Logger {
     if (this.level <= LogLevel.ERROR) console.error(msg)
   }
 
-  /** PHI-safe error logging - strips PHI before logging */
+  /** sensitive health data-safe error logging - strips sensitive health data before logging */
   phiSafeError(error: unknown, context = ''): void {
     const prefix = context ? `[ERROR:${context}] ` : '[ERROR] '
     let message: string

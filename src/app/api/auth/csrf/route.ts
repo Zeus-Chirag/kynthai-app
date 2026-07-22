@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const limited = rateLimit(req);
   if (limited) return limited;
 
-  // HIPAA: audit CSRF token issuance (public endpoint, no user)
+  // Audit: CSRF token issuance (public endpoint, no user)
   const fwdFor = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   logger.info('csrf.token_issued', JSON.stringify({ ip: fwdFor }));
 

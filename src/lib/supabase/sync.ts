@@ -31,7 +31,7 @@ export async function syncSupabaseUser(
         email,
         name,
         role: role as any,
-        emailVerified: !!supabaseUser.email_confirmed_at,
+        emailVerified: supabaseUser.email_confirmed_at ? new Date(supabaseUser.email_confirmed_at) : null,
         // No password — Supabase manages auth
         password: null,
         consentAccepted: true,

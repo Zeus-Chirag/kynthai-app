@@ -10,7 +10,7 @@ export type RuleSeverity = 'critical' | 'high' | 'medium' | 'low'
 
 export interface ComplianceRule {
   id: string
-  category: 'HIPAA' | 'STATE_PRIVACY' | 'FDA_SAMD' | 'PATIENT_RIGHTS' | 'LEGAL_DOCS' | 'SECURITY'
+  category: 'Health Data Protection' | 'STATE_PRIVACY' | 'FDA_SAMD' | 'PATIENT_RIGHTS' | 'LEGAL_DOCS' | 'SECURITY'
   title: string
   description: string
   severity: RuleSeverity
@@ -20,30 +20,30 @@ export interface ComplianceRule {
 }
 
 export const COMPLIANCE_RULES: ComplianceRule[] = [
-  // ── HIPAA ──────────────────────────────────────────────────────────
+  // ── Health Data Protection ──────────────────────────────────────────────────────────
   {
-    id: 'HIPAA-001',
-    category: 'HIPAA',
+    id: 'Health Data Protection-001',
+    category: 'Health Data Protection',
     title: 'Privacy Officer email consistency',
-    description: 'All HIPAA NPP, complaint, and grievance contacts must route to the designated Privacy Officer (privacy@kyntha.app).',
+    description: 'All Health Data Protection NPP, complaint, and grievance contacts must route to the designated Privacy Officer (privacy@kyntha.app).',
     severity: 'critical',
     automated: true,
-    check: 'Grep for Privacy Officer / HIPAA complaint contacts; must match privacy@kyntha.app.',
+    check: 'Grep for Privacy Officer / Health Data Protection complaint contacts; must match privacy@kyntha.app.',
     remediation: 'Update contact references in legal pages to privacy@kyntha.app.',
   },
   {
-    id: 'HIPAA-002',
-    category: 'HIPAA',
+    id: 'Health Data Protection-002',
+    category: 'Health Data Protection',
     title: 'NPP navigable route',
-    description: 'HIPAA Notice of Privacy Practices must be available at a public route (/privacy-practices).',
+    description: 'Health Data Protection Notice of Privacy Practices must be available at a public route (/privacy-practices).',
     severity: 'critical',
     automated: true,
-    check: 'Route /privacy-practices returns 200 and contains HIPAANPP content.',
+    check: 'Route /privacy-practices returns 200 and contains Health Data ProtectionNPP content.',
     remediation: 'Create page component for /privacy-practices.',
   },
   {
-    id: 'HIPAA-003',
-    category: 'HIPAA',
+    id: 'Health Data Protection-003',
+    category: 'Health Data Protection',
     title: 'Patient rights route completeness',
     description: 'Patient Rights Statement must cover 8+ rights and be at /patient-rights.',
     severity: 'critical',
@@ -52,18 +52,18 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     remediation: 'Expand PATIENT-RIGHTS.md and /patient-rights page.',
   },
   {
-    id: 'HIPAA-004',
-    category: 'HIPAA',
-    title: 'PHI field-level encryption',
-    description: 'All PHI fields must have AES-256-GCM encrypted counterparts in Prisma.',
+    id: 'Health Data Protection-004',
+    category: 'Health Data Protection',
+    title: 'sensitive health data field-level encryption',
+    description: 'All sensitive health data fields must have AES-256-GCM encrypted counterparts in Prisma.',
     severity: 'critical',
     automated: true,
-    check: 'Schema audit: every PHI field in HIPAA-COMPLIANCE.md table has an _enc column.',
+    check: 'Schema audit: every sensitive health data field in Health Data Protection-COMPLIANCE.md table has an _enc column.',
     remediation: 'Run prisma-encryption-middleware.ts and backfill encrypted columns.',
   },
   {
-    id: 'HIPAA-005',
-    category: 'HIPAA',
+    id: 'Health Data Protection-005',
+    category: 'Health Data Protection',
     title: 'Database SSL enforcement',
     description: 'DATABASE_URL must include sslmode=require (or stronger) in production.',
     severity: 'critical',
@@ -72,8 +72,8 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     remediation: 'Update DATABASE_URL to include sslmode=require.',
   },
   {
-    id: 'HIPAA-006',
-    category: 'HIPAA',
+    id: 'Health Data Protection-006',
+    category: 'Health Data Protection',
     title: 'Encryption key format',
     description: 'ENCRYPTION_KEY must be exactly 64 hex characters (256-bit AES).',
     severity: 'critical',
@@ -82,10 +82,10 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     remediation: 'Generate key: openssl rand -hex 32',
   },
   {
-    id: 'HIPAA-007',
-    category: 'HIPAA',
+    id: 'Health Data Protection-007',
+    category: 'Health Data Protection',
     title: 'Breach notification timeline',
-    description: 'HIPAA breach notifications must occur within 60 days per HITECH 45 CFR §§ 164.400-414.',
+    description: 'Health Data Protection breach notifications must occur within 60 days per HITECH 45 CFR §§ 164.400-414.',
     severity: 'high',
     automated: false,
     check: 'Incident response plan documents 60-day notification obligation.',
@@ -264,7 +264,7 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
 ]
 
 export const RULES_BY_CATEGORY = {
-  HIPAA: COMPLIANCE_RULES.filter((r) => r.category === 'HIPAA'),
+  'Health Data Protection': COMPLIANCE_RULES.filter((r) => r.category === 'Health Data Protection'),
   STATE_PRIVACY: COMPLIANCE_RULES.filter((r) => r.category === 'STATE_PRIVACY'),
   FDA_SAMD: COMPLIANCE_RULES.filter((r) => r.category === 'FDA_SAMD'),
   PATIENT_RIGHTS: COMPLIANCE_RULES.filter((r) => r.category === 'PATIENT_RIGHTS'),

@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
   if (response || !user) return response!
   const u = user!
 
-  // HIPAA: audit this PHI access
+  // Audit: this sensitive health data access
   await logAudit(user.id, 'invite.create')
 
   const body = await readJson<{ token?: string }>(req)

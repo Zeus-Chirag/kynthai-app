@@ -1,8 +1,8 @@
 /**
- * HIPAA Compliance Report Generator for Kyntha
+ * Health Data Protection Compliance Report Generator for Kyntha
  *
- * Generates structured compliance reports under HIPAA:
- *   - 164.312(b) — Audit Controls (PHI access, anomaly detection)
+ * Generates structured compliance reports under Health Data Protection:
+ *   - 164.312(b) — Audit Controls (sensitive health data access, anomaly detection)
  *   - 164.312(a)(1) — Authentication Events
  *   - 164.312(a)(2)(i) — Data Modifications
  *   - Full compliance export (JSON + CSV-ready)
@@ -22,9 +22,9 @@ export interface ComplianceReportParams {
   userId?: string
 }
 
-// ── PHI Access Report (164.312(b)) ────────────────────────────────────────
+// ── Sensitive Health Data Access Report ─────────────────────────────────────────
 
-export async function generatePHIAccessReport({
+export async function generateSensitiveHealthDataAccessReport({
   startDate,
   endDate,
   userId,
@@ -45,7 +45,7 @@ export async function generatePHIAccessReport({
   }
 
   return {
-    reportType: 'PHI_ACCESS',
+    reportType: 'sensitive health data_ACCESS',
     hipaaSection: '164.312(b)',
     generatedAt: new Date().toISOString(),
     dateRange: { startDate, endDate },
@@ -181,11 +181,11 @@ export async function generateFullComplianceReport({
   endDate: Date
   userId?: string
 }) {
-  const [phiAccess, authEvents, anomalies, modifications] = await Promise.all([
-    generatePHIAccessReport({ startDate, endDate, userId }),
+  const [authEvents, anomalies, modifications, phiAccess] = await Promise.all([
     generateAuthEventsReport({ startDate, endDate, userId }),
     generateAnomalyReport({ startDate, endDate }),
     generateModificationReport({ startDate, endDate, userId }),
+    generateSensitiveHealthDataAccessReport({ startDate, endDate, userId }),
   ])
 
   const totalRiskScore = await countAuditEvents({

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   const tierErr = await checkAiTier(user, 'insights')
   if (tierErr) return tierErr
 
-  // HIPAA: audit AI insights access (queries user's medication + adherence PHI)
+  // Audit: AI insights access (queries user's medication + adherence sensitive health data)
   await logAudit(user.id, 'insights.read', { resourceType: 'HealthScore' })
 
   try {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // Gather data — scoped to the authenticated user. Previously this queried
     // ALL active medications and ALL reminders across every user, which leaked
-    // other users' PHI into the LLM prompt.
+    // other users' sensitive health data into the LLM prompt.
     const meds = await db.medication.findMany({ where: { userId: u.id, active: true } })
     const medIds = meds.map((m) => m.id)
     const medList = meds.map((m) => ({

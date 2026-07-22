@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
   if (response || !user) return response!
   const u = user!
 
-  // HIPAA: audit this PHI access
+  // Audit: this sensitive health data access
   await logAudit(user.id, 'family.read', { resourceType: 'Family' })
 
   // SECURITY-CRITICAL: reject non-caretaker / non-admin roles

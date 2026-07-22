@@ -3,7 +3,7 @@
  *
  * Soft-deleted records are retained for a bounded window to support:
  *  - Operational recovery (accidental deletes)
- *  - Compliance review (US privacy / HIPAA audit trails)
+ *  - Compliance review (US privacy / Health Data Protection audit trails)
  *
  * PURGE BOUNDARIES (see compliance review):
  *  - Standard soft-delete retention: 30 days
@@ -19,7 +19,7 @@
 export const SOFT_DELETE_RETENTION_DAYS = 30
 /**
  * Audit log retention period in days.
- * HIPAA §164.316(b)(2)(i) requires 6-year retention for all audit logs.
+ * Health Data Protection §164.316(b)(2)(i) requires 6-year retention for all audit logs.
  * Set to 2190 days (6 years) to meet federal healthcare regulations.
  */
 export const AUDIT_LOG_RETENTION_DAYS = 2190

@@ -25,7 +25,7 @@ const RIGHTS = [
   {
     num: '4',
     title: 'Privacy and Confidentiality',
-    text: 'You have the right to privacy and confidentiality of your health information. PHI will only be shared for TPO purposes or with your explicit written authorization.',
+    text: 'You have the right to privacy and confidentiality of your health information. sensitive health data will only be shared for TPO purposes or with your explicit written authorization.',
   },
   {
     num: '5',
@@ -35,12 +35,12 @@ const RIGHTS = [
   {
     num: '6',
     title: 'Right to Amend Your Records',
-    text: 'You have the right to request amendment of inaccurate or incomplete PHI. Submit via Profile > Settings or email privacy@kyntha.app.',
+    text: 'You have the right to request amendment of inaccurate or incomplete sensitive health data. Submit via Profile > Settings or email privacy@kyntha.app.',
   },
   {
     num: '7',
     title: 'Right to an Accounting of Disclosures',
-    text: 'You have the right to request an accounting of disclosures of your PHI made by Kyntha for the six years preceding your request. Submit to privacy@kyntha.app.',
+    text: 'You have the right to request an accounting of disclosures of your sensitive health data made by Kyntha for the six years preceding your request. Submit to privacy@kyntha.app.',
   },
   {
     num: '8',
@@ -50,7 +50,7 @@ const RIGHTS = [
   {
     num: '9',
     title: 'Right to Restrict Disclosures',
-    text: 'You have the right to request restrictions on uses and disclosures of your PHI for TPO. Requests must be submitted in writing to privacy@kyntha.app.',
+    text: 'You have the right to request restrictions on uses and disclosures of your sensitive health data for TPO. Requests must be submitted in writing to privacy@kyntha.app.',
   },
   {
     num: '10',

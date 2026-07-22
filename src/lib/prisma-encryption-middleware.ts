@@ -1,11 +1,11 @@
 /**
- * Prisma Encryption Middleware (HIPAA / PHI)
+ * Prisma Encryption Middleware (Health Data Protection)
  *
  * Transparently encrypts/decrypts sensitive database fields using AES-256-GCM.
  *
  * Strategy
  * -------
- * - Every PHI column has an encrypted counterpart in the DB (e.g. `name` → `name_enc`).
+ * - Every sensitive column has an encrypted counterpart in the DB (e.g. `name` → `name_enc`).
  * - On WRITE (create/upsert/update): middleware encrypts plaintext values into the
  *   counterpart columns and clears the original columns so they stay NULL.
  * - On READ (find/findMany/findUnique/findFirst/groupBy/aggregate): middleware
@@ -57,7 +57,7 @@
  */
 
 import { Prisma, type PrismaClient } from '@prisma/client'
-import { encrypt, decrypt } from './encryption'
+import { encryptValue, decryptValue } from './encryption'
 
 type EncryptedField = {
   enc: string
@@ -193,11 +193,11 @@ function getEncCounterpart(model: string, fieldName: string): string | null {
 /**
  * Transitional encryption mode.
  *
- * DEFAULT: false in production for HIPAA compliance.
+ * DEFAULT: false in production for health data protection compliance.
  *
  * - When `false`: reads use ONLY encrypted counterpart columns. Any row where
  *   the encrypted counterpart is NULL returns null for that field. This is the
- *   secure, production-ready behavior per HIPAA §164.312(a)(2)(iv).
+ *   secure, production-ready behavior.
  *
  * - When `true`: reads fall back to the original plaintext column when the
  *   encrypted counterpart is NULL. This is ONLY acceptable during an active
@@ -212,13 +212,13 @@ const TRANSITIONAL = process.env.ENCRYPTION_TRANSITIONAL === 'true'
 function encryptPayload(value: unknown): string | null {
   if (value === null || value === undefined || value === '') return null
   const text = typeof value === 'string' ? value : JSON.stringify(value)
-  return encrypt(text)
+  return encryptValue(text)
 }
 
 function decryptPayload(ciphertext: string | null, decode?: (s: string) => unknown): unknown {
   if (!ciphertext) return null
   try {
-    const plaintext = decrypt(ciphertext)
+    const plaintext = decryptValue(ciphertext)
     if (decode) return decode(plaintext)
     return plaintext
   } catch {
@@ -260,7 +260,7 @@ function decryptResult(result: Record<string, unknown>, model: string): void {
         ;(result as any)[field.as] = null
       }
     } else {
-      (result as any)[field.as] = null
+      ;(result as any)[field.as] = null
     }
   }
 }
@@ -390,4 +390,73 @@ export function installEncryptionMiddleware(prisma: PrismaClient): void {
 
     return result
   })
+}
+
+/**
+ * Application-level encryption helpers for use without Prisma middleware.
+ * Use these functions directly in your service/API code when middleware is not available.
+ */
+
+import { encryptValue as encryptVal, decryptValue as decryptVal } from './encryption'
+
+/**
+ * Encrypt sensitive fields in an object before writing to database.
+ * Usage: encryptSensitiveFields(userData, 'User')
+ */
+export function encryptSensitiveFields(data: Record<string, any>, model: string): Record<string, any> {
+  const fields = MODEL_ENCRYPTED_FIELDS[model]
+  if (!fields) return data
+
+  const result = { ...data }
+  for (const field of fields) {
+    const plain = result[field.as]
+    if (plain !== undefined && plain !== null && plain !== '') {
+      result[field.enc] = encryptVal!(plain)
+      result[field.as] = null
+    } else if (plain === '' && result[field.as] !== undefined) {
+      result[field.enc] = encryptVal!(plain)
+      result[field.as] = null
+    }
+  }
+  return result
+}
+
+/**
+ * Decrypt sensitive fields in a result object after reading from database.
+ * Usage: decryptSensitiveFields(userRecord, 'User')
+ */
+export function decryptSensitiveFields(result: Record<string, unknown>, model: string): Record<string, unknown> {
+  if (!MODEL_ENCRYPTED_FIELDS[model]) return result
+
+  const result2 = { ...result }
+  for (const field of MODEL_ENCRYPTED_FIELDS[model]) {
+    const encVal = result[field.enc]
+    if (typeof encVal === 'string') {
+      result2[field.as] = decryptVal(encVal)
+      result2[field.enc] = null
+    }
+  }
+  return result2
+}
+
+/**
+ * Rewrite a where clause to use encrypted column names for equality filters.
+ */
+export function rewriteWhereForEncryption(args: Record<string, unknown>, model: string): void {
+  rewriteWhere(args, model)
+}
+
+/**
+ * Encrypt a single value for use in where clauses.
+ */
+export function encryptWhereValue(value: string): string {
+  const result = encryptPayload(value)
+  return result!
+}
+
+/**
+ * Decrypt a single value from database.
+ */
+export function decryptValueFromDb(ciphertext: string): string {
+  return decryptVal(ciphertext)
 }

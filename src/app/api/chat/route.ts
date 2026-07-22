@@ -24,7 +24,7 @@ import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
 import { logger } from '@/lib/logger';
 export const dynamic = 'force-dynamic';
 
-// PHI BOUNDARY: Full patient context is appended here and sent to a third-party AI processor (ZenMux / stepfun).
+// sensitive health data BOUNDARY: Full patient context is appended here and sent to a third-party AI processor (ZenMux / stepfun).
 // Consent verified before assembly; audit log emitted at outbound boundary.
 const SYSTEM_PROMPT = `You are Kyntha Assistant — a US-focused AI health information tool. You provide general informational content about medications, wellness, and US healthcare navigation. You do not provide medical advice, diagnosis, or treatment recommendations.
 
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
   if (response || !user) return response!;
   const u = user!;
 
-  // HIPAA: audit chat access (PHI-adjacent AI feature)
+  // Audit: chat access (sensitive health data-adjacent AI feature)
   await logAudit(user.id, 'chat.message');
 
   const consentErr = checkConsent(u);
@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
           ],
         });
       } catch (err) {
-        // SECURITY: log failure without PHI — chat history loss is recoverable
+        // SECURITY: log failure without sensitive health data — chat history loss is recoverable
         logger.phiSafeError(err, 'chat.persist.medicine-db');
       }
       return NextResponse.json({ response: dbReply, source: 'medicine-db' });
@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
 
     const zai = await getZai();
 
-    // ── PHI / AI BOUNDARY — AUDIT & DE-IDENTIFICATION ────────────────────────
+    // ── sensitive health data / AI BOUNDARY — AUDIT & DE-IDENTIFICATION ────────────────────────
     // Consent already verified at line 114 (checkConsent).
     // The patient context assembled below is transmitted to a third-party
     // AI processor (ZenMux / stepfun) and leaves this infrastructure.
@@ -321,10 +321,10 @@ export async function POST(req: NextRequest) {
       { role: 'user', content: message },
     ];
 
-    // ── OUTBOUND AI CALL — PHI TRANSMISSION BOUNDARY ─────────────────────────
+    // ── OUTBOUND AI CALL — sensitive health data TRANSMISSION BOUNDARY ─────────────────────────
     // Transmitting patient context to third-party AI processor (ZenMux / stepfun).
-    // PHI categories: allergies, age, medications, chronic conditions, healthJournal, chatHistory, alerts, familyHealth.
-    // Consent verified at line 114. Raw PHI values intentionally excluded from log.
+    // sensitive health data categories: allergies, age, medications, chronic conditions, healthJournal, chatHistory, alerts, familyHealth.
+    // Consent verified at line 114. Raw sensitive health data values intentionally excluded from log.
     const outboundLogPayload = {
       userId: u.id,
       model: ZAI_MODEL,
@@ -342,7 +342,7 @@ export async function POST(req: NextRequest) {
 hasPatientContext: formattedContext.length > 0,
        contextSize: formattedContext.length,
     };
-    // NOTE: Do not log raw PHI values. This metadata-only log is for audit boundaries only.
+    // NOTE: Do not log raw sensitive health data values. This metadata-only log is for audit boundaries only.
     // Timeout boundary: wrapped by withAiTimeout(AI_TIMEOUTS.DEFAULT) below.
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -383,7 +383,7 @@ hasPatientContext: formattedContext.length > 0,
 
     return NextResponse.json({ response: reply, source: 'llm' });
   } catch (error) {
-    // HIPAA: never log raw medical context or AI errors — they may contain PHI
+    // Security: never log raw medical context or AI errors — they may contain sensitive health data
     logger.phiSafeError(error, 'chat.POST');
     return NextResponse.json({ error: 'Failed to get AI response' }, { status: 500 });
   }
@@ -396,7 +396,7 @@ export async function GET(req: NextRequest) {
   const { response, user } = await requireAuth(req);
   if (response || !user) return response!;
 
-  // HIPAA: audit chat history read
+  // Audit: chat history read
   await logAudit(user.id, 'chat.history.read');
   const u = user!;
 
@@ -436,7 +436,7 @@ export async function GET(req: NextRequest) {
 
     return jsonPage(page.reverse(), { cursor: nextCursor, limit, hasMore });
   } catch (error) {
-    // HIPAA: never log raw DB errors — they may contain PHI
+    // Security: never log raw DB errors — they may contain sensitive health data
     logger.phiSafeError(error, 'chat.GET');
     return jsonError('Failed to process chat', 500, 'CHAT_ERROR');
   }

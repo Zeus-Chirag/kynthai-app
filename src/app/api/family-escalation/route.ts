@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const { response, user } = await requireAuth(req)
   if (response || !user) return response!
 
-  // HIPAA: audit family escalation read
+  // Audit: family escalation read
   await logAudit(user.id, 'family.escalation.list', { resourceType: 'EmergencyAlert' })
 
   try {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   if (response || !user) return response!
   const u = user!
 
-  // HIPAA: audit family escalation creation
+  // Audit: family escalation creation
   await logAudit(user.id, 'family.escalation.create', { resourceType: 'EmergencyAlert' })
   try {
     const body = await readJson<{

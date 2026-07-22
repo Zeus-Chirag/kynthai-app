@@ -65,7 +65,7 @@ model User {
   phone                      String?
   phone_enc                  String?          @map("phone_enc")
   password                   String? // bcrypt hash (null for demo accounts)
-  emailVerified              Boolean          @default(false)
+  emailVerified              DateTime?          // timestamp when email was verified
   subscriptionTier           SubscriptionTier @default(free)
   stripeCustomerId           String?          @unique
   sessionToken               String?
@@ -109,6 +109,8 @@ model User {
   refunds               Refund[]
   notificationLogs      NotificationLog[]
   chatMessages          ChatMessage[]
+  documents             MedicalDocument[]  @relation("UserDocuments")
+  uploadedDocuments     MedicalDocument[]  @relation("UploadedDocuments")
 
   @@index([email])
   @@map("users")
@@ -431,6 +433,7 @@ model Family {
   members    FamilyMember[]
   alerts     EmergencyAlert[]
   videoCalls VideoCall[]
+  documents  MedicalDocument[]
 
   @@index([joinCode])
 }
@@ -809,6 +812,72 @@ model PrescriptionTemplate {
 
   @@index([doctorId])
   @@map("prescription_templates")
+}
+
+// ── Medical Documents ──────────────────────────────────────────────────
+
+enum DocumentType {
+  PRESCRIPTION
+  LAB_REPORT
+  CERTIFICATE
+  CONSULTATION_NOTE
+  INSURANCE_CARD
+  INSURANCE_CLAIM
+  DISCHARGE_SUMMARY
+  IMAGING_REPORT
+  VACCINATION_RECORD
+  ALLERGY_RECORD
+  OTHER
+}
+
+enum DocumentCategory {
+  CLINICAL
+  ADMINISTRATIVE
+  LEGAL
+  FINANCIAL
+}
+
+enum DocumentVisibility {
+  PRIVATE
+  DOCTOR
+  FAMILY
+  EMERGENCY
+}
+
+model MedicalDocument {
+  id              String               @id @default(cuid())
+  userId          String
+  user            User                 @relation("UserDocuments", fields: [userId], references: [id], onDelete: Cascade)
+  uploadedById    String
+  uploadedBy      User                 @relation("UploadedDocuments", fields: [uploadedById], references: [id])
+  familyId        String?
+  family          Family?              @relation(fields: [familyId], references: [id], onDelete: SetNull)
+
+  type            DocumentType
+  category        DocumentCategory     @default(CLINICAL)
+  title           String
+  description     String?
+  mimeType        String
+  fileSize        Int
+
+  storagePath     String
+  bucket          String               @default("medical-documents")
+
+  encrypted       Boolean              @default(true)
+  encryptionKey   String?              // Per-file key encrypted with user's key
+
+  visibility      DocumentVisibility   @default(PRIVATE)
+  sharedWith      String[]             @default([])
+
+  uploadedAt      DateTime             @default(now())
+  accessedAt      DateTime?
+  downloadedAt    DateTime?
+
+  @@index([userId, type])
+  @@index([familyId])
+  @@index([uploadedById])
+  @@index([uploadedAt])
+  @@map("medical_documents")
 }
 
 // ── Video Consultation ────────────────────────────────────────────────

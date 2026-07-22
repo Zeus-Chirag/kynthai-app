@@ -68,7 +68,7 @@ export function PrivacyPolicy() {
           Kyntha is a health-management platform operated by{' '}
           <strong>Kyntha Health Technologies</strong>. We comply with the{' '}
           <strong>Health Insurance Portability and Accountability Act </strong>.
-          Health data is treated as Protected Health Information (PHI) under US privacy law, with additional safeguards applied.
+          Health data is treated as Protected Health Information (sensitive health data) under US privacy law, with additional safeguards applied.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
           <strong>Note:</strong> We regularly review this policy to keep it aligned with applicable rules.
@@ -88,32 +88,32 @@ export function PrivacyPolicy() {
       </ul>
 
 
-      <SectionTitle icon={Globe}>2. Permitted uses of PHI under US privacy law (45 CFR § 164.502)</SectionTitle>
-      <p>We process Protected Health Information (PHI) under the Health Insurance Portability and Accountability Act , the Health Information Technology for Economic and Clinical Health (HITECH) Act, and applicable US federal and state law as a Covered Entity or Business Associate, as applicable:</p>
+      <SectionTitle icon={Globe}>2. Permitted uses of sensitive health data under US privacy law (45 CFR § 164.502)</SectionTitle>
+      <p>We process Protected Health Information (sensitive health data) under the Health Insurance Portability and Accountability Act , the Health Information Technology for Economic and Clinical Health (HITECH) Act, and applicable US federal and state law as a Covered Entity or Business Associate, as applicable:</p>
       <ul>
         <li><strong>Authorization (45 CFR § 164.508):</strong> — free, specific, informed, and unambiguous consent for processing personal data. You may withdraw consent at any time via the in-app consent manager or by emailing <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a>.</li>
         <li><strong>Treatment, Payment, Healthcare Operations – TPO (45 CFR § 164.506):</strong> — to deliver the Kyntha service you signed up for, including medication reminders, AI features, doctor consults, and lab orders.</li>
         <li><strong>Legal obligation (45 CFR § 164.512):</strong> — to comply with US healthcare laws, federal and state tax laws, and medical record retention requirements.</li>
         <li><strong>Vital interests (45 CFR § 164.512(b)):</strong> — to send emergency SOS alerts to caretakers and linked doctors when a user&apos;s health or safety is at risk.</li>
-        <li><strong>Legitimate interest (45 CFR § 164.502):</strong> — for security, fraud prevention, and product improvement, balanced against your rights as an individual whose PHI is held by Kyntha.</li>
+        <li><strong>Legitimate interest (45 CFR § 164.502):</strong> — for security, fraud prevention, and product improvement, balanced against your rights as an individual whose sensitive health data is held by Kyntha.</li>
       </ul>
-      <p>Because health data is classified as Protected Health Information (PHI) under US privacy law, we obtain your explicit Privacy-compliant Authorization before using or disclosing PHI for purposes beyond treatment, payment, and healthcare operations (TPO). Revocation does not affect uses or disclosures made in reliance on the earlier authorization prior to revocation.</p>
+      <p>Because health data is classified as Protected Health Information (sensitive health data) under US privacy law, we obtain your explicit Privacy-compliant Authorization before using or disclosing sensitive health data for purposes beyond treatment, payment, and healthcare operations (TPO). Revocation does not affect uses or disclosures made in reliance on the earlier authorization prior to revocation.</p>
 
       <SectionTitle icon={ShieldCheck}>3. US privacy compliance</SectionTitle>
       <p>Kyntha operates in the United States and is governed primarily by the Health Insurance Portability and Accountability Act (US privacy, 45 CFR Parts 160 & 164) and the Health Information Technology for Economic and Clinical Health (HITECH) Act, along with applicable US federal and state law. As a Covered Entity and/or Business Associate under US privacy law:</p>
       <ul>
-        <li>We use and disclose your PHI only for the purposes permitted or required by US privacy, with strict purpose limitation and the minimum-necessary standard.</li>
-        <li>We obtain your explicit written US privacy Authorization before using or disclosing PHI for purposes beyond TPO. A Notice of Privacy Practices (NPP) is provided and acknowledged at account registration.</li>
+        <li>We use and disclose your sensitive health data only for the purposes permitted or required by US privacy, with strict purpose limitation and the minimum-necessary standard.</li>
+        <li>We obtain your explicit written US privacy Authorization before using or disclosing sensitive health data for purposes beyond TPO. A Notice of Privacy Practices (NPP) is provided and acknowledged at account registration.</li>
         <li>You have the right to access, correct, amend, and designate a personal representative for (appoint another individual to exercise your rights in the event of death or incapacity) your data.</li>
-        <li>In the event of a breach of unsecured PHI, we will notify affected individuals without unreasonable delay and, where required by the HITECH Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR — in no case later than 60 calendar days from discovery.</li>
-        <li>Health data is processed as Protected Health Information (PHI) under US privacy law, which imposes heightened security, privacy, and breach-notification safeguards.</li>
+        <li>In the event of a breach of unsecured sensitive health data, we will notify affected individuals without unreasonable delay and, where required by the HITECH Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR — in no case later than 60 calendar days from discovery.</li>
+        <li>Health data is processed as Protected Health Information (sensitive health data) under US privacy law, which imposes heightened security, privacy, and breach-notification safeguards.</li>
         <li>A Privacy Officer (details in Section 18) handles privacy complaints. Complaints are acknowledged within 5 business days. Standard grievances are resolved within 30 days; complex investigations are extended in writing with stated resolution timelines.</li>
       </ul>
       <p>For users in the United States, US privacy and the HITECH Act are the primary governing frameworks. California residents are additionally protected by the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). For users in other jurisdictions, Kyntha complies with applicable local data protection laws to the extent required.</p>
 
       <SectionTitle icon={ShieldCheck}>4. US privacy authorization & privacy practices</SectionTitle>
       <p>
-        At registration, you are presented with a Privacy-compliant Notice of Privacy Practices (NPP). For uses and disclosures of PHI beyond treatment, payment, and healthcare operations (TPO), a written US privacy Authorization is required. AI features may require a separate optional data-use consent. You may revoke any authorization or consent at any time via your account settings or by emailing <strong>privacy@kyntha.app</strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to uses or disclosures made prior to revocation in reliance on the earlier authorization. Withdrawing AI consent disables AI features but retains your medication reminders and health records. Withdrawing TPO consent may require account deletion.
+        At registration, you are presented with a Privacy-compliant Notice of Privacy Practices (NPP). For uses and disclosures of sensitive health data beyond treatment, payment, and healthcare operations (TPO), a written US privacy Authorization is required. AI features may require a separate optional data-use consent. You may revoke any authorization or consent at any time via your account settings or by emailing <strong>privacy@kyntha.app</strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to uses or disclosures made prior to revocation in reliance on the earlier authorization. Withdrawing AI consent disables AI features but retains your medication reminders and health records. Withdrawing TPO consent may require account deletion.
       </p>
 
 
@@ -123,9 +123,9 @@ export function PrivacyPolicy() {
       </p>
       <ul>
         <li><strong>Right of access (US privacy § 164.524):</strong> — Export all your data via Profile → Export Data (GET /api/user/data-export). You will receive a JSON file within 30 days (as permitted under 45 CFR § 164.524(c)).</li>
-        <li><strong>Right to amendment (US privacy § 164.526):</strong> — Request correction of inaccurate or incomplete PHI via your profile settings or by emailing <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a>.</li>
-        <li><strong>Right to request restriction (US privacy § 164.522):</strong> — Request restrictions on certain uses and disclosures of your PHI, subject to applicable limitations under US privacy law.</li>
-        <li><strong>Right to delete account:</strong> — You may delete your account and all associated PHI at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies.</li>
+        <li><strong>Right to amendment (US privacy § 164.526):</strong> — Request correction of inaccurate or incomplete sensitive health data via your profile settings or by emailing <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">privacy@kyntha.app</a>.</li>
+        <li><strong>Right to request restriction (US privacy § 164.522):</strong> — Request restrictions on certain uses and disclosures of your sensitive health data, subject to applicable limitations under US privacy law.</li>
+        <li><strong>Right to delete account:</strong> — You may delete your account and all associated sensitive health data at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies.</li>
         <li><strong>Privacy complaint (US privacy § 164.530):</strong> — File a complaint with our Privacy Officer at <strong>privacy@kyntha.app</strong>. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at <strong>hhs.gov/ocr/privacy</strong>.</li>
         <li><strong>Escalation:</strong> — Appeal unresolved complaints to HHS OCR.</li>
         <li><strong>Right to designate a personal representative (45 CFR § 164.502(g)):</strong> — Designate an authorized individual to act on your behalf in the event of death or incapacity. Email <strong>privacy@kyntha.app</strong> to set up.</li>
@@ -136,16 +136,16 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={Ban}>6. Your rights regarding health data</SectionTitle>
       <p>
-        Health data is classified as <strong>Protected Health Information (PHI)</strong> under
+        Health data is classified as <strong>Protected Health Information (sensitive health data)</strong> under
         US privacy law. The following safeguards apply:
       </p>
       <ul>
-        <li>PHI is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
-        <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (PHI) at any time.</li>
+        <li>sensitive health data is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
+        <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (sensitive health data) at any time.</li>
         <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
-        <li>In the event of a breach involving unsecured PHI, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
+        <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
       </ul>
       <p>
         US users are primarily protected by US privacy and the HITECH Act. California residents have CCPA/CPRA rights. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required.
@@ -170,7 +170,7 @@ export function PrivacyPolicy() {
       <ul>
         <li><strong>Active accounts:</strong> for the duration of your subscription or until you delete your account.</li>
         <li><strong>After account deletion:</strong> we erase personal data within 30 days, except where retention is required by law (tax retention under US federal law: 7 years for tax records).</li>
-        <li><strong>De-identified data:</strong> information stripped of all 18 US privacy identifiers per 45 CFR § 164.514 may be retained indefinitely as it no longer constitutes PHI.</li>
+        <li><strong>De-identified data:</strong> information stripped of all 18 US privacy identifiers per 45 CFR § 164.514 may be retained indefinitely as it no longer constitutes sensitive health data.</li>
         <li><strong>Backups:</strong> encrypted backups may contain deleted data for up to 90 days for disaster recovery, after which they are permanently purged.</li>
       </ul>
 
@@ -228,12 +228,12 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={Globe}>9. Data storage & cross-border transfers (Privacy-compliant)</SectionTitle>
       <p>
-        <strong>Data storage (Privacy-compliant):</strong> PHI of
+        <strong>Data storage (Privacy-compliant):</strong> sensitive health data of
         US users is stored and processed on Privacy-compliant cloud infrastructure
         with Business Associate Agreements (BAAs) in place with all subprocessors
-        that handle PHI. Cross-border data transfers (where applicable) are
+        that handle sensitive health data. Cross-border data transfers (where applicable) are
         subject to appropriate safeguards (BAA provisions and Standard Contractual
-        Clauses) to ensure continued comprehensive protection of PHI.
+        Clauses) to ensure continued comprehensive protection of sensitive health data.
       </p>
       <p>
         Kyntha may transfer data to cloud service providers and subprocessors
@@ -244,13 +244,13 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={ShieldCheck}>10. Your rights (US — US privacy)</SectionTitle>
       <p>
-        As an individual whose PHI is held by Kyntha, you have the following rights under US privacy law, HITECH, and applicable US state law:
+        As an individual whose sensitive health data is held by Kyntha, you have the following rights under US privacy law, HITECH, and applicable US state law:
       </p>
       <ul>
-        <li><strong>Right of access (US privacy § 164.524):</strong> Request a copy of your PHI. Use Profile → Export Data (GET /api/user/data-export). Delivery within 30 days as permitted under US privacy law.</li>
-        <li><strong>Right to amendment (US privacy § 164.526):</strong> Request correction of inaccurate or incomplete PHI via your profile settings or email to privacy@kyntha.app.</li>
-        <li><strong>Right to request restriction (US privacy § 164.522):</strong> Request restrictions on certain uses and disclosures of your PHI.</li>
-        <li><strong>Right to delete account:</strong> You may delete your account and all associated PHI at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies before permanent deletion.</li>
+        <li><strong>Right of access (US privacy § 164.524):</strong> Request a copy of your sensitive health data. Use Profile → Export Data (GET /api/user/data-export). Delivery within 30 days as permitted under US privacy law.</li>
+        <li><strong>Right to amendment (US privacy § 164.526):</strong> Request correction of inaccurate or incomplete sensitive health data via your profile settings or email to privacy@kyntha.app.</li>
+        <li><strong>Right to request restriction (US privacy § 164.522):</strong> Request restrictions on certain uses and disclosures of your sensitive health data.</li>
+        <li><strong>Right to delete account:</strong> You may delete your account and all associated sensitive health data at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies before permanent deletion.</li>
         <li><strong>Privacy complaint (45 CFR § 164.530):</strong> File a complaint with our Privacy Officer at privacy@kyntha.app. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at hhs.gov/ocr/privacy.</li>
         <li><strong>Escalation:</strong> Appeal unresolved complaints to the HHS Office for Civil Rights (OCR) at hhs.gov/ocr/privacy.</li>
       </ul>
@@ -262,16 +262,16 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={Ban}>11. Your rights regarding health data</SectionTitle>
       <p>
-        Health data is classified as <strong>Protected Health Information (PHI)</strong> under
+        Health data is classified as <strong>Protected Health Information (sensitive health data)</strong> under
         US privacy law. We apply heightened safeguards:
       </p>
       <ul>
-        <li>PHI is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
-        <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (PHI) at any time.</li>
+        <li>sensitive health data is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
+        <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (sensitive health data) at any time.</li>
         <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
-        <li>In the event of a breach involving unsecured PHI, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
+        <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
       </ul>
       <p>
         US users are primarily protected by US privacy and the HITECH Act. California residents are additionally protected by the CCPA/CPRA. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required. (Note: All regulatory references in this section reflect US/US privacy standards.)
@@ -378,13 +378,13 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={AlertTriangle}>15. Data breach notification</SectionTitle>
       <p>
-        In the event of a breach of unsecured Protected Health Information (PHI),
+        In the event of a breach of unsecured Protected Health Information (sensitive health data),
         Kyntha will act in accordance with the HITECH Act Breach Notification Rule
         (45 CFR §§ 164.400–414):
       </p>
       <ul>
         <li><strong>Affected individuals (HITECH § 164.404):</strong> We will notify affected individuals without unreasonable delay. For breaches affecting 500+ individuals, HHS OCR and prominent media are notified without unreasonable delay. In all cases, notification is within 60 days of discovery.</li>
-        <li><strong>Affected individuals:</strong> All affected individuals whose unsecured PHI was acquired in a breach will be notified without unreasonable delay and in no case later than 60 calendar days from discovery.</li>
+        <li><strong>Affected individuals:</strong> All affected individuals whose unsecured sensitive health data was acquired in a breach will be notified without unreasonable delay and in no case later than 60 calendar days from discovery.</li>
         <li><strong>Remediation & HHS notification:</strong> We will contain the breach, assess its scope, notify HHS OCR where required, and take reasonable steps to prevent recurrence. A post-incident review will be conducted within 30 days.</li>
       </ul>
 

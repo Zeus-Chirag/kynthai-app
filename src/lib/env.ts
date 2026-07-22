@@ -61,20 +61,20 @@ export function validateEnv(): void {
     )
   }
 
-  // HIPAA: Validate DATABASE_URL has encrypted connection in production
+  // Health Data Protection: Validate DATABASE_URL has encrypted connection in production
   if (isProd) {
     const dbUrl = process.env.DATABASE_URL || ''
     if (!dbUrl.includes('sslmode=')) {
       throw new Error(
-        '[Kyntha][HIPAA] DATABASE_URL must include sslmode=require (or sslmode=verify-ca / sslmode=verify-full). ' +
+        '[Kyntha][Health Data Protection] DATABASE_URL must include sslmode=require (or sslmode=verify-ca / sslmode=verify-full). ' +
         'Database connections must be encrypted in transit.'
       )
     }
-    // HIPAA: Validate ENCRYPTION_KEY format (64 hex chars = 32 bytes)
+    // Health Data Protection: Validate ENCRYPTION_KEY format (64 hex chars = 32 bytes)
     const encKey = process.env.ENCRYPTION_KEY || ''
     if (encKey && encKey.length !== 64) {
       throw new Error(
-        `[Kyntha][HIPAA] ENCRYPTION_KEY must be exactly 64 hex characters (256 bits). ` +
+        `[Kyntha][Health Data Protection] ENCRYPTION_KEY must be exactly 64 hex characters (256 bits). ` +
         `Current length: ${encKey.length}. Generate with: openssl rand -hex 32`
       )
     }

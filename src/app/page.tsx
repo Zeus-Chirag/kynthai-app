@@ -10,7 +10,7 @@ interface RootPageProps {
  * Renders:
  *  1. StructuredData (existing JSON-LD from layout.tsx)
  *  2. MedicalOrganization + MedicalWebPage JSON-LD
- *  3. HIPAA medical disclaimer above-the-fold (SSR-rendered, SEO-friendly)
+ *  3. Health Data Protection medical disclaimer above-the-fold (SSR-rendered, SEO-friendly)
  *
  * PortalClient wraps children in an ErrorBoundary for all routes,
  * so these Server Components render in the SSR HTML chunk first.

@@ -13,17 +13,17 @@ export const errorTracking = {
     // For now, we capture errors manually
   },
 
-  // Capture exception — HIPAA: never send raw error details to client console.
-  // Client-side errors are a potential PHI surface; use silent reporting.
+  // Capture exception — Health Data Protection: never send raw error details to client console.
+  // Client-side errors are a potential sensitive health data surface; use silent reporting.
   captureException(error: Error, context?: Record<string, unknown>) {
     if (typeof window === 'undefined') return
     
-    // HIPAA: never log raw errors to browser console in production
+    // Security: never log raw errors to browser console in production
     if (process.env.NODE_ENV !== 'production') {
       console.debug('[Error Tracking]', error.name + ':', String(error.message).slice(0, 100))
     }
     
-    // Send to Sentry if configured (PHI sanitized server-side)
+    // Send to Sentry if configured (sensitive health data sanitized server-side)
     // Integrate with backend for error logging
   },
 

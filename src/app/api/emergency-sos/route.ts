@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   // minor-initiated alert and ensure guardian notification is attempted.
   const isMinor = isUserMinor(u)
 
-  // HIPAA: audit emergency SOS alert creation
+  // Audit: emergency SOS alert creation
   await logAudit(user.id, 'emergency_sos.create', { resourceType: 'EmergencyAlert', outcome: 'success' })
 
   try {
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
         : {}),
     })
   } catch (error) {
-    // HIPAA: never log raw emergency/medical data or DB errors
+    // Security: never log raw emergency/medical data or DB errors
     logger.phiSafeError(error, 'emergency-sos.POST')
     return jsonError('Failed to send SOS', 500, 'SOS_ERROR')
   }
@@ -168,7 +168,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ alerts })
   } catch (error) {
-    // HIPAA: never log raw DB errors containing user IDs/crisis data
+    // Security: never log raw DB errors containing user IDs/crisis data
     logger.phiSafeError(error, 'emergency-sos.GET')
     return jsonError('Failed', 500, 'INTERNAL_ERROR')
   }

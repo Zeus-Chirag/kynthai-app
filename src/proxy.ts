@@ -5,14 +5,14 @@
  *
  * Runs at the Edge on every matching request:
  * 1. Assigns X-Request-Id for distributed tracing
- * 2. Edge-level audit logging (HIPAA-safe: method + masked IP + path only)
+ * 2. Edge-level audit logging (health-data-safe: method + masked IP + path only)
  * 3. Rate limiting per user/IP
  * 4. Portal cross-role access block (SSR bypass defence)
  * 5. Auth-required path guard
  * 6. CORS preflight headers
  * 7. Audit API session guard
  * 8. Security headers + CSP
- * 9. PHI-safe query-param sanitisation in audit records
+ * 9. Sensitive-data-safe query-param sanitisation in audit records
  */
 
 import { NextRequest, NextResponse } from 'next/server';

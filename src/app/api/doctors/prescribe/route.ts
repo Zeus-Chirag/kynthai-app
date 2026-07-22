@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       prescriptions: prescriptions.map((p) => ({
         id: p.id,
         patient: p.patient,
-        // HIPAA: medications notes are decrypted via Prisma middleware
+        // Health Data Protection: medications notes are decrypted via Prisma middleware
         medications: JSON.parse(p.medications),
         notes: p.notes,
         followUpDate: p.followUpDate?.toISOString() ?? null,
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       })),
     })
   } catch (error) {
-    // HIPAA: never log raw DB errors — they may contain PHI
+    // Security: never log raw DB errors — they may contain sensitive health data
     logger.phiSafeError(error, 'doctors.prescribe.GET')
     return jsonError('Failed to load prescriptions', 500)
   }

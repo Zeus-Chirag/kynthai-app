@@ -12,7 +12,7 @@ export default function PrivacyPracticesPage() {
   return (
     <LegalLayout
         title="Notice of Privacy Practices"
-        subtitle="Notice of Privacy Practices — how Kyntha uses, discloses, and protects your Protected Health Information (PHI)."
+        subtitle="Notice of Privacy Practices — how Kyntha uses, discloses, and protects your Protected Health Information (sensitive health data)."
         updated={nppData.effectiveDate as string}
       >
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 mb-6">

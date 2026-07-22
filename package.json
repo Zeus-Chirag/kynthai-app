@@ -3,9 +3,9 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "unset DATABASE_URL && next dev -p 3000",
-    "build": "DATABASE_URL=\"$DATABASE_URL\" npx prisma generate && NODE_ENV=production next build",
-    "start": "NODE_ENV=production next start",
+      "dev": "unset DATABASE_URL && next dev -p 3000",
+      "build": "npx prisma generate --no-cache && NODE_ENV=production next build",
+      "start": "NODE_ENV=production next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -21,6 +21,7 @@
     "load-test": "node load-test/test-api.js"
   },
   "dependencies": {
+    "@auth/supabase-adapter": "^1.11.3",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -72,6 +73,7 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.525.0",
     "next": "^16.1.1",
+    "next-auth": "^5.0.0-beta.32",
     "next-intl": "^4.3.4",
     "next-themes": "^0.4.6",
     "openai": "^6.45.0",

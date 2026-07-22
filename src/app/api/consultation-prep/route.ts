@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   try {
     const userId = sessionUser.id;
 
-    // HIPAA: audit consultation preparation (reads medication, journal, lab PHI)
+    // Audit: consultation preparation (reads medication, journal, lab sensitive health data)
     await logAudit(sessionUser.id, 'consultation.prep', { resourceType: 'ConsultationNote' });
 
     const isDemo = sessionUser.isDemo || false;

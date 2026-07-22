@@ -225,7 +225,7 @@ export async function POST(req: NextRequest) {
 
     return jsonOk(responseBody)
   } catch (error) {
-    // HIPAA: never log raw DB errors — they may contain PHI
+    // Security: never log raw DB errors — they may contain sensitive health data
     logger.phiSafeError(error, 'admin.retention')
     return jsonError('Internal server error', 500)
   }

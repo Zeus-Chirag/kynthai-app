@@ -16,8 +16,14 @@ export async function GET(req: NextRequest) {
 
     const userId = user.id
 
-  // HIPAA: audit AI health nudge generation (queries medication, reminder, journal PHI)
-  await logAudit(user.id, 'ai.nudge', { resourceType: 'HealthJournal' })
+  // Audit: AI health nudge generation (queries medication, reminder, journal sensitive health data)
+  await logAudit({
+    userId: user.id,
+    action: 'ai.nudge',
+    resourceType: 'HealthJournal',
+    category: 'access',
+    outcome: 'success',
+  })
 
     // ── Parallel data fetch ────────────────────────────────────────
     const [activeMeds, missedReminders, journalEntries, streak, recentChats] =

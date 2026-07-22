@@ -24,10 +24,10 @@ export async function GET(req: NextRequest) {
   const { response, user } = await requireAdmin(req);
   if (response || !user) return response!;
 
-  // HIPAA: audit all admin lab profile accesses
+  // Audit: all admin lab profile accesses
   await logAudit(user.id, 'admin.labs.list');
 
-  // HIPAA: audit all admin lab profile accesses
+  // Audit: all admin lab profile accesses
   await logAudit(user.id, 'admin.labs.list');
 
   try {

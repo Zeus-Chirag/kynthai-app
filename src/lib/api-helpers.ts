@@ -271,7 +271,7 @@ export async function requireAuth(
     phone: profile.phone ?? null,
     phone_enc: null,
     password: null,
-    emailVerified: true,
+    emailVerified: profile.emailVerified ?? null,
     subscriptionTier: (profile.subscriptionTier ?? 'free') as any,
     stripeCustomerId: null,
     sessionToken: null,
@@ -299,7 +299,7 @@ export async function requireAuth(
     deletedAt: null,
   } as User;
 
-  // US privacy / HIPAA enforcement: block any unconsented user from accessing PHI endpoints.
+  // US privacy enforcement: block any unconsented user from accessing PHI endpoints.
   const consentErr = checkConsent(user, req);
   if (consentErr) return { response: consentErr, user: null };
 
@@ -387,7 +387,7 @@ export async function requireSystemToken(req: NextRequest) {
       phone: null,
       phone_enc: null,
       password: null,
-      emailVerified: true,
+      emailVerified: new Date(),
       subscriptionTier: 'free',
       stripeCustomerId: null,
       sessionToken: null,
@@ -467,7 +467,7 @@ export function assertOwnership(sessionUserId: string, resourceUserId?: string |
 }
 
 /**
- * Check that the user has consented to data processing (HIPAA health data).
+ * Check that the user has consented to data processing (health data).
  * Returns a NextResponse error (400/403) if consent is missing, or null if OK.
  * Call this in any endpoint that returns or processes PHI.
  */
@@ -581,7 +581,7 @@ export async function audit(
 }
 
 /**
- * Audit PHI access — specifically for record reads/copies (HIPAA 164.312(b)).
+ * Audit PHI access — specifically for record reads/copies (health data access).
  * Records resource type, resource ID, and access outcome.
  */
 export async function auditPHIAccess(
@@ -670,7 +670,7 @@ export async function ensureDemoUsers(): Promise<void> {
           consentAccepted: existing.consentAccepted ?? true,
           dataProcessingConsent: existing.dataProcessingConsent ?? true,
           aiTrainingConsent: existing.aiTrainingConsent ?? true,
-          emailVerified: existing.emailVerified ?? true,
+          emailVerified: existing.emailVerified ?? new Date(),
         },
       });
     } else {
@@ -681,10 +681,10 @@ export async function ensureDemoUsers(): Promise<void> {
           role: d.role as User['role'],
           password: DEMO_PASSWORD,
           isDemo: true,
-          consentAccepted: true,
-          dataProcessingConsent: true,
-          aiTrainingConsent: true,
-          emailVerified: true,
+                  consentAccepted: true,
+                  dataProcessingConsent: true,
+                  aiTrainingConsent: true,
+                  emailVerified: new Date(),
         },
       });
     }

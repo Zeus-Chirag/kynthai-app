@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
           status: payment.status,
         });
       } catch (stripeError) {
-        // HIPAA: never log Stripe error details (may contain payment IDs, amounts)
+        // Security: never log Stripe error details (may contain payment IDs, amounts)
         logger.phiSafeError(stripeError, 'payments.stripe_intent');
         // Mark payment as failed
         await db.payment.update({
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
       status: payment.status,
     });
   } catch (error) {
-    // HIPAA: never log raw DB errors or payment amounts
+    // Security: never log raw DB errors or payment amounts
     logger.phiSafeError(error, 'payments.POST');
     return jsonError('Internal server error', 500);
   }

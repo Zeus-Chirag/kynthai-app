@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       db.familyMember.findMany({ where: { userId: u.id }, select: { id: true } }).then((m) => m.map((m) => m.id)),
     ])
 
-    // HIPAA: audit data export access
+    // Audit: data export access
     await logAudit(u.id, 'user.data_export')
 
     const [
@@ -398,7 +398,7 @@ export async function GET(req: NextRequest) {
       },
     })
   } catch (error) {
-    // HIPAA: never log raw DB errors — they may contain PHI
+    // Security: never log raw DB errors — they may contain sensitive health data
     logger.phiSafeError(error, 'user.data-export.GET')
     return jsonError('Failed to export data', 500)
   }

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const u = user!
 
   try {
-    // HIPAA: audit lab dashboard access (bookings, patient info, revenue PHI)
+    // Audit: lab dashboard access (bookings, patient info, revenue sensitive health data)
     await logAudit(user.id, 'lab.dashboard.read', { resourceType: 'LabBooking' })
 
     // Use session userId directly — no query param needed

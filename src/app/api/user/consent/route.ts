@@ -21,7 +21,7 @@ function isResponseError(v: unknown): v is NextResponse {
 }
 
 // PATCH /api/user/consent
-// US privacy / HIPAA right to withdraw consent — updates any or all of the three consent
+// US privacy / Health Data Protection right to withdraw consent — updates any or all of the three consent
 // flags. Each field may be set to true or false independently. Requires
 // authenticated CSRF-verified session.
 //

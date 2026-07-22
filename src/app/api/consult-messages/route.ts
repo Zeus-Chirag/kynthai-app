@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const { response, user } = await requireAuth(req)
   if (response || !user) return response!
 
-  // HIPAA: audit consultation message access
+  // Audit: consultation message access
   await logAudit(user.id, 'consultation.message.read', { resourceType: 'ConsultationNote' })
 
   const appointmentId = req.nextUrl.searchParams.get('appointmentId')

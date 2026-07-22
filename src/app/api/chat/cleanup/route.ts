@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const { response } = await requireSystemToken(req)
   if (response) return response
 
-  // HIPAA: audit cron chat cleanup (system-level)
+  // Audit: cron chat cleanup (system-level)
   await recordAuditSync('system', 'chat.cleanup.cron', {
     category: 'system',
     metadata: { operation: 'delete_expired_messages' },

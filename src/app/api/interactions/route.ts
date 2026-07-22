@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   if (response || !user) return response!;
   const u = user!;
 
-  // HIPAA: audit drug interactions check (queries user's medication PHI)
+  // Audit: drug interactions check (queries user's medication sensitive health data)
   await logAudit(user.id, 'interactions.read', { resourceType: 'Medication' });
 
   // SECURITY: enforce AI tier limit on GET — free-tier users shouldn't

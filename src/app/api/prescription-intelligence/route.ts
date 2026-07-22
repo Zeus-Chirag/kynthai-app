@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   if (response || !user) return response!
   const u = user!
 
-  // HIPAA: audit prescription scan access (queries medication + allergy PHI)
+  // Audit: prescription scan access (queries medication + allergy sensitive health data)
   await logAudit(user.id, 'prescription_intelligence.create', { resourceType: 'PrescriptionIntelligence' })
 
   const tierErr = await checkAiTier(user, 'prescription analysis')
@@ -168,7 +168,7 @@ Guidelines:
 
     return NextResponse.json(result)
   } catch (error) {
-    // HIPAA: never log raw prescription images, text, or AI analysis errors
+    // Security: never log raw prescription images, text, or AI analysis errors
     logger.phiSafeError(error, 'prescription-intelligence.POST')
     if (error instanceof AiTimeoutError) {
       return NextResponse.json(

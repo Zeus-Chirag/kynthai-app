@@ -6,7 +6,7 @@
  *
  * CALIFORNIA CONSUMER RIGHTS: California residents have the right to opt
  * out of the sale or sharing of personal information under CCPA/CPRA.
- * Health data is treated as Protected Health Information (PHI) under
+ * Health data is treated as Protected Health Information (sensitive health data) under
  * US privacy and the HITECH Act, which impose heightened security safeguards.
  *
  * FLOW: "Accept all" is explicit opt-in (enables analytics/marketing

@@ -1,16 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "package.json", "use": "@vercel/next" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/" }
-  ],
-  "env": {
-    "NEXT_PUBLIC_APP_URL": "@app_url",
-    "DATABASE_URL": "@database_url",
-    "STRIPE_SECRET_KEY": "@stripe_secret_key"
-  },
+  "framework": "nextjs",
+  "buildCommand": "npx prisma generate --no-cache && NODE_ENV=production next build",
+  "devCommand": "unset DATABASE_URL && next dev -p 3000",
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 60

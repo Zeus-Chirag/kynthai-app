@@ -19,6 +19,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('[login] Starting login for sale] Starting login attempt');
     const limited = rateLimit(req, 10, 60000, { globalKey: true });
     if (limited) return limited;
 
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
     const { email, password } = loginResult.data;
     if (!isValidEmail(email)) return jsonError('Valid email is required', 400);
 
+    console.log('[login] Attempting Supabase auth for:', email);
     // ── Supabase Auth: sign in ──────────────────────────────────────────
     let supabaseResponseCookies: { name: string; value: string; options?: Record<string, unknown> }[] = [];
     let user: any = null;
@@ -69,11 +71,14 @@ export async function POST(req: NextRequest) {
         }
       );
 
+      console.log('[login] Calling Supabase auth.signInWithPassword');
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      console.log('[login] Supabase auth result:', authError ? 'failed' : 'success', authError?.message);
+      
       if (authError || !authData.user) {
         console.log('[login] Supabase auth failed, falling back to local auth:', authError?.message);
         // Local auth: check Prisma database with bcrypt
@@ -92,14 +97,30 @@ export async function POST(req: NextRequest) {
         }
       } else {
         // Supabase auth succeeded - get Prisma profile
-        user = await getSupabaseProfile(authData.user);
-        if (!user) {
-          const { syncSupabaseUser } = await import('@/lib/supabase/sync');
-          user = await syncSupabaseUser(authData.user);
-          if (!user) {
-            return jsonError('Failed to create user profile', 500, 'PROFILE_CREATE_FAILED');
-          }
-        }
+        console.log('[login] Supabase auth succeeded, user ID:', authData.user.id);
+        console.log('[login] Calling getSupabaseProfile');
+              try {
+                user = await getSupabaseProfile(authData.user);
+                console.log('[login] getSupabaseProfile result:', user ? 'found' : 'not found');
+              } catch (profileError) {
+                console.error('[login] getSupabaseProfile ERROR:', profileError);
+                throw profileError;
+              }
+      
+              if (!user) {
+                console.log('[login] Profile not found, calling syncSupabaseUser');
+                try {
+                  const { syncSupabaseUser } = await import('@/lib/supabase/sync');
+                  user = await syncSupabaseUser(authData.user);
+                  console.log('[login] syncSupabaseUser result:', user ? 'created' : 'failed');
+                } catch (syncError) {
+                  console.error('[login] syncSupabaseUser ERROR:', syncError);
+                  throw syncError;
+                }
+                if (!user) {
+                  return jsonError('Failed to create user profile', 500, 'PROFILE_CREATE_FAILED');
+                }
+              }
       }
     } catch (supabaseError) {
       console.log('[login] Supabase client error, falling back to local auth:', supabaseError);
@@ -119,7 +140,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // HIPAA: enforce consent before issuing session
+    // Compliance: enforce consent before issuing session
     const consentErr = checkConsent({
       consentAccepted: user.consentAccepted ?? false,
       dataProcessingConsent: user.dataProcessingConsent ?? false,
@@ -160,6 +181,7 @@ export async function POST(req: NextRequest) {
     }
     return res;
   } catch (error) {
+    console.error('[login] ERROR:', error);
     logger.phiSafeError(error, 'login.POST');
     return jsonError('Internal server error', 500, 'INTERNAL_ERROR');
   }

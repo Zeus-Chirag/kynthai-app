@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const { response, user } = await requireAuth(req);
   if (response || !user) return response!;
 
-  // HIPAA: audit video signaling access
+  // Audit: video signaling access
   await logAudit(user.id, 'webrtc.signaling_read', { resourceType: 'VideoCall' });
 
   const appointmentId = req.nextUrl.searchParams.get('appointmentId');
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (response || !user) return response!;
   const u = user!;
 
-  // HIPAA: audit WebRTC signaling send
+  // Audit: WebRTC signaling send
   await logAudit(user.id, 'webrtc.signal', { resourceType: 'VideoCall' });
 
   const body = await readJson<{

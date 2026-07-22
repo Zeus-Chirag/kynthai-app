@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (limited) return limited;
   const { id } = await params;
 
-  // HIPAA: audit public lab profile access (no user - rate-limited, public data)
+  // Audit: public lab profile access (no user - rate-limited, public data)
   const labReqIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
   logger.info('lab.profile.public_access', JSON.stringify({ resourceId: id, ip: labReqIp }));
 

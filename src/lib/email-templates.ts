@@ -1,7 +1,7 @@
 /**
  * Transactional email templates for Kyntha.
  *
- * PHI BOUNDARY: Templates must not include raw PHI in subject/body/html.
+ * sensitive health data BOUNDARY: Templates must not include raw sensitive health data in subject/body/html.
  * Callers are responsible for ensuring content is non-clinical before invoking.
  */
 

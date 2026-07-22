@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
     const userId = user.id;
 
-    // HIPAA: audit health pulse read
+    // Audit: health pulse read
     await logAudit(user.id, 'health.pulse.read', { resourceType: 'HealthScore' });
 
     const isDemo = user.isDemo || false;

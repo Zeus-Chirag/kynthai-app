@@ -1,167 +1,182 @@
-/**
- * AES-256-GCM encryption for sensitive data at rest.
- *
- * Used for: SSN, Tax ID, and other PII that must be
- * encrypted in the database but displayed in masked form.
- *
- * The ENCRYPTION_KEY must be exactly 32 bytes (256 bits).
- */
+// src/lib/encryption.ts
+// Encryption utilities for medical documents
+// Uses AES-256-GCM for authenticated encryption
 
-import crypto from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto';
 
+// Get master key from environment (32 bytes = 256 bits)
+const MASTER_KEY = process.env.ENCRYPTION_KEY || process.env.MASTER_ENCRYPTION_KEY;
+if (!MASTER_KEY || MASTER_KEY.length < 32) {
+  throw new Error('ENCRYPTION_KEY must be at least 32 characters');
+}
+
+const KEY = Buffer.from(MASTER_KEY.slice(0, 32), 'utf-8');
 const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH = 16; // 128-bit IV
-const AUTH_TAG_LENGTH = 16; // 128-bit auth tag
-const ENCODING = 'base64';
+const IV_LENGTH = 12; // 96 bits for GCM
+const SALT_LENGTH = 16;
+const TAG_LENGTH = 16;
 
-let cachedKey: Buffer | null = null;
-
-function getKey(): Buffer {
-  if (cachedKey) return cachedKey;
-
-  const raw = process.env.ENCRYPTION_KEY;
-  if (!raw) {
-    // In development, derive a key from SESSION_SECRET as a fallback.
-    // In production, ENCRYPTION_KEY MUST be set explicitly.
-    const fallback = process.env.SESSION_SECRET;
-    if (!fallback) {
-      throw new Error(
-        'CRITICAL: ENCRYPTION_KEY env var is not set. ' + 'Generate with: openssl rand -hex 32'
-      );
-    }
-    // Derive a 32-byte key from the session secret using SHA-256.
-    // SECURITY: This fallback is INSECURE in production — a derivable key
-    // means anyone with SESSION_SECRET can decrypt all PHI at rest.
-    // In production, ENCRYPTION_KEY (64 hex chars) MUST be set explicitly.
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(
-        'CRITICAL: ENCRYPTION_KEY must be set in production. ' +
-          'Deriving from SESSION_SECRET is not allowed.'
-      );
-    }
-    cachedKey = crypto.createHash('sha256').update(fallback).digest();
-    return cachedKey;
-  }
-
-  const key = Buffer.from(raw, 'hex');
-  if (key.length !== 32) {
-    throw new Error('ENCRYPTION_KEY must be exactly 32 bytes (64 hex characters)');
-  }
-  cachedKey = key;
-  return key;
+/**
+ * Derive a per-file encryption key from master key + file-specific salt
+ */
+export function deriveFileKey(salt: Buffer): Buffer {
+  return scryptSync(KEY, salt, 32);
 }
 
 /**
- * Encrypt a plaintext string. Returns base64(iv + ciphertext + authTag).
+ * Encrypt file buffer
+ * Returns: { encryptedData, iv, salt, authTag }
  */
-export function encrypt(plaintext: string): string {
-  if (!plaintext) return '';
+export function encryptFile(data: Buffer): {
+  encryptedData: Buffer;
+  iv: Buffer;
+  salt: Buffer;
+  authTag: Buffer;
+} {
+  const salt = randomBytes(SALT_LENGTH);
+  const fileKey = deriveFileKey(salt);
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv(ALGORITHM, fileKey, iv);
 
-  const key = getKey();
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-
-  let ciphertext = cipher.update(plaintext, 'utf8', ENCODING);
-  ciphertext += cipher.final(ENCODING);
+  const encryptedData = Buffer.concat([cipher.update(data), cipher.final()]);
   const authTag = cipher.getAuthTag();
 
-  // Pack: iv (16 bytes) + authTag (16 bytes) + ciphertext
-  return Buffer.concat([iv, authTag, Buffer.from(ciphertext, ENCODING)]).toString(ENCODING);
+  return { encryptedData, iv, salt, authTag };
 }
 
 /**
- * Decrypt a base64(encoded iv + ciphertext + authTag) string.
- * Returns the original plaintext.
+ * Decrypt file buffer
  */
-export function decrypt(encrypted: string): string {
-  if (!encrypted) return '';
-
-  const key = getKey();
-  const raw = Buffer.from(encrypted, ENCODING);
-
-  if (raw.length < IV_LENGTH + AUTH_TAG_LENGTH) {
-    throw new Error('Encrypted data is too short');
-  }
-
-  const iv = raw.subarray(0, IV_LENGTH);
-  const authTag = raw.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
-  const ciphertext = raw.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
-
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+export function decryptFile(
+  encryptedData: Buffer,
+  iv: Buffer,
+  salt: Buffer,
+  authTag: Buffer
+): Buffer {
+  const fileKey = deriveFileKey(salt);
+  const decipher = createDecipheriv(ALGORITHM, fileKey, iv);
   decipher.setAuthTag(authTag);
 
-  let plaintext = decipher.update(ciphertext, undefined, 'utf8');
-  plaintext += decipher.final('utf8');
-  return plaintext;
+  return Buffer.concat([decipher.update(encryptedData), decipher.final()]);
 }
 
 /**
- * Encrypt a value only if it's non-empty. Returns empty string for null/undefined.
+ * Encrypt a string (for metadata, keys, etc.)
  */
-export function encryptValue(value: string | null | undefined): string | null {
-  if (!value) return null;
-  return encrypt(value);
+export function encryptString(text: string): string {
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv(ALGORITHM, KEY, iv);
+  const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+
+  // Format: iv:authTag:encrypted (all base64)
+  return `${iv.toString('base64')}:${authTag.toString('base64')}:${encrypted.toString('base64')}`;
 }
 
 /**
- * Decrypt a value only if it's non-empty. Returns null for empty input.
+ * Decrypt a string
  */
-export function decryptValue(encrypted: string | null | undefined): string | null {
-  if (!encrypted) return null;
+export function decryptString(encrypted: string): string {
+  const [ivB64, tagB64, dataB64] = encrypted.split(':');
+  const iv = Buffer.from(ivB64, 'base64');
+  const authTag = Buffer.from(tagB64, 'base64');
+  const data = Buffer.from(dataB64, 'base64');
+
+  const decipher = createDecipheriv(ALGORITHM, KEY, iv);
+  decipher.setAuthTag(authTag);
+
+  return Buffer.concat([decipher.update(data), decipher.final()]).toString('utf8');
+}
+
+/**
+ * Encrypt a string with a specific key (for per-file keys)
+ */
+export function encryptWithKey(text: string, key: Buffer): string {
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv(ALGORITHM, key, iv);
+  const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+
+  return `${iv.toString('base64')}:${authTag.toString('base64')}:${encrypted.toString('base64')}`;
+}
+
+/**
+ * Decrypt a string with a specific key
+ */
+export function decryptWithKey(encrypted: string, key: Buffer): string {
+  const [ivB64, tagB64, dataB64] = encrypted.split(':');
+  const iv = Buffer.from(ivB64, 'base64');
+  const authTag = Buffer.from(tagB64, 'base64');
+  const data = Buffer.from(dataB64, 'base64');
+
+  const decipher = createDecipheriv(ALGORITHM, key, iv);
+  decipher.setAuthTag(authTag);
+
+  return Buffer.concat([decipher.update(data), decipher.final()]).toString('utf8');
+}
+
+/**
+ * Generate a secure random file ID
+ */
+export function generateFileId(): string {
+  return randomBytes(16).toString('hex');
+}
+
+/**
+ * Sanitize filename for storage
+ */
+export function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .slice(0, 255);
+}
+
+/**
+ * Decrypt buffer with master key (for backwards compatibility)
+ */
+export function decrypt(buffer: Buffer): string {
+  // Expects format: iv:authTag:encrypted (all base64)
+  const parts = buffer.toString('base64').split(':');
+  if (parts.length !== 3) throw new Error('Invalid encrypted format');
+  
+  const iv = Buffer.from(parts[0], 'base64');
+  const authTag = Buffer.from(parts[1], 'base64');
+  const encrypted = Buffer.from(parts[2], 'base64');
+  
+  const decipher = createDecipheriv(ALGORITHM, KEY, iv);
+  decipher.setAuthTag(authTag);
+  
+  return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8');
+}
+
+/**
+ * Encrypt buffer with master key (for backwards compatibility)
+ */
+export function encrypt(buffer: Buffer): string {
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv(ALGORITHM, KEY, iv);
+  const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  
+  return `${iv.toString('base64')}:${authTag.toString('base64')}:${encrypted.toString('base64')}`;
+}
+
+/**
+ * Encrypt a string value for database storage
+ */
+export function encryptValue(value: string): string {
+  return encrypt(Buffer.from(value, 'utf8'));
+}
+
+/**
+ * Decrypt a string value from database storage
+ */
+export function decryptValue(encrypted: string): string {
   try {
-    return decrypt(encrypted);
+    const buffer = Buffer.from(encrypted, 'utf8');
+    return decrypt(buffer);
   } catch {
-    // Decryption failure means the data is corrupt or was encrypted with a different key.
-    // Return null rather than throwing to avoid crashing read operations.
-    return null;
+    return '';
   }
-}
-
-/**
- * Override the cached encryption key (used by key-rotation scripts).
- * Call BEFORE any encrypt/decrypt operations.
- */
-export function setKey(keyHex: string): void {
-  const key = Buffer.from(keyHex, 'hex');
-  if (key.length !== 32) {
-    throw new Error('ENCRYPTION_KEY must be exactly 32 bytes (64 hex characters)');
-  }
-  (cachedKey as any) = key;
-}
-
-// ══ Binary buffer encryption (for file storage) ═══════════════════════════════
-// These are used by src/lib/storage.ts to encrypt uploaded PHI documents.
-
-const BUF_ALGO = 'aes-256-gcm';
-const BUF_IV = 16;
-const BUF_TAG = 16;
-
-/**
- * Encrypt raw binary data with AES-256-GCM.
- * Returns: [ IV(16 bytes) | authTag(16 bytes) | ciphertext... ]
- */
-export function encryptBuffer(buffer: Buffer): Buffer {
-  if (!buffer || buffer.length === 0) return Buffer.alloc(0);
-  const key = getKey();
-  const iv = crypto.randomBytes(BUF_IV);
-  const cipher = crypto.createCipheriv(BUF_ALGO, key, iv);
-  const ct = Buffer.concat([cipher.update(buffer), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return Buffer.concat([iv, tag, ct]);
-}
-
-/**
- * Decrypt data produced by encryptBuffer.
- */
-export function decryptBuffer(encrypted: Buffer): Buffer {
-  if (!encrypted || encrypted.length < BUF_IV + BUF_TAG) {
-    throw new Error('Encrypted buffer too short');
-  }
-  const key = getKey();
-  const iv = encrypted.subarray(0, BUF_IV);
-  const tag = encrypted.subarray(BUF_IV, BUF_IV + BUF_TAG);
-  const ct = encrypted.subarray(BUF_IV + BUF_TAG);
-  const decipher = crypto.createDecipheriv(BUF_ALGO, key, iv);
-  decipher.setAuthTag(tag);
-  return Buffer.concat([decipher.update(ct), decipher.final()]);
 }

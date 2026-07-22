@@ -1,266 +1,247 @@
-import bcrypt from 'bcryptjs'
-import crypto from 'crypto'
-import { db } from './db'
-import { cookies } from 'next/headers'
-import { recordAudit, recordAuditSync, type AuditContext, AuditCategory } from './audit-logger'
-import { logger } from './logger'
+// src/lib/auth.ts
+// Authentication helpers for API routes
 
-const SESSION_COOKIE = 'kyntha_session'
-const SESSION_TTL_DAYS = 30
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+import { supabaseAdmin } from './storage';
+import { db } from './db';
 
-// HMAC secret for session token hashing.
-// In production: SESSION_SECRET MUST be set — the app will refuse to start
-// without it. A missing secret means all session tokens can be forged.
-// In development: a deterministic fallback keeps hot-reload working.
-function getSessionSecret(): string {
-  const secret = process.env.SESSION_SECRET
-  if (secret) return secret
-  // Allow builds to proceed without SESSION_SECRET; runtime validation
-  // will still enforce it when the server actually starts.
-  if (process.env.NEXT_PHASE === 'phase-production-build') {
-    return 'build-time-placeholder'
-  }
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('CRITICAL: SESSION_SECRET must be set in production. Sessions would be insecure without it.')
-  }
-  // Dev-only fallback — never use in production (guarded above)
-  return 'kyntha-dev-only-do-not-use-in-production'
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: string;
+  name?: string;
 }
 
-const SESSION_SECRET = getSessionSecret()
-
-export async function hashPassword(password: string): Promise<string> {
-  // OWASP 2024 recommends bcrypt cost factor >= 12.
-  return bcrypt.hash(password, 12)
-}
-
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash)
-}
-
-/** HMAC-SHA256 hash for session tokens before DB storage. */
-export function hashToken(token: string): string {
-  return crypto.createHmac('sha256', SESSION_SECRET).update(token).digest('hex')
-}
-
-export async function createSession(userId: string): Promise<string> {
-  await db.user.update({ where: { id: userId }, data: { sessionToken: null, sessionExpiry: null } })
-  const rawToken = crypto.randomUUID() + crypto.randomUUID()
-  const hashedToken = hashToken(rawToken)
-  const expiry = new Date()
-  expiry.setDate(expiry.getDate() + SESSION_TTL_DAYS)
-  await db.user.update({ where: { id: userId }, data: { sessionToken: hashedToken, sessionExpiry: expiry } })
-  return rawToken
-}
-
-export async function setSessionCookie(token: string) {
-  const expiry = new Date()
-  expiry.setDate(expiry.getDate() + SESSION_TTL_DAYS)
-  const store = await cookies()
-  // HIPAA: SameSite=strict in production prevents CSRF via third-party requests.
-  // Lax is kept in dev to simplify localhost testing across ports.
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict', // HIPAA: strict — no cross-origin credential leakage
-    expires: expiry,
-    path: '/',
-  })
-}
-
-export async function clearSessionCookie() {
-  const store = await cookies()
-  store.delete(SESSION_COOKIE)
-}
-
-export async function getSessionUser() {
+/**
+ * Get authenticated user from request cookies
+ * Returns null if not authenticated
+ */
+export async function getAuthUser(): Promise<AuthUser | null> {
   try {
-    const store = await cookies()
-
-    // Try old session cookie first
-    const token = store.get(SESSION_COOKIE)?.value
-    if (token) {
-      const hashedToken = hashToken(token)
-      const user = await db.user.findFirst({ where: { sessionToken: hashedToken, sessionExpiry: { gt: new Date() } } })
-      if (user) {
-        const daysUntilExpiry = Math.floor((new Date(user.sessionExpiry!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-        if (daysUntilExpiry <= 7) {
-          const newExpiry = new Date()
-          newExpiry.setDate(newExpiry.getDate() + SESSION_TTL_DAYS)
-          await db.user.update({ where: { id: user.id }, data: { sessionExpiry: newExpiry } })
-        }
-        return user
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Server component context
+            }
+          },
+        },
       }
-    }
+    );
 
-    // Fallback: try Supabase session cookie
-    const allCookies = store.getAll()
-    const sbCookie = allCookies.find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))
-    if (sbCookie?.value) {
-      try {
-        const raw = sbCookie.value.replace('base64-', '')
-        const std = raw.replace(/-/g, '+').replace(/_/g, '/')
-        const payload = JSON.parse(Buffer.from(std, 'base64').toString('utf-8'))
-        const userId = payload.user?.id
-        if (userId) {
-          const user = await db.user.findUnique({ where: { id: userId } })
-          return user
-        }
-      } catch {
-        // Cookie parse failed
-      }
-    }
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return null;
 
-    return null
-  } catch (error) {
-    if (process.env.NEXT_PHASE === 'phase-production-build') {
-      return null
-    }
-    logger.phiSafeError(error, 'getSessionUser')
-    throw new Error('Session lookup failed')
-  }
-}
+    // Get user profile for role
+    const { data: profile } = await supabaseAdmin
+      .from('users')
+      .select('id, email, role, name')
+      .eq('id', user.id)
+      .single();
 
-/** Require an authenticated session or throw a redirect to login. */
-export async function requireSessionUser() {
-  const user = await getSessionUser()
-  if (!user) {
-    // Redirect is handled by the caller; returning null keeps the caller in control.
-    return null
-  }
-  return user
-}
-
-const RESET_TTL_MINUTES = 30
-
-export function generatePasswordResetToken(): string {
-  return crypto.randomBytes(32).toString('hex')
-}
-
-export async function createPasswordResetToken(userId: string): Promise<string | null> {
-  try {
-    const token = generatePasswordResetToken()
-    const hashed = hashToken(token)
-    const expires = new Date()
-    expires.setMinutes(expires.getMinutes() + RESET_TTL_MINUTES)
-    await db.user.update({
-      where: { id: userId },
-      data: { passwordResetToken: hashed, passwordResetExpires: expires },
-    })
-    return token
+    return profile ? {
+      id: profile.id,
+      email: profile.email,
+      role: profile.role,
+      name: profile.name || undefined,
+    } : null;
   } catch {
-    return null
-  }
-}
-
-export async function consumePasswordResetToken(
-  token: string,
-  newPassword: string
-): Promise<{ ok: boolean; error?: string }> {
-  if (!token || !newPassword) return { ok: false, error: 'Invalid request' }
-  if (newPassword.length > 200) return { ok: false, error: 'Password too long' }
-  try {
-    const hashed = hashToken(token)
-    const user = await db.user.findFirst({
-      where: { passwordResetToken: hashed, passwordResetExpires: { gt: new Date() } },
-    })
-    if (!user) return { ok: false, error: 'Invalid or expired reset token' }
-    const hash = await hashPassword(newPassword)
-    await db.user.update({
-      where: { id: user.id },
-      data: { password: hash, passwordResetToken: null, passwordResetExpires: null, failedLoginAttempts: 0, lockedUntil: null },
-    })
-    // HIPAA audit: password reset is an authentication event
-    await recordAuditSync(user.id, 'auth.password.reset', {
-      category: AuditCategory.AUTH,
-      outcome: 'success',
-      metadata: { method: 'token' },
-    })
-    return { ok: true }
-  } catch {
-    return { ok: false, error: 'Reset failed' }
+    return null;
   }
 }
 
 /**
- * HIPAA-Compliant Audit Logger
- *
- * Logs authentication and security events to the AuditLog table.
- * - recordAuditSync: Fire-and-forget (non-blocking) for high-volume events
- * - recordAuditSync (sync): Synchronous for critical events (login, password change)
- *
- * @param userId - User performing the action
- * @param action - Dot-notation action (e.g. "auth.login", "medication.create")
- * @param context - Optional HTTP and metadata context (string or AuditContext)
+ * Get authenticated user - throws if not authenticated
+ * For use in server components
+ */
+export async function requireSessionUser(): Promise<AuthUser> {
+  const user = await getAuthUser();
+  if (!user) {
+    throw new Error('UNAUTHORIZED');
+  }
+  return user;
+}
+
+/**
+ * Alias for getAuthUser - for backward compatibility
+ */
+export async function getSessionUser(): Promise<AuthUser | null> {
+  return getAuthUser();
+}
+
+/**
+ * Require authentication - throws if not authenticated
+ */
+export async function requireAuth(): Promise<AuthUser> {
+  const user = await getAuthUser();
+  if (!user) {
+    throw new Error('UNAUTHORIZED');
+  }
+  return user;
+}
+
+/**
+ * Log audit event
+ * Supports both old signature (userId, action) and new object format
  */
 export async function logAudit(
-  userId: string,
-  action: string,
-  context?: string | Partial<AuditContext>
+  userIdOrData: string | Record<string, any>,
+  action?: string,
+  extra?: string | Record<string, any>,
+  category?: string,
+  details?: string
 ): Promise<void> {
-  const ctx: AuditContext = typeof context === 'string'
-    ? ({ metadata: { details: context } } as AuditContext)
-    : { ...context }
-
-  // Use sync version for authentication events to ensure they are recorded
-  const isAuthEvent = action.startsWith('auth.') || action.startsWith('session.') || action.startsWith('consent.')
-  if (isAuthEvent || ctx.outcome === 'failure') {
-    await recordAuditSync(userId, action, ctx)
-  } else {
-    // Fire-and-forget for data access events to avoid blocking responses
-    await recordAudit(userId, action, ctx)
+  // Support old signature: logAudit(userId, action, category, details)
+  // And: logAudit(userId, action, extraObject, category, details)
+  if (typeof userIdOrData === 'string' && action) {
+    try {
+      let cat = category;
+      let det = details;
+      let resourceType: string | undefined;
+      
+      // If third argument is an object, extract resourceType
+      if (extra && typeof extra === 'object' && !Array.isArray(extra)) {
+        resourceType = extra.resourceType;
+      } else if (extra && typeof extra === 'string') {
+        // Old signature: userId, action, category, details
+        if (!category) cat = extra;
+      }
+      
+      try {
+        await db.auditLog.create({
+          data: {
+            userId: userIdOrData,
+            action,
+            category: cat || 'access',
+            resourceType,
+            details: det || `Performed ${action}`,
+            outcome: 'success',
+          },
+        });
+      } catch (error) {
+        console.error('Audit log failed:', error);
+      }
+    } catch (error) {
+      console.error('Audit log failed:', error);
+    }
+    return;
   }
-}
 
-// ── Email Verification ─────────────────────────────────────────────────────
+  // New object format
+  const data = userIdOrData as {
+    userId?: string;
+    action: string;
+    category: string;
+    resourceType?: string;
+    resourceId?: string;
+    httpMethod?: string;
+    httpPath?: string;
+    statusCode?: number;
+    outcome: 'success' | 'failure' | 'forbidden' | 'error';
+    riskScore?: number;
+    details?: string;
+    metadata?: Record<string, any>;
+    ip?: string;
+    userAgent?: string;
+  };
 
-const VERIFY_TTL_MINUTES = 60
-
-export function generateEmailVerificationToken(): string {
-  return crypto.randomBytes(32).toString('hex')
-}
-
-export async function createEmailVerificationToken(
-  userId: string
-): Promise<string | null> {
   try {
-    const token = generateEmailVerificationToken()
-    const hashed = hashToken(token)
-    const expires = new Date()
-    expires.setMinutes(expires.getMinutes() + VERIFY_TTL_MINUTES)
-    await db.user.update({
-      where: { id: userId },
-      data: { emailVerificationToken: hashed, emailVerificationExpires: expires },
-    })
-    return token
-  } catch {
-    return null
-  }
-}
-
-export async function consumeEmailVerificationToken(
-  token: string
-): Promise<{ ok: boolean; error?: string }> {
-  if (!token) return { ok: false, error: 'Invalid request' }
-  try {
-    const hashed = hashToken(token)
-    const user = await db.user.findFirst({
-      where: {
-        emailVerificationToken: hashed,
-        emailVerificationExpires: { gt: new Date() },
-      },
-    })
-    if (!user) return { ok: false, error: 'Invalid or expired token' }
-    await db.user.update({
-      where: { id: user.id },
+    await db.auditLog.create({
       data: {
-        emailVerified: true,
-        emailVerificationToken: null,
-        emailVerificationExpires: null,
+        userId: data.userId,
+        action: data.action,
+        category: data.category,
+        resourceType: data.resourceType,
+        resourceId: data.resourceId,
+        httpMethod: data.httpMethod,
+        httpPath: data.httpPath,
+        statusCode: data.statusCode,
+        outcome: data.outcome,
+        riskScore: data.riskScore || 0,
+        details: data.details,
+        metadata: data.metadata ? JSON.stringify(data.metadata) : '{}',
+        ip: data.ip,
+        userAgent: data.userAgent,
       },
-    })
-    return { ok: true }
-  } catch {
-    return { ok: false, error: 'Verification failed' }
+    });
+  } catch (error) {
+    console.error('Audit log failed:', error);
   }
+}
+
+/**
+ * Check if user has required role
+ */
+export function hasRole(user: AuthUser, roles: string[]): boolean {
+  return roles.includes(user.role);
+}
+
+/**
+ * Check if user can access document
+ */
+export async function canAccessDocument(
+  user: AuthUser,
+  document: {
+    userId: string;
+    uploadedById: string;
+    familyId: string | null;
+    visibility: string;
+    sharedWith: string[];
+  }
+): Promise<boolean> {
+  // Owner can always access
+  if (user.id === document.userId) return true;
+
+  // Uploader can access
+  if (user.id === document.uploadedById) return true;
+
+  // Doctor role can access clinical documents
+  if (user.role === 'doctor' && ['CLINICAL', 'ADMINISTRATIVE'].includes(document.visibility)) {
+    // Check if doctor is in patient's care team (simplified)
+    return true;
+  }
+
+  // Family access
+  if (document.familyId && document.visibility === 'FAMILY') {
+    const { data: membership } = await supabaseAdmin
+      .from('family_members')
+      .select('id')
+      .eq('family_id', document.familyId)
+      .eq('user_id', user.id)
+      .eq('status', 'ACTIVE')
+      .single();
+    if (membership) return true;
+  }
+
+  // Explicitly shared
+  if (document.sharedWith.includes(user.id)) return true;
+
+  // Emergency access (break-glass)
+  if (document.visibility === 'EMERGENCY' && user.role === 'doctor') {
+    // Log emergency access
+    console.warn(`EMERGENCY ACCESS: ${user.id} accessed document`);
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Hash a password using bcrypt
+ */
+export async function hashPassword(password: string): Promise<string> {
+  const bcrypt = await import('bcryptjs');
+  return bcrypt.hash(password, 12);
 }

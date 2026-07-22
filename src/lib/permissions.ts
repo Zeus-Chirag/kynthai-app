@@ -4,7 +4,7 @@
  * Centralized role-based access control (RBAC) for Kyntha.
  * All authorization decisions flow through this module.
  *
- * HIPAA FINAL RULE (2024): least privilege, minimum necessary access.
+ * Health Data Protection FINAL RULE (2024): least privilege, minimum necessary access.
  */
 
 import type { User } from '@prisma/client'
@@ -90,7 +90,7 @@ export const APPOINTMENT_MANAGERS: readonly KynthaRole[] = ['patient', 'caretake
  */
 export const NOTIFICATION_ADMINS: readonly KynthaRole[] = ['admin']
 
-// ── Consent gates (HIPAA minimum necessary) ───────────────────────────────────
+// ── Consent gates (Health Data Protection minimum necessary) ───────────────────────────────────
 
 export type ConsentFlag = keyof Pick<User, 'dataProcessingConsent' | 'aiTrainingConsent'>
 
@@ -98,7 +98,7 @@ export type ConsentFlag = keyof Pick<User, 'dataProcessingConsent' | 'aiTraining
  * Data-scoped consent requirements per endpoint category.
  */
 export const CONSENT_REQUIRED: Record<string, ConsentFlag | ConsentFlag[]> = {
-  // Medications require data processing consent (handling PHI)
+  // Medications require data processing consent (handling sensitive health data)
   medication:    'dataProcessingConsent',
   appointment:   'dataProcessingConsent',
   // AI features require AI training consent

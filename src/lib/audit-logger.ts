@@ -1,5 +1,5 @@
 /**
- * HIPAA-Compliant Audit Logging System for Kyntha
+ * Audit Logging System for Kyntha
  */
 
 import { db } from '@/lib/db'

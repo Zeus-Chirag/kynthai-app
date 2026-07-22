@@ -171,7 +171,7 @@ export const en = {
     dob: 'Date of birth',
     emergencyContact: 'Emergency Contact 1',
     termsAgree: 'I agree to the Terms of Service and Privacy Policy',
-    privacyConsent: 'I consent to the processing of my personal and health data for service delivery under HIPAA',
+    privacyConsent: 'I consent to the processing of my personal and health data for service delivery under Health Data Protection',
     aiConsent: 'I optionally agree to let Kyntha use de-identified health data to improve AI features',
     createAccount: 'Create Account',
     orContinue: 'or',

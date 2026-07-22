@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
     let profile = await db.user.findUnique({ where: { id: authData.user.id } });
 
     if (!profile) {
-      // US privacy / HIPAA: require consent flags
+      // US privacy / Health Data Protection: require consent flags
       const consentErr = checkConsent({
         consentAccepted: !!body.consentAccepted,
         dataProcessingConsent: !!body.dataProcessingConsent,
@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
           phone: phone || null,
           dateOfBirth,
           password: null, // Supabase manages passwords
-          emailVerified: !!authData.user.email_confirmed_at,
+          emailVerified: authData.user.email_confirmed_at ? new Date(authData.user.email_confirmed_at) : null,
           consentAccepted: !!body.consentAccepted,
           dataProcessingConsent: !!body.dataProcessingConsent,
           aiTrainingConsent: !!body.aiTrainingConsent,

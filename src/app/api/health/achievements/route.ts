@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const consentError = checkConsent(user)
     if (consentError) return consentError
 
-    // HIPAA: audit achievements access
+    // Audit: achievements access
     await logAudit(user.id, 'achievements.read', { resourceType: 'UserBadge' })
 
     const achievements = await computeAchievements(user.id)

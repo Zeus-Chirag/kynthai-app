@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const note = await db.consultationNote.create({ data: { doctorId: profile.id, patientId, content: noteContent, type: "diagnosis" } })
     return jsonOk({ note: { id: note.id, doctorId: note.doctorId, patientId: note.patientId, content: note.content, type: note.type, createdAt: note.createdAt.toISOString() }, suggestions: { symptoms: rawSymptoms, diagnosis, medications: body.medications || [], followUpDate: followUpDate.toISOString().split("T")[0]!, interactions, confidence } })
   } catch (error) {
-    // HIPAA: never log raw diagnosis content or AI errors
+    // Security: never log raw diagnosis content or AI errors
     logger.phiSafeError(error, 'doctors.ai-notes.POST')
     return jsonError('Failed to save AI note', 500)
   }

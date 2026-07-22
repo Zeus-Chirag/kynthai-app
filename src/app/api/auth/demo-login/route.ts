@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       return jsonError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // HIPAA: enforce consent before issuing session
+    // Compliance: enforce consent before issuing session
     const { checkConsent } = await import('@/lib/api-helpers');
     const consentErr = checkConsent({
       consentAccepted: user.consentAccepted ?? false,

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   const tierErr = await checkAiTier(user, 'health report')
   if (tierErr) return tierErr
 
-  // HIPAA: audit health report generation (accesses medication + journal + lab PHI)
+  // Audit: health report generation (accesses medication + journal + lab sensitive health data)
   await logAudit(user.id, 'health.report.generate', { resourceType: 'HealthScore' })
 
   try {

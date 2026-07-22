@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const tierErr = await checkAiTier(user, 'symptom analysis')
   if (tierErr) return tierErr
 
-  // HIPAA: audit symptom analysis (AI feature accessing user medications/allergies PHI)
+  // Audit: symptom analysis (AI feature accessing user medications/allergies sensitive health data)
   await logAudit(user.id, 'symptom.analyze')
 
   try {
