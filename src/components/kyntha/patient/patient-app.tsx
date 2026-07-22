@@ -333,11 +333,11 @@ function ApptRow({
         <CalendarDays className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium truncate">
+        <p className="text-base font-medium truncate">
           {appt.doctor}{' '}
           <span className="text-muted-foreground font-normal">· {appt.specialty}</span>
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {appt.date} · {appt.type === 'video' ? '📹 Video' : '📍 In-person'}
         </p>
       </div>
@@ -502,8 +502,8 @@ function HomeTab({
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold">Med Adherence</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Great progress this week!</p>
+                <h3 className="text-base font-semibold">Med Adherence</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">Great progress this week!</p>
               </div>
               <div className="text-right">
                 <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
@@ -706,10 +706,10 @@ function JournalTab() {
                   <MoodEmoji mood={e.mood} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold">{e.title}</p>
+                      <p className="text-base font-semibold">{e.title}</p>
                       <span className="text-[10px] text-muted-foreground shrink-0">{e.date}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{e.body}</p>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{e.body}</p>
                   </div>
                 </div>
               </CardContent>

@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Sparkles, Users, Pill, Stethoscope, FlaskConical, ChevronLeft, ShieldCheck, UserCircle } from 'lucide-react'
+import { ArrowRight, Sparkles, Users, Pill, Stethoscope, FlaskConical, ChevronLeft, ShieldCheck, UserCircle, BrainCircuit, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
@@ -47,8 +47,18 @@ const SLIDES: Slide[] = [
     illustration: <RoleArt />,
     showDots: false,
   },
+  {
+    title: 'About our AI',
+    body: 'Understanding what Kyntha AI can and cannot do.',
+    accent: 'from-amber-500 to-orange-600',
+    icon: BrainCircuit,
+    illustration: <ConsentArt />,
+    showDots: false,
+  },
 ]
 const CONSENT_INDEX = SLIDES.length
+
+const ROLE_SLIDE_INDEX = 3; // which slide has role picker (0-indexed)
 
 export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'caretaker' | 'doctor' | 'lab') => void }) {
   const [index, setIndex] = React.useState(0)
@@ -60,20 +70,27 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
 
   const slide = index < CONSENT_INDEX ? SLIDES[index]! : null
   const isConsentSlide = index === CONSENT_INDEX
-  const isIntroLast = index === CONSENT_INDEX - 1
+  const isRoleSlide = index === ROLE_SLIDE_INDEX
+  const isAiLimitsSlide = index === 4
 
   const allConsentGiven = termsAccepted && dataProcessingAccepted && aiProcessingAccepted
-  const canComplete = isConsentSlide ? allConsentGiven : (!isIntroLast || !!role)
+  const canComplete = isConsentSlide
+    ? allConsentGiven
+    : isRoleSlide
+    ? !!role  // role required on role-selection slide
+    : true    // all other slides: can always tap Continue
 
   const next = React.useCallback(() => {
     if (isConsentSlide) {
       if (allConsentGiven) onComplete(role ?? 'patient')
-    } else if (isIntroLast) {
-      setIndex(CONSENT_INDEX)
+    } else if (isRoleSlide) {
+      setIndex(CONSENT_INDEX - 1) // role slide → AI limits slide (index 4)
+    } else if (isAiLimitsSlide) {
+      setIndex(CONSENT_INDEX) // AI limits slide → consent slide
     } else {
       setIndex((i) => Math.min(i + 1, CONSENT_INDEX))
     }
-  }, [isConsentSlide, allConsentGiven, isIntroLast, onComplete, role])
+  }, [isConsentSlide, allConsentGiven, isRoleSlide, isAiLimitsSlide, onComplete, role])
 
   const prev = React.useCallback(() => {
     if (isConsentSlide) {
@@ -208,7 +225,43 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{slide.title}</h1>
                 <p className="mt-3 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">{slide.body}</p>
 
-                {isIntroLast && (
+                {/* AI limits content - only on AI limits slide */}
+                {isAiLimitsSlide && (
+                  <div className="mt-5 w-full space-y-3 text-left">
+                    <p className="text-xs font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      What AI can and cannot do
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-50/60 p-3 dark:bg-emerald-950/30">
+                        <span className="text-emerald-600 text-sm mt-0.5">✓</span>
+                        <div className="text-xs leading-relaxed text-muted-foreground">
+                          <strong className="text-foreground">Answer</strong> questions about your medications, side effects, drug interactions, and general health topics.
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-50/60 p-3 dark:bg-emerald-950/30">
+                        <span className="text-emerald-600 text-sm mt-0.5">✓</span>
+                        <div className="text-xs leading-relaxed text-muted-foreground">
+                          <strong className="text-foreground">Help understand</strong> lab results, prescription labels, and health documents.
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-50/60 p-3 dark:bg-rose-950/30">
+                        <span className="text-rose-500 text-sm mt-0.5">✗</span>
+                        <div className="text-xs leading-relaxed text-muted-foreground">
+                          <strong className="text-foreground">Cannot diagnose</strong> — always check with your doctor for a proper diagnosis.
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-50/60 p-3 dark:bg-rose-950/30">
+                        <span className="text-rose-500 text-sm mt-0.5">✗</span>
+                        <div className="text-xs leading-relaxed text-muted-foreground">
+                          <strong className="text-foreground">Not a substitute</strong> for professional medical advice, diagnosis, or treatment.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {isRoleSlide && (
                   <div className="mt-6 w-full space-y-3">
                     <p className="text-xs font-medium text-muted-foreground mb-3">I am a…</p>
                     <div className="grid grid-cols-4 gap-2">

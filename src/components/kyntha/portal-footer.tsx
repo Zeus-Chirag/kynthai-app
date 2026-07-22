@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Mail, HeartPulse, ShieldCheck } from 'lucide-react';
+import { Mail, HeartPulse, ShieldCheck, HelpCircle, Phone, AlertTriangle } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /* PortalFooter — shared legal footer for all authenticated portals    */
@@ -23,9 +23,41 @@ const REGISTERED_OFFICE = '1209 Orange St, Wilmington, DE 19801, United States';
 
 export function PortalFooter() {
   return (
-    <footer className="border-t border-border/60 bg-muted/30">
+    <footer className="border-t border-border bg-muted/30">
       <div className="mx-auto max-w-3xl px-4 py-5 sm:px-6">
-        {/* Legal links */}
+
+        {/* ── Help & Support ─────────────────────────────────────── */}
+        <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/40">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 space-y-2">
+              <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                Need help?
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href="mailto:hello@kyntha.app?subject=Help+Request"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-xs font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                >
+                  <HelpCircle className="h-3.5 w-3.5" />
+                  Help Center
+                </a>
+                <a
+                  href="mailto:hello@kyntha.app?subject=Talk+to+Human"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-xs font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                >
+                  <Mail className="h-3.5 w-3.5" />
+                  Talk to a human
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs text-rose-600 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-400">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              <span>Medical Emergency? Call 911</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Legal links ─────────────────────────────────────── */}
         <nav aria-label="Legal" className="mb-4">
           <ul role="list" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
             {LEGAL_LINKS.map(l => (
