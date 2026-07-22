@@ -135,7 +135,12 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
       </div>
 
       <header className="flex items-center justify-between px-6 py-5">
-        <KynthaBrand />
+        <div className="flex items-center gap-3">
+          <KynthaBrand />
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
+            About 60 seconds
+          </span>
+        </div>
         <button
           onClick={handleSkip}
           className={cn(

@@ -52,7 +52,8 @@ import { cn } from '@/lib/utils';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { KynthaBrand } from '@/components/kyntha/logo';
 import { useRouter } from 'next/navigation';
-import { getGreeting } from '@/lib/greeting';
+import { getGreeting } from '@/lib/greeting'
+import { AchievementCelebration } from '@/components/kyntha/achievement-celebration';
 import { useToast } from '@/hooks/use-toast';
 import { TodayView } from '@/components/medication/today-view';
 import { MedicationsList } from '@/components/medication/medications-list';
@@ -396,8 +397,28 @@ function HomeTab({
   const adherence = isDemo ? 83 : 92;
   const avgMood: JournalEntry['mood'] = 'good';
 
+  // Achievement celebration state (defined before JSX for proper closure)
+  const achievementState = React.useState({ show: false, type: 'adherence' as const, milestone: 0 });
+  const [achievement, setAchievement] = achievementState;
+  const showAchievement = achievement.show;
+  const setShowAchievement = (v: boolean) => setAchievement(a => ({ ...a, show: v }));
+
+  // Trigger celebration on first render if adherence is good
+  React.useEffect(() => {
+    if (adherence >= 80) {
+      setAchievement({ show: true, type: 'adherence', milestone: adherence });
+    }
+  }, [adherence]);
+
   return (
     <div className="space-y-5">
+      <AchievementCelebration
+        show={showAchievement}
+        type={achievement.type}
+        milestone={achievement.milestone}
+        onDismiss={() => setShowAchievement(false)}
+      />
+
       {/* Greeting + streak */}
       <FadeIn>
         <div className="flex items-start justify-between gap-4">
@@ -409,8 +430,16 @@ function HomeTab({
             <p className="text-sm text-muted-foreground mt-0.5">
               {appointments.length > 0
                 ? `${appointments.length} upcoming appointment${appointments.length > 1 ? 's' : ''}`
-                : 'No upcoming appointments'}
+                : 'All clear — no upcoming appointments'}
             </p>
+            {appointments.length === 0 && (
+              <button
+                onClick={() => onNavigate('lab')}
+                className="mt-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+              >
+                Book a health check →
+              </button>
+            )}
           </div>
           <div className="flex flex-col items-center">
             <StreakRing days={adherence} />
