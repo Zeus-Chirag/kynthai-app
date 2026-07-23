@@ -3,9 +3,9 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-      "dev": "unset DATABASE_URL && next dev -p 3000",
-      "build": "npx prisma generate && NODE_ENV=production next build",
-      "start": "NODE_ENV=production next start",
+    "dev": "unset DATABASE_URL && next dev -p 3000",
+    "build": "npx prisma generate && NODE_ENV=production next build",
+    "start": "NODE_ENV=production next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -99,6 +99,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@next/bundle-analyzer": "^16.2.10",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
