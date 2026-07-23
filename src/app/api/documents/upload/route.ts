@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import { encryptFile, generateFileId, sanitizeFilename } from '@/lib/encryption';
 import { uploadMedicalDocument } from '@/lib/storage';
 import { DocumentType, DocumentCategory, DocumentVisibility } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = [
@@ -141,7 +142,7 @@ export async function POST(req: NextRequest) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    console.error('Document upload error:', error);
+    logger.phiSafeError(error, 'documents.upload');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

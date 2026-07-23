@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth.config';
 import { db } from '@/lib/db';
 import { decryptFile } from '@/lib/encryption';
 import { downloadMedicalDocument, getSignedDocumentUrl } from '@/lib/storage';
+import { logger } from '@/lib/logger';
 
 export async function GET(
   req: NextRequest,
@@ -116,7 +117,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Document download error:', error);
+    logger.phiSafeError(error, 'documents.download');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -157,7 +158,7 @@ async function checkDocumentAccess(
 
   // Emergency access
   if (document.visibility === 'EMERGENCY' && userRole === 'doctor') {
-    console.warn(`EMERGENCY ACCESS: ${userId} accessed document ${document.id}`);
+    logger.warn(`EMERGENCY ACCESS: ${userId} accessed document ${document.id}`);
     return true;
   }
 

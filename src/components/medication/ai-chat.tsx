@@ -395,8 +395,9 @@ export function AiChat() {
           <div className="flex-1">
             <Textarea
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value.slice(0, 2000))} // 2000 char limit for AI safety
               placeholder="Ask about your medications..."
+              maxLength={2000}
               className="min-h-[44px] max-h-32 resize-none"
               onKeyDown={e => {
                 if (e.key === 'Enter' && !e.shiftKey) {

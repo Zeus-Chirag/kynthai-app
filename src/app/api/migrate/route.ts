@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
-// Secret key to prevent unauthorized access - set this in Vercel env vars
-const MIGRATION_SECRET = process.env.MIGRATION_SECRET || 'dev-migration-secret'
-
+// Secret key to prevent unauthorized access - MUST be set in Vercel env vars
+// If not set, requests are REJECTED (no fallback secret)
+const MIGRATION_SECRET = process.env.MIGRATION_SECRET;
 export async function POST(req: NextRequest) {
+  if (!MIGRATION_SECRET) {
+    // Reject if not configured — never fall back to a guessable default
+    return NextResponse.json({ error: 'Migration not configured' }, { status: 503 });
+  }
   try {
-    const authHeader = req.headers.get('authorization')
+    const authHeader = req.headers.get('authorization');
     if (!authHeader || authHeader !== `Bearer ${MIGRATION_SECRET}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const results: string[] = []
@@ -381,7 +386,7 @@ export async function POST(req: NextRequest) {
       results
     })
   } catch (error: any) {
-    console.error('Migration error:', error)
+    logger.phiSafeError(error, 'migrate.POST')
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
