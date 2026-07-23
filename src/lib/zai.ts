@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { withOpenAICircuitBreaker } from './circuit-breaker'
 
 // ──────────────────────────────────────────────────────────────────────────────
 // sensitive health data / AI PROCESSOR BOUNDARY
@@ -91,4 +92,12 @@ export function isAiAvailable(): boolean {
     if (process.env[keyEnv]) return true
   }
   return false
+}
+
+/**
+ * Wraps an OpenAI chat.completions.create call with circuit breaker protection.
+ * Usage: const completion = await withAICircuitBreaker(() => zai.chat.completions.create(params))
+ */
+export async function withAICircuitBreaker<T>(fn: () => Promise<T>): Promise<T> {
+  return withOpenAICircuitBreaker(fn);
 }
