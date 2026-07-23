@@ -49,4 +49,4 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-module.exports = withBundleAnalyzer(nextConfig);
+module.exports = withBundleAnalyzer(nextConfig);// force rebuild Thu Jul 23 18:54:20 IST 2026
