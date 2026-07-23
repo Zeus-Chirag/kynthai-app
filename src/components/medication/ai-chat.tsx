@@ -11,6 +11,7 @@ import { MedicalDisclaimer } from '@/components/kyntha/medical-disclaimer';
 import { useAppStore } from '@/lib/store';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
 import ReactMarkdown from 'react-markdown';
+import { safeAIResponse } from '@/lib/ai-output-filter';
 
 interface ChatMsg {
   id: string;
@@ -446,7 +447,7 @@ function MessageBubble({ msg }: { msg: ChatMsg }) {
           <p className="whitespace-pre-wrap break-words">{msg.content}</p>
         ) : (
           <div className="prose prose-sm dark:prose-invert max-w-none break-words [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0">
-            <ReactMarkdown>{msg.content}</ReactMarkdown>
+            <ReactMarkdown>{safeAIResponse(msg.content)}</ReactMarkdown>
           </div>
         )}
         {!isUser && (

@@ -78,12 +78,12 @@ export async function POST(req: NextRequest) {
     const res = jsonOk(responseBody);
     // Set a simple session cookie for demo mode
     res.cookies.set('kyntha-session', user.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/',
-    });
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            path: '/',
+          });
     return res;
   } catch (error) {
     logger.phiSafeError(error, 'demo-login.POST');
