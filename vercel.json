@@ -1,11 +1,8 @@
 {
-  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
   "framework": "nextjs",
-  "buildCommand": "npx prisma generate && NODE_ENV=production next build",
-  "devCommand": "unset DATABASE_URL && next dev -p 3000",
-  "functions": {
-    "src/app/api/**/*.ts": {
-      "maxDuration": 60
-    }
-  }
+  "nodeVersion": "24.x"
 }
