@@ -139,10 +139,18 @@ export default function RootLayout({
             },true);
           })();
         `}} />
-        {/* ACCESSIBILITY: Skip link for keyboard/screen-reader users */}
+        {/* ACCESSIBILITY: Skip link for keyboard/screen-reader users — FIXED */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-emerald-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg"
+          className="absolute -top-10 -left-10 bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg z-[100] focus:top-4 focus:left-4 focus:outline-none"
+          style={{
+            position: 'absolute',
+            width: '1px',
+            height: '1px',
+            overflow: 'hidden',
+            clip: 'rect(0, 0, 0, 0)',
+            whiteSpace: 'nowrap',
+          }}
         >
           Skip to main content
         </a>
