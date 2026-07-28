@@ -228,7 +228,7 @@ nano config.toml
 
 - **OpenHands Docs**: https://docs.openhands.dev
 - **ZenMux**: https://zenmux.com
-- **StepFun**: https://stepfun.com
+- **StepFun**: https://www.stepfun.com
 - **GitHub**: https://github.com/OpenHands/agent-canvas
 - **Slack**: https://go.openhands.dev/slack
 
