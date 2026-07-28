@@ -3,9 +3,9 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Home, Search, ArrowLeft, HeartPulse } from 'lucide-react'
-import { KynthaiBrand } from '@/components/kynthaii/logo'
+import { KynthaiBrand } from '@/components/kynthai/logo'
 import { useRouter } from 'next/navigation'
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function NotFound() {
   const router = useRouter()

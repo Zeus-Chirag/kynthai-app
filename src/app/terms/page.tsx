@@ -1,7 +1,7 @@
 'use client'
 
-import { TermsOfService } from '@/components/kynthaii/legal/privacy-policy'
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
+import { TermsOfService } from '@/components/kynthai/legal/privacy-policy'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function TermsPage() {
   return (

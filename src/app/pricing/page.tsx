@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
-import { PricingPage } from '@/components/kynthaii/pricing-page'
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
+import { PricingPage } from '@/components/kynthai/pricing-page'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export const metadata: Metadata = {
   title: 'Pricing',

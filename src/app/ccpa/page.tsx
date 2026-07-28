@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { CcpaOptOutPage } from '@/components/kynthaii/legal/privacy-policy'
+import { CcpaOptOutPage } from '@/components/kynthai/legal/privacy-policy'
 
 export const metadata: Metadata = {
   title: 'Do Not Sell My Personal Information | Kynthai',

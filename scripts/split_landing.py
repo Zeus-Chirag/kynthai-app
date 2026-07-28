@@ -2,7 +2,7 @@
 import re, os
 
 BASE = '/Users/c.k/Downloads/kynthai-restored-7000-us'
-DIR = os.path.join(BASE, 'src/components/kynthaii')
+DIR = os.path.join(BASE, 'src/components/kynthai')
 SEC = os.path.join(DIR, 'sections')
 os.makedirs(SEC, exist_ok=True)
 

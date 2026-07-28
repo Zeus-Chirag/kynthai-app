@@ -34,7 +34,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { KynthaiBrand } from '@/components/kynthaii/logo';
+import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { getGreeting } from '@/lib/greeting';
@@ -42,19 +42,19 @@ import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
 import { AiChat } from '@/components/medication/ai-chat';
 import { CareHub as CaretakerCareHub } from './care-hub';
-import { ProfileHub } from '@/components/kynthaii/patient/profile-hub';
+import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
 import { FamilyMemberSchedule } from './member-schedule';
 import { MedicationsList } from '@/components/medication/medications-list';
-import { FamilyCircle } from '@/components/kynthaii/family/family-circle';
-import { OfflineIndicator } from '@/components/kynthaii/offline-indicator';
+import { FamilyCircle } from '@/components/kynthai/family/family-circle';
+import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { useOfflineQueue } from '@/hooks/use-offline-queue';
-import { PortalFooter } from '@/components/kynthaii/portal-footer';
+import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FadeIn } from '@/components/kynthaii/animations';
-import type { PulseMember } from '@/components/kynthaii/family/family-circle';
+import { FadeIn } from '@/components/kynthai/animations';
+import type { PulseMember } from '@/components/kynthai/family/family-circle';
 
 const MarketView = dynamic(
-  () => import('@/components/kynthaii/market/market-view').then(m => m.MarketView),
+  () => import('@/components/kynthai/market/market-view').then(m => m.MarketView),
   { ssr: false, loading: () => <div className="h-40 rounded-xl bg-muted animate-pulse" /> }
 );
 

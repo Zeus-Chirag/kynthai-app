@@ -14,13 +14,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
-import { KynthaiBrand } from '@/components/kynthaii/logo'
+import { KynthaiBrand } from '@/components/kynthai/logo'
 import {
   DOCTOR_BASE_FEE_PCT,
   LAB_BASE_FEE_PCT,
   PAYOUT_POLICY,
 } from '@/lib/commission'
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function RefundCancellationPage() {
   const router = useRouter()

@@ -50,9 +50,9 @@
 | Item | File | Line | Current Value | Required Value |
 |------|------|------|---------------|----------------|
 | Fake street address | src/components/structured-data.tsx | 13 | 100 Disorderly Dr | Real registered office address |
-| Fake street address | src/components/kynthaii/portal-footer.tsx | 21 | 100 Disorderly Dr, Wilmington, DE 19801 | Real registered office address |
-| Fake street address | src/components/kynthaii/pricing-page.tsx | 757 | 100 Disorderly Dr... | Real registered office address |
-| Fake street address | src/components/kynthaii/landing-footer.tsx | 102 | 100 Disorderly Dr... | Real registered office address |
+| Fake street address | src/components/kynthai/portal-footer.tsx | 21 | 100 Disorderly Dr, Wilmington, DE 19801 | Real registered office address |
+| Fake street address | src/components/kynthai/pricing-page.tsx | 757 | 100 Disorderly Dr... | Real registered office address |
+| Fake street address | src/components/kynthai/landing-footer.tsx | 102 | 100 Disorderly Dr... | Real registered office address |
 | Fake street address | src/app/page.tsx | 34 | 100 Disorderly Dr | Real registered office address |
 
 Action: Replace KYNTHHA_REGISTERED_OFFICE in all 5 locations with the real Delaware registered agent address before any production deploy.
@@ -194,18 +194,18 @@ Owner: Security | Sprint: Hour 0-4
 PROBLEM: HIPAANPP.md designates privacy@kynthai.app as the HIPAA Privacy Officer contact. But privacy-policy.tsx, terms, cookies, grievance, and portal-footer.tsx all use hello@kynthai.app for privacy complaints, access requests, and NPP correspondence. Under 45 CFR 164.530, complaints to an un-designated contact do not count toward the 180-day HHS OCR filing window.
 
 AFFECTED FILES AND LINE REFERENCES:
-- src/components/kynthaii/legal/privacy-policy.tsx: lines 388, 389, 370, 376, 383 — uses hello@kynthai.app for revocation, complaints, access requests
+- src/components/kynthai/legal/privacy-policy.tsx: lines 388, 389, 370, 376, 383 — uses hello@kynthai.app for revocation, complaints, access requests
 - src/app/terms/page.tsx — uses hello@kynthai.app
 - src/app/cookies/page.tsx — uses hello@kynthai.app
-- src/components/kynthaii/portal-footer.tsx: lines 49, 56 — uses hello@kynthai.app for grievance and support
+- src/components/kynthai/portal-footer.tsx: lines 49, 56 — uses hello@kynthai.app for grievance and support
 - src/app/grievance/page.tsx:3 — uses hello@kynthai.app
 
 REQUIRED FIX: Replace ALL privacy-related hello@kynthai.app references with privacy@kynthai.app in the above files. Reserve hello@kynthai.app for general support only.
 
 #### BLOCKER B03 / B06: Placeholder Address + HIPAANPP Issues
 - Replace 100 Disorderly Dr with real Delaware registered agent address in:
-  src/components/structured-data.tsx, src/components/kynthaii/portal-footer.tsx,
-  src/components/kynthaii/pricing-page.tsx, src/components/kynthaii/landing-footer.tsx, src/app/page.tsx
+  src/components/structured-data.tsx, src/components/kynthai/portal-footer.tsx,
+  src/components/kynthai/pricing-page.tsx, src/components/kynthai/landing-footer.tsx, src/app/page.tsx
 - Add specific mailing address to HIPAANPP.md Complaints section (45 CFR 164.530 requires this)
 - Change future-dated Jan 1 2026 effective date to today or past date
 
@@ -263,7 +263,7 @@ File: src/app/refund-cancellation/page.tsx — billing@kynthai.com must change t
 
 #### FDA / MEDICAL DISCLAIMER CHECK
 Files to verify have advisory-only language:
-- src/components/kynthaii/medical-disclaimer.tsx ✅ has disclaimer
+- src/components/kynthai/medical-disclaimer.tsx ✅ has disclaimer
 - src/app/api/chat/route.ts:15 ✅ SYSTEM_PROMPT says not medical advice
 - src/app/api/symptom-analyze/route.ts:139 ✅ disclaimer field
 - All landing page AI feature claims have informational only / not medical advice ✅
@@ -329,10 +329,10 @@ FILES TO AUDIT:
 |------|------|-----------|--------|
 | src/app/api/chat/route.ts | 15 | SYSTEM_PROMPT | ✅ Not medical advice disclaimer |
 | src/app/api/symptom-analyze/route.ts | 110,139 | Symptom analyzer | ✅ Educational only, no diagnosis |
-| src/components/kynthaii/medical-disclaimer.tsx | 27,42 | Global disclaimer component | ✅ Present |
-| src/components/kynthaii/phone-mockup.tsx | 232 | Phone mockup label | ✅ Informational only |
-| src/components/kynthaii/landing-page.tsx | 248,559,575,1045 | Marketing copy | ✅ disclaimers present |
-| src/components/kynthaii/hero-section.tsx | 85 | Hero tagline | ✅ AI-guided information |
+| src/components/kynthai/medical-disclaimer.tsx | 27,42 | Global disclaimer component | ✅ Present |
+| src/components/kynthai/phone-mockup.tsx | 232 | Phone mockup label | ✅ Informational only |
+| src/components/kynthai/landing-page.tsx | 248,559,575,1045 | Marketing copy | ✅ disclaimers present |
+| src/components/kynthai/hero-section.tsx | 85 | Hero tagline | ✅ AI-guided information |
 | src/app/api/interactions/route.ts | 129 | Interaction checker | ✅ General note reminder |
 
 REQUIRED ACTIONS:
@@ -526,7 +526,7 @@ grep -rn '100 Disorderly' src/ public/ || echo 'CLEAN — no fake addresses'
 grep -rn '@kynthai.com\|@gmail\|@yahoo' src/ legal/ || echo 'CLEAN — no wrong domains'
 
 # 9. Privacy officer email verification
-grep -rn 'hello@kynthai.app' src/components/kynthaii/legal/ src/app/grievance/
+grep -rn 'hello@kynthai.app' src/components/kynthai/legal/ src/app/grievance/
 # Should ONLY appear for non-privacy support queries
 
 # 10. Sentry / error tracking config

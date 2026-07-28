@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
-import { KynthaiBrand } from '@/components/kynthaii/logo'
+import { KynthaiBrand } from '@/components/kynthai/logo'
 
 export function LoadingSpinner() {
   return (

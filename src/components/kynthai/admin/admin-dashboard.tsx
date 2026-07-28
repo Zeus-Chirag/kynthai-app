@@ -40,7 +40,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
-import { KynthaiBrand } from '@/components/kynthaii/logo';
+import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';

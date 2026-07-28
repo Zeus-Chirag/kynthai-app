@@ -54,8 +54,8 @@ This report documents the deployment of the Master Legal Agent for US healthcare
 
 ### 1. Privacy Officer Email Alignment
 - **`src/app/page.tsx`** — Updated privacy `ContactPoint` from `hello@kynthai.app` to `privacy@kynthai.app` (line 50).
-- **`src/components/kynthaii/legal/privacy-policy.tsx`** — Updated HIPAA Privacy Officer references to `privacy@kynthai.app` (lines 388, 394). Updated correspondence line to use `privacy@kynthai.app` (line 403). Updated Terms of Service Grievance Officer to `privacy@kynthai.app` (line 951) and registered correspondence line to `privacy@kynthai.app` (line 938).
-- **`src/components/kynthaii/pricing-page.tsx`** — Updated billing/cancellation contact from `hello@kynthai.app` to `privacy@kynthai.app` (line 755).
+- **`src/components/kynthai/legal/privacy-policy.tsx`** — Updated HIPAA Privacy Officer references to `privacy@kynthai.app` (lines 388, 394). Updated correspondence line to use `privacy@kynthai.app` (line 403). Updated Terms of Service Grievance Officer to `privacy@kynthai.app` (line 951) and registered correspondence line to `privacy@kynthai.app` (line 938).
+- **`src/components/kynthai/pricing-page.tsx`** — Updated billing/cancellation contact from `hello@kynthai.app` to `privacy@kynthai.app` (line 755).
 
 ### 2. State Privacy Law Coverage
 - Added **Section 6A** to Privacy Policy: *Other US state consumer privacy laws* covering VCDPA, CDPA, UCPA, and CTDPA with specific enumerated rights and opt-out instructions.

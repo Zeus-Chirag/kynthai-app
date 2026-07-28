@@ -2,12 +2,12 @@
 
 import { ThemeProvider } from '@/components/theme-provider'
 import { ServiceWorkerRegister } from '@/components/service-worker-register'
-import { AuthGuard } from '@/components/kynthaii/auth-guard'
+import { AuthGuard } from '@/components/kynthai/auth-guard'
 import { Toaster } from '@/components/ui/toaster'
-import { CookieConsent, hasConsented } from '@/components/kynthaii/cookie-consent'
+import { CookieConsent, hasConsented } from '@/components/kynthai/cookie-consent'
 import { runWhenIdle } from '@/components/performance-wrapper'
 import { useEffect, useState } from 'react'
-import { GlobalErrorCatcher } from '@/components/kynthaii/global-error-catcher'
+import { GlobalErrorCatcher } from '@/components/kynthai/global-error-catcher'
 import { initConsentAwareTelemetry } from '@/lib/analytics-consent'
 
 function DeferredAuthGuard() {

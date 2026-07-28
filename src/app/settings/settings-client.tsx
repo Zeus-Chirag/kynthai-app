@@ -43,7 +43,7 @@ import {
 import { useTheme } from 'next-themes';
 import { useAppStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
-import { KynthaiBrand } from '@/components/kynthaii/logo';
+import { KynthaiBrand } from '@/components/kynthai/logo';
 
 export default function SettingsClient() {
   const router = useRouter();

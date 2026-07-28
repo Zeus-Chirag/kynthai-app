@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/use-toast'
-import { MedicalDisclaimer } from '@/components/kynthaii/medical-disclaimer'
+import { MedicalDisclaimer } from '@/components/kynthai/medical-disclaimer'
 
 interface SearchResult {
   url: string

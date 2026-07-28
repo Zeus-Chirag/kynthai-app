@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import FamilyMemberDetailClient from '@/components/kynthaii/family/family-member-detail'
+import FamilyMemberDetailClient from '@/components/kynthai/family/family-member-detail'
 import { requireSessionUser } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 

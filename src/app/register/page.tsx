@@ -1,5 +1,5 @@
-import { LoginPage } from '@/components/kynthaii/login-page'
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
+import { LoginPage } from '@/components/kynthai/login-page'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function RegisterRoute() {
   return (

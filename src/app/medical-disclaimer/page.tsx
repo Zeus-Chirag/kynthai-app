@@ -1,7 +1,7 @@
 'use client'
 
-import { MedicalDisclaimer as MedicalDisclaimerFull } from '@/components/kynthaii/legal/privacy-policy'
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
+import { MedicalDisclaimer as MedicalDisclaimerFull } from '@/components/kynthai/legal/privacy-policy'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function MedicalDisclaimerPage() {
   return (

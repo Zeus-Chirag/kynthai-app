@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react'
 import { useAppStore } from '@/lib/store'
-import { CheckoutPage } from '@/components/kynthaii/checkout-page'
+import { CheckoutPage } from '@/components/kynthai/checkout-page'
 
 export default function CheckoutRoute() {
   const checkoutTier = useAppStore((s) => s.checkoutTier) || 'plus'

@@ -170,7 +170,7 @@ src/
 - Notification center dropdown
 - Health insights, drug interactions, symptom analyzer, medicine identification/search
 
-**PatientCare** (`src/components/kynthaii/patient/patient-care.tsx`):
+**PatientCare** (`src/components/kynthai/patient/patient-care.tsx`):
 - Video consultation listing + booking
 - Prescription management (sent/accepted/expired)
 - Doctor availability calendar
@@ -488,7 +488,7 @@ Demo Login → is_demo=true → No session → Demo profiles in memory
 
 ### UI Architecture
 - **Portal routing**: Conditional rendering based on `user.role` from Zustand store
-- **Shared components**: 48 files in `src/components/kynthaii/`
+- **Shared components**: 48 files in `src/components/kynthai/`
 - **Mobile-first**: Responsive with `sm:` breakpoints, bottom nav on mobile
 - **Dark mode**: `next-themes` with CSS variables
 - **Animations**: Framer Motion for page transitions + list animations

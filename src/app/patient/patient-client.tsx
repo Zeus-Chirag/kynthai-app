@@ -4,8 +4,8 @@ import { Suspense, useEffect } from "react"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { loadPortal } from "../portal-loaders"
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
-import { ConsentGate } from '@/components/kynthaii/consent-gate'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
+import { ConsentGate } from '@/components/kynthai/consent-gate'
 
 export default function PatientClient() {
   const router = useRouter()

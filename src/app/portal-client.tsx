@@ -15,19 +15,19 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAppStore, selectors } from '@/lib/store';
 import { Suspense, useEffect } from 'react';
 import { loadPortal } from './portal-loaders';
-import { LandingPage } from '@/components/kynthaii/landing-page';
-import { LoginPage } from '@/components/kynthaii/login-page';
-import { PricingPage } from '@/components/kynthaii/pricing-page';
-import { CheckoutPage } from '@/components/kynthaii/checkout-page';
-import { Onboarding } from '@/components/kynthaii/onboarding';
+import { LandingPage } from '@/components/kynthai/landing-page';
+import { LoginPage } from '@/components/kynthai/login-page';
+import { PricingPage } from '@/components/kynthai/pricing-page';
+import { CheckoutPage } from '@/components/kynthai/checkout-page';
+import { Onboarding } from '@/components/kynthai/onboarding';
 import {
   PrivacyPolicy,
   TermsOfService,
   CookiePolicy,
   AccessibilityStatement,
   MedicalDisclaimer,
-} from '@/components/kynthaii/legal/privacy-policy';
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary';
+} from '@/components/kynthai/legal/privacy-policy';
+import { ErrorBoundary } from '@/components/kynthai/error-boundary';
 import type { AppScreen, LoginPortal } from '@/lib/store';
 
 // ── Route → screen mapping ─────────────────────────────────────────────────

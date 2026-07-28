@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { LegalLayout } from '@/components/kynthaii/legal/privacy-policy'
+import { LegalLayout } from '@/components/kynthai/legal/privacy-policy'
 
 export const metadata: Metadata = {
   title: 'Patient Rights Statement | Kynthai',

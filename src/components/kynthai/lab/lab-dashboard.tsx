@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useAppStore, type AuthUser } from '@/lib/store'
-import { KynthaiBrand } from '@/components/kynthaii/logo'
+import { KynthaiBrand } from '@/components/kynthai/logo'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,8 +13,8 @@ import {
   CheckCircle, XCircle, CircleDashed, Loader2,
   MapPin, Home,
 } from 'lucide-react'
-import { PortalFooter } from '@/components/kynthaii/portal-footer'
-import { OfflineIndicator } from '@/components/kynthaii/offline-indicator'
+import { PortalFooter } from '@/components/kynthai/portal-footer'
+import { OfflineIndicator } from '@/components/kynthai/offline-indicator'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 

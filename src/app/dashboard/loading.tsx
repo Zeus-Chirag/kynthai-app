@@ -1,6 +1,6 @@
 'use client'
 
-import { KynthaiBrand } from '@/components/kynthaii/logo'
+import { KynthaiBrand } from '@/components/kynthai/logo'
 
 export default function DashboardLoading() {
   return (

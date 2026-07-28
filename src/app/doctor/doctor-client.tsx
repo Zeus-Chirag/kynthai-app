@@ -4,7 +4,7 @@ import { Suspense, useEffect } from "react"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { loadPortal } from "../portal-loaders"
-import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
+import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function DoctorClient() {
   const router = useRouter()

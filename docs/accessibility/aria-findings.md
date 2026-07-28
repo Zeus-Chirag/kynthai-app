@@ -9,7 +9,7 @@
 
 ## CRITICAL (automated checkers will flag; screen-reader users blocked)
 
-### FIND-001  `src/components/kynthaii/caretaker/member-schedule.tsx:116`
+### FIND-001  `src/components/kynthai/caretaker/member-schedule.tsx:116`
 **Title-only icon button — zero accessible name**
 
 ```tsx
@@ -27,7 +27,7 @@ giving no indication that the button dismisses the alarm.
 
 ## HIGH (user confusion, keyboard + AT friction)
 
-### FIND-002  `src/components/kynthaii/landing-nav.tsx:56-61`
+### FIND-002  `src/components/kynthai/landing-nav.tsx:56-61`
 **Brand logo button — empty accessible name**
 
 ```tsx
@@ -61,7 +61,7 @@ or a screen-reader user activating the button will unintentionally submit the fo
 
 ---
 
-### FIND-004  `src/components/kynthaii/landing-page.tsx:963`
+### FIND-004  `src/components/kynthai/landing-page.tsx:963`
 **Inline `<button>` inside a `<p>` — `href=#`-style navigation without keyboard support**
 
 ```tsx
@@ -78,7 +78,7 @@ user expectation for underlined inline text is a link, not a button.
 
 ---
 
-### FIND-005  `src/components/kynthaii/landing-nav.tsx:56` — Navigation landmark branding
+### FIND-005  `src/components/kynthai/landing-nav.tsx:56` — Navigation landmark branding
 **Logo button inside `<header>` duplicates `<nav>` landmark**
 
 Slight structural issue: the logo `<button>` lives directly inside `<header>` while the main
@@ -93,7 +93,7 @@ header for orientation.
 
 ## MEDIUM (WCAG technique deficiencies; potential WCAG failure at scale)
 
-### FIND-006  `src/components/kynthaii/landing-nav.tsx:232-241` (mobile menu)
+### FIND-006  `src/components/kynthai/landing-nav.tsx:232-241` (mobile menu)
 **`aria-expanded` / `aria-controls` not wired to the mobile drawer**
 
 ```tsx
@@ -112,7 +112,7 @@ which element it targets. The drawer itself also lacks an `id` to receive the as
 
 ---
 
-### FIND-007  `src/components/kynthaii/landing-nav.tsx:106-113` — Menu toggle has no visual
+### FIND-007  `src/components/kynthai/landing-nav.tsx:106-113` — Menu toggle has no visual
 focus indicator enhancement
 *(Styling-only; behaviour is fine, but with custom rounded borders + `hover:` only,
 keyboard focus ring is minimal. Combined with the aria-controls gap in FIND-006, the

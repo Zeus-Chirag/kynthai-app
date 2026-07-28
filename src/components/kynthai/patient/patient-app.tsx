@@ -50,28 +50,28 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useAppStore, type AuthUser } from '@/lib/store';
-import { KynthaiBrand } from '@/components/kynthaii/logo';
+import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useRouter } from 'next/navigation';
 import { getGreeting } from '@/lib/greeting'
-import { AchievementCelebration } from '@/components/kynthaii/achievement-celebration';
+import { AchievementCelebration } from '@/components/kynthai/achievement-celebration';
 import { useToast } from '@/hooks/use-toast';
 import { TodayView } from '@/components/medication/today-view';
 import { MedicationsList } from '@/components/medication/medications-list';
 import { AiChat } from '@/components/medication/ai-chat';
-import { CareHub } from '@/components/kynthaii/caretaker/care-hub';
-import { NotificationCenter } from '@/components/kynthaii/notification-center';
-import { OfflineIndicator } from '@/components/kynthaii/offline-indicator';
-import { PortalFooter } from '@/components/kynthaii/portal-footer';
-import { ShareSheet } from '@/components/kynthaii/share-sheet';
-import { FadeIn } from '@/components/kynthaii/animations';
-import { LabResultsViewer } from '@/components/kynthaii/patient/lab-results-viewer';
-import { BookAppointment } from '@/components/kynthaii/patient/book-appointment';
+import { CareHub } from '@/components/kynthai/caretaker/care-hub';
+import { NotificationCenter } from '@/components/kynthai/notification-center';
+import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
+import { PortalFooter } from '@/components/kynthai/portal-footer';
+import { ShareSheet } from '@/components/kynthai/share-sheet';
+import { FadeIn } from '@/components/kynthai/animations';
+import { LabResultsViewer } from '@/components/kynthai/patient/lab-results-viewer';
+import { BookAppointment } from '@/components/kynthai/patient/book-appointment';
 import dynamic from 'next/dynamic';
 
 // ── dynamic video-call load ───────────────────────────────────────────────
 const VideoCall = dynamic(
   () =>
-    import('@/components/kynthaii/video-call')
+    import('@/components/kynthai/video-call')
       .then(m => m.VideoCall)
       .catch(() => {
         // graceful fallback if the component is removed
@@ -87,7 +87,7 @@ const VideoCall = dynamic(
 // ── dynamic market load ────────────────────────────────────────────────────
 const MarketView = dynamic(
   () =>
-    import('@/components/kynthaii/market/market-view')
+    import('@/components/kynthai/market/market-view')
       .then(m => m.MarketView)
       .catch(() => ({
         default: ({}: Record<string, never>) => (

@@ -35,19 +35,19 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useTheme } from 'next-themes';
-import { KynthaiBrand } from '@/components/kynthaii/logo';
+import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { t, getLanguage, setLanguage, initLanguage } from '@/lib/i18n';
 import { getGreeting } from '@/lib/greeting';
-import { ProfileHub } from '@/components/kynthaii/patient/profile-hub';
+import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
 import { PatientCare } from './patient-care';
-import { OfflineIndicator } from '@/components/kynthaii/offline-indicator';
+import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { PortalFooter } from '@/components/kynthaii/portal-footer';
+import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FadeIn } from '@/components/kynthaii/animations';
+import { FadeIn } from '@/components/kynthai/animations';
 import {
   Dialog,
   DialogContent,
@@ -59,7 +59,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { VideoCall } from '@/components/kynthaii/video-call';
+import { VideoCall } from '@/components/kynthai/video-call';
 import {
   DOCTOR_BASE_FEE_PCT,
   LOYALTY_TIERS,

@@ -19,7 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { ResponsiveSheet } from '@/components/kynthaii/responsive-sheet';
+import { ResponsiveSheet } from '@/components/kynthai/responsive-sheet';
 import { HealthInsights } from '@/components/medication/health-insights';
 import { DrugInteractions } from '@/components/medication/drug-interactions';
 import { SymptomAnalyzer } from '@/components/medication/symptom-analyzer';

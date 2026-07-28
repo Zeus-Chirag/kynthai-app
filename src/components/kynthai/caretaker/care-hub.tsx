@@ -20,13 +20,13 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
-import { ResponsiveSheet } from '@/components/kynthaii/responsive-sheet'
+import { ResponsiveSheet } from '@/components/kynthai/responsive-sheet'
 import { HealthInsights } from '@/components/medication/health-insights'
 import { DrugInteractions } from '@/components/medication/drug-interactions'
 import { SymptomAnalyzer } from '@/components/medication/symptom-analyzer'
 import { IdentifyMedicine } from '@/components/medication/identify-medicine'
 import { SearchMedicine } from '@/components/medication/search-medicine'
-import { FamilyCircle } from '@/components/kynthaii/family/family-circle'
+import { FamilyCircle } from '@/components/kynthai/family/family-circle'
 
 type ToolId = 'chronic' | 'insights' | 'interactions' | 'symptoms' | 'identify' | 'search'
 

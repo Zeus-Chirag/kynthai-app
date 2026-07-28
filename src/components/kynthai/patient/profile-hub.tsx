@@ -44,10 +44,10 @@ import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
-import { ResponsiveSheet } from '@/components/kynthaii/responsive-sheet';
+import { ResponsiveSheet } from '@/components/kynthai/responsive-sheet';
 import { useAppStore, type AuthUser } from '@/lib/store';
-import { ReferralDashboard } from '@/components/kynthaii/referral-dashboard';
-import { HealthPulseRing } from '@/components/kynthaii/health-pulse-ring';
+import { ReferralDashboard } from '@/components/kynthai/referral-dashboard';
+import { HealthPulseRing } from '@/components/kynthai/health-pulse-ring';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 

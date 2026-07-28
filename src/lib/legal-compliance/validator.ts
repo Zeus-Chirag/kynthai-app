@@ -162,7 +162,7 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
         break
       }
       case 'SEC-002': {
-        const hubContent = await import('fs').then(fs => fs.readFileSync('src/components/kynthaii/patient/profile-hub.tsx', 'utf8'))
+        const hubContent = await import('fs').then(fs => fs.readFileSync('src/components/kynthai/patient/profile-hub.tsx', 'utf8'))
         const hasModal = hubContent.includes('deleteConfirmOpen')
         results.push({
           rule,

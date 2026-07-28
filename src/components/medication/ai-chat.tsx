@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { MedicalDisclaimer } from '@/components/kynthaii/medical-disclaimer';
+import { MedicalDisclaimer } from '@/components/kynthai/medical-disclaimer';
 import { useAppStore } from '@/lib/store';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
 import ReactMarkdown from 'react-markdown';

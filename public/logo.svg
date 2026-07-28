@@ -10,7 +10,7 @@
       <stop offset="1" stopColor="#0d9488"/>
     </linearGradient>
   </defs>
-  <!-- Icon tile — geometry matches src/components/kynthaii/logo.tsx -->
+  <!-- Icon tile — geometry matches src/components/kynthai/logo.tsx -->
   <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#kynthai-tree-grad)"/>
   <line x1="14" y1="40" x2="34" y2="40" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
   <path d="M 24 40 L 24 32" stroke="white" stroke-width="3.5" stroke-linecap="round"/>

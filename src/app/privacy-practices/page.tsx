@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { LegalLayout } from '@/components/kynthaii/legal/privacy-policy'
+import { LegalLayout } from '@/components/kynthai/legal/privacy-policy'
 import nppData from './npp-content.json'
 
 export const metadata: Metadata = {
