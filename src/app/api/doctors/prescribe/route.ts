@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     })
 
     return jsonOk({
-      prescriptions: prescriptions.map((p) => ({
+      prescriptions: prescriptions.map((p: any) => ({
         id: p.id,
         patient: p.patient,
         // Health Data Protection: medications notes are decrypted via Prisma middleware

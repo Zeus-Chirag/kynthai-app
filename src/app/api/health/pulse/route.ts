@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
       where: { userId, active: true },
       select: { id: true },
     });
-    const medIds = medications.map(m => m.id);
+    const medIds = medications.map((m: any) => m.id);
 
     const [
       todayRems,
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
     // 1. Medication adherence (40 points)
     let adherence = 0;
     if (todayRems.length > 0) {
-      const taken = todayRems.filter(r => r.status === 'taken').length;
+      const taken = todayRems.filter((r: any) => r.status === 'taken').length;
       adherence = Math.round((taken / todayRems.length) * 40);
     } else if (medications.length > 0) {
       // Meds exist but no reminders generated yet
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Streak status (20 points)
-    const medsStreak = streak.find(s => s.type === 'daily_meds');
+    const medsStreak = streak.find((s: any) => s.type === 'daily_meds');
     const streakDays = medsStreak?.count ?? 0;
     const streakScore = streakDays >= 3 ? 20 : streakDays >= 1 ? 10 : 0;
 

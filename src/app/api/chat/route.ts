@@ -91,7 +91,7 @@ function formatMedicineInfo(med: ReturnType<typeof getMedicineFromDb>): string {
 **Category:** ${med.category}
 
 ### Common Uses
-${med.commonUses.map(u => `- ${u}`).join('\n')}
+${med.commonUses.map((u: any) => `- ${u}`).join('\n')}
 
 ### Dosage
 ${med.dosage}
@@ -100,10 +100,10 @@ ${med.dosage}
 ${med.timing}
 
 ### Common Side Effects
-${med.sideEffects.map(s => `- ${s}`).join('\n')}
+${med.sideEffects.map((s: any) => `- ${s}`).join('\n')}
 
 ### Food Interactions
-${med.foodInteractions.map(f => `- ${f}`).join('\n')}
+${med.foodInteractions.map((f: any) => `- ${f}`).join('\n')}
 
 ### Pregnancy Safety
 ${med.pregnancySafety}
@@ -406,7 +406,7 @@ export async function GET(req: NextRequest) {
   try {
     const qpResult = chatQuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
     if (!qpResult.success) {
-      const issues = qpResult.error.issues.map(i => ({
+      const issues = qpResult.error.issues.map((i: any) => ({
         field: i.path.join('.'),
         message: i.message,
       }));

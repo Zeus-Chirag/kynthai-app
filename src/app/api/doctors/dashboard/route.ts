@@ -33,8 +33,8 @@ export async function GET(req: NextRequest) {
     take: 100,
   })
 
-  const completed = appointments.filter((a) => a.status === 'completed')
-  const upcoming = appointments.filter((a) => a.status === 'pending' || a.status === 'confirmed')
+  const completed = appointments.filter((a: any) => a.status === 'completed')
+  const upcoming = appointments.filter((a: any) => a.status === 'pending' || a.status === 'confirmed')
   const lifetimeCompleted = completed.length
   const loyalty = doctorLoyaltyTier(lifetimeCompleted)
 
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
     take: 50,
   })
 
-  const earnings = completed.reduce((s, a) => s + a.price - a.commission, 0)
+  const earnings = completed.reduce((s: number, a: any) => s + a.price - a.commission, 0)
 
   return jsonOk({
     profile: {
@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
       nextThreshold: loyalty.nextThreshold,
       progress: loyalty.progress,
     },
-    appointments: appointments.map((a) => ({
+    appointments: appointments.map((a: any) => ({
       id: a.id,
       patientId: a.patientId,
       patientName: a.patient.name,
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
       reason: a.reason,
     })),
     patients,
-    prescriptions: prescriptions.map((p) => ({
+    prescriptions: prescriptions.map((p: any) => ({
       id: p.id,
       patientId: p.patientId,
       patientName: p.patient.name,

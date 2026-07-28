@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     })
 
     return jsonOk({
-      notes: notes.map((n) => ({
+      notes: notes.map((n: any) => ({
         id: n.id,
         patientId: n.patientId,
         doctorId: n.doctorId,

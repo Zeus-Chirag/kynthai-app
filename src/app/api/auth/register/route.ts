@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
         }
       );
       const { data: { users } } = await adminSupabase.auth.admin.listUsers();
-      const existingUser = users?.find(u => u.email === email);
+      const existingUser = users?.find((u: any) => u.email === email);
       if (existingUser) {
         // Sign in the existing user to get a session
         const signInResult = await supabase.auth.signInWithPassword({ email, password });

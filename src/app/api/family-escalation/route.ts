@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    const familyIds = memberships.map(m => m.familyId)
+    const familyIds = memberships.map((m: any) => m.familyId)
 
     // Get recent alerts for these families
     const alerts = await db.familyHealthAlert.findMany({

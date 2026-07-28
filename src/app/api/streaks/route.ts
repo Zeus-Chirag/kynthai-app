@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     const streaks = await db.userStreak.findMany({ where: { userId } });
     return jsonOk({
-      streaks: streaks.map(s => ({ type: s.type, count: s.count, bestCount: s.bestCount })),
+      streaks: streaks.map((s: any) => ({ type: s.type, count: s.count, bestCount: s.bestCount })),
     });
   } catch (error) {
     logger.phiSafeError(error);

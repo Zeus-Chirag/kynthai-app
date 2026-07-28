@@ -4,17 +4,21 @@
 import { createClient } from '@supabase/supabase-js';
 import { encryptFile, decryptFile, generateFileId, sanitizeFilename } from './encryption';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase credentials for storage');
+// Lazy-initialized Supabase admin client to avoid build-time errors
+let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
+    _supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false },
+    });
+  }
+  return _supabaseAdmin;
 }
-
-// Admin client with service role key (bypasses RLS for server-side operations)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { persistSession: false },
-});
+export { getSupabaseAdmin };
+// Re-export as named supabaseAdmin for backward compatibility
+export const supabaseAdmin = getSupabaseAdmin;
 
 const BUCKET = 'medical-documents';
 
@@ -28,11 +32,11 @@ export async function initializeMedicalDocumentsBucket(): Promise<{
 }> {
   try {
     // Check if bucket exists
-    const { data: buckets } = await supabaseAdmin.storage.listBuckets();
+    const { data: buckets } = await supabaseAdmin().storage.listBuckets();
     const exists = buckets?.some(b => b.name === BUCKET);
 
     if (!exists) {
-      const { error } = await supabaseAdmin.storage.createBucket(BUCKET, {
+      const { error } = await supabaseAdmin().storage.createBucket(BUCKET, {
         public: false,
         fileSizeLimit: 52428800, // 50MB
         allowedMimeTypes: [
@@ -71,7 +75,7 @@ export async function uploadMedicalDocument(
 ): Promise<{ path: string; error?: string }> {
   const path = `${userId}/${type}/${fileId}.${fileExt}`;
 
-  const { data, error } = await supabaseAdmin.storage
+  const { data, error } = await supabaseAdmin().storage
     .from(BUCKET)
     .upload(path, encryptedData, {
       contentType: 'application/octet-stream', // Encrypted data
@@ -97,7 +101,7 @@ export async function uploadMedicalDocument(
 export async function downloadMedicalDocument(
   path: string
 ): Promise<{ data: Buffer | null; error?: string }> {
-  const { data, error } = await supabaseAdmin.storage
+  const { data, error } = await supabaseAdmin().storage
     .from(BUCKET)
     .download(path);
 
@@ -116,7 +120,7 @@ export async function getSignedDocumentUrl(
   path: string,
   expiresIn = 3600
 ): Promise<{ url: string | null; error?: string }> {
-  const { data, error } = await supabaseAdmin.storage
+  const { data, error } = await supabaseAdmin().storage
     .from(BUCKET)
     .createSignedUrl(path, expiresIn);
 
@@ -131,7 +135,7 @@ export async function getSignedDocumentUrl(
  * Delete document from storage
  */
 export async function deleteMedicalDocument(path: string): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabaseAdmin.storage.from(BUCKET).remove([path]);
+  const { error } = await supabaseAdmin().storage.from(BUCKET).remove([path]);
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
@@ -140,7 +144,7 @@ export async function deleteMedicalDocument(path: string): Promise<{ success: bo
  * List user's documents in storage (for verification/cleanup)
  */
 export async function listUserDocuments(userId: string): Promise<{ files: string[]; error?: string }> {
-  const { data, error } = await supabaseAdmin.storage
+  const { data, error } = await supabaseAdmin().storage
     .from(BUCKET)
     .list(userId, { limit: 1000 });
 
@@ -150,7 +154,7 @@ export async function listUserDocuments(userId: string): Promise<{ files: string
   for (const folder of data || []) {
     if (folder.metadata?.type) {
       const typePath = `${userId}/${folder.name}`;
-      const { data: typeFiles } = await supabaseAdmin.storage.from(BUCKET).list(typePath);
+      const { data: typeFiles } = await supabaseAdmin().storage.from(BUCKET).list(typePath);
       for (const f of typeFiles || []) {
         files.push(`${typePath}/${f.name}`);
       }
@@ -204,8 +208,8 @@ export async function uploadAndStoreDocument(
 
   // Create document record in database
   try {
-    const { data: document, error: dbError } = await supabaseAdmin
-      .from('medical_documents')
+    const { data: document, error: dbError } = await (supabaseAdmin()
+      .from('medical_documents') as any)
       .insert({
         user_id: userId,
         uploaded_by_id: uploadedById,
@@ -228,14 +232,14 @@ export async function uploadAndStoreDocument(
 
     if (dbError) {
       // Cleanup: delete uploaded file
-      await supabaseAdmin.storage.from(BUCKET).remove([path]);
+      await supabaseAdmin().storage.from(BUCKET).remove([path]);
       return { documentId: '', error: dbError.message };
     }
 
     return { documentId: document.id };
   } catch (error) {
     // Cleanup: delete uploaded file
-    await supabaseAdmin.storage.from(BUCKET).remove([path]);
+    await supabaseAdmin().storage.from(BUCKET).remove([path]);
     return {
       documentId: '',
       error: error instanceof Error ? error.message : 'Database error',
@@ -256,7 +260,7 @@ export async function getDocumentForDownload(
   mimeType: string;
   error?: string;
 }> {
-  const { data: document, error } = await supabaseAdmin
+  const { data: document, error } = await (supabaseAdmin() as any)
     .from('medical_documents')
     .select('*')
     .eq('id', documentId)

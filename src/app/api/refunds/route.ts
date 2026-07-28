@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
         where: { doctorId: doc.id },
         select: { id: true },
       });
-      where.appointmentId = { in: appts.map(a => a.id) };
+      where.appointmentId = { in: appts.map((a: any) => a.id) };
     }
   } else if (u.role === 'lab') {
     const lab = await db.labProfile.findUnique({ where: { userId: u.id }, select: { id: true } });
@@ -179,7 +179,7 @@ export async function GET(req: NextRequest) {
         where: { labId: lab.id },
         select: { id: true },
       });
-      where.labBookingId = { in: bookings.map(b => b.id) };
+      where.labBookingId = { in: bookings.map((b: any) => b.id) };
     }
   }
 

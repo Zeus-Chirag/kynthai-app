@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
   const patient = await db.user.findUnique({ where: { id: patientId } })
   if (!patient) return jsonError('Patient not found', 404)
 
-  const tests = Array.isArray(body.tests) ? body.tests.filter(t => t && t.name && Number(t.price) > 0) : []
+  const tests = Array.isArray(body.tests) ? body.tests.filter((t: any) => t && t.name && Number(t.price) > 0) : []
   const total = tests.reduce((s, t) => s + (Number(t.price) || 0), 0)
   if (total <= 0) return jsonError('Total price must be greater than 0', 400)
 
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
         type: 'lab_booking',
         status: 'succeeded',
         provider: 'mock',
-        description: `Lab test: ${tests.map(t => t.name).join(', ')} at ${lab.labName}`,
+        description: `Lab test: ${tests.map((t: any) => t.name).join(', ')} at ${lab.labName}`,
       },
     })
   } catch (paymentErr) {

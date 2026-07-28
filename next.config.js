@@ -2,9 +2,6 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  // Standalone output for Docker/container deployments (use: node .next/standalone/server.js)
-  output: 'standalone',
-
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -20,15 +17,11 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          // ponytail: HSTS omitted here — sending it over plain HTTP bricks the
-          // origin in browsers (Safari caches the https upgrade, can't fall back).
-          // Emitted only over TLS by proxy.ts.
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=()' },
-          // COEP/COOP removed for Safari dev compatibility — re-enable in production build only
         ],
       },
     ];
@@ -49,4 +42,4 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-module.exports = withBundleAnalyzer(nextConfig);// force rebuild Thu Jul 23 18:54:20 IST 2026
+module.exports = withBundleAnalyzer(nextConfig);

@@ -31,15 +31,15 @@ export async function GET(req: NextRequest) {
     const sevenDaysAgoStr = dateStr(sevenDaysAgo)
 
     const risks = await Promise.all(
-      users.map(async (u) => {
-        const medIds = u.medications.map((m) => m.id)
+      users.map(async (u: any) => {
+        const medIds = u.medications.map((m: any) => m.id)
         const last7Reminders = medIds.length
           ? await db.reminder.findMany({
               where: { medicationId: { in: medIds }, date: { gte: sevenDaysAgoStr } },
             })
           : []
-        const skipped = last7Reminders.filter((r) => r.status === 'skipped').length
-        const taken = last7Reminders.filter((r) => r.status === 'taken').length
+        const skipped = last7Reminders.filter((r: any) => r.status === 'skipped').length
+        const taken = last7Reminders.filter((r: any) => r.status === 'taken').length
         const lastActivity = u.auditLogs[0]?.createdAt ?? u.createdAt
         const daysInactive = Math.floor((Date.now() - lastActivity.getTime()) / (24 * 60 * 60 * 1000))
 
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
 
     // Sort by risk severity.
     const order = { high: 0, medium: 1, low: 2 } as const
-    risks.sort((a, b) => order[a.risk] - order[b.risk] || b.daysInactive - a.daysInactive)
+    risks.sort((a, b) => (order as any)[a.risk] - (order as any)[b.risk] || b.daysInactive - a.daysInactive)
 
     return jsonOk({ summary, risks })
   } catch (error) {
@@ -220,7 +220,7 @@ export async function POST(req: NextRequest) {
 
     await logAudit(user.id, 'retention.purge', JSON.stringify({
       dryRun,
-      results: results.map(r => ({ model: r.model, count: r.wouldDelete })),
+      results: results.map((r: any) => ({ model: r.model, count: r.wouldDelete })),
     }))
 
     return jsonOk(responseBody)

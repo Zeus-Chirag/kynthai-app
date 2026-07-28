@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   })
 
   return jsonOk(
-    conditions.map((c) => ({
+    conditions.map((c: any) => ({
       ...c,
       medications: parseJsonCol(c.medications, []),
     })),

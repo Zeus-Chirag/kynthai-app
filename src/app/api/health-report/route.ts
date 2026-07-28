@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const meds = await db.medication.findMany({
       where: { userId: user.id, active: true },
     })
-    const medIds = meds.map(m => m.id)
+    const medIds = meds.map((m: any) => m.id)
 
     // Get reminders
     const startDate = daysAgo(Math.floor(span))
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     // Calculate adherence
     const totalDoses = allReminders.length
-    const totalTaken = allReminders.filter(r => r.status === 'taken').length
+    const totalTaken = allReminders.filter((r: any) => r.status === 'taken').length
     const adherence = totalDoses === 0 ? 0 : Math.round((totalTaken / totalDoses) * 100)
 
     // Build data payload
@@ -81,23 +81,23 @@ export async function POST(req: NextRequest) {
           : null,
         allergies: user.allergies,
       },
-      medications: meds.map(m => ({
+      medications: meds.map((m: any) => ({
         name: m.name,
         dosage: m.dosage,
         frequency: m.frequency,
         times: m.times,
       })),
-      chronicConditions: conditions.map(c => ({
+      chronicConditions: conditions.map((c: any) => ({
         name: c.name,
         severity: c.severity,
       })),
       adherence: {
         totalDoses,
         totalTaken,
-        totalSkipped: allReminders.filter(r => r.status === 'skipped').length,
+        totalSkipped: allReminders.filter((r: any) => r.status === 'skipped').length,
         adherencePct: adherence,
       },
-      healthScores: healthScores.map(h => ({
+      healthScores: healthScores.map((h: any) => ({
         date: h.date,
         score: h.score,
       })),
@@ -107,9 +107,9 @@ export async function POST(req: NextRequest) {
           const syms = JSON.parse(j.symptoms || '[]')
           return acc + syms.length
         }, 0),
-        averageMood: getMostCommon(journalEntries.map(j => j.mood).filter(Boolean)),
+        averageMood: getMostCommon(journalEntries.map((j: any) => j.mood).filter(Boolean)),
       },
-      recentHealthQuestions: chatMessages.slice(0, 5).map(m => m.content),
+      recentHealthQuestions: chatMessages.slice(0, 5).map((m: any) => m.content),
     }
 
     const zai = await getZai()

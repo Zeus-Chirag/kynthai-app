@@ -210,7 +210,7 @@ export async function GET(req: NextRequest) {
   });
 
   return jsonOk(
-    pending.map(m => ({
+    pending.map((m: any) => ({
       id: m.id,
       familyId: m.familyId,
       invitedBy: m.family.owner.name,

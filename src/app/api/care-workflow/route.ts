@@ -111,9 +111,9 @@ export async function GET(req: NextRequest) {
     timeline.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
     // Compute stats
-    const activePrescriptions = prescriptions.filter((p) => (p as any).inviteStatus !== 'completed').length
-    const pendingLabTests = labBookings.filter((b) => b.status === 'pending' || b.status === 'sample_collected').length
-    const completedLabTests = labBookings.filter((b) => b.status === 'completed').length
+    const activePrescriptions = prescriptions.filter((p: any) => (p as any).inviteStatus !== 'completed').length
+    const pendingLabTests = labBookings.filter((b: any) => b.status === 'pending' || b.status === 'sample_collected').length
+    const completedLabTests = labBookings.filter((b: any) => b.status === 'completed').length
 
     return jsonOk({
       timeline,

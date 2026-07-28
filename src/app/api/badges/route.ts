@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
     const badges = await db.userBadge.findMany({ where: { userId } });
     return jsonOk({
-      badges: badges.map(b => ({ badgeType: b.badgeType, earnedAt: b.earnedAt.toISOString() })),
+      badges: badges.map((b: any) => ({ badgeType: b.badgeType, earnedAt: b.earnedAt.toISOString() })),
     });
   } catch (error) {
     logger.phiSafeError(error);

@@ -154,7 +154,7 @@ export async function GET(req: NextRequest) {
       where: { userId: user.id },
     })
 
-    const familyIds = memberships.map(m => m.familyId)
+    const familyIds = memberships.map((m: any) => m.familyId)
 
     // Get active SOS alerts
     const alerts = await db.emergencyAlert.findMany({

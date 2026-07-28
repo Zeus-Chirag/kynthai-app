@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
     fields: sp.get('fields')?.trim() || undefined,
   });
   if (!qpResult.success) {
-    const issues = qpResult.error.issues.map(i => ({
+    const issues = qpResult.error.issues.map((i: any) => ({
       field: i.path.join('.'),
       message: i.message,
     }));
@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
     Array.isArray(body.times) && body.times.length
       ? body.times
           .slice(0, MAX_TIMES_PER_MED)
-          .map(t => sanitizeText(String(t), 10))
+          .map((t: any) => sanitizeText(String(t), 10))
           .filter(t => TIME_RE.test(t))
       : ['09:00'];
   if (times.length === 0) times.push('09:00');

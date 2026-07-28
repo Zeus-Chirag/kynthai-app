@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
   })
 
   return jsonOk({
-    templates: templates.map((t) => ({
+    templates: templates.map((t: any) => ({
       id: t.id,
       doctorId: t.doctorId,
       name: t.name,

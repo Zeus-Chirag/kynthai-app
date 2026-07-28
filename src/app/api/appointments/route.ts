@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
   const qpResult = appointmentsQuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
   if (!qpResult.success) {
-    const issues = qpResult.error.issues.map(i => ({
+    const issues = qpResult.error.issues.map((i: any) => ({
       field: i.path.join('.'),
       message: i.message,
     }));
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
   const page = hasMore ? appts.slice(0, limit) : appts;
   const nextCursor = hasMore && page.length > 0 ? page[page.length - 1]!.id : null;
 
-  const data = page.map(a => ({
+  const data = page.map((a: any) => ({
     id: a.id,
     doctorId: a.doctorId,
     patientId: a.patientId,

@@ -26,11 +26,11 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
-    const type = formData.get('type') as DocumentType;
-    const category = (formData.get('category') as DocumentCategory) || 'CLINICAL';
+    const type = formData.get('type') as unknown as DocumentType;
+    const category = (formData.get('category') as unknown as DocumentCategory) || 'CLINICAL';
     const title = formData.get('title') as string;
     const description = formData.get('description') as string || '';
-    const visibility = (formData.get('visibility') as DocumentVisibility) || 'PRIVATE';
+    const visibility = (formData.get('visibility') as unknown as DocumentVisibility) || 'PRIVATE';
     const familyId = formData.get('familyId') as string || null;
     const sharedWith = formData.get('sharedWith') ? JSON.parse(formData.get('sharedWith') as string) : [];
 

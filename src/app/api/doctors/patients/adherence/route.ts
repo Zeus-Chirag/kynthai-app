@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     where: { doctorId: profile.id },
     include: { patient: true },
   })
-  const patientIds = Array.from(new Set(appointments.map((a) => a.patientId)))
+  const patientIds = Array.from(new Set(appointments.map(((a: any) => a.patientId))))
 
   const today = todayStr()
   const sevenDaysAgo = new Date()
@@ -35,11 +35,11 @@ export async function GET(req: NextRequest) {
 
   const patients = await Promise.all(
     patientIds.map(async (pid) => {
-      const patient = appointments.find((a) => a.patientId === pid)!.patient
+      const patient = appointments.find((a: any) => a.patientId === pid)!.patient
       const meds = await db.medication.findMany({
         where: { userId: pid, active: true },
       })
-      const medIds = meds.map((m) => m.id)
+      const medIds = meds.map((m: any) => m.id)
       const todayReminders = medIds.length
         ? await db.reminder.findMany({ where: { medicationId: { in: medIds }, date: today } })
         : []
@@ -48,8 +48,8 @@ export async function GET(req: NextRequest) {
             where: { medicationId: { in: medIds }, date: { gte: dateStr(sevenDaysAgo) } },
           })
         : []
-      const takenToday = todayReminders.filter((r) => r.status === 'taken').length
-      const takenWeek = weekReminders.filter((r) => r.status === 'taken').length
+      const takenToday = todayReminders.filter((r: any) => r.status === 'taken').length
+      const takenWeek = weekReminders.filter((r: any) => r.status === 'taken').length
       const adherence = weekReminders.length
         ? Math.round((takenWeek / weekReminders.length) * 100)
         : 0

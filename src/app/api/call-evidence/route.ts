@@ -136,7 +136,7 @@ export async function GET(req: NextRequest) {
   const messages = await signalingStore.list(appointmentId);
 
   // Count unique roles that sent at least one message
-  const roles = new Set(messages.map(m => m.role));
+  const roles = new Set(messages.map((m: any) => m.role));
   const doctorJoined = roles.has('doctor');
   const patientJoined = roles.has('patient');
 

@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       where: { doctorId: profile.id },
       select: { patientId: true },
     })
-    const linkedPatientIds = [...new Set(linkedAppointments.map(a => a.patientId))]
+    const linkedPatientIds = [...new Set(linkedAppointments.map((a: any) => a.patientId))]
     if (linkedPatientIds.length === 0) return jsonOk({ patients: [] })
 
     // Search only within the doctor's existing patient set.

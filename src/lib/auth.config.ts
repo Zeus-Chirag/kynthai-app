@@ -3,12 +3,19 @@
 
 import NextAuth, { type User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { compare } from 'bcryptjs';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+// Lazy-initialized Supabase admin client to avoid build-time errors
+// when env vars are not available during static page data collection
+let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
+    _supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  }
+  return _supabaseAdmin;
+}
 
 interface UserPayload {
   id: string;
@@ -45,28 +52,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = credentials.email as string;
         const password = credentials.password as string;
 
-        const { data: user } = await supabaseAdmin
+        const { data: user } = await getSupabaseAdmin()
           .from('users')
           .select('id, email, password, role, name, "emailVerified"')
           .eq('email', credentials.email as string)
           .single();
 
-        if (!user || !('password' in user) || !user.password) return null;
+        const userData = user as any;
+        if (!userData || !userData.password) return null;
 
-        const passwordHash = String(user.password);
+        const passwordHash = String(userData.password);
         const { compare } = await import('bcryptjs');
         const isValid = await compare(credentials.password as string, passwordHash);
         if (!isValid) return null;
 
-        if (!user.emailVerified) {
+        if (!userData.emailVerified) {
           throw new Error('EMAIL_NOT_VERIFIED');
         }
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          role: userData.role,
         };
       },
     }),

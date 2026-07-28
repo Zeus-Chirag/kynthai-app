@@ -45,17 +45,18 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     if (error || !user) return null;
 
     // Get user profile for role
-    const { data: profile } = await supabaseAdmin
+    const { data: profile } = await supabaseAdmin()
       .from('users')
       .select('id, email, role, name')
       .eq('id', user.id)
       .single();
 
-    return profile ? {
-      id: profile.id,
-      email: profile.email,
-      role: profile.role,
-      name: profile.name || undefined,
+    const p = profile as any;
+    return p ? {
+      id: p.id,
+      email: p.email,
+      role: p.role,
+      name: p.name || undefined,
     } : null;
   } catch {
     return null;
@@ -215,7 +216,7 @@ export async function canAccessDocument(
 
   // Family access
   if (document.familyId && document.visibility === 'FAMILY') {
-    const { data: membership } = await supabaseAdmin
+    const { data: membership } = await supabaseAdmin()
       .from('family_members')
       .select('id')
       .eq('family_id', document.familyId)

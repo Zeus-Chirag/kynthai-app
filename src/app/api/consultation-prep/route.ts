@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
       db.user.findUnique({ where: { id: userId }, select: { allergies: true } }),
     ]);
 
-    const medIds = medications.map(m => m.id);
+    const medIds = medications.map((m: any) => m.id);
     const reminders =
       medIds.length > 0
         ? await db.reminder.findMany({
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
           })
         : [];
     const totalDoses = reminders.length;
-    const taken = reminders.filter(r => r.status === 'taken').length;
+    const taken = reminders.filter((r: any) => r.status === 'taken').length;
     const adherence = {
       totalDoses,
       taken,
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
     return jsonOk({
       patientName: sessionUser.name,
       visitDate: new Date().toISOString(),
-      medications: medications.map(m => ({
+      medications: medications.map((m: any) => ({
         name: m.name,
         dosage: m.dosage,
         frequency: m.frequency,
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
       symptoms: [],
       questions: [],
       allergies,
-      conditions: conditions.map(c => c.name),
+      conditions: conditions.map((c: any) => c.name),
     });
   } catch (error) {
     logger.phiSafeError(error);

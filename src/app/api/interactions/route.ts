@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
   try {
     // Scope to the authenticated user — never leak other users' medications.
     const meds = await db.medication.findMany({ where: { userId: u.id, active: true } });
-    const names = meds.map(m => `${m.name} (${m.dosage})`);
+    const names = meds.map((m: any) => `${m.name} (${m.dosage})`);
     return runAnalysis(names, u.allergies);
   } catch (error) {
     logger.phiSafeError(error);

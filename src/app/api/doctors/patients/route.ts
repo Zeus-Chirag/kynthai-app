@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     by: ['patientId'],
     where: { doctorId: profile.id },
   })
-  const alreadyLinked = existingPatients.some((p) => p.patientId === patient!.id)
+  const alreadyLinked = existingPatients.some((p: any) => p.patientId === patient!.id)
 
   if (!alreadyLinked) {
     const isPro = profile.subscriptionTier === 'pro' || profile.subscriptionTier === 'family_pro'

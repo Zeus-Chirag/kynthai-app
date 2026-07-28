@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
         }),
       ])
 
-    const medIds = activeMeds.map((m) => m.id)
+    const medIds = activeMeds.map((m: any) => m.id)
     const today = todayStr()
 
     // Today's reminders (for adherence check)
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
         })
       : []
 
-    const takenToday = todayReminders.filter((r) => r.status === 'taken').length
+    const takenToday = todayReminders.filter((r: any) => r.status === 'taken').length
     const totalToday = todayReminders.length
 
     // ── Nudge generation ───────────────────────────────────────────
@@ -97,8 +97,8 @@ export async function GET(req: NextRequest) {
     // 1) Missed doses in last 24 h → warning
     const missedCount = missedReminders.length
     if (missedCount >= 2) {
-      const medNames = [...new Set(missedReminders.map((r) => r.medication.name))]
-      const list = medNames.length <= 2 ? medNames.join(' and ') : `${medNames.slice(0, 2).join(', ')} +${medNames.length - 2}`
+      const missedNames = [...new Set(missedReminders.map((r: any) => r.medication.name))]
+      const list = missedNames.length <= 2 ? missedNames.join(' and ') : `${missedNames.slice(0, 2).join(', ')} +${missedNames.length - 2}`
       nudges.push({
         id: 'missed-dose',
         type: 'warning',
@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 4) New medication added in last 7 days → reminder
-    const newMeds = activeMeds.filter((m) => (m.createdAt ? m.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) : false))
+    const newMeds = activeMeds.filter((m: any) => (m.createdAt ? m.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) : false))
     if (newMeds.length > 0) {
       const name = newMeds[0]!.name
       nudges.push({
@@ -155,7 +155,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 5) Symptom logged + recent medication change → interaction check
-    const recentSymptoms = journalEntries.some((j) => {
+    const recentSymptoms = journalEntries.some((j: any) => {
       try {
         const s = JSON.parse(j.symptoms || '[]')
         return Array.isArray(s) && s.length > 0

@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
       where: { doctorId: profile.id },
       include: { patient: true },
     });
-    const patientIds = Array.from(new Set(appointments.map(a => a.patientId)));
+    const patientIds = Array.from(new Set(appointments.map((a: any) => a.patientId)));
     const today = todayStr();
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -92,16 +92,16 @@ export async function GET(req: NextRequest) {
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
     const patients = await Promise.all(
       patientIds.map(async pid => {
-        const patient = appointments.find(a => a.patientId === pid)!.patient;
+        const patient = appointments.find((a: any) => a.patientId === pid)!.patient;
         const meds = await db.medication.findMany({ where: { userId: pid, active: true } });
-        const medIds = meds.map(m => m.id);
+        const medIds = meds.map((m: any) => m.id);
         const weekReminders =
           medIds.length > 0
             ? await db.reminder.findMany({
                 where: { medicationId: { in: medIds }, date: { gte: dateStr(sevenDaysAgo) } },
               })
             : [];
-        const takenWeek = weekReminders.filter(r => r.status === 'taken').length;
+        const takenWeek = weekReminders.filter((r: any) => r.status === 'taken').length;
         const adherence = weekReminders.length
           ? Math.round((takenWeek / weekReminders.length) * 100)
           : 0;
@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
                 },
               })
             : [];
-        const prevTaken = prevWeekReminders.filter(r => r.status === 'taken').length;
+        const prevTaken = prevWeekReminders.filter((r: any) => r.status === 'taken').length;
         const prevAdherence = prevWeekReminders.length
           ? Math.round((prevTaken / prevWeekReminders.length) * 100)
           : adherence;
@@ -122,10 +122,10 @@ export async function GET(req: NextRequest) {
         if (adherence > prevAdherence + 5) trend = 'improving';
         else if (adherence < prevAdherence - 5) trend = 'declining';
         const lastApt = appointments
-          .filter(a => a.patientId === pid)
-          .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())[0];
+          .filter((a: any) => a.patientId === pid)
+          .sort((a: any, b: any) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())[0];
         const missedDoses = weekReminders.filter(
-          r => r.status === 'missed' || r.status === 'pending'
+          (r: any) => r.status === 'missed' || r.status === 'pending'
         ).length;
         return {
           id: patient.id,
@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
       })
     );
     const sorted = patients.sort((a, b) => a.adherence - b.adherence);
-    const needsAttention = sorted.filter(p => p.needsAttention).length;
+    const needsAttention = sorted.filter((p: any) => p.needsAttention).length;
     const avgAdherence = sorted.length
       ? Math.round(sorted.reduce((s, p) => s + p.adherence, 0) / sorted.length)
       : 0;

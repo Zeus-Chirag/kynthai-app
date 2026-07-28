@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         select: { name: true, dosage: true },
       })
       if (meds.length > 0) {
-        patientContextParts.push(`Current medications: ${meds.map(m => `${m.name} ${m.dosage}`).join(', ')}`)
+        patientContextParts.push(`Current medications: ${meds.map((m: any) => `${m.name} ${m.dosage}`).join(', ')}`)
       }
     } catch { /* ignore */ }
 
