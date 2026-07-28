@@ -21,8 +21,8 @@ export function LandingFooter() {
 
   return (
     <footer className="border-t border-border/60 bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
             <KynthaiBrand />
@@ -96,7 +96,7 @@ export function LandingFooter() {
           />
         </div>
 
-        <div className="mt-10 flex flex-col items-start justify-between gap-4 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-start">
+        <div className="mt-6 flex flex-col items-start justify-between gap-4 border-t border-border/60 pt-4 text-xs text-muted-foreground sm:flex-row sm:items-start">
           <div className="space-y-1 flex-1 min-w-0">
             <p>© {new Date().getFullYear()} Kynthai™. All rights reserved.</p>
             <p className="text-[10px] leading-relaxed">

@@ -54,7 +54,7 @@ export function WhyAmericaSection() {
   ]
 
   return (
-    <section id="why-america" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section id="why-america" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Built <span className="text-emerald-600">for America</span>
@@ -64,7 +64,7 @@ export function WhyAmericaSection() {
         </p>
       </div>
 
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5 items-stretch">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5 items-stretch">
         {reasons.map((r) => (
           <div key={r.title} className="flex h-full">
             <Card className="relative flex w-full flex-col gap-3 overflow-hidden p-5 transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -84,7 +84,7 @@ export function WhyAmericaSection() {
         ))}
       </div>
 
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-6 rounded-2xl border border-border/60 bg-muted/30 p-6">
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-6 rounded-2xl border border-border/60 bg-muted/30 p-6">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-emerald-600" />
           <span className="text-sm font-medium">Up to 4 family members</span>

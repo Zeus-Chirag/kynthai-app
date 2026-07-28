@@ -37,7 +37,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         />
       </div>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-28">
+      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-20">
         {/* Left: copy column */}
         <div>
           {/* Trust badge */}
@@ -48,7 +48,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           >
             <Badge
               variant="secondary"
-              className="mb-6 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium"
+              className="mb-4 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium"
             >
               <ShieldCheck className="h-3.5 w-3.5" />
               Built for the US · Privacy-first · Secure billing
@@ -74,7 +74,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 text-xl font-semibold sm:text-2xl"
+            className="mt-4 text-xl font-semibold sm:text-2xl"
           >
             <span className="bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent">
               Smart reminders, verified doctors &amp; lab tests
@@ -87,7 +87,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.26 }}
-            className="mt-4 max-w-xl text-pretty text-base leading-relaxed text-foreground/75 sm:text-lg"
+            className="mt-3 max-w-xl text-pretty text-base leading-relaxed text-foreground/75 sm:text-lg"
           >
             Missed doses, confusing labels, scheduling headaches — Kynthai brings smart reminders,
             AI-guided medication information, verified consults, and home diagnostic tests together.
@@ -99,7 +99,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.34 }}
-            className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"
+            className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
             <Button
               size="lg"
@@ -127,7 +127,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.45 }}
-            className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs font-medium text-muted-foreground"
+            className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs font-medium text-muted-foreground"
           >
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Privacy-first

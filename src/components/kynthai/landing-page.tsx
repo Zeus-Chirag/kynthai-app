@@ -138,8 +138,8 @@ export function LandingPage({
         <UserTypeFeatures onGetStarted={onGetStarted} />
 
         {/* Early adopter pricing card */}
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto max-w-2xl text-center mb-10">
+        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+          <div className="mx-auto max-w-2xl text-center mb-6">
             <Badge
               variant="secondary"
               className="mb-3 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
@@ -199,7 +199,7 @@ function TrustStats() {
         aria-hidden
         style={{ background: 'radial-gradient(ellipse at center, rgba(16,185,129,0.08) 0%, transparent 70%)' }}
       />
-      <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-5 px-4 py-12 sm:px-6 sm:gap-7 sm:py-14 lg:grid-cols-6 lg:px-8">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-5 px-4 py-8 sm:px-6 sm:gap-7 sm:py-10 lg:grid-cols-6 lg:px-8">
         {stats.map((s) => (
           <div
             key={s.label}
@@ -255,7 +255,7 @@ function HowItWorks() {
   ]
 
   return (
-    <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Badge
           variant="secondary"
@@ -273,7 +273,7 @@ function HowItWorks() {
       </div>
 
       {/* Step connector line (desktop only) */}
-      <div className="pointer-events-none relative mt-10 hidden lg:block" aria-hidden="true">
+      <div className="pointer-events-none relative mt-6 hidden lg:block" aria-hidden="true">
         <div className="mx-auto max-w-5xl">
           <div
             className="h-px w-full bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent"
@@ -282,7 +282,7 @@ function HowItWorks() {
         </div>
       </div>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {steps.map((s, i) => (
           <div key={s.title} className="group flex h-full">
             <Card className="relative flex w-full flex-col overflow-hidden border-border/60 bg-card transition-all duration-200 hover:-translate-y-1.5 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-900/5">
@@ -342,7 +342,7 @@ function FeatureStrip() {
 /* ------------------------------------------------------------------ */
 function BentoFeatures() {
   return (
-    <section id="bento-features" className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section id="bento-features" className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       {/* Section background accent */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-50"
@@ -366,7 +366,7 @@ function BentoFeatures() {
         </p>
       </div>
 
-      <div className="mt-10 grid gap-4 md:grid-cols-6 lg:grid-cols-12">
+      <div className="mt-6 grid gap-4 md:grid-cols-6 lg:grid-cols-12">
         {/* Big AI chat card */}
         <div className="md:col-span-6 lg:col-span-7">
           <div className="h-full">
@@ -518,7 +518,7 @@ function BentoFeatures() {
         </div>
       </div>
 
-      <div className="mt-14 flex justify-center">
+      <div className="mt-8 flex justify-center">
         <Button variant="outline" size="lg" className="group rounded-full border-border/60 px-8 py-6 text-base hover:border-emerald-500/40 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 hover:shadow-md" onClick={() => document.getElementById('features-anchor')?.scrollIntoView({ behavior: 'smooth' })}>
           See all features
           <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -608,7 +608,7 @@ function UserTypeFeatures({ onGetStarted }: { onGetStarted: (portal?: string) =>
   return (
     <section
       aria-labelledby="features-user-type-heading"
-      className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+      className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
     >
       <div className="mx-auto max-w-2xl text-center">
         <Badge
@@ -628,7 +628,7 @@ function UserTypeFeatures({ onGetStarted }: { onGetStarted: (portal?: string) =>
         </p>
       </div>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {features.map((f) => (
           <div key={f.id} className="flex h-full">
             <Card
@@ -726,7 +726,7 @@ function ValueStatements() {
 
   return (
     <section className="relative overflow-hidden border-y border-border/60 bg-gradient-to-b from-emerald-500/5 via-background to-teal-500/5">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
         <div className="mx-auto max-w-2xl text-center">
           <Badge
             variant="secondary"
@@ -746,7 +746,7 @@ function ValueStatements() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3 items-stretch">
+        <div className="mt-6 grid gap-4 md:grid-cols-3 items-stretch">
           {trustStatements.map((r) => (
             <div key={r.title} className="flex h-full">
               <Card className="flex w-full flex-col gap-4 p-6 transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -780,9 +780,9 @@ function ValueStatements() {
 /* ------------------------------------------------------------------ */
 function FounderStory() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="mx-auto max-w-2xl text-center mb-10">
+        <div className="mx-auto max-w-2xl text-center mb-6">
           <Badge
             variant="secondary"
             className="mb-3 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
@@ -854,7 +854,7 @@ function FounderStory() {
 /* ------------------------------------------------------------------ */
 function LaunchCTA({ onGetStarted }: { onGetStarted: (portal?: string) => void }) {
   return (
-    <section className="border-y border-border/60 bg-gradient-to-b from-emerald-500/[0.03] to-teal-500/[0.03] py-16 lg:py-20">
+    <section className="border-y border-border/60 bg-gradient-to-b from-emerald-500/[0.03] to-teal-500/[0.03] py-10 lg:py-14">
       <div className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
         <Badge
           variant="secondary"
@@ -869,7 +869,7 @@ function LaunchCTA({ onGetStarted }: { onGetStarted: (portal?: string) => void }
           Start managing your family&apos;s health today — free to sign up, no credit card required.
         </p>
 
-        <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
+        <div className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
           <Button
             onClick={() => onGetStarted('patient')}
             className="h-12 flex-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-6 text-white shadow-lg shadow-emerald-600/20"
@@ -910,7 +910,7 @@ function EmailCapture({ onGetStarted }: { onGetStarted: (portal?: string) => voi
   }
 
   return (
-    <section className="border-y border-border/60 bg-gradient-to-b from-emerald-500/[0.03] to-teal-500/[0.03] py-16 lg:py-20">
+    <section className="border-y border-border/60 bg-gradient-to-b from-emerald-500/[0.03] to-teal-500/[0.03] py-10 lg:py-14">
       <div className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
         <Badge
           variant="secondary"
@@ -971,11 +971,11 @@ function HonestSocialProof() {
         aria-hidden
         style={{ background: 'radial-gradient(closest-side, rgba(16,185,129,0.1) 0%, transparent 70%)' }}
       />
-      <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-        <div className="grid gap-8 lg:grid-cols-2">
+      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="grid gap-6 lg:grid-cols-2">
           {/* Left: what we're building */}
           <div>
-            <div className="mx-auto max-w-2xl text-center lg:text-left lg:mx-0 mb-10">
+            <div className="mx-auto max-w-2xl text-center lg:text-left lg:mx-0 mb-6">
               <Badge
                 variant="secondary"
                 className="mb-4 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium"
@@ -1036,7 +1036,7 @@ function HonestSocialProof() {
         </div>
 
         {/* Trust strip */}
-        <div className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-6 py-5">
+        <div className="mx-auto mt-6 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-6 py-5">
           {[
             { label: 'Building in public', Icon: Sparkles },
             { label: 'AI-powered reminders', Icon: Bell },
@@ -1128,7 +1128,7 @@ function PricingTeaser({ onGetStarted }: { onGetStarted: (portal?: string) => vo
   ]
 
   return (
-    <section id="pricing-preview" className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section id="pricing-preview" className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-50"
         aria-hidden
@@ -1157,7 +1157,7 @@ function PricingTeaser({ onGetStarted }: { onGetStarted: (portal?: string) => vo
         </div>
       </div>
 
-      <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3 items-stretch">
+      <div className="mx-auto mt-6 grid max-w-5xl gap-5 md:grid-cols-3 items-stretch">
         {tiers.map((t) => (
           <div key={t.name} className={cn('flex h-full', t.highlight ? 'md:-mt-2 md:mb-0' : '')}>
             <Card
@@ -1248,14 +1248,14 @@ function PricingTeaser({ onGetStarted }: { onGetStarted: (portal?: string) => vo
 /* ------------------------------------------------------------------ */
 function Commission({ onPick }: { onPick: (p: LoginPortal) => void }) {
   return (
-    <section id="features-anchor" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section id="features-anchor" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Badge variant="secondary" className="mb-3 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">For professionals</Badge>
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Earn with Kynthai</h2>
         <p className="mt-3 text-muted-foreground">Transparent platform fees — no hidden cuts. You keep the lion&apos;s share.</p>
       </div>
       
-      <div className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-2">
+      <div className="mx-auto mt-6 grid max-w-4xl gap-5 sm:grid-cols-2">
         <Card className="relative overflow-hidden border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5">
           <CardContent className="p-7">
             <div className="flex items-center gap-3">
@@ -1335,10 +1335,10 @@ function USTrust() {
   return (
     <section
       aria-labelledby="compliance-heading"
-      className="border-y border-border/60 bg-gradient-to-b from-muted/30 via-emerald-500/5 to-muted/30 py-12"
+      className="border-y border-border/60 bg-gradient-to-b from-muted/30 via-emerald-500/5 to-muted/30 py-8"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center mb-8">
+        <div className="mx-auto max-w-2xl text-center mb-6">
           <Badge
             variant="secondary"
             className="mb-3 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
@@ -1431,7 +1431,7 @@ function FAQ() {
   ]
 
   return (
-    <section className="border-y border-border/60 bg-muted/30 py-16 lg:py-24">
+    <section className="border-y border-border/60 bg-muted/30 py-10 lg:py-16">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <Badge
@@ -1455,7 +1455,7 @@ function FAQ() {
           </p>
         </div>
 
-        <Card className="mt-10 p-2 sm:p-4">
+        <Card className="mt-6 p-2 sm:p-4">
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((f, i) => (
               <AccordionItem key={f.q} value={`item-${i}`}>

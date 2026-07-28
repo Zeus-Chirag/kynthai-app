@@ -12,9 +12,9 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
   const router = useRouter();
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div
-        className="relative overflow-hidden rounded-3xl px-6 py-14 text-center sm:px-12 sm:py-20"
+        className="relative overflow-hidden rounded-3xl px-6 py-10 text-center sm:px-10 sm:py-14"
         style={{
           background: 'linear-gradient(135deg, #10b981 0%, #0d9488 50%, #0f766e 100%)',
         }}
@@ -37,7 +37,7 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
           <p className="mx-auto mt-4 max-w-xl text-pretty text-emerald-50">
             Join US families who trust Kynthai. Start free today — no credit card, no commitment.
           </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               size="lg"
               onClick={onGetStarted}
@@ -55,7 +55,7 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
               View Pricing
             </Button>
           </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/80">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/80">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3 w-3" />
               Privacy-first

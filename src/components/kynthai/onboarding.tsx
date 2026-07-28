@@ -134,7 +134,7 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
           style={{ background: 'radial-gradient(closest-side, rgba(16,185,129,0.35), transparent 70%)' }} />
       </div>
 
-      <header className="flex items-center justify-between px-6 py-5">
+      <header className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center gap-3">
           <KynthaiBrand />
           <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
@@ -153,25 +153,25 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
         </button>
       </header>
 
-      <div className="flex flex-1 flex-col items-center justify-center px-6 pb-4">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 sm:px-6 pb-3 sm:pb-4">
         <div className="w-full max-w-md">
           <AnimatePresence mode="wait">
             {isConsentSlide ? (
               <motion.div key={CONSENT_INDEX} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="flex flex-col items-center text-center">
-                <div className="relative mb-8 flex h-64 w-full items-center justify-center">
+                <div className="relative mb-5 flex h-48 w-full items-center justify-center">
                   <ConsentArt />
                 </div>
-                <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg from-emerald-500 to-teal-600">
+                <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg from-emerald-500 to-teal-600">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Your privacy matters</h1>
-                <p className="mt-3 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">
+                <p className="mt-2 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">
                   Before we get started, we need your agreement on a few things.
                   You can update these anytime in Settings.
                 </p>
-                <div className="mt-6 w-full space-y-3 text-left">
+                <div className="mt-4 w-full space-y-2 text-left">
                   <label className="flex items-start gap-3 rounded-xl border border-border bg-card/60 p-3">
                     <Checkbox
                       checked={termsAccepted}
@@ -217,10 +217,10 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
               <motion.div key={index} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="flex flex-col items-center text-center">
-                <div className="relative mb-8 flex h-64 w-full items-center justify-center">
+                <div className="relative mb-5 flex h-48 w-full items-center justify-center">
                   {slide.illustration}
                 </div>
-                <div className={cn('mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg', slide.accent)}>
+                <div className={cn('mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg', slide.accent)}>
                   {(() => {
                     const Fallback = slide.icon
                     const Icon = (index === 3 && role ? roles.find((r) => r.id === role)?.icon : undefined) || Fallback
@@ -228,11 +228,11 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
                   })()}
                 </div>
                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{slide.title}</h1>
-                <p className="mt-3 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">{slide.body}</p>
+                <p className="mt-2 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">{slide.body}</p>
 
                 {/* AI limits content - only on AI limits slide */}
                 {isAiLimitsSlide && (
-                  <div className="mt-5 w-full space-y-3 text-left">
+                  <div className="mt-4 w-full space-y-2 text-left">
                     <p className="text-xs font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                       <AlertTriangle className="h-3.5 w-3.5" />
                       What AI can and cannot do
@@ -267,8 +267,8 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
                 )}
 
                 {isRoleSlide && (
-                  <div className="mt-6 w-full space-y-3">
-                    <p className="text-xs font-medium text-muted-foreground mb-3">I am a…</p>
+                  <div className="mt-4 w-full space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">I am a…</p>
                     <div className="grid grid-cols-4 gap-2">
                       {roles.map((r) => {
                         const Icon = r.icon
@@ -293,9 +293,9 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
         </div>
       </div>
 
-      <div className="px-6 pb-10">
-        <div className="mx-auto flex w-full max-w-md flex-col items-center gap-5">
-          <div className="flex items-center gap-3">
+      <div className="px-4 sm:px-6 pb-6">
+        <div className="mx-auto flex w-full max-w-md flex-col items-center gap-3">
+          <div className="flex items-center gap-2">
             {index > 0 && (
               <button onClick={prev} aria-label="Previous slide"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
