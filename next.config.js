@@ -2,8 +2,8 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  // Standalone output only for Docker/container deployments (use: node .next/standalone/server.js)
-  // Comment out for standard "next start" usage
+  // Standalone output for Docker/container deployments (use: node .next/standalone/server.js)
+  output: 'standalone',
 
   images: {
     formats: ['image/avif', 'image/webp'],
