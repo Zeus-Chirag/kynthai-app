@@ -29,27 +29,27 @@ let content = `# ╔════════════════════
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 # NOTE: Do NOT hardcode NODE_ENV in this file. Next.js sets it automatically.
 # ─── Core ─────────────────────────────────────────────────────────────────────
-NEXT_PUBLIC_APP_URL=https://kyntha.app
-NEXT_PUBLIC_API_URL=https://kyntha.app/api
+NEXT_PUBLIC_APP_URL=https://kynthai.app
+NEXT_PUBLIC_API_URL=https://kynthai.app/api
 
 # ─── US Compliance ───────────────────────────────────────────────────────────
 NEXT_PUBLIC_COMPLIANCE_MODE=US
 NEXT_PUBLIC_JURISDICTION=Delaware, United States
-NEXT_PUBLIC_PRIVACY_OFFICER_EMAIL=privacy@kyntha.app
-NEXT_PUBLIC_SUPPORT_EMAIL=support@kyntha.app
+NEXT_PUBLIC_PRIVACY_OFFICER_EMAIL=privacy@kynthai.app
+NEXT_PUBLIC_SUPPORT_EMAIL=support@kynthai.app
 
 # ─── Database (HIPAA: TLS required) ──────────────────────────────────────────
 # Generate a strong password and ensure sslmode=require is present.
-DATABASE_URL=postgresql://kyntha:***@db:5432/kyntha_us?schema=public&sslmode=require
-DIRECT_URL=postgresql://kyntha:***@db:5432/kyntha_us?schema=public&sslmode=require
-POSTGRES_USER=kyntha
+DATABASE_URL=postgresql://kynthai:***@db:5432/kynthai_us?schema=public&sslmode=require
+DIRECT_URL=postgresql://kynthai:***@db:5432/kynthai_us?schema=public&sslmode=require
+POSTGRES_USER=kynthai
 POSTGRES_PASSWORD=***
-POSTGRES_DB=kyntha_us
+POSTGRES_DB=kynthai_us
 
 # ─── Auth / Security ─────────────────────────────────────────────────────────
-NEXTAUTH_URL=https://kyntha.app
-ADMIN_EMAILS=admin@kyntha.app
-CORS_ORIGIN=https://kyntha.app,https://www.kyntha.app
+NEXTAUTH_URL=https://kynthai.app
+ADMIN_EMAILS=admin@kynthai.app
+CORS_ORIGIN=https://kynthai.app,https://www.kynthai.app
 
 # ─── Core Secrets ─────────────────────────────────────────────────────────────
 
@@ -79,7 +79,7 @@ NEXT_PUBLIC_DEFAULT_CURRENCY=USD
 NEXT_PUBLIC_STRIPE_US=true
 
 # ─── Email / Notifications ───────────────────────────────────────────────────
-SENDGRID_FROM_EMAIL=noreply@kyntha.app
+SENDGRID_FROM_EMAIL=noreply@kynthai.app
 NEXT_PUBLIC_NOTIFICATION_PROVIDER=resend
 
 # ─── Analytics ───────────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=REPLACE_CLOUDINARY_CLOUD_NAME
 CLOUDINARY_API_KEY=REPLAC...KEY
 CLOUDINARY_API_SECRET=REPLAC...CRET
-NEXT_PUBLIC_UPLOAD_PRESET=kyntha_us
+NEXT_PUBLIC_UPLOAD_PRESET=kynthai_us
 
 # ─── Feature Flags ──────────────────────────────────────────────────────────
 NEXT_PUBLIC_ENABLE_US_LAUNCH=true
@@ -105,12 +105,12 @@ NEXT_PUBLIC_ENABLE_DEMO=false
 `;
 
 // Write to file
-fs.writeFileSync('/Users/c.k/Downloads/kyntha-restored-7000-us/.env.production', content);
+fs.writeFileSync('/Users/c.k/Downloads/kynthai-restored-7000-us/.env.production', content);
 
 console.log('🚀 SUPERPOWER EXECUTION COMPLETE!');
 console.log('');
 console.log('✅ Production environment generated:');
-console.log('📁 Location: /Users/c.k/Downloads/kyntha-restored-7000-us/.env.production');
+console.log('📁 Location: /Users/c.k/Downloads/kynthai-restored-7000-us/.env.production');
 console.log('');
 console.log('🔑 Generated secrets (showing first 20 chars each):');
 Object.entries(secrets).forEach(([key, value]) => {

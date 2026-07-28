@@ -104,7 +104,7 @@ CONTEXT-MANAGEMENT-FIX.md
 docs/UX-FRICTION-ANALYSIS.md
 e2e-report/data/*.png
 review-screenshot.png
-run-kyntha-7000.sh
+run-kynthai-7000.sh
 start-server-godmode.sh
 verify-context-fix.sh
 

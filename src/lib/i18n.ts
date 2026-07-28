@@ -7,13 +7,13 @@ let currentLang: string = 'en'
 export function setLanguage(lang: string) {
   currentLang = lang
   if (typeof window !== 'undefined') {
-    localStorage.setItem('kyntha-lang', lang)
+    localStorage.setItem('kynthai-lang', lang)
   }
 }
 
 export function getLanguage(): string {
   if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('kyntha-lang')
+    const stored = localStorage.getItem('kynthai-lang')
     if (stored && translations[stored]) {
       currentLang = stored
     }
@@ -28,7 +28,7 @@ export function t(key: string): string {
 
 export function initLanguage() {
   if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('kyntha-lang')
+    const stored = localStorage.getItem('kynthai-lang')
     if (stored && translations[stored]) {
       currentLang = stored
     }

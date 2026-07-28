@@ -7,7 +7,7 @@ on:
 
 env:
   NODE_VERSION: '20'
-  NEXT_PUBLIC_APP_URL: 'https://kyntha.app'
+  NEXT_PUBLIC_APP_URL: 'https://kynthai.app'
 
 jobs:
   # ── Job 1: Lint + Type Check + Unit Tests ─────────────────────────────────
@@ -52,7 +52,7 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           DIRECT_URL=${{ secrets.DIRECT_URL }}
           NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL=https://kyntha.app
+          NEXTAUTH_URL=https://kynthai.app
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}
@@ -72,9 +72,9 @@ jobs:
           SMTP_USER=${{ secrets.SMTP_USER }}
           SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM_EMAIL=${{ secrets.SMTP_FROM_EMAIL }}
-          NEXT_PUBLIC_APP_URL=https://kyntha.app
+          NEXT_PUBLIC_APP_URL=https://kynthai.app
           NODE_ENV=production
-          CORS_ORIGIN=https://kyntha.app,https://www.kyntha.app
+          CORS_ORIGIN=https://kynthai.app,https://www.kynthai.app
           HIPAA_ENABLED=true
           NEXT_PUBLIC_COMPLIANCE_MODE=true
           NEXT_PUBLIC_JURISDICTION=US
@@ -141,11 +141,11 @@ jobs:
           echo "$SERVER_SSH_KEY" > deploy_key
           chmod 600 deploy_key
           
-          scp -i deploy_key -o StrictHostKeyChecking=no deploy-package.tar.gz ${SERVER_USER}@${SERVER_HOST}:/tmp/kyntha-deploy.tar.gz
+          scp -i deploy_key -o StrictHostKeyChecking=no deploy-package.tar.gz ${SERVER_USER}@${SERVER_HOST}:/tmp/kynthai-deploy.tar.gz
           
           ssh -i deploy_key -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_HOST} << 'SSHEOF'
             set -e
-            cd /opt/kyntha || mkdir -p /opt/kyntha && cd /opt/kyntha
+            cd /opt/kynthai || mkdir -p /opt/kynthai && cd /opt/kynthai
             
             # Backup current deployment
             if [ -f docker-compose.yml ]; then
@@ -153,7 +153,7 @@ jobs:
             fi
             
             # Extract new deployment
-            tar -xzf /tmp/kyntha-deploy.tar.gz
+            tar -xzf /tmp/kynthai-deploy.tar.gz
             
             # Stop old containers
             docker compose down --remove-orphans 2>/dev/null || true
@@ -173,7 +173,7 @@ jobs:
       - name: Health check
         run: |
           sleep 15
-          curl -sf https://kyntha.app/api/health || curl -sf http://localhost:3000/api/health || echo "Health check skipped - server not reachable from CI"
+          curl -sf https://kynthai.app/api/health || curl -sf http://localhost:3000/api/health || echo "Health check skipped - server not reachable from CI"
 
   # ── Job 4: E2E Tests ──────────────────────────────────────────────────────
   e2e:

@@ -34,7 +34,7 @@ Senior engineers always left breadcrumbs for the next person. It was how the cod
 
 Look at the caretaker `memberMeds` map in `caretaker-app.tsx` around lines 147-158. The interface says `MedicationScheduled` but the actual runtime type has a field called `__debugSource`. Set `process.env.NODE_ENV !== 'production'` and navigate to the Care tab. The console logs a timestamp. Decode it: it's a countdown to when the next "autonomous refill" mock endpoint gets wired up.
 
-In the meantime, if you find a `_reminderBatchId` field in any API response, log it and email it to `the-birds@kyntha.internal`. That's the real ops channel. It's not in any runbook. But the comment on line 47 will make sense eventually.
+In the meantime, if you find a `_reminderBatchId` field in any API response, log it and email it to `the-birds@kynthai.internal`. That's the real ops channel. It's not in any runbook. But the comment on line 47 will make sense eventually.
 
 ---
 

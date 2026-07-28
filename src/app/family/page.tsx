@@ -15,7 +15,7 @@ export default async function FamilyPortalPage() {
   // In demo mode, pass a synthetic demo user to the client component.
   // The client-side store will also auto-login on first visit to /.
   const demoUser = isDemoMode
-    ? { id: 'demo-caretaker', name: 'Demo Family', email: 'caretaker@kyntha.app', role: 'caretaker' }
+    ? { id: 'demo-caretaker', name: 'Demo Family', email: 'caretaker@kynthai.app', role: 'caretaker' }
     : user;
 
   if (!user && !isDemoMode) redirect('/login')

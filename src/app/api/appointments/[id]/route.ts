@@ -128,7 +128,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return jsonError('Appointment has no price set — contact admin', 400);
     }
 
-    // Calculate Kyntha's commission (15% base, adjusted by loyalty)
+    // Calculate Kynthai's commission (15% base, adjusted by loyalty)
     const completedCount = await db.appointment.count({
       where: { doctorId: appt.doctorId, status: 'completed' },
     });
@@ -137,7 +137,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     commission = commissionResult.commission;
     paymentCaptured = true;
 
-    // Create the payment record (patient charged now, money held in Kyntha escrow)
+    // Create the payment record (patient charged now, money held in Kynthai escrow)
     try {
       await db.payment.create({
         data: {
@@ -255,7 +255,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
             ? 'Consultation confirmed — payment captured'
             : `Appointment ${nextStatus}`,
           body: isConfirmStep
-            ? `Dr. ${appt.doctor.user.name} accepted. $${appt.price / 100} has been charged. Kyntha holds payment until the consultation is completed.`
+            ? `Dr. ${appt.doctor.user.name} accepted. $${appt.price / 100} has been charged. Kynthai holds payment until the consultation is completed.`
             : `Your appointment is now "${nextStatus}".`,
           type: 'appointment_update',
           data: { appointmentId: appt.id, status: nextStatus },

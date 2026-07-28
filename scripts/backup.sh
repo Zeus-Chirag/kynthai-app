@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Kyntha US — Database Backup Script
+# Kynthai US — Database Backup Script
 # Creates a compressed PostgreSQL dump with 30-day retention.
 # Requires: pg_dump (PostgreSQL client tools), gzip, curl (for optional upload)
 #
@@ -13,7 +13,7 @@ set -euo pipefail
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 RETENTION_DAYS=30
 TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
-FILENAME="kyntha_backup_${TIMESTAMP}.sql.gz"
+FILENAME="kynthai_backup_${TIMESTAMP}.sql.gz"
 
 # Load environment
 source .env 2>/dev/null || true
@@ -60,8 +60,8 @@ fi
 
 # Retention: delete backups older than RETENTION_DAYS
 echo "[backup] Pruning backups older than ${RETENTION_DAYS} days..."
-find "$BACKUP_DIR" -name "kyntha_backup_*.sql.gz*" -mtime +${RETENTION_DAYS} -delete
-REMAINING=$(find "$BACKUP_DIR" -name "kyntha_backup_*.sql.gz*" | wc -l)
+find "$BACKUP_DIR" -name "kynthai_backup_*.sql.gz*" -mtime +${RETENTION_DAYS} -delete
+REMAINING=$(find "$BACKUP_DIR" -name "kynthai_backup_*.sql.gz*" | wc -l)
 echo "[backup] Retention complete. ${REMAINING} backup(s) remaining."
 
 echo "[backup] Done."

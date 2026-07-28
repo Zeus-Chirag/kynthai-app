@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://kyntha.app'
+  const base = 'https://kynthai.app'
   const now = new Date()
 
   const pages: MetadataRoute.Sitemap = [

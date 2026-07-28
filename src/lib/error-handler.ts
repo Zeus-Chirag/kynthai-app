@@ -1,5 +1,5 @@
 /**
- * Centralized error handling utilities for Kyntha.
+ * Centralized error handling utilities for Kynthai.
  *
  * Provides:
  * - Safe async execution with try-catch

@@ -11,73 +11,73 @@ Last Revised: July 13, 2026
 
 ## A. Our Pledge Regarding Your Health Information
 
-Kyntha Health Technologies ("Kyntha," "we," "us," or "our") is committed to protecting the privacy of your health information. We are required by law to maintain the privacy and security of your Protected Health Information (PHI), to provide you with this Notice of our legal duties and privacy practices, and to notify you following a breach of unsecured PHI.
+Kynthai Health Technologies ("Kynthai," "we," "us," or "our") is committed to protecting the privacy of your health information. We are required by law to maintain the privacy and security of your Protected Health Information (PHI), to provide you with this Notice of our legal duties and privacy practices, and to notify you following a breach of unsecured PHI.
 
-For questions about this notice, contact our HIPAA Privacy Officer at **privacy@kyntha.app** or by mail to:
-Kyntha Health Technologies — Privacy Officer
+For questions about this notice, contact our HIPAA Privacy Officer at **privacy@kynthai.app** or by mail to:
+Kynthai Health Technologies — Privacy Officer
 United States
 
 ---
 
 ## B. How We May Use and Disclose Your Health Information
 
-Kyntha may use and disclose PHI only as permitted or required by law or as described below. We will not use or disclose your PHI for any other purpose without your written authorization.
+Kynthai may use and disclose PHI only as permitted or required by law or as described below. We will not use or disclose your PHI for any other purpose without your written authorization.
 
 ### Treatment (45 CFR 164.506)
-Kyntha uses and discloses PHI to provide, coordinate, or manage your healthcare and related services, including: medication management and adherence tracking; consultation scheduling with doctors and labs on the Kyntha platform; care coordination with designated family members or legally authorized representatives; symptom analysis and AI health insights (advisory only); prescription and lab ordering and result delivery.
+Kynthai uses and discloses PHI to provide, coordinate, or manage your healthcare and related services, including: medication management and adherence tracking; consultation scheduling with doctors and labs on the Kynthai platform; care coordination with designated family members or legally authorized representatives; symptom analysis and AI health insights (advisory only); prescription and lab ordering and result delivery.
 
 ### Payment (45 CFR 164.506)
-Kyntha uses and discloses PHI to obtain payment for services rendered to you, including: verifying insurance or subscription eligibility; submitting payment claims; processing subscription and consultation payments through Stripe, Inc.; managing billing disputes and refund requests.
+Kynthai uses and discloses PHI to obtain payment for services rendered to you, including: verifying insurance or subscription eligibility; submitting payment claims; processing subscription and consultation payments through Stripe, Inc.; managing billing disputes and refund requests.
 
 ### Healthcare Operations (45 CFR 164.506)
-Kyntha uses and discloses PHI for activities related to the operation of the platform, including: quality assessment and improvement; professional credential verification; business management and administrative activities; compliance with regulatory standards; conducting audit and compliance functions.
+Kynthai uses and discloses PHI for activities related to the operation of the platform, including: quality assessment and improvement; professional credential verification; business management and administrative activities; compliance with regulatory standards; conducting audit and compliance functions.
 
 ### Appointment Reminders and Health-Related Communications
-Kyntha may contact you to provide: appointment reminders and confirmations; medication reminders and adherence nudges; lab result availability notifications; information about treatment alternatives or other health-related services.
+Kynthai may contact you to provide: appointment reminders and confirmations; medication reminders and adherence nudges; lab result availability notifications; information about treatment alternatives or other health-related services.
 
-You have the right to request that Kyntha communicate with you by alternative means or at alternative locations. Such requests must be submitted in writing to privacy@kyntha.app.
+You have the right to request that Kynthai communicate with you by alternative means or at alternative locations. Such requests must be submitted in writing to privacy@kynthai.app.
 
 ### Individuals Involved in Your Care
-Unless you object in writing, Kyntha may disclose to a member of your family or designated person PHI relevant to that person's involvement in your care or payment. In the event of your incapacity or death, Kyntha may disclose to your personal representative PHI relevant to their authority.
+Unless you object in writing, Kynthai may disclose to a member of your family or designated person PHI relevant to that person's involvement in your care or payment. In the event of your incapacity or death, Kynthai may disclose to your personal representative PHI relevant to their authority.
 
 ### Required by Law (45 CFR 164.512)
-Kyntha will use or disclose PHI to the extent required by law, including: reporting abuse, neglect, domestic violence; responding to court orders, subpoenas, or other lawful process; providing information to coroners or medical examiners; facilitating organ or tissue donation; conducting approved research; reporting disease, injury, birth, and death to public health authorities.
+Kynthai will use or disclose PHI to the extent required by law, including: reporting abuse, neglect, domestic violence; responding to court orders, subpoenas, or other lawful process; providing information to coroners or medical examiners; facilitating organ or tissue donation; conducting approved research; reporting disease, injury, birth, and death to public health authorities.
 
 ### Public Health and Safety (45 CFR 164.512)
-Kyntha may disclose PHI to public health authorities to prevent or control disease or injury; when Kyntha believes in good faith that disclosure is necessary to prevent or lessen a serious and imminent threat to health or safety; to emergency contacts linked to your profile in an emergency.
+Kynthai may disclose PHI to public health authorities to prevent or control disease or injury; when Kynthai believes in good faith that disclosure is necessary to prevent or lessen a serious and imminent threat to health or safety; to emergency contacts linked to your profile in an emergency.
 
 ### Health Oversight Activities
-Kyntha may disclose PHI to a health oversight agency for activities authorized by law, including audits, civil or administrative investigations, inspections, licensure, or disciplinary actions.
+Kynthai may disclose PHI to a health oversight agency for activities authorized by law, including audits, civil or administrative investigations, inspections, licensure, or disciplinary actions.
 
 ### Lawsuits and Disputes
-Kyntha may disclose PHI in response to a court or administrative order, subpoena, discovery request, or other lawful process. Kyntha will make reasonable efforts to notify you and give you an opportunity to object, unless prohibited by law or it is an emergency.
+Kynthai may disclose PHI in response to a court or administrative order, subpoena, discovery request, or other lawful process. Kynthai will make reasonable efforts to notify you and give you an opportunity to object, unless prohibited by law or it is an emergency.
 
-Kyntha will never sell your PHI or use it for advertising purposes.
+Kynthai will never sell your PHI or use it for advertising purposes.
 
 ---
 
 ## C. Your Rights Regarding Your Health Information
 
 ### 1. Right to Inspect and Copy (45 CFR 164.524)
-You have the right to inspect and obtain a copy of PHI in your designated record set. Requests must be submitted in writing to privacy@kyntha.app. Kyntha may charge a fee for copying and administrative costs, not to exceed the amount permitted under HIPAA.
+You have the right to inspect and obtain a copy of PHI in your designated record set. Requests must be submitted in writing to privacy@kynthai.app. Kynthai may charge a fee for copying and administrative costs, not to exceed the amount permitted under HIPAA.
 
 ### 2. Right to Amend (45 CFR 164.526)
-You have the right to request amendment of PHI for as long as the PHI is maintained in the designated record set. Requests must be submitted in writing with a reason supporting the amendment. Kyntha will respond within 60 days. If Kyntha denies your request, you may submit a statement of disagreement to be appended to the record.
+You have the right to request amendment of PHI for as long as the PHI is maintained in the designated record set. Requests must be submitted in writing with a reason supporting the amendment. Kynthai will respond within 60 days. If Kynthai denies your request, you may submit a statement of disagreement to be appended to the record.
 
 ### 3. Right to an Accounting of Disclosures (45 CFR 164.528)
-You have the right to request an accounting of disclosures of PHI made by Kyntha for the six years preceding your request. Kyntha will provide the first accounting in any 12-month period at no charge. Requests must be submitted in writing.
+You have the right to request an accounting of disclosures of PHI made by Kynthai for the six years preceding your request. Kynthai will provide the first accounting in any 12-month period at no charge. Requests must be submitted in writing.
 
 ### 4. Right to Request Restrictions (45 CFR 164.522)
-You have the right to request restrictions on uses and disclosures of PHI for TPO or disclosures to family members. Requests must be submitted in writing. Kyntha is not required to agree except as required by law.
+You have the right to request restrictions on uses and disclosures of PHI for TPO or disclosures to family members. Requests must be submitted in writing. Kynthai is not required to agree except as required by law.
 
 ### 5. Right to Request Confidential Communications (45 CFR 164.522)
-You have the right to request that Kyntha communicate with you by alternative means or at alternative locations. Kyntha will accommodate all reasonable requests submitted in writing to privacy@kyntha.app.
+You have the right to request that Kynthai communicate with you by alternative means or at alternative locations. Kynthai will accommodate all reasonable requests submitted in writing to privacy@kynthai.app.
 
 ### 6. Right to Receive Confidential Communications
-You have the right to receive communications from Kyntha about PHI through a confidential channel of your choice.
+You have the right to receive communications from Kynthai about PHI through a confidential channel of your choice.
 
 ### 7. Right to a Paper Copy of This Notice
-You have the right to obtain a paper copy of this Notice even if you have agreed to receive it electronically. Paper copies are available at privacy@kyntha.app or by mail.
+You have the right to obtain a paper copy of this Notice even if you have agreed to receive it electronically. Paper copies are available at privacy@kynthai.app or by mail.
 
 ### 8. Right to Breach Notification (45 CFR 164.400-414; HITECH Act)
 You have the right to be notified of a breach of unsecured PHI without unreasonable delay and in no case later than 60 calendar days after discovery.
@@ -97,11 +97,11 @@ You have the right to be notified of a breach of unsecured PHI without unreasona
 
 ## E. Complaints and Grievances
 
-### Complaints to Kyntha
+### Complaints to Kynthai
 Submit written complaints to:
-Kyntha Privacy Officer
-Email: privacy@kyntha.app
-Mail: Kyntha Health Technologies — Privacy Officer, United States
+Kynthai Privacy Officer
+Email: privacy@kynthai.app
+Mail: Kynthai Health Technologies — Privacy Officer, United States
 
 Include: (a) your name and contact information; (b) a description of the alleged violation; (c) the date(s) of the alleged violation.
 
@@ -118,13 +118,13 @@ Washington, D.C. 20201
 Online: hhs.gov/ocr/privacy
 Phone: 1-800-368-1019 (TTY: 1-800-537-7697)
 
-No retaliation will be taken against you for filing a complaint with Kyntha Health Technologies or with HHS OCR.
+No retaliation will be taken against you for filing a complaint with Kynthai Health Technologies or with HHS OCR.
 
 ---
 
 ## F. Acknowledgment of Receipt
 
-I acknowledge that I have been provided a copy of this Notice of Privacy Practices and have had an opportunity to review it. I understand that Kyntha may revise its Notice and that a current copy is available at kyntha.app/privacy-practices or by contacting privacy@kyntha.app.
+I acknowledge that I have been provided a copy of this Notice of Privacy Practices and have had an opportunity to review it. I understand that Kynthai may revise its Notice and that a current copy is available at kynthai.app/privacy-practices or by contacting privacy@kynthai.app.
 
 Signature (Patient / Personal Representative): ___________________________
 Print Name: ___________________________
@@ -134,4 +134,4 @@ Date: ___________________________
 
 ---
 
-Copyright (c) 2026 Kyntha Health Technologies. All rights reserved.
+Copyright (c) 2026 Kynthai Health Technologies. All rights reserved.

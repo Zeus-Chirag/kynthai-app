@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
               userId: u.id,
               tier: body.type || 'subscription',
             },
-            description: sanitizeText(body.description, 300) || 'Kyntha.com subscription',
+            description: sanitizeText(body.description, 300) || 'Kynthai.com subscription',
           },
           { idempotencyKey }
         );

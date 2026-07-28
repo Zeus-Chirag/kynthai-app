@@ -1,5 +1,5 @@
 -- ============================================================================
--- Kyntha US Health Platform — Supabase PostgreSQL Migration
+-- Kynthai US Health Platform — Supabase PostgreSQL Migration
 -- Migrated from Prisma/SQLite schema
 -- ============================================================================
 

@@ -1,8 +1,8 @@
 /**
- * VPN Router — Geo-aware traffic routing for Kyntha US healthcare platform
+ * VPN Router — Geo-aware traffic routing for Kynthai US healthcare platform
  *
  * Architecture:
- *   Kyntha is a US-only healthcare platform. When using the app from India
+ *   Kynthai is a US-only healthcare platform. When using the app from India
  *   (development, support, or admin operations), all API traffic is routed
  *   through a WireGuard VPN tunnel to keep sensitive health data within US jurisdiction.
  *

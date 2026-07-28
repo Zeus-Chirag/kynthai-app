@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
 
-echo -e "${GREEN}=== Kyntha Production DB Setup ===${NC}"
+echo -e "${GREEN}=== Kynthai Production DB Setup ===${NC}"
 
 # 1. Unset any global DATABASE_URL that might interfere
 unset DATABASE_URL

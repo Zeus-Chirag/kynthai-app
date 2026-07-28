@@ -1,5 +1,5 @@
 /**
- * Kyntha Refund System
+ * Kynthai Refund System
  * -------------------
  * Handles refunds for:
  *   1. Doctor no-shows — patient gets full refund, commission reversed
@@ -10,7 +10,7 @@
  * Money flow on refund:
  *   - Patient: full refund to original payment method
  *   - Doctor/Lab: commission clawed back from upcoming payout
- *   - Kyntha: platform fee returned to patient (not retained)
+ *   - Kynthai: platform fee returned to patient (not retained)
  */
 
 import { db } from '@/lib/db';

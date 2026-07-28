@@ -1,5 +1,5 @@
 /**
- * Kyntha US — Full Flow E2E Tests
+ * Kynthai US — Full Flow E2E Tests
  * Tests all user flows end-to-end as requested:
  *   1. Landing page — all buttons redirect correctly
  *   2. Patient — AI chat, prescription upload, video call
@@ -15,11 +15,11 @@ import { test, expect, type Page } from '@playwright/test';
 const BASE = 'http://localhost:4000';
 
 const DEMO_ACCOUNTS: Record<string, { email: string; password: string }> = {
-  patient: { email: 'patient@demo.kyntha.app', password: 'Demo@2024' },
-  doctor: { email: 'priya@demo.kyntha.app', password: 'Demo@2024' },
-  family: { email: 'caretaker@demo.kyntha.app', password: 'Demo@2024' },
-  lab: { email: 'pathlabs@demo.kyntha.app', password: 'Demo@2024' },
-  admin: { email: 'admin@demo.kyntha.app', password: 'Demo@2024' },
+  patient: { email: 'patient@demo.kynthai.app', password: 'Demo@2024' },
+  doctor: { email: 'priya@demo.kynthai.app', password: 'Demo@2024' },
+  family: { email: 'caretaker@demo.kynthai.app', password: 'Demo@2024' },
+  lab: { email: 'pathlabs@demo.kynthai.app', password: 'Demo@2024' },
+  admin: { email: 'admin@demo.kynthai.app', password: 'Demo@2024' },
 };
 
 const PORTAL_PATHS: Record<string, string> = {
@@ -50,7 +50,7 @@ async function seedDemo(page: Page) {
  * Two-step approach (mirrors the working appointment-booking.spec.ts pattern):
  *   1. API login via page.request — establishes the session server-side
  *   2. Form submit via the browser page — the React component's fetch()
- *      with credentials:'include' receives the kyntha_session cookie and
+ *      with credentials:'include' receives the kynthai_session cookie and
  *      stores it in the browser's cookie jar so page.goto() works.
  */
 async function loginAs(page: Page, portal: string) {
@@ -153,7 +153,7 @@ test.describe('Landing Page', () => {
     await page.waitForTimeout(1000);
     await expect(page.locator('body')).toBeVisible();
     const text = await page.textContent('body');
-    expect(text).toContain('Kyntha');
+    expect(text).toContain('Kynthai');
   });
 
   test('all CTA buttons redirect to login', async ({ page }) => {
@@ -198,7 +198,7 @@ test.describe('Landing Page', () => {
     await page.waitForTimeout(800);
     await expect(page.locator('body')).toBeVisible();
     const text = await page.textContent('body');
-    expect(text).toContain('Kyntha');
+    expect(text).toContain('Kynthai');
   });
 
   test('landing shows pricing information', async ({ page }) => {
@@ -487,7 +487,7 @@ test.describe('Security Checks', () => {
     const csrfRes = await page.request.get(`${BASE}/api/auth/csrf`);
     const { token } = await csrfRes.json();
     const res = await page.request.post(`${BASE}/api/auth/login`, {
-      data: { email: 'patient@demo.kyntha.app', password: 'Demo@2024' },
+      data: { email: 'patient@demo.kynthai.app', password: 'Demo@2024' },
       headers: { 'X-CSRF-Token': token },
     });
     console.log(`[Security] /api/auth/login → ${res.status()}`);

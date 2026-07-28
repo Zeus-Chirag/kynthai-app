@@ -3,7 +3,7 @@ import { hashPassword, verifyPassword } from '../src/lib/auth';
 const db = new PrismaClient();
 
 // Try common passwords against real users
-const passwords = ['Kyntha@2024', 'Kyntha2024', 'kyntha2024', 'admin123', 'Kyntha!123', 'password', 'Kyntha123'];
+const passwords = ['Kynthai@2024', 'Kynthai2024', 'kynthai2024', 'admin123', 'Kynthai!123', 'password', 'Kynthai123'];
 
 db.user.findMany({
   where: { isDemo: false },

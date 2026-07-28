@@ -1,4 +1,4 @@
-# Backup & Restore Runbook — Kyntha US
+# Backup & Restore Runbook — Kynthai US
 
 **Owner:** Platform Engineering | **Last Updated:** 2026-07-23 | **Review Cadence:** Monthly
 

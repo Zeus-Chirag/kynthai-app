@@ -1,16 +1,16 @@
 # Third-Party Software Attributions
 
-> **Kyntha** incorporates open-source and third-party software components. Each component
+> **Kynthai** incorporates open-source and third-party software components. Each component
 > is the property of its respective owner and is subject to its own license terms.
 > This file provides attribution and license references for all major dependencies.
 >
-> Last updated: 2025-06-28 | Kyntha version: 0.2.0
+> Last updated: 2025-06-28 | Kynthai version: 0.2.0
 
 ---
 
 ## Dependency Notice
 
-The Kyntha application ("Application") bundles and makes use of the following
+The Kynthai application ("Application") bundles and makes use of the following
 third-party software packages ("Components"). The full license text for each
 Component is available at the URL provided. This list covers the **major packages**
 used in the project; a complete list can be regenerated at any time from
@@ -86,9 +86,9 @@ npx license-checker --summary
 
 ## Indemnification Notice
 
-To the fullest extent permitted by law, Kyntha Health Technologies Pvt. Ltd. makes
+To the fullest extent permitted by law, Kynthai Health Technologies Pvt. Ltd. makes
 no warranty, express or implied, as to the fitness, reliability, or accuracy of
-any third-party component. Licensee indemnifies Kyntha against any claims arising
+any third-party component. Licensee indemnifies Kynthai against any claims arising
 from Licensee's use of the Software in combination with, or in reliance on,
 any third-party component or service.
 
@@ -96,7 +96,7 @@ any third-party component or service.
 
 ## Attribution Display
 
-Kyntha displays this attribution notice in the application's About / Legal page.
+Kynthai displays this attribution notice in the application's About / Legal page.
 The full list of dependencies and their license types is also automatable via:
 
 ```bash
@@ -105,4 +105,4 @@ npx license-checker --json > licenses.json
 
 ---
 
-© 2024 Kyntha Health Technologies Pvt. Ltd. | hello@kyntha.app
+© 2024 Kynthai Health Technologies Pvt. Ltd. | hello@kynthai.app

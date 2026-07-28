@@ -156,7 +156,7 @@ export const useAppStore = create<AppState>()(
       setAlarmMode: alarmMode => set({ alarmMode }),
     }),
     {
-      name: 'kyntha-store-v2',
+      name: 'kynthai-store-v2',
       partialize: state => ({
         user: state.user,
         screen: state.screen,

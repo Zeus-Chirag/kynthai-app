@@ -1,12 +1,12 @@
 /**
- * Email template utilities for Kyntha.
+ * Email template utilities for Kynthai.
  *
  * Each function returns { subject, html } — a plain object ready to pass
  * directly to the email transport (SendGrid, Nodemailer, Resend, etc.).
  * No framework dependency — server-only, no React required.
  */
 
-const BRAND = 'Kyntha'
+const BRAND = 'Kynthai'
 const BRAND_COLOR = '#10b981'
 const TEAL = '#0d9488'
 const BG = '#f9fafb'
@@ -55,16 +55,16 @@ function wrap(subject: string, body: string): { subject: string; html: string } 
             <td style="padding:18px 28px 22px;font-size:11px;color:${MUTED};line-height:1.6;">
               <p style="margin:0 0 6px;">
                 You&apos;re receiving this because you have a ${BRAND} account.
-                <a href="https://kyntha.app/settings" style="color:${LINK};text-decoration:none;">Manage preferences</a>
+                <a href="https://kynthai.app/settings" style="color:${LINK};text-decoration:none;">Manage preferences</a>
               </p>
               <p style="margin:0;">
-                &copy; ${new Date().getFullYear()} Kyntha Health Technologies LLC &middot;
-                <a href="https://kyntha.app/privacy" style="color:${LINK};text-decoration:none;">Privacy Policy</a>
+                &copy; ${new Date().getFullYear()} Kynthai Health Technologies LLC &middot;
+                <a href="https://kynthai.app/privacy" style="color:${LINK};text-decoration:none;">Privacy Policy</a>
                 &middot;
-                <a href="https://kyntha.app/terms" style="color:${LINK};text-decoration:none;">Terms of Service</a>
+                <a href="https://kynthai.app/terms" style="color:${LINK};text-decoration:none;">Terms of Service</a>
               </p>
               <p style="margin:6px 0 0;">
-                <a href="mailto:privacy@kyntha.app" style="color:${LINK};text-decoration:none;">privacy@kyntha.app</a>
+                <a href="mailto:privacy@kynthai.app" style="color:${LINK};text-decoration:none;">privacy@kynthai.app</a>
               </p>
             </td>
           </tr>
@@ -104,8 +104,8 @@ export function welcomeEmail({ name, loginLink }: { name: string; loginLink: str
       Your account is active. Log in any time to get started.
     </p>
   `
-  const { subject, html } = wrap('Welcome to Kyntha — your health journey starts here', body)
-  return { subject, html: html.replace('__CTA__', ctaButton(loginLink, 'Log in to Kyntha')) }
+  const { subject, html } = wrap('Welcome to Kynthai — your health journey starts here', body)
+  return { subject, html: html.replace('__CTA__', ctaButton(loginLink, 'Log in to Kynthai')) }
 }
 
 export function passwordResetEmail({ name, resetLink, expiresInMinutes }: {
@@ -124,7 +124,7 @@ export function passwordResetEmail({ name, resetLink, expiresInMinutes }: {
       If you didn&apos;t request a reset, you can safely ignore this email.
     </p>
   `
-  const { subject, html } = wrap('Reset your Kyntha password', body)
+  const { subject, html } = wrap('Reset your Kynthai password', body)
   return { subject, html: html.replace('__CTA__', ctaButton(resetLink, 'Reset Password')) }
 }
 
@@ -158,7 +158,7 @@ export function prescriptionInviteEmail({
       This invite is personal — don&apos;t share the link.
     </p>
   `
-  const { subject, html } = wrap(`📩 Prescription from ${escapeHtml(doctorName)} — Kyntha`, body)
+  const { subject, html } = wrap(`📩 Prescription from ${escapeHtml(doctorName)} — Kynthai`, body)
   return { subject, html: html.replace('__CTA__', ctaButton(inviteLink, 'Review Prescription')) }
 }
 

@@ -1,5 +1,5 @@
 /**
- * Kyntha Edge Proxy — Security, Rate-Limit, Audit & CORS
+ * Kynthai Edge Proxy — Security, Rate-Limit, Audit & CORS
  *
  * Replaces the deprecated src/middleware.ts (Next.js 15+ uses proxy.ts).
  *
@@ -402,9 +402,9 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
       const payload = JSON.parse(Buffer.from(std, 'base64').toString('utf-8'));
       if (payload.user?.id) supabaseUser = { id: payload.user.id };
     }
-    // Also check for local session cookie (kyntha-session) — HMAC verified
+    // Also check for local session cookie (kynthai-session) — HMAC verified
     if (!supabaseUser) {
-      const localSessionCookie = cookies.find(c => c.name === 'kyntha-session');
+      const localSessionCookie = cookies.find(c => c.name === 'kynthai-session');
       if (localSessionCookie?.value) {
         const verifiedUserId = verifySessionToken(localSessionCookie.value);
         if (verifiedUserId) {

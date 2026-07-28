@@ -181,12 +181,12 @@
 }
 
 /* Premium motion + texture utilities */
-@keyframes kyntha-gradient {
+@keyframes kynthai-gradient {
   0% { background-position: 0% 50%; }
   100% { background-position: 220% 50%; }
 }
-.animate-kyntha-gradient {
-  animation: kyntha-gradient 7s linear infinite;
+.animate-kynthai-gradient {
+  animation: kynthai-gradient 7s linear infinite;
 }
 
 /* Subtle grain overlay for premium feel */

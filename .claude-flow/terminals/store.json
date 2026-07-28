@@ -2,11 +2,11 @@
   "sessions": {
     "term-1783942878666-gm50sh": {
       "id": "term-1783942878666-gm50sh",
-      "name": "kyntha-india",
+      "name": "kynthai-india",
       "status": "active",
       "createdAt": "2026-07-13T11:41:18.666Z",
       "lastActivity": "2026-07-13T11:41:48.128Z",
-      "workingDir": "/Users/c.k/Downloads/kyntha-restored-7000",
+      "workingDir": "/Users/c.k/Downloads/kynthai-restored-7000",
       "history": [
         {
           "command": "npx tsc --noEmit 2>&1 | tail -40",

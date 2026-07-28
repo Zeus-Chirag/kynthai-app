@@ -25,11 +25,11 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     id: 'Health Data Protection-001',
     category: 'Health Data Protection',
     title: 'Privacy Officer email consistency',
-    description: 'All Health Data Protection NPP, complaint, and grievance contacts must route to the designated Privacy Officer (privacy@kyntha.app).',
+    description: 'All Health Data Protection NPP, complaint, and grievance contacts must route to the designated Privacy Officer (privacy@kynthai.app).',
     severity: 'critical',
     automated: true,
-    check: 'Grep for Privacy Officer / Health Data Protection complaint contacts; must match privacy@kyntha.app.',
-    remediation: 'Update contact references in legal pages to privacy@kyntha.app.',
+    check: 'Grep for Privacy Officer / Health Data Protection complaint contacts; must match privacy@kynthai.app.',
+    remediation: 'Update contact references in legal pages to privacy@kynthai.app.',
   },
   {
     id: 'Health Data Protection-002',
@@ -162,7 +162,7 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     description: 'Platform must clarify whether AI features are regulated as medical devices.',
     severity: 'high',
     automated: false,
-    check: 'Medical disclaimer or Privacy Policy states Kyntha features are not FDA-cleared medical devices.',
+    check: 'Medical disclaimer or Privacy Policy states Kynthai features are not FDA-cleared medical devices.',
     remediation: 'Add FDA/SaMD section to Privacy Policy and Medical Disclaimer.',
   },
 
@@ -184,7 +184,7 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     description: 'Platform must disclaim emergency care responsibilities under EMTALA.',
     severity: 'medium',
     automated: false,
-    check: 'Medical disclaimer states Kyntha is not an emergency medical service.',
+    check: 'Medical disclaimer states Kynthai is not an emergency medical service.',
     remediation: 'Add EMTALA disclaimer to Medical Disclaimer and Terms.',
   },
   {
@@ -194,7 +194,7 @@ export const COMPLIANCE_RULES: ComplianceRule[] = [
     description: 'Platform must clarify it is not a group health plan subject to COBRA or ACA essential benefits.',
     severity: 'medium',
     automated: false,
-    check: 'Terms or Privacy Policy clarifies Kyntha is not a health insurer or group health plan.',
+    check: 'Terms or Privacy Policy clarifies Kynthai is not a health insurer or group health plan.',
     remediation: 'Add COBRA/ACA non-applicability statement to Terms.',
   },
 

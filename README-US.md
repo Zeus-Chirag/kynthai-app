@@ -1,4 +1,4 @@
-# Kyntha US — Production Runbook
+# Kynthai US — Production Runbook
 
 ## Quick Start (Production)
 
@@ -8,7 +8,7 @@
 - PostgreSQL 16+
 - Stripe US account
 - OpenAI / Anthropic API keys
-- Domain + SSL (kyntha.app)
+- Domain + SSL (kynthai.app)
 
 ### Environment
 1. Copy `.env.production` → `.env`
@@ -39,7 +39,7 @@ docker-compose up -d
 - [x] CCPA/CPRA — user rights (delete, access, opt-out)
 - [x] State privacy laws — Virginia, Colorado, Utah, Connecticut, etc.
 - [x] FDA compliance — medical disclaimers, no diagnostic claims
-- [x] PCI DSS — Stripe handles card data; Kyntha never stores raw card numbers
+- [x] PCI DSS — Stripe handles card data; Kynthai never stores raw card numbers
 - [x] Data residency — US-hosted databases only
 - [x] Breach notification — 72-hour HIPAA / 30-day CCPA
 
@@ -48,5 +48,5 @@ docker-compose up -d
 See `team-agents-us.md` for agent roster and accountability.
 
 ## Support
-- privacy@kyntha.app
-- support@kyntha.app
+- privacy@kynthai.app
+- support@kynthai.app

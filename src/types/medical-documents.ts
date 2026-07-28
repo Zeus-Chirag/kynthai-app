@@ -1,5 +1,5 @@
 // src/types/medical-documents.ts
-// Medical document types for the Kyntha platform
+// Medical document types for the Kynthai platform
 
 export type DocumentType = 
   | 'PRESCRIPTION'

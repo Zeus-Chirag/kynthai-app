@@ -18,7 +18,7 @@ export const ADMIN_EMAILS = rawAdminEmails
   ? rawAdminEmails.split(',').map(e => e.trim())
   : process.env.NODE_ENV === 'production'
     ? []
-    : ['admin@demo.kyntha.app', 'admin@demo.com'];
+    : ['admin@demo.kynthai.app', 'admin@demo.com'];
 
 // ---------------------------------------------------------------------------
 // CORS
@@ -240,11 +240,11 @@ export async function requireAuth(
   );
   const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
 
-  // Fallback: local kyntha-session cookie for dev/demo mode — HMAC verified
+  // Fallback: local kynthai-session cookie for dev/demo mode — HMAC verified
   let userId: string | null = null
   if (error || !supabaseUser) {
-    const kynthaSession = req.cookies.get('kyntha-session')
-    if (kynthaSession?.value) userId = verifySessionToken(kynthaSession.value)
+    const kynthaiSession = req.cookies.get('kynthai-session')
+    if (kynthaiSession?.value) userId = verifySessionToken(kynthaiSession.value)
     // verifySessionToken returns null on any tampering — fail closed (treat as unauth)
   } else {
     userId = supabaseUser.id
@@ -650,11 +650,11 @@ export async function ensureDemoUsers(): Promise<void> {
   const { hashPassword } = await import('./auth');
   const DEMO_PASSWORD = await hashPassword('Demo@2024');
   const demos = [
-    { email: 'patient@demo.kyntha.app', name: 'Demo Patient', role: 'patient' },
-    { email: 'caretaker@demo.kyntha.app', name: 'Demo Family', role: 'caretaker' },
-    { email: 'priya@demo.kyntha.app', name: 'Demo Doctor', role: 'doctor' },
-    { email: 'pathlabs@demo.kyntha.app', name: 'Demo Lab', role: 'lab' },
-    { email: 'admin@demo.kyntha.app', name: 'Demo Admin', role: 'admin' },
+    { email: 'patient@demo.kynthai.app', name: 'Demo Patient', role: 'patient' },
+    { email: 'caretaker@demo.kynthai.app', name: 'Demo Family', role: 'caretaker' },
+    { email: 'priya@demo.kynthai.app', name: 'Demo Doctor', role: 'doctor' },
+    { email: 'pathlabs@demo.kynthai.app', name: 'Demo Lab', role: 'lab' },
+    { email: 'admin@demo.kynthai.app', name: 'Demo Admin', role: 'admin' },
   ];
   for (const d of demos) {
     const existing = await db.user.findUnique({ where: { email: d.email } });

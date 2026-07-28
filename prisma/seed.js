@@ -1,5 +1,5 @@
 /**
- * Kyntha — Demo Seed Script
+ * Kynthai — Demo Seed Script
  * Creates demo users across all 4 portals + admin.
  * Run: node prisma/seed.js
  */
@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding Kyntha demo database...\n');
+  console.log('🌱 Seeding Kynthai demo database...\n');
 
   // Clean existing data
   await prisma.auditLog.deleteMany();
@@ -41,7 +41,7 @@ async function main() {
   // ── 1. PATIENT ──
   const patient = await prisma.user.create({
     data: {
-      email: 'patient@kyntha.app',
+      email: 'patient@kynthai.app',
       name: 'Sarah Johnson',
       role: 'patient',
       password,
@@ -57,7 +57,7 @@ async function main() {
   // ── 2. DOCTOR ──
   const doctorUser = await prisma.user.create({
     data: {
-      email: 'doctor@kyntha.app',
+      email: 'doctor@kynthai.app',
       name: 'Dr. Michael Chen',
       role: 'doctor',
       password,
@@ -92,7 +92,7 @@ async function main() {
   // ── 3. LAB ──
   const labUser = await prisma.user.create({
     data: {
-      email: 'lab@kyntha.app',
+      email: 'lab@kynthai.app',
       name: 'Quest Diagnostics Partner Lab',
       role: 'lab',
       password,
@@ -104,7 +104,7 @@ async function main() {
   const lab = await prisma.labProfile.create({
     data: {
       userId: labUser.id,
-      labName: 'Kyntha Diagnostic Center',
+      labName: 'Kynthai Diagnostic Center',
       licenseNumber: 'USLAB-67890',
       verified: true,
       testsOffered: JSON.stringify([
@@ -129,7 +129,7 @@ async function main() {
   // ── 4. CARETAKER ──
   const caretaker = await prisma.user.create({
     data: {
-      email: 'caretaker@kyntha.app',
+      email: 'caretaker@kynthai.app',
       name: 'James Wilson',
       role: 'caretaker',
       password,
@@ -145,8 +145,8 @@ async function main() {
   // ── 5. ADMIN ──
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@kyntha.app',
-      name: 'Kyntha Admin',
+      email: 'admin@kynthai.app',
+      name: 'Kynthai Admin',
       role: 'admin',
       password,
       emailVerified: true,
@@ -320,7 +320,7 @@ async function main() {
       status: 'succeeded',
       provider: 'mock',
       providerRef: 'pi_mock_demo_001',
-      description: 'Kyntha Plus - Monthly Subscription',
+      description: 'Kynthai Plus - Monthly Subscription',
     },
   });
   console.log(`✅ Demo payment recorded`);
@@ -346,11 +346,11 @@ async function main() {
   console.log('\n📋  DEMO LOGIN CREDENTIALS:');
   console.log('   Password for all:  Demo@123');
   console.log('   ────');
-  console.log('   👤 Patient:   patient@kyntha.app');
-  console.log('   👨‍⚕️  Doctor:    doctor@kyntha.app');
-  console.log('   🔬 Lab:       lab@kyntha.app');
-  console.log('   👨‍👩‍👧  Caretaker: caretaker@kyntha.app');
-  console.log('   ⚙️  Admin:     admin@kyntha.app');
+  console.log('   👤 Patient:   patient@kynthai.app');
+  console.log('   👨‍⚕️  Doctor:    doctor@kynthai.app');
+  console.log('   🔬 Lab:       lab@kynthai.app');
+  console.log('   👨‍👩‍👧  Caretaker: caretaker@kynthai.app');
+  console.log('   ⚙️  Admin:     admin@kynthai.app');
   console.log('═══════════════════════════════════════════\n');
 }
 

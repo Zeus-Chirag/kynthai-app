@@ -2,12 +2,12 @@
 
 import { ThemeProvider } from '@/components/theme-provider'
 import { ServiceWorkerRegister } from '@/components/service-worker-register'
-import { AuthGuard } from '@/components/kyntha/auth-guard'
+import { AuthGuard } from '@/components/kynthaii/auth-guard'
 import { Toaster } from '@/components/ui/toaster'
-import { CookieConsent, hasConsented } from '@/components/kyntha/cookie-consent'
+import { CookieConsent, hasConsented } from '@/components/kynthaii/cookie-consent'
 import { runWhenIdle } from '@/components/performance-wrapper'
 import { useEffect, useState } from 'react'
-import { GlobalErrorCatcher } from '@/components/kyntha/global-error-catcher'
+import { GlobalErrorCatcher } from '@/components/kynthaii/global-error-catcher'
 import { initConsentAwareTelemetry } from '@/lib/analytics-consent'
 
 function DeferredAuthGuard() {
@@ -58,8 +58,8 @@ function TelemetryBootstrap() {
       }
     }
 
-    window.addEventListener('kyntha-consent-change', onChange)
-    return () => window.removeEventListener('kyntha-consent-change', onChange)
+    window.addEventListener('kynthai-consent-change', onChange)
+    return () => window.removeEventListener('kynthai-consent-change', onChange)
   }, [])
 
   return null

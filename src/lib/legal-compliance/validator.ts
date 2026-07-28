@@ -45,14 +45,14 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
         const { execSync } = await import('child_process')
         try {
           const match = execSync(
-            "grep -rn 'hello@kyntha\.app' src/ legal/ --include='*.tsx' --include='*.ts' --include='*.md' | grep -v node_modules | grep -v '.next' | grep -i 'privacy\|Health Data Protection\|grievance\|complaint' | wc -l"
+            "grep -rn 'hello@kynthai\.app' src/ legal/ --include='*.tsx' --include='*.ts' --include='*.md' | grep -v node_modules | grep -v '.next' | grep -i 'privacy\|Health Data Protection\|grievance\|complaint' | wc -l"
           ).toString().trim()
           const count = parseInt(match, 10)
           if (count > 0) {
             results.push({
               rule,
               status: 'fail',
-              evidence: `${count} file(s) reference hello@kyntha.app in privacy/Health Data Protection contexts.`,
+              evidence: `${count} file(s) reference hello@kynthai.app in privacy/Health Data Protection contexts.`,
               recommendation: rule.remediation,
             })
           } else {
@@ -162,7 +162,7 @@ export async function runComplianceAudit(): Promise<ComplianceAuditReport> {
         break
       }
       case 'SEC-002': {
-        const hubContent = await import('fs').then(fs => fs.readFileSync('src/components/kyntha/patient/profile-hub.tsx', 'utf8'))
+        const hubContent = await import('fs').then(fs => fs.readFileSync('src/components/kynthaii/patient/profile-hub.tsx', 'utf8'))
         const hasModal = hubContent.includes('deleteConfirmOpen')
         results.push({
           rule,

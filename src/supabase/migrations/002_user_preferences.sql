@@ -1,5 +1,5 @@
 -- ==========================================================================
--- Kyntha US — User Preferences (client-side settings)
+-- Kynthai US — User Preferences (client-side settings)
 -- Migration: 002_user_preferences
 -- ==========================================================================
 

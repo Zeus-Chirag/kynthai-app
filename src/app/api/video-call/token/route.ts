@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
   const roomName =
     sanitizeText(body.roomName, 80) ||
-    `kyntha-${body.appointmentId || crypto.randomUUID().slice(0, 8)}`;
+    `kynthai-${body.appointmentId || crypto.randomUUID().slice(0, 8)}`;
   const expiresAt = Date.now() + 60 * 60 * 1000;
   const payload = JSON.stringify({ uid: u.id, name: u.name, room: roomName, exp: expiresAt });
   const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');

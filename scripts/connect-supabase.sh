@@ -9,7 +9,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${BLUE}=== Kyntha Supabase Auto-Setup ===${NC}"
+echo -e "${BLUE}=== Kynthai Supabase Auto-Setup ===${NC}"
 
 # Check for Supabase CLI
 if ! command -v supabase &> /dev/null; then
@@ -19,7 +19,7 @@ fi
 
 # 1. Create local Supabase project
 echo -e "${BLUE}Creating local Supabase project...${NC}"
-supabase init --project kyntha-local 2>/dev/null || echo "Project may already exist"
+supabase init --project kynthai-local 2>/dev/null || echo "Project may already exist"
 
 # 2. Apply migration
 echo -e "${BLUE}Applying database migration...${NC}"

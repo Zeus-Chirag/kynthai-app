@@ -1,4 +1,4 @@
-# Kyntha US — Agent Roster & Accountability
+# Kynthai US — Agent Roster & Accountability
 
 ## Release Team
 
@@ -40,5 +40,5 @@
 
 ---
 
-*This file is the authoritative roster for Kyntha US launch. Update on agent changes.*
+*This file is the authoritative roster for Kynthai US launch. Update on agent changes.*
 *Last updated: July 13, 2026*

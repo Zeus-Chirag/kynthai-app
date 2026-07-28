@@ -117,8 +117,8 @@ export async function POST(req: NextRequest) {
       await sendNotification(
         { email, userId: member.id },
         {
-          title: `You've been invited to join ${u.name}'s family on Kyntha`,
-          body: `${u.name} invited you as "${body.relation}" to manage health together. Log in at Kyntha to accept the invite.`,
+          title: `You've been invited to join ${u.name}'s family on Kynthai`,
+          body: `${u.name} invited you as "${body.relation}" to manage health together. Log in at Kynthai to accept the invite.`,
           type: 'family_invite',
           data: { familyId: family.id, memberId: member.id, relationToken },
         }

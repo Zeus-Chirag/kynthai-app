@@ -1,4 +1,4 @@
-# Kyntha US — Master Release Checklist & Sprint Plan
+# Kynthai US — Master Release Checklist & Sprint Plan
 **Lead:** Release Master | **Scope:** US Public Launch | **Status:** 🔴 NOT READY — 18 blockers
 **Last Updated:** 2026-07-12 | **Target:** Zero-error US production release
 
@@ -24,7 +24,7 @@
 | B01 | All 25 Playwright E2E tests fail: ERR_CONNECTION_REFUSED localhost:3000. Dev server runs on 8000, tests hardcode 3000. | Review | BLOCKER | QA Eng |
 | B02 | team-agents-us.md referenced in README-US.md:48 does not exist. | Release Mgmt | BLOCKER | Release Master |
 | B03 | Placeholder address 100 Disorderly Dr in structured-data.tsx, portal-footer.tsx, pricing-page.tsx, landing-footer.tsx, page.tsx. | Legal/UI | BLOCKER | Legal + UI/UX |
-| B04 | HIPAA Privacy Officer email mismatch: HIPAANPP.md uses privacy@kyntha.app; privacy-policy.tsx, terms, cookies, grievance, portal-footer use hello@kyntha.app (non-designated). | Legal | BLOCKER | Legal |
+| B04 | HIPAA Privacy Officer email mismatch: HIPAANPP.md uses privacy@kynthai.app; privacy-policy.tsx, terms, cookies, grievance, portal-footer use hello@kynthai.app (non-designated). | Legal | BLOCKER | Legal |
 | B05 | HIPAANPP.md exists only as markdown — no navigable page component or /privacy-practices route. NPP acknowledgment references a 404 URL. | Legal/UI | BLOCKER | Legal + UI/UX |
 | B06 | HIPAANPP.md has no mailing address for written complaints (requires one under 45 CFR 164.530). Effective date is Jan 1 2026 (future). | Legal | BLOCKER | Legal |
 | B07 | PATIENT-RIGHTS.md truncated at 4 of 8+ required rights and has no navigable page route. | Legal/UI | BLOCKER | Legal + UI/UX |
@@ -34,7 +34,7 @@
 | B11 | encryption-middleware.ts is claimed in HIPAA-COMPLIANCE.md but src/lib/prisma-encryption-middleware.ts does not exist as a separate file (only src/lib/encryption.ts exists). | Security | BLOCKER | Security |
 | B12 | HIPAA checklist has 6 unchecked items at bottom (schema migration, data backfill, transitional mode off, backup encryption, access log review, penetration test). | Security | BLOCKER | Security |
 | B13 | Account deletion UI button is hidden behind a window.prompt('Type DELETE...') in profile-hub.tsx; primary UI path is unclear. | Legal/UI | HIGH | UI/UX |
-| B14 | billing@kyntha.com email on refund page — wrong domain (should be @kyntha.app). | Legal | HIGH | Legal |
+| B14 | billing@kynthai.com email on refund page — wrong domain (should be @kynthai.app). | Legal | HIGH | Legal |
 | B15 | Future-dated legal docs: HIPAANPP (Jan 1 2026), refund page (June 2026), ToS (June 2026). Not yet legally operative. | Legal | HIGH | Legal |
 | B16 | MaxListenersExceededWarning (SIGINT/SIGTERM) in dev.log — possible memory leak in hot-reload cycle. | Review | MEDIUM | Review |
 | B17 | e2e/quick-test.mjs and playwright.config.ts both hardcode localhost:3000 while package.json dev script uses port 8000. | Review | MEDIUM | QA Eng |
@@ -50,9 +50,9 @@
 | Item | File | Line | Current Value | Required Value |
 |------|------|------|---------------|----------------|
 | Fake street address | src/components/structured-data.tsx | 13 | 100 Disorderly Dr | Real registered office address |
-| Fake street address | src/components/kyntha/portal-footer.tsx | 21 | 100 Disorderly Dr, Wilmington, DE 19801 | Real registered office address |
-| Fake street address | src/components/kyntha/pricing-page.tsx | 757 | 100 Disorderly Dr... | Real registered office address |
-| Fake street address | src/components/kyntha/landing-footer.tsx | 102 | 100 Disorderly Dr... | Real registered office address |
+| Fake street address | src/components/kynthaii/portal-footer.tsx | 21 | 100 Disorderly Dr, Wilmington, DE 19801 | Real registered office address |
+| Fake street address | src/components/kynthaii/pricing-page.tsx | 757 | 100 Disorderly Dr... | Real registered office address |
+| Fake street address | src/components/kynthaii/landing-footer.tsx | 102 | 100 Disorderly Dr... | Real registered office address |
 | Fake street address | src/app/page.tsx | 34 | 100 Disorderly Dr | Real registered office address |
 
 Action: Replace KYNTHHA_REGISTERED_OFFICE in all 5 locations with the real Delaware registered agent address before any production deploy.
@@ -174,7 +174,7 @@ Owner: Security | Sprint: Hour 0-2
 #### TLS / SSL VERIFICATION
 - DATABASE_URL includes sslmode=require (enforced at startup) ✅
 - HSTS header: max-age=63072000 in next.config.js vs max-age=31536000 in proxy.ts — ALIGN BOTH to 63072000
-- CORS: CORS_ORIGIN=https://kyntha.app,https://www.kyntha.app (no wildcard) ✅
+- CORS: CORS_ORIGIN=https://kynthai.app,https://www.kynthai.app (no wildcard) ✅
 - verify /api/health endpoint exists (docker-compose.yml line 13 healthcheck depends on it)
 Owner: Security | Sprint: Hour 0-8
 
@@ -191,21 +191,21 @@ Owner: Security | Sprint: Hour 0-4
 ### 4.A Team: Legal Counsel
 
 #### BLOCKER B04: Privacy Officer Email Mismatch
-PROBLEM: HIPAANPP.md designates privacy@kyntha.app as the HIPAA Privacy Officer contact. But privacy-policy.tsx, terms, cookies, grievance, and portal-footer.tsx all use hello@kyntha.app for privacy complaints, access requests, and NPP correspondence. Under 45 CFR 164.530, complaints to an un-designated contact do not count toward the 180-day HHS OCR filing window.
+PROBLEM: HIPAANPP.md designates privacy@kynthai.app as the HIPAA Privacy Officer contact. But privacy-policy.tsx, terms, cookies, grievance, and portal-footer.tsx all use hello@kynthai.app for privacy complaints, access requests, and NPP correspondence. Under 45 CFR 164.530, complaints to an un-designated contact do not count toward the 180-day HHS OCR filing window.
 
 AFFECTED FILES AND LINE REFERENCES:
-- src/components/kyntha/legal/privacy-policy.tsx: lines 388, 389, 370, 376, 383 — uses hello@kyntha.app for revocation, complaints, access requests
-- src/app/terms/page.tsx — uses hello@kyntha.app
-- src/app/cookies/page.tsx — uses hello@kyntha.app
-- src/components/kyntha/portal-footer.tsx: lines 49, 56 — uses hello@kyntha.app for grievance and support
-- src/app/grievance/page.tsx:3 — uses hello@kyntha.app
+- src/components/kynthaii/legal/privacy-policy.tsx: lines 388, 389, 370, 376, 383 — uses hello@kynthai.app for revocation, complaints, access requests
+- src/app/terms/page.tsx — uses hello@kynthai.app
+- src/app/cookies/page.tsx — uses hello@kynthai.app
+- src/components/kynthaii/portal-footer.tsx: lines 49, 56 — uses hello@kynthai.app for grievance and support
+- src/app/grievance/page.tsx:3 — uses hello@kynthai.app
 
-REQUIRED FIX: Replace ALL privacy-related hello@kyntha.app references with privacy@kyntha.app in the above files. Reserve hello@kyntha.app for general support only.
+REQUIRED FIX: Replace ALL privacy-related hello@kynthai.app references with privacy@kynthai.app in the above files. Reserve hello@kynthai.app for general support only.
 
 #### BLOCKER B03 / B06: Placeholder Address + HIPAANPP Issues
 - Replace 100 Disorderly Dr with real Delaware registered agent address in:
-  src/components/structured-data.tsx, src/components/kyntha/portal-footer.tsx,
-  src/components/kyntha/pricing-page.tsx, src/components/kyntha/landing-footer.tsx, src/app/page.tsx
+  src/components/structured-data.tsx, src/components/kynthaii/portal-footer.tsx,
+  src/components/kynthaii/pricing-page.tsx, src/components/kynthaii/landing-footer.tsx, src/app/page.tsx
 - Add specific mailing address to HIPAANPP.md Complaints section (45 CFR 164.530 requires this)
 - Change future-dated Jan 1 2026 effective date to today or past date
 
@@ -241,7 +241,7 @@ MISSING UI ELEMENTS:
 - Cookie consent with granular opt-out before non-essential cookies load — verify cookie-consent.tsx implementation
 
 #### BLOCKER B14: Wrong Email Domain on Refund Page
-File: src/app/refund-cancellation/page.tsx — billing@kyntha.com must change to billing@kyntha.app or billing@privacy.kyntha.app
+File: src/app/refund-cancellation/page.tsx — billing@kynthai.com must change to billing@kynthai.app or billing@privacy.kynthai.app
 
 #### BLOCKER B15: Future-Dated Legal Documents
 - legal/HIPAANPP.md: Effective Jan 1 2026 — change to current date
@@ -263,7 +263,7 @@ File: src/app/refund-cancellation/page.tsx — billing@kyntha.com must change to
 
 #### FDA / MEDICAL DISCLAIMER CHECK
 Files to verify have advisory-only language:
-- src/components/kyntha/medical-disclaimer.tsx ✅ has disclaimer
+- src/components/kynthaii/medical-disclaimer.tsx ✅ has disclaimer
 - src/app/api/chat/route.ts:15 ✅ SYSTEM_PROMPT says not medical advice
 - src/app/api/symptom-analyze/route.ts:139 ✅ disclaimer field
 - All landing page AI feature claims have informational only / not medical advice ✅
@@ -303,7 +303,7 @@ VERIFICATION COMMAND:
 
 #### TEST INFRASTRUCTURE AUDIT
 - playwright.config.ts baseURL must match actual dev server port
-- All e2e tests should use requireAuth with a seeded demo user (patient@demo.kyntha.app / Demo@2024)
+- All e2e tests should use requireAuth with a seeded demo user (patient@demo.kynthai.app / Demo@2024)
 - Verify /api/health endpoint returns 200 for healthcheck
 - Verify test database seed script populates demo accounts
 
@@ -329,10 +329,10 @@ FILES TO AUDIT:
 |------|------|-----------|--------|
 | src/app/api/chat/route.ts | 15 | SYSTEM_PROMPT | ✅ Not medical advice disclaimer |
 | src/app/api/symptom-analyze/route.ts | 110,139 | Symptom analyzer | ✅ Educational only, no diagnosis |
-| src/components/kyntha/medical-disclaimer.tsx | 27,42 | Global disclaimer component | ✅ Present |
-| src/components/kyntha/phone-mockup.tsx | 232 | Phone mockup label | ✅ Informational only |
-| src/components/kyntha/landing-page.tsx | 248,559,575,1045 | Marketing copy | ✅ disclaimers present |
-| src/components/kyntha/hero-section.tsx | 85 | Hero tagline | ✅ AI-guided information |
+| src/components/kynthaii/medical-disclaimer.tsx | 27,42 | Global disclaimer component | ✅ Present |
+| src/components/kynthaii/phone-mockup.tsx | 232 | Phone mockup label | ✅ Informational only |
+| src/components/kynthaii/landing-page.tsx | 248,559,575,1045 | Marketing copy | ✅ disclaimers present |
+| src/components/kynthaii/hero-section.tsx | 85 | Hero tagline | ✅ AI-guided information |
 | src/app/api/interactions/route.ts | 129 | Interaction checker | ✅ General note reminder |
 
 REQUIRED ACTIONS:
@@ -369,7 +369,7 @@ REQUIRED ACTIONS:
 | B01/B17: Align E2E tests to port 8000 or change dev to 3000 | QA Eng | git commit + pnpm test:e2e green |
 | B10: Identify who will fill .env.production placeholders | DevOps | .env.production filled (dev/staging) |
 | B02: Create team-agents-us.md | Release Master | File exists, linked from README-US.md |
-| B04: First pass — replace privacy@kyntha.app for all privacy contacts | Legal | Files updated, team review scheduled |
+| B04: First pass — replace privacy@kynthai.app for all privacy contacts | Legal | Files updated, team review scheduled |
 
 ### Sprint One (Hour 4-16) — P1: Legal Content
 
@@ -380,7 +380,7 @@ REQUIRED ACTIONS:
 | B05: Create /privacy-practices page | UI/UX + Legal | LegalPrivacyPractices.tsx + route |
 | B07: Complete PATIENT-RIGHTS.md + create /patient-rights | Legal + UI/UX | 8+ rights, route, footer link |
 | B08: CCPA opt-out page + footer link + state privacy in policy | Legal + UI/UX | /ccpa-optout + privacy-policy updates |
-| B14: billing@kyntha.com → billing@kyntha.app | Legal | refund-cancellation/page.tsx |
+| B14: billing@kynthai.com → billing@kynthai.app | Legal | refund-cancellation/page.tsx |
 | B15: Fix future dates in legal docs | Legal | All dates updated to current |
 
 ### Sprint Two (Hour 16-32) — P2: Security Hardening
@@ -404,7 +404,7 @@ REQUIRED ACTIONS:
 | Data export UI verified | UI/UX | /api/user/data-export returns full JSON, downloadable |
 | Account deletion UI verified | UI/UX | Profile → Delete Account with modal (not prompt) |
 | AI disclaimer consent at registration | Medical AI | Checkbox present, stored in DB |
-| All email addresses audited for domain consistency | Legal | zero @kyntha.com references remain |
+| All email addresses audited for domain consistency | Legal | zero @kynthai.com references remain |
 | team-agents-us.md finalized | Release Master | Complete agent roster |
 | Final release gate check | Release Master | All ✓ in Section 10 |
 
@@ -443,15 +443,15 @@ REQUIRED ACTIONS:
 
 ### LEGAL — GO criteria (NO EXCEPTIONS)
 
-- [ ] **AC-LGL-01:** All privacy-related contact emails use privacy@kyntha.app (not hello@kyntha.app)
-- [ ] **AC-LGL-02:** All support/non-privacy emails use hello@kyntha.app or support@kyntha.app (no @gmail/@yahoo)
+- [ ] **AC-LGL-01:** All privacy-related contact emails use privacy@kynthai.app (not hello@kynthai.app)
+- [ ] **AC-LGL-02:** All support/non-privacy emails use hello@kynthai.app or support@kynthai.app (no @gmail/@yahoo)
 - [ ] **AC-LGL-03:** Zero occurrences of 100 Disorderly Dr in any user-facing file
 - [ ] **AC-LGL-04:** /privacy-practices route exists and renders HIPAANPP.md content
 - [ ] **AC-LGL-05:** /patient-rights route exists with 8+ rights sections
 - [ ] **AC-LGL-06:** /ccpa-optout route exists (CCPA/CPRA do not sell/share)
 - [ ] **AC-LGL-07:** HIPAANPP.md has valid mailing address and past effective date
 - [ ] **AC-LGL-08:** All legal docs show current effective dates (not future)
-- [ ] **AC-LGL-09:** billing@kyntha.com on refund page changed to billing@kyntha.app
+- [ ] **AC-LGL-09:** billing@kynthai.com on refund page changed to billing@kynthai.app
 - [ ] **AC-LGL-10:** No diagnostic language in marketing copy (no This is X condition / You have Y)
 - [ ] **AC-LGL-11:** Medical disclaimer present on every page with AI interaction
 - [ ] **AC-LGL-12:** FDA advisory compliance: no treatment/prescription/diagnosis claims
@@ -523,10 +523,10 @@ grep 'ENCRYPTION_TRANSITIONAL' .env.production   # Should be false or absent
 grep -rn '100 Disorderly' src/ public/ || echo 'CLEAN — no fake addresses'
 
 # 8. Email domain verification
-grep -rn '@kyntha.com\|@gmail\|@yahoo' src/ legal/ || echo 'CLEAN — no wrong domains'
+grep -rn '@kynthai.com\|@gmail\|@yahoo' src/ legal/ || echo 'CLEAN — no wrong domains'
 
 # 9. Privacy officer email verification
-grep -rn 'hello@kyntha.app' src/components/kyntha/legal/ src/app/grievance/
+grep -rn 'hello@kynthai.app' src/components/kynthaii/legal/ src/app/grievance/
 # Should ONLY appear for non-privacy support queries
 
 # 10. Sentry / error tracking config
@@ -583,7 +583,7 @@ node -e "console.log('SSL mode:', process.env.DATABASE_URL?.includes('sslmode=')
 | 2 | Is build green, lint clean, unit tests passing? | ____ |
 | 3 | Are all .env.production placeholders filled? | ____ |
 | 4 | Is the fake address (100 Disorderly Dr) removed from all files? | ____ |
-| 5 | Do all privacy complaints route to privacy@kyntha.app? | ____ |
+| 5 | Do all privacy complaints route to privacy@kynthai.app? | ____ |
 | 6 | Does /privacy-practices render the HIPAA NPP? | ____ |
 | 7 | Does /patient-rights have 8+ rights sections? | ____ |
 | 8 | Is CCPA do-not-sell link present in footer? | ____ |
@@ -596,7 +596,7 @@ node -e "console.log('SSL mode:', process.env.DATABASE_URL?.includes('sslmode=')
 | 15 | Are all legal docs dated to current/past dates? | ____ |
 | 16 | Is NEXT_PUBLIC_API_URL default NOT localhost:3000? | ____ |
 | 17 | Is DATABASE_URL sslmode=require confirmed? | ____ |
-| 18 | Is billing email on refund page billing@kyntha.app? | ____ |
+| 18 | Is billing email on refund page billing@kynthai.app? | ____ |
 
 If ANY answer is NO: RELEASE IS BLOCKED. Return to Sprint Plan, Section 7.
 If ALL answers are YES: RELEASE IS CLEARED. Proceed to production deploy.
@@ -615,5 +615,5 @@ If ALL answers are YES: RELEASE IS CLEARED. Proceed to production deploy.
 
 ---
 
-*This document is the single source of truth for Kyntha US launch readiness.
+*This document is the single source of truth for Kynthai US launch readiness.
 No external override supersedes the Release Gate Check (Section 10).*

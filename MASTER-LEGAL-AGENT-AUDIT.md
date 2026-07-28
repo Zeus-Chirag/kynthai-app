@@ -7,7 +7,7 @@
 ---
 
 ## Executive Summary
-This report documents the deployment of the Master Legal Agent for US healthcare compliance and the results of a comprehensive audit of the Kyntha application. All automated critical checks pass. Sixteen items remain as manual warnings that require operational review or deployment-time verification. No critical code-level blockers remain.
+This report documents the deployment of the Master Legal Agent for US healthcare compliance and the results of a comprehensive audit of the Kynthai application. All automated critical checks pass. Sixteen items remain as manual warnings that require operational review or deployment-time verification. No critical code-level blockers remain.
 
 ## Audit Scope
 1. **Legal Documents Review** — Terms of Service, Privacy Policy, HIPAA NPP, Patient Rights, Cookie Policy, Refund & Cancellation, Grievance
@@ -53,20 +53,20 @@ This report documents the deployment of the Master Legal Agent for US healthcare
 ## Critical Code Fixes Applied
 
 ### 1. Privacy Officer Email Alignment
-- **`src/app/page.tsx`** — Updated privacy `ContactPoint` from `hello@kyntha.app` to `privacy@kyntha.app` (line 50).
-- **`src/components/kyntha/legal/privacy-policy.tsx`** — Updated HIPAA Privacy Officer references to `privacy@kyntha.app` (lines 388, 394). Updated correspondence line to use `privacy@kyntha.app` (line 403). Updated Terms of Service Grievance Officer to `privacy@kyntha.app` (line 951) and registered correspondence line to `privacy@kyntha.app` (line 938).
-- **`src/components/kyntha/pricing-page.tsx`** — Updated billing/cancellation contact from `hello@kyntha.app` to `privacy@kyntha.app` (line 755).
+- **`src/app/page.tsx`** — Updated privacy `ContactPoint` from `hello@kynthai.app` to `privacy@kynthai.app` (line 50).
+- **`src/components/kynthaii/legal/privacy-policy.tsx`** — Updated HIPAA Privacy Officer references to `privacy@kynthai.app` (lines 388, 394). Updated correspondence line to use `privacy@kynthai.app` (line 403). Updated Terms of Service Grievance Officer to `privacy@kynthai.app` (line 951) and registered correspondence line to `privacy@kynthai.app` (line 938).
+- **`src/components/kynthaii/pricing-page.tsx`** — Updated billing/cancellation contact from `hello@kynthai.app` to `privacy@kynthai.app` (line 755).
 
 ### 2. State Privacy Law Coverage
 - Added **Section 6A** to Privacy Policy: *Other US state consumer privacy laws* covering VCDPA, CDPA, UCPA, and CTDPA with specific enumerated rights and opt-out instructions.
 - Added **Section 512** (State Consumer Privacy Rights) to CCPA page with same statutory references.
 
 ### 3. FDA / SaMD Clarification
-- Added **Section 8A** to Privacy Policy: *FDA Software as a Medical Device (SaMD) & platform status* clarifying that Kyntha features are wellness tools, not FDA-cleared medical devices, and do not require 510(k) clearance.
+- Added **Section 8A** to Privacy Policy: *FDA Software as a Medical Device (SaMD) & platform status* clarifying that Kynthai features are wellness tools, not FDA-cleared medical devices, and do not require 510(k) clearance.
 
 ### 4. Patient Rights & Federal Law Clarification
 - Added explicit statement in Privacy Policy §8A that independent doctors are solely responsible for compliance with EMTALA, Medicare/Medicaid conditions of participation, and state medical-board regulations.
-- ToS §5 already clarifies Kyntha is a technology connector only, not a healthcare provider.
+- ToS §5 already clarifies Kynthai is a technology connector only, not a healthcare provider.
 
 ### 5. Monitoring Infrastructure
 - Deployed **Legal Compliance Rule Engine** in `src/lib/legal-compliance/`:
@@ -95,7 +95,7 @@ This report documents the deployment of the Master Legal Agent for US healthcare
 - [ ] **Legal review:** Have counsel review all added state-law sections for accuracy of statutory citations and rights descriptions.
 
 ### FDA / SaMD
-- [ ] **Actual device classification assessment:** Engage regulatory counsel to confirm Kyntha's AI features do not constitute SaMD under current FDA guidance. Update policy if classification changes.
+- [ ] **Actual device classification assessment:** Engage regulatory counsel to confirm Kynthai's AI features do not constitute SaMD under current FDA guidance. Update policy if classification changes.
 
 ---
 
@@ -111,7 +111,7 @@ npx tsx src/lib/legal-compliance/validator.ts
 Wire the validator into CI gates:
 - **Block merge** if automated critical checks fail.
 - **Comment on PR** with full audit JSON on every merge to `main`.
-- **Weekly digest** emailed to `privacy@kyntha.app` with pass/fail summary.
+- **Weekly digest** emailed to `privacy@kynthai.app` with pass/fail summary.
 
 ### Rule Updates
 - Rules are defined in `src/lib/legal-compliance/rules.ts`.
@@ -124,21 +124,21 @@ Wire the validator into CI gates:
 
 | Page | Route | Status | Last Updated | Contact Email |
 |------|-------|--------|--------------|---------------|
-| Privacy Policy | `/privacy` | ✅ Active | July 13, 2026 | privacy@kyntha.app |
-| Terms of Service | `/terms` | ✅ Active | July 13, 2026 | hello@kyntha.app (support) / privacy@kyntha.app (grievance) |
-| HIPAA NPP | `/privacy-practices` | ✅ Active | July 13, 2026 | privacy@kyntha.app |
-| Patient Rights | `/patient-rights` | ✅ Active | July 13, 2026 | privacy@kyntha.app |
+| Privacy Policy | `/privacy` | ✅ Active | July 13, 2026 | privacy@kynthai.app |
+| Terms of Service | `/terms` | ✅ Active | July 13, 2026 | hello@kynthai.app (support) / privacy@kynthai.app (grievance) |
+| HIPAA NPP | `/privacy-practices` | ✅ Active | July 13, 2026 | privacy@kynthai.app |
+| Patient Rights | `/patient-rights` | ✅ Active | July 13, 2026 | privacy@kynthai.app |
 | Cookie Policy | `/cookies` | ✅ Active | July 13, 2026 | N/A |
-| Refund & Cancellation | `/refund-cancellation` | ✅ Active | July 13, 2026 | privacy@kyntha.app |
-| Grievance | `/grievance` | ✅ Active | July 13, 2026 | privacy@kyntha.app |
-| CCPA Opt-Out | `/ccpa` | ✅ Active | July 13, 2026 | privacy@kyntha.app |
-| Medical Disclaimer | `/medical-disclaimer` | ✅ Active | July 13, 2026 | hello@kyntha.app |
+| Refund & Cancellation | `/refund-cancellation` | ✅ Active | July 13, 2026 | privacy@kynthai.app |
+| Grievance | `/grievance` | ✅ Active | July 13, 2026 | privacy@kynthai.app |
+| CCPA Opt-Out | `/ccpa` | ✅ Active | July 13, 2026 | privacy@kynthai.app |
+| Medical Disclaimer | `/medical-disclaimer` | ✅ Active | July 13, 2026 | hello@kynthai.app |
 
 ---
 
 ## Conclusion
 Lawyers and release engineers should review the manual items above before production launch. The codebase now contains:
-- Consistent Privacy Officer routing (`privacy@kyntha.app`)
+- Consistent Privacy Officer routing (`privacy@kynthai.app`)
 - State-specific privacy law sections (VCDPA, CDPA, UCPA, CTDPA)
 - FDA/SaMD status disclosure
 - Patient rights covering 12 enumerated rights

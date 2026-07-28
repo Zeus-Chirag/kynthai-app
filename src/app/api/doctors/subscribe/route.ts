@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         currency,
         status: 'pending',
         provider,
-        description: `Kyntha Pro doctor subscription (${plan})`,
+        description: `Kynthai Pro doctor subscription (${plan})`,
       },
     });
 
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
             currency: currency.toLowerCase(),
             customer: customerId,
             metadata: { paymentId: payment.id, userId: u.id, tier: plan },
-            description: `Kyntha Pro doctor subscription (${plan})`,
+            description: `Kynthai Pro doctor subscription (${plan})`,
           },
           { idempotencyKey }
         );

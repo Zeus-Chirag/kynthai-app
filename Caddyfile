@@ -1,4 +1,4 @@
-# Kyntha US — Caddy reverse proxy config
+# Kynthai US — Caddy reverse proxy config
 # Update the email and domain before launch
 
 {$CADDY_GLOBAL_OPTIONS}

@@ -1,5 +1,5 @@
 /**
- * Audit Logging System for Kyntha
+ * Audit Logging System for Kynthai
  */
 
 import { db } from '@/lib/db'

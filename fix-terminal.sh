@@ -35,7 +35,7 @@ npm cache clean --force
 
 # 6. Remove corrupted node_modules and lock files
 echo "6. Removing node_modules and lock files..."
-cd /Users/c.k/Downloads/kyntha-restored-7000-us
+cd /Users/c.k/Downloads/kynthai-restored-7000-us
 rm -rf node_modules
 rm -f package-lock.json
 rm -f npm-shrinkwrap.json

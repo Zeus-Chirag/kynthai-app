@@ -15,7 +15,7 @@ function runtimeRequire(name: string): unknown {
 }
 
 /**
- * External service integration layer for Kyntha.
+ * External service integration layer for Kynthai.
  *
  * sensitive health data BOUNDARY NOTICE:
  * Callers must scrub raw patient health information from payloads before

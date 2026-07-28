@@ -1,13 +1,13 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
-import { KynthaBrand } from '@/components/kyntha/logo'
+import { KynthaiBrand } from '@/components/kynthaii/logo'
 
 export function LoadingSpinner() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
-        <KynthaBrand />
+        <KynthaiBrand />
         <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
         <p className="text-sm text-muted-foreground">Loading...</p>
       </div>

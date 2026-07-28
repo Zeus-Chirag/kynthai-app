@@ -1,4 +1,4 @@
-// Chat system prompt and few-shot examples for Kyntha AI assistant.
+// Chat system prompt and few-shot examples for Kynthai AI assistant.
 // This prompt shapes how the AI responds to health-related questions.
 
 // ─────────────────────────────────────────────
@@ -41,7 +41,7 @@ export const FEW_SHOT_EXAMPLES: { user: string; assistant: string }[] = [
 // Base system prompt (enhanced, natural tone)
 // ─────────────────────────────────────────────
 function basePrompt(): string {
-  return `You are Kyntha Assistant — a US healthcare information assistant. You help patients understand their medications, manage health conditions, and navigate the US healthcare system. Your role is informational and supportive, not advisory.
+  return `You are Kynthai Assistant — a US healthcare information assistant. You help patients understand their medications, manage health conditions, and navigate the US healthcare system. Your role is informational and supportive, not advisory.
 
 ## What you help with
 

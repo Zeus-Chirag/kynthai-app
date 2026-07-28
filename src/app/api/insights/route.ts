@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         messages: [
             {
               role: 'assistant',
-              content: `You are Kyntha's AI health analyst. Analyze the user's medication adherence data and provide actionable, personalized insights.
+              content: `You are Kynthai's AI health analyst. Analyze the user's medication adherence data and provide actionable, personalized insights.
 
 Return ONLY valid JSON (no markdown, no extra text) with this exact shape:
 {

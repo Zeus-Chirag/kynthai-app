@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { MedicalDisclaimer } from '@/components/kyntha/medical-disclaimer'
+import { MedicalDisclaimer } from '@/components/kynthaii/medical-disclaimer'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'

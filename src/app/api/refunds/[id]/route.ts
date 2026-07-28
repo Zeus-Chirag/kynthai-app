@@ -71,7 +71,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         title: 'Refund request reviewed',
         body:
           body.reviewNote ||
-          'Your refund request could not be approved. If you have questions, contact support at support@kyntha.app',
+          'Your refund request could not be approved. If you have questions, contact support at support@kynthai.app',
         type: 'refund_rejected',
         data: { refundId: id },
       }

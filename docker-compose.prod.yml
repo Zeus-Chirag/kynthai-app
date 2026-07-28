@@ -14,8 +14,8 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
       - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
-      - NEXT_PUBLIC_APP_URL=https://kyntha.app
-      - NEXTAUTH_URL=https://kyntha.app
+      - NEXT_PUBLIC_APP_URL=https://kynthai.app
+      - NEXTAUTH_URL=https://kynthai.app
       - ADMIN_EMAILS=${ADMIN_EMAILS}
       - CORS_ORIGIN=${CORS_ORIGIN}
       - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL}
@@ -139,8 +139,8 @@ services:
       - "3001:3001"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-      - GF_SERVER_DOMAIN=kyntha.app
-      - GF_SERVER_ROOT_URL=https://kyntha.app/grafana
+      - GF_SERVER_DOMAIN=kynthai.app
+      - GF_SERVER_ROOT_URL=https://kynthai.app/grafana
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
@@ -157,7 +157,7 @@ services:
     ports:
       - "3002:3001"
     environment:
-      - DATABASE_URL=postgresql://kyntha:${POSTGRES_PASSWORD}@db:5432/kyntha_us
+      - DATABASE_URL=postgresql://kynthai:${POSTGRES_PASSWORD}@db:5432/kynthai_us
     volumes:
       - uptime_kuma_data:/app/data
     healthcheck:

@@ -1,4 +1,4 @@
-# Supabase Setup Guide for Kyntha
+# Supabase Setup Guide for Kynthai
 
 ## Quick Start
 

@@ -1,9 +1,9 @@
-# Kyntha — AI-Powered Family Health for the United States
+# Kynthai — AI-Powered Family Health for the United States
 
-Kyntha is a family-first AI health app built for US households. It combines medication adherence, drug-safety intelligence, doctor consults, and lab bookings — purpose-built for families where one person often manages health for 2–4 family members.
+Kynthai is a family-first AI health app built for US households. It combines medication adherence, drug-safety intelligence, doctor consults, and lab bookings — purpose-built for families where one person often manages health for 2–4 family members.
 
-## What is Kyntha?
-Kyntha is a health-management platform operated by Kyntha Health Technologies Inc., based in Wilmington, Delaware. It brings together medicine reminders, AI health tools, video consultations with verified US-licensed doctors, lab test bookings, and family health management — all in one trusted app designed for American families.
+## What is Kynthai?
+Kynthai is a health-management platform operated by Kynthai Health Technologies Inc., based in Wilmington, Delaware. It brings together medicine reminders, AI health tools, video consultations with verified US-licensed doctors, lab test bookings, and family health management — all in one trusted app designed for American families.
 
 ## Key Features
 - Smart medicine reminders with snooze, streaks, and caretaker alerts
@@ -31,10 +31,10 @@ Kyntha is a health-management platform operated by Kyntha Health Technologies In
 - Early Founding Members: Locked at $9.99/mo (Plus) and $19.99/mo (Family Pro) — forever pricing
 
 ## Competitive Differentiation
-Unlike single-patient apps, Kyntha was built from day one for multi-member households. Your parents' medications and your kids' schedules live in the same dashboard with caretaker alerts. AI drug-interaction checking, prescription scanning via vision AI, and family health insights are features that no competitor currently offers at this depth in the US market.
+Unlike single-patient apps, Kynthai was built from day one for multi-member households. Your parents' medications and your kids' schedules live in the same dashboard with caretaker alerts. AI drug-interaction checking, prescription scanning via vision AI, and family health insights are features that no competitor currently offers at this depth in the US market.
 
 ## AI Safety & Compliance
-All AI features provide advisory information only — not medical advice. AI outputs are clearly labelled, and a licensed doctor should always be consulted before making medical decisions. Kyntha is HIPAA-aligned: health data is encrypted at rest and in transit. Users can export or delete their data anytime. In a medical emergency, call 911.
+All AI features provide advisory information only — not medical advice. AI outputs are clearly labelled, and a licensed doctor should always be consulted before making medical decisions. Kynthai is HIPAA-aligned: health data is encrypted at rest and in transit. Users can export or delete their data anytime. In a medical emergency, call 911.
 
 ## Technology
 - Built with Next.js 16, React 19, TypeScript, Tailwind CSS
@@ -47,14 +47,14 @@ All AI features provide advisory information only — not medical advice. AI out
 - HIPAA-aligned architecture (BAA with AI processor recommended)
 
 ## Frequently Asked Questions
-Q: Is Kyntha free to use?
+Q: Is Kynthai free to use?
 A: Yes. The Free tier includes 1 member profile, up to 10 medications, 3 AI chats per day, all smart reminders, and drug interaction checks. No credit card required.
 
-Q: Is Kyntha a substitute for my doctor?
-A: No. Kyntha's AI answers are informational only. Always consult a licensed medical professional for diagnosis and treatment.
+Q: Is Kynthai a substitute for my doctor?
+A: No. Kynthai's AI answers are informational only. Always consult a licensed medical professional for diagnosis and treatment.
 
 Q: Which US states are supported?
-A: Kyntha is available nationwide. Lab test availability varies by location.
+A: Kynthai is available nationwide. Lab test availability varies by location.
 
 Q: Can I pay with cards and digital wallets?
 A: Yes. All major credit/debit cards, Apple Pay, Google Pay, and ACH are accepted via Stripe.
@@ -66,7 +66,7 @@ Q: Does it work for elderly family members?
 A: Yes. The caretaker portal lets family members monitor elders' medication adherence, receive missed-dose alerts, and manage health records on their behalf. Large-text mode and simple UI options available.
 
 ## Website
-https://kyntha.app
+https://kynthai.app
 
 ## Support
-Email: hello@kyntha.app | AI incidents: ai-incidents@kyntha.app | Legal: legal@kyntha.app
+Email: hello@kynthai.app | AI incidents: ai-incidents@kynthai.app | Legal: legal@kynthai.app

@@ -1,11 +1,11 @@
 /**
- * Kyntha Commission System — single source of truth
+ * Kynthai Commission System — single source of truth
  * --------------------------------------------------
  * Owner-level model:
  *  - Doctors pay a 15% platform fee on every consult and medicine order
  *    routed through their practice (doctor keeps 85%).
  *  - Labs pay an 18% platform fee on every test booking fulfilled through
- *    Kyntha's network (lab keeps 82%).
+ *    Kynthai's network (lab keeps 82%).
  *  - Loyalty tiers reduce the platform fee as partners grow with us.
  *
  * NOTE: previous versions of the dashboards used stale 15% / 10% numbers.
@@ -100,7 +100,7 @@ export const PAYOUT_POLICY = {
   currency: 'USD',
 } as const
 
-/** Kyntha subscription tiers — prices in USD per month. */
+/** Kynthai subscription tiers — prices in USD per month. */
 export const SUBSCRIPTION_TIERS = {
   free: { monthly: 0, yearly: 0 },
   plus: { monthly: 9.99, yearly: 99.99 },

@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
 
-const GRIEVANCE_EMAIL = 'privacy@kyntha.app'
+const GRIEVANCE_EMAIL = 'privacy@kynthai.app'
 
 export const metadata: Metadata = {
   title: 'Grievance',
-  description: 'Submit a grievance, complaint, or escalation to Kyntha support.',
+  description: 'Submit a grievance, complaint, or escalation to Kynthai support.',
 }
 
 export default function GrievancePage() {
@@ -12,7 +12,7 @@ export default function GrievancePage() {
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
       <h1 className="text-3xl font-bold tracking-tight">Grievance</h1>
       <p className="mt-3 text-muted-foreground">
-        If you have an unresolved issue with Kyntha, you can escalate it here. Our team reviews all submissions.
+        If you have an unresolved issue with Kynthai, you can escalate it here. Our team reviews all submissions.
       </p>
       <div className="mt-8 rounded-2xl border border-border/60 bg-muted/20 p-6">
         <h2 className="text-lg font-semibold">How to submit</h2>

@@ -12,4 +12,4 @@ Disallow: /lab/
 Disallow: /caretaker/
 Disallow: /admin/
 
-Sitemap: https://kyntha.app/sitemap.xml
+Sitemap: https://kynthai.app/sitemap.xml

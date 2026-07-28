@@ -1,5 +1,5 @@
 /**
- * Health Data Protection Compliance Report Generator for Kyntha
+ * Health Data Protection Compliance Report Generator for Kynthai
  *
  * Generates structured compliance reports under Health Data Protection:
  *   - 164.312(b) — Audit Controls (sensitive health data access, anomaly detection)

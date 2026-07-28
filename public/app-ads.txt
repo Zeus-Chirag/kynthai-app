@@ -1,10 +1,10 @@
-# Kyntha app-ads.txt
+# Kynthai app-ads.txt
 # Declares ad network participation for ad-supported platforms.
-# Generated for kyntha.com — contact: hello@kyntha.app
+# Generated for kynthai.com — contact: hello@kynthai.app
 #
-# Kyntha does not currently run or permit third-party advertising
+# Kynthai does not currently run or permit third-party advertising
 # within the web app or PWA. This file is included to prevent
-# unauthorised bidders from targeting Kyntha inventory under
+# unauthorised bidders from targeting Kynthai inventory under
 # Google Ad Manager or equivalent SSP frameworks.
 #
 # If ad networks are added in future, list their domain + publisher

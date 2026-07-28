@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-describe('Kyntha app smoke tests', () => {
+describe('Kynthai app smoke tests', () => {
   it('truthy sanity check', () => {
     expect(true).toBe(true)
   })

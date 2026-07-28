@@ -16,7 +16,7 @@ interface RootPageProps {
  * so these Server Components render in the SSR HTML chunk first.
  */
 export default function RootPage({ children }: RootPageProps) {
-  const BASE = process.env.NEXT_PUBLIC_APP_URL || 'https://kyntha.app';
+  const BASE = process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app';
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -24,11 +24,11 @@ export default function RootPage({ children }: RootPageProps) {
       {
         '@type': 'MedicalOrganization',
         '@id': BASE + '/#organization',
-        name: 'Kyntha Health Technologies LLP',
+        name: 'Kynthai Health Technologies LLP',
         url: BASE,
         logo: BASE + '/logo.png',
         description:
-          'Kyntha is an AI-powered health companion for American families, offering medicine reminders, health tracking, doctor video consultations, lab test bookings, and family health management, Privacy-first.',
+          'Kynthai is an AI-powered health companion for American families, offering medicine reminders, health tracking, doctor video consultations, lab test bookings, and family health management, Privacy-first.',
         address: {
           '@type': 'PostalAddress',
           streetAddress: 'TBD — update upon registration',
@@ -41,20 +41,20 @@ export default function RootPage({ children }: RootPageProps) {
           {
             '@type': 'ContactPoint',
             contactType: 'customer support',
-            email: 'hello@kyntha.app',
+            email: 'hello@kynthai.app',
             url: BASE,
           },
           {
             '@type': 'ContactPoint',
             contactType: 'privacy',
-            email: 'privacy@kyntha.app',
+            email: 'privacy@kynthai.app',
           },
         ],
         sameAs: [
-          'https://twitter.com/kyntha_health',
-          'https://www.instagram.com/kyntha_health',
-          'https://www.linkedin.com/company/kyntha-health',
-          'https://www.youtube.com/@kyntha_health',
+          'https://twitter.com/kynthai_health',
+          'https://www.instagram.com/kynthai_health',
+          'https://www.linkedin.com/company/kynthai-health',
+          'https://www.youtube.com/@kynthai_health',
         ],
         knowsAbout: [
           'Medication Adherence',
@@ -70,7 +70,7 @@ export default function RootPage({ children }: RootPageProps) {
         '@type': 'MedicalWebPage',
         '@id': BASE + '/#webpage',
         url: BASE,
-        name: "Kyntha - America's AI Health Companion for Families",
+        name: "Kynthai - America's AI Health Companion for Families",
         description:
           'AI-powered medicine reminders, doctor video consultations, lab tests and family health management for American households. Free to start, Privacy-first, encrypted.',
         isPartOf: { '@id': BASE + '/#website' },

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers backup strategies, recovery procedures, and disaster recovery planning for Kyntha's PostgreSQL database.
+This guide covers backup strategies, recovery procedures, and disaster recovery planning for Kynthai's PostgreSQL database.
 
 ## Backup Strategy
 
@@ -19,17 +19,17 @@ This guide covers backup strategies, recovery procedures, and disaster recovery 
 BACKUP_ENABLED=true
 BACKUP_SCHEDULE="0 2 * * *"  # 2 AM UTC daily
 BACKUP_RETENTION_DAYS=30
-BACKUP_S3_BUCKET=kyntha-backups
+BACKUP_S3_BUCKET=kynthai-backups
 ```
 
 ### Manual Backup
 
 ```bash
 # Create manual backup
-pg_dump $DATABASE_URL > kyntha-backup-$(date +%Y%m%d-%H%M%S).sql
+pg_dump $DATABASE_URL > kynthai-backup-$(date +%Y%m%d-%H%M%S).sql
 
 # Upload to S3
-aws s3 cp kyntha-backup-*.sql s3://kyntha-backups/manual/
+aws s3 cp kynthai-backup-*.sql s3://kynthai-backups/manual/
 ```
 
 ## Recovery Procedures
@@ -38,32 +38,32 @@ aws s3 cp kyntha-backup-*.sql s3://kyntha-backups/manual/
 
 ```bash
 # Restore to specific timestamp
-pg_restore --data-only -d kyntha_recovery backup.dump
+pg_restore --data-only -d kynthai_recovery backup.dump
 
 # Verify data integrity
-psql -d kyntha_recovery -c "SELECT COUNT(*) FROM users;"
+psql -d kynthai_recovery -c "SELECT COUNT(*) FROM users;"
 ```
 
 ### Full Database Recovery
 
 1. **Create temporary database:**
    ```bash
-   createdb kyntha_restore
+   createdb kynthai_restore
    ```
 
 2. **Restore from backup:**
    ```bash
-   pg_restore -d kyntha_restore kyntha-backup.dump
+   pg_restore -d kynthai_restore kynthai-backup.dump
    ```
 
 3. **Verify integrity:**
    ```bash
-   psql -d kyntha_restore -c "SELECT version();"
+   psql -d kynthai_restore -c "SELECT version();"
    ```
 
 4. **Switch to restored database:**
    ```bash
-   # Update DATABASE_URL to point to kyntha_restore
+   # Update DATABASE_URL to point to kynthai_restore
    # Run migrations
    npm run db:migrate:deploy
    ```
@@ -104,8 +104,8 @@ psql -d kyntha_recovery -c "SELECT COUNT(*) FROM users;"
 # test-backup-restore.sh
 
 echo "Testing backup restoration..."
-BACKUP_FILE="s3://kyntha-backups/latest.dump"
-TEST_DB="kyntha_restore_test"
+BACKUP_FILE="s3://kynthai-backups/latest.dump"
+TEST_DB="kynthai_restore_test"
 
 # Download backup
 aws s3 cp $BACKUP_FILE ./backup.dump
@@ -144,7 +144,7 @@ echo "Backup restore test completed successfully!"
 
 ```sql
 -- Check database size
-SELECT pg_size_pretty(pg_database_size('kyntha'));
+SELECT pg_size_pretty(pg_database_size('kynthai'));
 
 -- Check table sizes
 SELECT 

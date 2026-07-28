@@ -15,19 +15,19 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAppStore, selectors } from '@/lib/store';
 import { Suspense, useEffect } from 'react';
 import { loadPortal } from './portal-loaders';
-import { LandingPage } from '@/components/kyntha/landing-page';
-import { LoginPage } from '@/components/kyntha/login-page';
-import { PricingPage } from '@/components/kyntha/pricing-page';
-import { CheckoutPage } from '@/components/kyntha/checkout-page';
-import { Onboarding } from '@/components/kyntha/onboarding';
+import { LandingPage } from '@/components/kynthaii/landing-page';
+import { LoginPage } from '@/components/kynthaii/login-page';
+import { PricingPage } from '@/components/kynthaii/pricing-page';
+import { CheckoutPage } from '@/components/kynthaii/checkout-page';
+import { Onboarding } from '@/components/kynthaii/onboarding';
 import {
   PrivacyPolicy,
   TermsOfService,
   CookiePolicy,
   AccessibilityStatement,
   MedicalDisclaimer,
-} from '@/components/kyntha/legal/privacy-policy';
-import { ErrorBoundary } from '@/components/kyntha/error-boundary';
+} from '@/components/kynthaii/legal/privacy-policy';
+import { ErrorBoundary } from '@/components/kynthaii/error-boundary';
 import type { AppScreen, LoginPortal } from '@/lib/store';
 
 // ── Route → screen mapping ─────────────────────────────────────────────────
@@ -115,7 +115,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     if (process.env.NODE_ENV === 'production') return;
     // Force-clear stuck store via URL param
     if (window.location.search.includes('reset=1')) {
-      localStorage.removeItem('kyntha-store-v2');
+      localStorage.removeItem('kynthai-store-v2');
       window.location.replace('/');
       return;
     }
@@ -123,7 +123,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       // Auto-set demo user in store (client-side only, no backend session required)
       store.login({
         id: 'demo-caretaker',
-        email: 'caretaker@kyntha.app',
+        email: 'caretaker@kynthai.app',
         name: 'Demo Family',
         role: 'caretaker',
         consentAccepted: true,

@@ -1,9 +1,9 @@
 import { Metadata } from 'next'
-import { LegalLayout } from '@/components/kyntha/legal/privacy-policy'
+import { LegalLayout } from '@/components/kynthaii/legal/privacy-policy'
 
 export const metadata: Metadata = {
-  title: 'Patient Rights Statement | Kyntha',
-  description: 'Your rights as a Kyntha platform user — patients, family members, caretakers, and designees.',
+  title: 'Patient Rights Statement | Kynthai',
+  description: 'Your rights as a Kynthai platform user — patients, family members, caretakers, and designees.',
 }
 
 const RIGHTS = [
@@ -15,12 +15,12 @@ const RIGHTS = [
   {
     num: '2',
     title: 'Information About Your Rights',
-    text: 'You have the right to be informed of your rights and responsibilities as a platform user in a language you can understand. This statement and the Notice of Privacy Practices are available at kyntha.app/patient-rights and kyntha.app/privacy-practices.',
+    text: 'You have the right to be informed of your rights and responsibilities as a platform user in a language you can understand. This statement and the Notice of Privacy Practices are available at kynthai.app/patient-rights and kynthai.app/privacy-practices.',
   },
   {
     num: '3',
     title: 'Participation in Care Decisions',
-    text: 'You have the right to participate in decisions regarding your healthcare, including consenting to or declining services. AI-generated content on Kyntha is advisory only and does not constitute medical advice.',
+    text: 'You have the right to participate in decisions regarding your healthcare, including consenting to or declining services. AI-generated content on Kynthai is advisory only and does not constitute medical advice.',
   },
   {
     num: '4',
@@ -30,37 +30,37 @@ const RIGHTS = [
   {
     num: '5',
     title: 'Access to Your Health Information',
-    text: 'You have the right to inspect and obtain a copy of your health information via Profile > Data Export or by emailing privacy@kyntha.app. Requests are fulfilled within 30 days.',
+    text: 'You have the right to inspect and obtain a copy of your health information via Profile > Data Export or by emailing privacy@kynthai.app. Requests are fulfilled within 30 days.',
   },
   {
     num: '6',
     title: 'Right to Amend Your Records',
-    text: 'You have the right to request amendment of inaccurate or incomplete sensitive health data. Submit via Profile > Settings or email privacy@kyntha.app.',
+    text: 'You have the right to request amendment of inaccurate or incomplete sensitive health data. Submit via Profile > Settings or email privacy@kynthai.app.',
   },
   {
     num: '7',
     title: 'Right to an Accounting of Disclosures',
-    text: 'You have the right to request an accounting of disclosures of your sensitive health data made by Kyntha for the six years preceding your request. Submit to privacy@kyntha.app.',
+    text: 'You have the right to request an accounting of disclosures of your sensitive health data made by Kynthai for the six years preceding your request. Submit to privacy@kynthai.app.',
   },
   {
     num: '8',
     title: 'Right to File a Complaint',
-    text: 'You have the right to file a complaint with Kyntha or with the U.S. Department of Health and Human Services Office for Civil Rights without retaliation. Contact privacy@kyntha.app or HHS OCR at hhs.gov/ocr/privacy.',
+    text: 'You have the right to file a complaint with Kynthai or with the U.S. Department of Health and Human Services Office for Civil Rights without retaliation. Contact privacy@kynthai.app or HHS OCR at hhs.gov/ocr/privacy.',
   },
   {
     num: '9',
     title: 'Right to Restrict Disclosures',
-    text: 'You have the right to request restrictions on uses and disclosures of your sensitive health data for TPO. Requests must be submitted in writing to privacy@kyntha.app.',
+    text: 'You have the right to request restrictions on uses and disclosures of your sensitive health data for TPO. Requests must be submitted in writing to privacy@kynthai.app.',
   },
   {
     num: '10',
     title: 'Right to Choose Communications',
-    text: 'You have the right to request that Kyntha communicate with you by alternative means or at alternative locations.',
+    text: 'You have the right to request that Kynthai communicate with you by alternative means or at alternative locations.',
   },
   {
     num: '11',
     title: 'Right to Opt Out of Marketing',
-    text: 'You have the right to opt out of receiving marketing communications from Kyntha. Use the unsubscribe link in any marketing email or update preferences in Profile.',
+    text: 'You have the right to opt out of receiving marketing communications from Kynthai. Use the unsubscribe link in any marketing email or update preferences in Profile.',
   },
   {
     num: '12',
@@ -73,15 +73,15 @@ export default function PatientRightsPage() {
   return (
     <LegalLayout
         title="Patient Rights Statement"
-        subtitle="Your rights as a Kyntha platform user — patients, family members, caretakers, and designees."
+        subtitle="Your rights as a Kynthai platform user — patients, family members, caretakers, and designees."
         updated="July 13, 2026"
       >
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 mb-6">
           <p className="text-sm text-emerald-800 dark:text-emerald-200">
-            <strong>Full rights statement:</strong> Kyntha Health Technologies is committed to
+            <strong>Full rights statement:</strong> Kynthai Health Technologies is committed to
             providing a respectful, safe, and transparent experience. These rights apply equally
             to patients, family members, caretakers, and legally authorized designees.
-            Questions? Contact privacy@kyntha.app.
+            Questions? Contact privacy@kynthai.app.
           </p>
         </div>
         <div className="space-y-4">
@@ -101,8 +101,8 @@ export default function PatientRightsPage() {
           <p className="font-semibold text-foreground">Need help exercising these rights?</p>
           <p className="mt-1">
             privacy officer:{' '}
-            <a href="mailto:privacy@kyntha.app" className="text-emerald-600 underline">
-              privacy@kyntha.app
+            <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">
+              privacy@kynthai.app
             </a>{' '}
             · HHS OCR: hhs.gov/ocr/privacy · 1-800-368-1019
           </p>

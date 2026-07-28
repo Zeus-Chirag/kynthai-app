@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         })
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kyntha.app'
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'
       const referralLink = `${baseUrl}/ref/${referralCode.code}`
 
       return jsonOk({
@@ -125,7 +125,7 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kyntha.app'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'
     return jsonOk({
       code: referral.code,
       link: `${baseUrl}/ref/${referral.code}`,

@@ -1,7 +1,7 @@
 'use client'
 
-import { PrivacyPolicy } from "@/components/kyntha/legal/privacy-policy"
-import { ErrorBoundary } from '@/components/kyntha/error-boundary'
+import { PrivacyPolicy } from "@/components/kynthaii/legal/privacy-policy"
+import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
 
 export default function PrivacyPage() {
   return (

@@ -1,5 +1,5 @@
 -- ============================================================================
--- Kyntha US — Complete Supabase Schema (34 tables + indexes)
+-- Kynthai US — Complete Supabase Schema (34 tables + indexes)
 -- ============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

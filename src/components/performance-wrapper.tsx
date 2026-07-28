@@ -61,7 +61,7 @@ const lazyImport = (config: LazyComponentConfig): void => {
     async () => {
       // webpackChunkName ensures stable cache key
       // @ts-ignore webpack magic comment
-      await import(/* webpackChunkName: "[request]" */ `@/components/kyntha/${config.module}`)
+      await import(/* webpackChunkName: "[request]" */ `@/components/kynthaii/${config.module}`)
     },
     config.priority === "low" ? 4000 : config.priority === "normal" ? 2000 : 0,
   )
@@ -153,7 +153,7 @@ export function LazyLoader({
         try {
           // @ts-ignore webpack magic comment
           const loaded = await import(
-            /* webpackChunkName: "[request]" */ `@/components/kyntha/${_mod}`
+            /* webpackChunkName: "[request]" */ `@/components/kynthaii/${_mod}`
           )
           if (!cancelled) setMod(loaded)
         } catch (e) {

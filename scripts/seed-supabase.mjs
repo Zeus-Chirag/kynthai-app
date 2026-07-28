@@ -12,11 +12,11 @@ if (!url || !serviceKey) {
 const sb = createClient(url, serviceKey);
 
 const demos = [
-  { email: 'patient@demo.kyntha.app', name: 'Demo Patient', role: 'patient' },
-  { email: 'caretaker@demo.kyntha.app', name: 'Demo Family', role: 'caretaker' },
-  { email: 'priya@demo.kyntha.app', name: 'Demo Doctor', role: 'doctor' },
-  { email: 'pathlabs@demo.kyntha.app', name: 'Demo Lab', role: 'lab' },
-  { email: 'admin@demo.kyntha.app', name: 'Demo Admin', role: 'admin' },
+  { email: 'patient@demo.kynthai.app', name: 'Demo Patient', role: 'patient' },
+  { email: 'caretaker@demo.kynthai.app', name: 'Demo Family', role: 'caretaker' },
+  { email: 'priya@demo.kynthai.app', name: 'Demo Doctor', role: 'doctor' },
+  { email: 'pathlabs@demo.kynthai.app', name: 'Demo Lab', role: 'lab' },
+  { email: 'admin@demo.kynthai.app', name: 'Demo Admin', role: 'admin' },
 ];
 
 async function seed() {

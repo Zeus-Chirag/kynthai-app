@@ -1,9 +1,9 @@
 #!/bin/bash
-# Kyntha API Test Helper
+# Kynthai API Test Helper
 # Usage: ./test-api.sh <email> <password> <endpoint> [method] [data]
 
 BASE="http://localhost:3000"
-COOKIE_JAR="/tmp/kyntha-test-$$.txt"
+COOKIE_JAR="/tmp/kynthai-test-$$.txt"
 trap "rm -f $COOKIE_JAR" EXIT
 
 EMAIL=$1
@@ -14,13 +14,13 @@ DATA=$5
 
 if [ -z "$EMAIL" ] || [ -z "$PASSWORD" ] || [ -z "$ENDPOINT" ]; then
   echo "Usage: $0 <email> <password> <endpoint> [method] [data]"
-  echo "Example: $0 demo@kyntha.app Demo1234! /api/medications"
+  echo "Example: $0 demo@kynthai.app Demo1234! /api/medications"
   exit 1
 fi
 
 # Step 1: Get CSRF token (saves cookie to jar)
 curl -s -c "$COOKIE_JAR" "$BASE/api/auth/csrf" > /dev/null
-CSRF=$(grep kyntha-csrf "$COOKIE_JAR" 2>/dev/null | awk '{print $NF}')
+CSRF=$(grep kynthai-csrf "$COOKIE_JAR" 2>/dev/null | awk '{print $NF}')
 
 if [ -z "$CSRF" ]; then
   echo "ERROR: Failed to get CSRF token"
@@ -44,7 +44,7 @@ fi
 
 # Step 3: Get fresh CSRF for API call
 curl -s -c "$COOKIE_JAR" "$BASE/api/auth/csrf" -b "$COOKIE_JAR" > /dev/null
-CSRF2=$(grep kyntha-csrf "$COOKIE_JAR" 2>/dev/null | awk '{print $NF}')
+CSRF2=$(grep kynthai-csrf "$COOKIE_JAR" 2>/dev/null | awk '{print $NF}')
 [ -z "$CSRF2" ] && CSRF2=$CSRF
 
 # Step 4: Make the API call with ALL cookies from the jar

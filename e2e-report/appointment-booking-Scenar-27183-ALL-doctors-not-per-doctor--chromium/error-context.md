@@ -34,8 +34,8 @@ waiting for navigation until "load"
         - img [ref=e7]
         - text: Back
       - generic [ref=e9]:
-        - img "Kyntha icon" [ref=e10]
-        - generic [ref=e15]: Kyntha
+        - img "Kynthai icon" [ref=e10]
+        - generic [ref=e15]: Kynthai
       - button "Home" [ref=e16]
     - generic [ref=e17]:
       - generic [ref=e18]:
@@ -72,7 +72,7 @@ waiting for navigation until "load"
             - generic [ref=e72]: Email
             - textbox "Email" [ref=e73]:
               - /placeholder: you@example.com
-              - text: patient@demo.kyntha.app
+              - text: patient@demo.kynthai.app
           - generic [ref=e74]:
             - generic [ref=e75]: Password
             - generic [ref=e76]:
@@ -92,7 +92,7 @@ waiting for navigation until "load"
     - generic [ref=e94]:
       - heading "We use cookies" [level=3] [ref=e95]
       - paragraph [ref=e96]:
-        - text: Kyntha uses essential cookies for authentication and local storage for preferences. Essential cookies cannot be disabled because they are required for the service to function. With your consent, we also use analytics and marketing cookies to improve your experience. See our
+        - text: Kynthai uses essential cookies for authentication and local storage for preferences. Essential cookies cannot be disabled because they are required for the service to function. With your consent, we also use analytics and marketing cookies to improve your experience. See our
         - button "Privacy Policy" [ref=e97]
         - text: for details, including your CCPA/CPRA rights.
       - generic [ref=e98]:
@@ -112,13 +112,13 @@ waiting for navigation until "load"
 
 ```ts
   1   | /**
-  2   |  * Kyntha Healthcare — E2E Appointment Booking & Management Flow Tests
+  2   |  * Kynthai Healthcare — E2E Appointment Booking & Management Flow Tests
   3   |  * Tests all 8 appointment lifecycle scenarios with screenshots at each step.
   4   |  */
   5   | 
   6   | import { test, expect } from '@playwright/test';
   7   | 
-  8   | const DEMO_EMAIL = 'patient@demo.kyntha.app';
+  8   | const DEMO_EMAIL = 'patient@demo.kynthai.app';
   9   | const DEMO_PASSWORD = 'Demo@2024';
   10  | 
   11  | async function loginAsPatient(page: any) {

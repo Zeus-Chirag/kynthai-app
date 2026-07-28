@@ -2,7 +2,7 @@
  * CSRF Protection — Double-Submit Cookie Pattern
  *
  * For state-changing requests (POST, PUT, PATCH, DELETE), the client must
- * send an `X-CSRF-Token` header that matches the `kyntha-csrf` cookie value.
+ * send an `X-CSRF-Token` header that matches the `kynthai-csrf` cookie value.
  *
  * The token is generated on first GET request (via /api/auth/csrf) and stored
  * as an HttpOnly cookie. The frontend reads it and includes it in all
@@ -21,7 +21,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
 
-const CSRF_COOKIE = 'kyntha-csrf'
+const CSRF_COOKIE = 'kynthai-csrf'
 const CSRF_HEADER = 'x-csrf-token'
 const TOKEN_LENGTH = 32
 

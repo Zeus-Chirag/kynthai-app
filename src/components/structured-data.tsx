@@ -18,22 +18,22 @@ const KYNETHA_ADDRESS = {
 } as const;
 
 const SOCIAL_PROFILES = [
-  'https://twitter.com/kyntha_health',
-  'https://www.linkedin.com/company/kyntha-health',
-  'https://www.instagram.com/kyntha_health',
-  'https://www.youtube.com/@kyntha_health',
-  'https://github.com/kyntha-health',
+  'https://twitter.com/kynthai_health',
+  'https://www.linkedin.com/company/kynthai-health',
+  'https://www.instagram.com/kynthai_health',
+  'https://www.youtube.com/@kynthai_health',
+  'https://github.com/kynthai-health',
 ] as const;
 
 const WEBAPP_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  '@id': 'https://kyntha.app/#webapp',
-  name: 'Kyntha',
-  alternateName: 'Kyntha Health',
+  '@id': 'https://kynthai.app/#webapp',
+  name: 'Kynthai',
+  alternateName: 'Kynthai Health',
   description:
     'AI-powered health management platform for US patients, families, doctors, and labs. Medicine reminders, doctor consultations, lab bookings, and family health coordination.',
-  url: 'https://kyntha.app',
+  url: 'https://kynthai.app',
   applicationCategory: 'HealthApplication',
   operatingSystem: 'iOS, Android, Web',
   softwareVersion: '2.0.0',
@@ -58,22 +58,22 @@ const WEBAPP_SCHEMA = {
   inLanguage: ['en-US'],
   author: {
     '@type': 'Organization',
-    '@id': 'https://kyntha.app/#organization',
-    name: 'Kyntha Health Technologies LLC',
+    '@id': 'https://kynthai.app/#organization',
+    name: 'Kynthai Health Technologies LLC',
   },
-  publisher: { '@id': 'https://kyntha.app/#organization' },
+  publisher: { '@id': 'https://kynthai.app/#organization' },
 } as const;
 
 const MEDICAL_ORG_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  '@id': 'https://kyntha.app/#medicalorganization',
-  name: 'Kyntha Health Technologies LLC',
+  '@id': 'https://kynthai.app/#medicalorganization',
+  name: 'Kynthai Health Technologies LLC',
   description:
     'AI-powered health management platform for patients, families, doctors, and labs in the United States.',
-  url: 'https://kyntha.app',
+  url: 'https://kynthai.app',
   ...KYNETHA_ADDRESS,
-  email: 'privacy@kyntha.app',
+  email: 'privacy@kynthai.app',
   foundingDate: '2025',
   sameAs: [...SOCIAL_PROFILES],
   areaServed: { '@type': 'Country', name: 'United States' },
@@ -82,13 +82,13 @@ const MEDICAL_ORG_SCHEMA = {
 const ORG_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  '@id': 'https://kyntha.app/#organization',
-  name: 'Kyntha Health Technologies LLC',
+  '@id': 'https://kynthai.app/#organization',
+  name: 'Kynthai Health Technologies LLC',
   description:
     'AI-powered health management platform for patients, families, doctors, and labs in the United States.',
-  url: 'https://kyntha.app',
+  url: 'https://kynthai.app',
   ...KYNETHA_ADDRESS,
-  email: 'privacy@kyntha.app',
+  email: 'privacy@kynthai.app',
   foundingDate: '2025',
   sameAs: [...SOCIAL_PROFILES],
   areaServed: { '@type': 'Country', name: 'United States' },
@@ -100,14 +100,14 @@ function breadcrumbSchema(pathname: string) {
     '@type': 'ListItem' as const,
     position: i + 1,
     name: part.charAt(0).toUpperCase() + part.slice(1),
-    item: `https://kyntha.app/${parts.slice(0, i + 1).join('/')}`,
+    item: `https://kynthai.app/${parts.slice(0, i + 1).join('/')}`,
   }));
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList' as const,
-    '@id': `https://kyntha.app${pathname}#breadcrumb`,
+    '@id': `https://kynthai.app${pathname}#breadcrumb`,
     itemListElement: [
-      { '@type': 'ListItem' as const, position: 1, name: 'Home', item: 'https://kyntha.app' },
+      { '@type': 'ListItem' as const, position: 1, name: 'Home', item: 'https://kynthai.app' },
       ...items,
     ],
   };
@@ -116,11 +116,11 @@ function breadcrumbSchema(pathname: string) {
 const WEBPAGE_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  '@id': 'https://kyntha.app/#webpage',
-  name: 'Kyntha — AI Health Management for US Families',
+  '@id': 'https://kynthai.app/#webpage',
+  name: 'Kynthai — AI Health Management for US Families',
   description:
     'AI-powered health management for patients and families in the United States. Medicine reminders, doctor consultations, lab bookings.',
-  url: 'https://kyntha.app',
+  url: 'https://kynthai.app',
   inLanguage: 'en-US',
   isAccessibleForFree: true,
   accessibilitySummary: 'WCAG 2.1 AA compliant. Keyboard navigable and screen-reader friendly.',
@@ -129,14 +129,14 @@ const WEBPAGE_SCHEMA = {
 const FAQ_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  '@id': 'https://kyntha.app/#faqpage',
+  '@id': 'https://kynthai.app/#faqpage',
   mainEntity: [
     {
       '@type': 'Question' as const,
-      name: 'Is Kyntha free to use?',
+      name: 'Is Kynthai free to use?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'Kyntha Free Plan includes 1 member profile, 10 medications, 3 AI chats per day, and all smart reminders. No credit card required.',
+        text: 'Kynthai Free Plan includes 1 member profile, 10 medications, 3 AI chats per day, and all smart reminders. No credit card required.',
       },
     },
     {
@@ -149,10 +149,10 @@ const FAQ_SCHEMA = {
     },
     {
       '@type': 'Question' as const,
-      name: 'Is my data safe with Kyntha?',
+      name: 'Is my data safe with Kynthai?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'Kyntha uses encryption at rest and in transit to protect your data. No health data is sold to third parties. You can export or delete your data anytime. For questions: privacy@kyntha.app.',
+        text: 'Kynthai uses encryption at rest and in transit to protect your data. No health data is sold to third parties. You can export or delete your data anytime. For questions: privacy@kynthai.app.',
       },
     },
     {
@@ -160,7 +160,7 @@ const FAQ_SCHEMA = {
       name: 'Where is my data stored?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'Kyntha is US-hosted on Supabase Cloud. Your health data never leaves American soil for processing.',
+        text: 'Kynthai is US-hosted on Supabase Cloud. Your health data never leaves American soil for processing.',
       },
     },
   ],

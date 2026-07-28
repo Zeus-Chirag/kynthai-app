@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { hashPassword, verifyPassword } from '../src/lib/auth';
 const db = new PrismaClient();
 
-const candidates = ['Demo@123', 'Demo@2024', 'Kyntha@2024', 'kyntha123', 'password'];
+const candidates = ['Demo@123', 'Demo@2024', 'Kynthai@2024', 'kynthai123', 'password'];
 
 db.user.findMany({
   where: { isDemo: false },

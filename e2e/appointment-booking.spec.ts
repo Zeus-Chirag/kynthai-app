@@ -1,11 +1,11 @@
 /**
- * Kyntha Healthcare — E2E Appointment Booking & Management Flow Tests
+ * Kynthai Healthcare — E2E Appointment Booking & Management Flow Tests
  * Tests all 8 appointment lifecycle scenarios with screenshots at each step.
  */
 
 import { test, expect } from '@playwright/test';
 
-const DEMO_EMAIL = 'patient@demo.kyntha.app';
+const DEMO_EMAIL = 'patient@demo.kynthai.app';
 const DEMO_PASSWORD = 'Demo@2024';
 
 async function loginAsPatient(page: any) {

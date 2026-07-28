@@ -43,7 +43,7 @@ import {
 import { useTheme } from 'next-themes';
 import { useAppStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
-import { KynthaBrand } from '@/components/kyntha/logo';
+import { KynthaiBrand } from '@/components/kynthaii/logo';
 
 export default function SettingsClient() {
   const router = useRouter();
@@ -207,7 +207,7 @@ export default function SettingsClient() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `kyntha-data-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `kynthai-data-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -464,7 +464,7 @@ export default function SettingsClient() {
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { key: 'consentAccepted', label: 'Terms of Service', desc: 'Kyntha Terms & Privacy Policy' },
+              { key: 'consentAccepted', label: 'Terms of Service', desc: 'Kynthai Terms & Privacy Policy' },
               { key: 'dataProcessingConsent', label: 'Data processing', desc: 'Store and process health data under US privacy' },
               { key: 'aiTrainingConsent', label: 'AI training data', desc: 'Allow de-identified data to improve AI' },
             ].map(item => (
@@ -514,7 +514,7 @@ export default function SettingsClient() {
         </Button>
 
         <p className="text-center text-xs text-muted-foreground pb-8">
-          Kyntha v3 · Data encrypted in transit & at rest
+          Kynthai v3 · Data encrypted in transit & at rest
         </p>
       </div>
 

@@ -1,5 +1,5 @@
 /**
- * Transactional email templates for Kyntha.
+ * Transactional email templates for Kynthai.
  *
  * sensitive health data BOUNDARY: Templates must not include raw sensitive health data in subject/body/html.
  * Callers are responsible for ensuring content is non-clinical before invoking.
@@ -12,10 +12,10 @@ export function emailVerificationEmail({
   name: string
   verifyLink: string
 }): { subject: string; html: string } {
-  const subject = 'Verify your Kyntha account'
+  const subject = 'Verify your Kynthai account'
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-      <h2 style="color: #065f46;">Welcome to Kyntha, ${escapeHtml(name)}!</h2>
+      <h2 style="color: #065f46;">Welcome to Kynthai, ${escapeHtml(name)}!</h2>
       <p style="color: #374151; font-size: 16px;">
         Please verify your email address to get started. This link expires in 60 minutes.
       </p>
@@ -85,7 +85,7 @@ export function labResultsEmail({
         <p style="margin: 4px 0;"><strong>Date:</strong> ${escapeHtml(date)}</p>
       </div>
       <p style="font-size: 12px; color: #6b7280;">
-        Log in to your Kyntha account to view the full results.
+        Log in to your Kynthai account to view the full results.
       </p>
     </div>
   `
@@ -129,12 +129,12 @@ export function familyInviteEmail({
   familyName: string
   inviteLink: string
 }): { subject: string; html: string } {
-  const subject = 'You\'ve Been Invited to Join a Family on Kyntha'
+  const subject = 'You\'ve Been Invited to Join a Family on Kynthai'
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
       <h2 style="color: #065f46;">Family Invitation</h2>
       <p style="color: #374151; font-size: 16px;">
-        ${escapeHtml(inviterName)} has invited you to join <strong>${escapeHtml(familyName)}</strong> on Kyntha.
+        ${escapeHtml(inviterName)} has invited you to join <strong>${escapeHtml(familyName)}</strong> on Kynthai.
       </p>
       <p style="margin: 24px 0;">
         <a href="${inviteLink}" style="background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
@@ -170,7 +170,7 @@ export function doctorVerificationEmail({
         Hi Dr. ${escapeHtml(doctorName)}, your verification has been <strong>${escapeHtml(status)}</strong>.
       </p>
       ${isApproved
-        ? '<p style="color: #374151; font-size: 16px;">You can now start accepting patients on Kyntha.</p>'
+        ? '<p style="color: #374151; font-size: 16px;">You can now start accepting patients on Kynthai.</p>'
         : '<p style="color: #374151; font-size: 16px;">Please contact support for more details.</p>'
       }
     </div>
@@ -195,12 +195,12 @@ export function passwordResetEmail({
   resetLink: string
   expiresInMinutes?: number
 }): { subject: string; html: string } {
-  const subject = 'Reset your Kyntha password'
+  const subject = 'Reset your Kynthai password'
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
       <h2 style="color: #065f46;">Password reset requested</h2>
       <p style="color: #374151; font-size: 16px;">
-        Hi ${escapeHtml(name)}, we received a request to reset your Kyntha password.
+        Hi ${escapeHtml(name)}, we received a request to reset your Kynthai password.
         This link expires in 30 minutes.
       </p>
       <p style="margin: 24px 0;">

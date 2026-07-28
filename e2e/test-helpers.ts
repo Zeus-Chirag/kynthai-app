@@ -1,5 +1,5 @@
 /**
- * Shared E2E test helpers for Kyntha.
+ * Shared E2E test helpers for Kynthai.
  *
  * Login via browser page (not page.request) so the CSRF cookie lands in the
  * same cookie jar that the rendered page uses when it submits the login form.
@@ -13,7 +13,7 @@ async function fillLoginAndSubmit(page: any, email: string): Promise<void> {
     .evaluate(() => {
       try {
         localStorage.setItem(
-          'kyntha-cookie-consent-v1',
+          'kynthai-cookie-consent-v1',
           JSON.stringify({ accepted: true, timestamp: Date.now() })
         );
       } catch {
@@ -40,7 +40,7 @@ async function fillLoginAndSubmit(page: any, email: string): Promise<void> {
 }
 
 export async function apiLoginAsPatient(page: any, gotoPath = '/patient'): Promise<void> {
-  await fillLoginAndSubmit(page, 'patient@demo.kyntha.app');
+  await fillLoginAndSubmit(page, 'patient@demo.kynthai.app');
   await page.goto(gotoPath);
   await page.waitForTimeout(1000);
 }
@@ -51,11 +51,11 @@ export async function apiLoginAs(
   pathMap: Record<string, string> = PORTAL_PATHS
 ): Promise<void> {
   const emailMap: Record<string, string> = {
-    patient: 'patient@demo.kyntha.app',
-    doctor: 'priya@demo.kyntha.app',
-    family: 'caretaker@demo.kyntha.app',
-    lab: 'pathlabs@demo.kyntha.app',
-    admin: 'admin@demo.kyntha.app',
+    patient: 'patient@demo.kynthai.app',
+    doctor: 'priya@demo.kynthai.app',
+    family: 'caretaker@demo.kynthai.app',
+    lab: 'pathlabs@demo.kynthai.app',
+    admin: 'admin@demo.kynthai.app',
   };
 
   const email = emailMap[portal] || emailMap.patient;

@@ -59,7 +59,7 @@ async function computeAchievements(userId: string) {
       title: '7-Day Streak Champion',
       description: `${medsStreak.count} consecutive days of perfect medication adherence!`,
       icon: 'flame',
-      shareText: `I just hit a ${medsStreak.count}-day medication streak on Kyntha! Consistent care makes all the difference.`,
+      shareText: `I just hit a ${medsStreak.count}-day medication streak on Kynthai! Consistent care makes all the difference.`,
     })
   }
 
@@ -70,7 +70,7 @@ async function computeAchievements(userId: string) {
       title: 'Monthly Perfect',
       description: `${medsStreak.count} days of perfect medication adherence — a full month!`,
       icon: 'trophy',
-      shareText: `30 days of perfect medication adherence with Kyntha! Health is consistency.`,
+      shareText: `30 days of perfect medication adherence with Kynthai! Health is consistency.`,
     })
   }
 
@@ -81,7 +81,7 @@ async function computeAchievements(userId: string) {
       title: 'Perfect Week',
       description: '100% medication adherence for an entire week!',
       icon: 'star',
-      shareText: `Perfect week of medication adherence on Kyntha! Every dose counts.`,
+      shareText: `Perfect week of medication adherence on Kynthai! Every dose counts.`,
     })
   }
 
@@ -97,7 +97,7 @@ async function computeAchievements(userId: string) {
       title: 'Health Journal Started',
       description: 'Started tracking health with daily journal entries.',
       icon: 'brain',
-      shareText: `Started my health journal on Kyntha! Tracking symptoms, mood and vitals daily helps me stay aware.`,
+      shareText: `Started my health journal on Kynthai! Tracking symptoms, mood and vitals daily helps me stay aware.`,
     })
   }
 
@@ -116,7 +116,7 @@ async function computeAchievements(userId: string) {
       title: 'AI Health Explorer',
       description: `${aiChatCount}+ AI health conversations — exploring health knowledge!`,
       icon: 'zap',
-      shareText: `${aiChatCount}+ AI health chats on Kyntha! My personal health assistant is always ready.`,
+      shareText: `${aiChatCount}+ AI health chats on Kynthai! My personal health assistant is always ready.`,
     })
   }
 
@@ -128,7 +128,7 @@ async function computeAchievements(userId: string) {
       title: 'Family Health Champion',
       description: `Perfect health day for the whole family! ${familyStreak.count} days and counting.`,
       icon: 'heart',
-      shareText: `Keeping my whole family healthy with Kyntha! ${familyStreak.count} days of family health wins.`,
+      shareText: `Keeping my whole family healthy with Kynthai! ${familyStreak.count} days of family health wins.`,
     })
   }
 

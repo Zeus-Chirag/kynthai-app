@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     if (!email && !phone) return jsonError('patientEmail, patientPhone, or patientId is required', 400)
     patient = await db.user.create({
       data: {
-        email: email || `placeholder-${Date.now()}@kyntha.app`,
+        email: email || `placeholder-${Date.now()}@kynthai.app`,
         phone: phone && /^\+[1-9]\d{7,14}$/.test(phone) ? phone : null,
         name: sanitizeText(body.name, 120) || 'Patient',
         role: 'patient',

@@ -393,7 +393,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(exportData, {
       headers: {
-        'Content-Disposition': `attachment; filename="kyntha-data-export-${u.id}-${new Date().toISOString().slice(0, 10)}.json"`,
+        'Content-Disposition': `attachment; filename="kynthai-data-export-${u.id}-${new Date().toISOString().slice(0, 10)}.json"`,
         'Content-Type': 'application/json',
       },
     })

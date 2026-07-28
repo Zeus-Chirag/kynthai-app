@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
         // Signing failed in production — abort rather than set an unsigned cookie
         return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');
       }
-      res.cookies.set('kyntha-session', signedValue, {
+      res.cookies.set('kynthai-session', signedValue, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

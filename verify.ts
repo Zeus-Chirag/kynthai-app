@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * verify.ts — Structural checks for Kyntha US bug fixes.
+ * verify.ts — Structural checks for Kynthai US bug fixes.
  *
  * Run: npx tsx verify.ts
  *
@@ -39,7 +39,7 @@ function read(path: string) {
 // 1. Login white-screen blink fix
 // ═══════════════════════════════════════════════════════════════════════════
 
-const loginPage = read('src/components/kyntha/login-page.tsx');
+const loginPage = read('src/components/kynthaii/login-page.tsx');
 
 check('login-page: has router.push after login(user)', () => {
   // After `login(user);` there should be `router.push(` within the next 600 chars
@@ -121,7 +121,7 @@ check('audit-logger: logAudit exported and connects to real storage', () => {
 // 6. Error boundary — patient portal has error boundary with fallback
 // ═══════════════════════════════════════════════════════════════════════════
 
-const patientApp = read('src/components/kyntha/patient/patient-app.tsx');
+const patientApp = read('src/components/kynthaii/patient/patient-app.tsx');
 
 check('patient-app: uses useCallback for load function', () => {
   return patientApp.includes('React.useCallback');

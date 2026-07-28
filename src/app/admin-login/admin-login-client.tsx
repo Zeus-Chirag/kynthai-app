@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppStore } from '@/lib/store';
-import { KynthaBrand } from '@/components/kyntha/logo';
+import { KynthaiBrand } from '@/components/kynthaii/logo';
 
 export default function AdminLoginClient() {
   const navRouter = useRouter();
@@ -30,7 +30,7 @@ export default function AdminLoginClient() {
 
     try {
       // Get CSRF token
-      let csrfToken = document.cookie.match(/kyntha-csrf=([^;]+)/)?.[1];
+      let csrfToken = document.cookie.match(/kynthai-csrf=([^;]+)/)?.[1];
       if (!csrfToken) {
         const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
         const csrfData = await csrfRes.json();
@@ -81,7 +81,7 @@ export default function AdminLoginClient() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-background to-teal-50 dark:from-emerald-950/20 dark:via-background dark:to-teal-950/20 px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <KynthaBrand iconSize={36} />
+          <KynthaiBrand iconSize={36} />
           <h1 className="mt-4 text-2xl font-bold tracking-tight">Admin Portal</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in with your admin credentials
@@ -100,7 +100,7 @@ export default function AdminLoginClient() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@kyntha.app"
+              placeholder="admin@kynthai.app"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required

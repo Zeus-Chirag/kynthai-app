@@ -1,5 +1,5 @@
 /**
- * Smart notification routing service for Kyntha.
+ * Smart notification routing service for Kynthai.
  *
  * Channels are tried in cost-ascending order (cheapest first) so the
  * platform spends the least amount possible per notification while still
@@ -144,7 +144,7 @@ export async function sendNotification(
         <h2 style="color:#10b981">${payload.title}</h2>
         <p style="color:#374151;font-size:15px;line-height:1.5">${payload.body}</p>
         <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb" />
-        <p style="font-size:11px;color:#9ca3af">Kyntha · AI Health Management</p>
+        <p style="font-size:11px;color:#9ca3af">Kynthai · AI Health Management</p>
       </div>`,
     })
     const cost = CHANNEL_COST.email
@@ -216,7 +216,7 @@ export async function sendNotification(
 // Higher-level helpers
 // ---------------------------------------------------------------------------
 
-/** Look up a Kyntha user's contact channels from the DB. */
+/** Look up a Kynthai user's contact channels from the DB. */
 async function loadUserTarget(userId: string): Promise<NotificationTarget> {
   const u = await db.user.findUnique({ where: { id: userId } })
   if (!u) return { userId }

@@ -1,7 +1,7 @@
 /**
  * permissions.ts
  *
- * Centralized role-based access control (RBAC) for Kyntha.
+ * Centralized role-based access control (RBAC) for Kynthai.
  * All authorization decisions flow through this module.
  *
  * Health Data Protection FINAL RULE (2024): least privilege, minimum necessary access.
@@ -11,9 +11,9 @@ import type { User } from '@prisma/client'
 
 // ── Role definitions ──────────────────────────────────────────────────────────
 
-export type KynthaRole = 'patient' | 'doctor' | 'lab' | 'caretaker' | 'admin'
+export type KynthaiRole = 'patient' | 'doctor' | 'lab' | 'caretaker' | 'admin'
 
-export const ROLE_LABELS: Record<KynthaRole, string> = {
+export const ROLE_LABELS: Record<KynthaiRole, string> = {
   patient:   'Patient',
   doctor:    'Doctor',
   lab:       'Lab',
@@ -31,7 +31,7 @@ export const DEFAULT_APPOINTMENT_LEAD_DAYS = 30
  * Search scopes — what data each role can read.
  * key = role requesting access, value[] = roles whose data they can read.
  */
-export const SEARCH_SCOPE: Record<KynthaRole, readonly KynthaRole[]> = {
+export const SEARCH_SCOPE: Record<KynthaiRole, readonly KynthaiRole[]> = {
   patient:    ['patient'],       // patient can only search themselves
   doctor:     ['patient'],       // doctor can search patients they are linked to (enforced per-AIDOR)
   lab:        ['patient'],       // lab can search patients whose lab results they handle
@@ -52,7 +52,7 @@ export const SEARCH_SCOPE: Record<KynthaRole, readonly KynthaRole[]> = {
  *
  * Cross-portal access is PROHIBITED. Violations are audit-logged.
  */
-export const PORTAL_ACCESS: Readonly<Record<KynthaRole, readonly KynthaRole[]>> = {
+export const PORTAL_ACCESS: Readonly<Record<KynthaiRole, readonly KynthaiRole[]>> = {
   patient:    ['patient'],
   doctor:     ['doctor'],
   lab:        ['lab'],
@@ -63,32 +63,32 @@ export const PORTAL_ACCESS: Readonly<Record<KynthaRole, readonly KynthaRole[]>> 
 /**
  * Which roles can manage (create/update/delete) lab bookings.
  */
-export const LAB_BOOKING_MANAGERS: readonly KynthaRole[] = ['patient', 'caretaker', 'admin']
+export const LAB_BOOKING_MANAGERS: readonly KynthaiRole[] = ['patient', 'caretaker', 'admin']
 
 /**
  * Which roles can view lab results.
  */
-export const LAB_RESULT_VIEWERS: readonly KynthaRole[] = ['patient', 'doctor', 'lab', 'admin']
+export const LAB_RESULT_VIEWERS: readonly KynthaiRole[] = ['patient', 'doctor', 'lab', 'admin']
 
 /**
  * Which roles can manage prescriptions.
  */
-export const PRESCRIPTION_MANAGERS: readonly KynthaRole[] = ['doctor', 'admin']
+export const PRESCRIPTION_MANAGERS: readonly KynthaiRole[] = ['doctor', 'admin']
 
 /**
  * Which roles can manage family members.
  */
-export const FAMILY_MANAGERS: readonly KynthaRole[] = ['patient', 'caretaker']
+export const FAMILY_MANAGERS: readonly KynthaiRole[] = ['patient', 'caretaker']
 
 /**
  * Which roles can manage appointments.
  */
-export const APPOINTMENT_MANAGERS: readonly KynthaRole[] = ['patient', 'caretaker', 'doctor', 'admin']
+export const APPOINTMENT_MANAGERS: readonly KynthaiRole[] = ['patient', 'caretaker', 'doctor', 'admin']
 
 /**
  * Which roles can view all notifications / send push to all users.
  */
-export const NOTIFICATION_ADMINS: readonly KynthaRole[] = ['admin']
+export const NOTIFICATION_ADMINS: readonly KynthaiRole[] = ['admin']
 
 // ── Consent gates (Health Data Protection minimum necessary) ───────────────────────────────────
 
@@ -145,15 +145,15 @@ export function canAccessUserData(requesterRole: string, requesterId: string, ta
  * Return the portal key for a user role.
  * Used for redirect-after-login and session management.
  */
-export function userPortal(role: string): KynthaRole | null {
-  const validRoles: KynthaRole[] = ['patient', 'doctor', 'lab', 'caretaker', 'admin']
-  return validRoles.includes(role as KynthaRole) ? (role as KynthaRole) : null
+export function userPortal(role: string): KynthaiRole | null {
+  const validRoles: KynthaiRole[] = ['patient', 'doctor', 'lab', 'caretaker', 'admin']
+  return validRoles.includes(role as KynthaiRole) ? (role as KynthaiRole) : null
 }
 
 /**
- * Verify that the role is a recognized Kyntha role.
+ * Verify that the role is a recognized Kynthai role.
  */
-export function isValidRole(role: string): role is KynthaRole {
-  const validRoles: KynthaRole[] = ['patient', 'doctor', 'lab', 'caretaker', 'admin']
-  return validRoles.includes(role as KynthaRole)
+export function isValidRole(role: string): role is KynthaiRole {
+  const validRoles: KynthaiRole[] = ['patient', 'doctor', 'lab', 'caretaker', 'admin']
+  return validRoles.includes(role as KynthaiRole)
 }

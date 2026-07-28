@@ -44,10 +44,10 @@ exec zsh
 ./fix-terminal-and-install.sh
 ```
 
-### To run your Kyntha project:
+### To run your Kynthai project:
 
 ```bash
-cd /Users/c.k/Downloads/kyntha-restored-7000-us
+cd /Users/c.k/Downloads/kynthai-restored-7000-us
 npm run dev
 # Then open: http://localhost:8000
 ```
@@ -71,7 +71,7 @@ The following are now permanently set in your ~/.zshrc:
 
 ## WHY THIS HAPPENED
 
-1. You have a complex project (kyntha) with many dependencies
+1. You have a complex project (kynthai) with many dependencies
 2. Previous npm install attempts failed or timed out
 3. Corrupted cache files left raw ANSI sequences in terminal state
 4. The terminal tried to display these sequences literally
@@ -79,9 +79,9 @@ The following are now permanently set in your ~/.zshrc:
 ## FILES MODIFIED
 
 - `/Users/c.k/.zshrc` - Added permanent terminal fixes
-- `/Users/c.k/Downloads/kyntha-restored-7000-us/fix-terminal-and-install.sh` - Fix script (created)
-- `/Users/c.k/Downloads/kyntha-restored-7000-us/npm-shrinkwrap.json` - Removed (deprecated)
-- `/Users/c.k/Downloads/kyntha-restored-7000-us/TERMINAL-FIX-GUIDE.md` - This file (created)
+- `/Users/c.k/Downloads/kynthai-restored-7000-us/fix-terminal-and-install.sh` - Fix script (created)
+- `/Users/c.k/Downloads/kynthai-restored-7000-us/npm-shrinkwrap.json` - Removed (deprecated)
+- `/Users/c.k/Downloads/kynthai-restored-7000-us/TERMINAL-FIX-GUIDE.md` - This file (created)
 
 ## IF PROBLEMS PERSIST
 

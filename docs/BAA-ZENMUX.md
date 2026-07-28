@@ -1,11 +1,11 @@
 # Business Associate Agreement (BAA)
-## Between Kyntha US ("Covered Entity") and ZenMux Inc. ("Business Associate")
+## Between Kynthai US ("Covered Entity") and ZenMux Inc. ("Business Associate")
 
 ---
 
 **Effective Date:** [to be signed]
 **Parties:**
-- **Covered Entity:** Kyntha US ("Kyntha"), a healthcare technology platform operating in the United States
+- **Covered Entity:** Kynthai US ("Kynthai"), a healthcare technology platform operating in the United States
 - **Business Associate:** ZenMux Inc. ("ZenMux"), providing AI language model processing services via their API
 
 ---
@@ -14,11 +14,11 @@
 
 This Business Associate Agreement ("Agreement") is entered into pursuant to the Health Insurance Portability and Accountability Act of 1996, as amended by the Health Information Technology for Economic and Clinical Health Act ("HIPAA"), and the regulations promulgated thereunder (45 C.F.R. Parts 160 and 164).
 
-This Agreement governs the disclosure of Protected Health Information ("PHI") by Kyntha to ZenMux for the purpose of providing AI-powered health information services through the Kyntha application.
+This Agreement governs the disclosure of Protected Health Information ("PHI") by Kynthai to ZenMux for the purpose of providing AI-powered health information services through the Kynthai application.
 
 ## 2. DEFINITIONS
 
-**Protected Health Information (PHI):** Individually identifiable health information transmitted or maintained by ZenMux on behalf of Kyntha, including but not limited to medication information, health conditions, symptoms, allergies, and limited demographic data used for personalization.
+**Protected Health Information (PHI):** Individually identifiable health information transmitted or maintained by ZenMux on behalf of Kynthai, including but not limited to medication information, health conditions, symptoms, allergies, and limited demographic data used for personalization.
 
 **De-identified Information:** Information from which all individually identifiable elements have been removed or replaced, such that the information cannot be used to identify an individual.
 
@@ -30,7 +30,7 @@ This Agreement governs the disclosure of Protected Health Information ("PHI") by
 ZenMux shall only use or disclose PHI:
 (a) For the performance of AI processing services described in Exhibit A (AI Processing Services);
 (b) As required by law; or
-(c) As authorized in writing by Kyntha.
+(c) As authorized in writing by Kynthai.
 
 ### 3.2 Prohibited Uses
 ZenMux shall NOT:
@@ -43,7 +43,7 @@ ZenMux shall NOT:
 ## 4. OBLIGATIONS OF ZENMUX
 
 ### 4.1 Safeguards
-ZenMux shall implement and maintain administrative, physical, and technical safeguards to protect the confidentiality, integrity, and availability of all PHI received from Kyntha. These safeguards shall include:
+ZenMux shall implement and maintain administrative, physical, and technical safeguards to protect the confidentiality, integrity, and availability of all PHI received from Kynthai. These safeguards shall include:
 - Encryption of PHI in transit (TLS 1.3 minimum)
 - Encryption of PHI at rest where ZenMux stores data
 - Access controls limiting PHI access to authorized personnel only
@@ -58,7 +58,7 @@ ZenMux shall NOT retain PHI beyond the duration of a single API request/response
 ZenMux shall:
 (a) Obtain written assurances from any subprocessor that will receive PHI that the subprocessor will use and disclose PHI only for the purposes permitted by this Agreement;
 (b) Remain responsible for compliance with this Agreement by any subprocessor.
-(c) Notify Kyntha at least 30 days before adding or removing any subprocessor.
+(c) Notify Kynthai at least 30 days before adding or removing any subprocessor.
 
 ### 4.4 Compliance with Law
 ZenMux shall comply with all applicable federal and state laws, rules, and regulations, including but not limited to HIPAA, the HITECH Act, and state health information privacy laws.
@@ -66,29 +66,29 @@ ZenMux shall comply with all applicable federal and state laws, rules, and regul
 ## 5. OBLIGATIONS OF KYNTHA
 
 ### 5.1 De-identification Before Transmission
-Kyntha shall apply de-identification procedures to all PHI transmitted to ZenMux. Specifically, Kyntha shall:
+Kynthai shall apply de-identification procedures to all PHI transmitted to ZenMux. Specifically, Kynthai shall:
 (a) Strip all direct identifiers (name, email, phone, address, SSN, MRN, etc.)
 (b) Replace exact dates with relative time ranges
 (c) Exclude free-text notes, journal entries, and chat history content
 (d) Retain only medically-relevant categories (medication names/dosages, condition names, allergy substances, symptom names, mood labels, alert types)
 
 ### 5.2 Consent and Audit
-(a) Kyntha shall obtain patient consent before transmitting de-identified health context to ZenMux.
-(b) Kyntha shall maintain an audit log of all transmissions to ZenMux, including timestamp, data categories transmitted, and patient reference (no raw PHI values).
-(c) Kyntha shall provide ZenMux with evidence of patient consent upon reasonable request.
+(a) Kynthai shall obtain patient consent before transmitting de-identified health context to ZenMux.
+(b) Kynthai shall maintain an audit log of all transmissions to ZenMux, including timestamp, data categories transmitted, and patient reference (no raw PHI values).
+(c) Kynthai shall provide ZenMux with evidence of patient consent upon reasonable request.
 
 ## 6. BREACH NOTIFICATION
 
 ### 6.1 ZenMux Breach Response
 In the event of a breach of unsecured PHI, ZenMux shall:
-(a) Notify Kyntha within 72 hours of discovery
-(b) Provide Kyntha with the identity of each affected individual (if known)
-(c) Provide Kyntha with a description of the breach and the PHI involved
+(a) Notify Kynthai within 72 hours of discovery
+(b) Provide Kynthai with the identity of each affected individual (if known)
+(c) Provide Kynthai with a description of the breach and the PHI involved
 (d) Take steps to mitigate the breach
-(e) Cooperate fully with Kyntha's breach investigation
+(e) Cooperate fully with Kynthai's breach investigation
 
-### 6.2 Kyntha Breach Notification to Individuals
-Kyntha shall notify affected individuals of any breach of PHI that occurs in connection with ZenMux's services in accordance with 45 C.F.R. §164.404.
+### 6.2 Kynthai Breach Notification to Individuals
+Kynthai shall notify affected individuals of any breach of PHI that occurs in connection with ZenMux's services in accordance with 45 C.F.R. §164.404.
 
 ## 7. TERM AND TERMINATION
 
@@ -106,7 +106,7 @@ Upon termination:
 
 ## 8. INSPECTION AND AUDIT
 
-ZenMux shall make available to Kyntha, upon 48 hours' written notice, all internal practices, books, agreements, policies, and procedures relating to the use and disclosure of PHI for audit and inspection purposes, during normal business hours.
+ZenMux shall make available to Kynthai, upon 48 hours' written notice, all internal practices, books, agreements, policies, and procedures relating to the use and disclosure of PHI for audit and inspection purposes, during normal business hours.
 
 ## 9. ASSOCIATE AGREEMENT COMPLIANCE
 

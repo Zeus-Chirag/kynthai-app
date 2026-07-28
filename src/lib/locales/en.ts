@@ -1,6 +1,6 @@
 export const en = {
   // Common
-  appName: 'Kyntha',
+  appName: 'Kynthai',
   loading: 'Loading...',
   save: 'Save',
   cancel: 'Cancel',
@@ -80,7 +80,7 @@ export const en = {
 
   // AI Chat
   chat: {
-    title: 'Kyntha Assistant',
+    title: 'Kynthai Assistant',
     subtitle: 'AI-powered medication Q&A',
     placeholder: 'Ask about your medications...',
     clear: 'Clear conversation',
@@ -148,8 +148,8 @@ export const en = {
 
   // Onboarding
   onboarding: {
-    welcome: 'Welcome to Kyntha',
-    slide1Title: 'Welcome to Kyntha',
+    welcome: 'Welcome to Kynthai',
+    slide1Title: 'Welcome to Kynthai',
     slide1Desc: 'Your AI health companion for the whole family — reminders, insights, doctors and labs, all in one calm, beautiful app.',
     slide2Title: 'Care for the whole family',
     slide2Desc: 'Add up to four family members. Caretakers get live adherence updates and weekly AI insights — so nobody misses a dose.',
@@ -172,7 +172,7 @@ export const en = {
     emergencyContact: 'Emergency Contact 1',
     termsAgree: 'I agree to the Terms of Service and Privacy Policy',
     privacyConsent: 'I consent to the processing of my personal and health data for service delivery under Health Data Protection',
-    aiConsent: 'I optionally agree to let Kyntha use de-identified health data to improve AI features',
+    aiConsent: 'I optionally agree to let Kynthai use de-identified health data to improve AI features',
     createAccount: 'Create Account',
     orContinue: 'or',
     demoMode: 'Continue with {portal} account',

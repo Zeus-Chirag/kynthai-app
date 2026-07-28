@@ -146,7 +146,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, _State> {
       if (typeof window !== "undefined" && (window as any)?.Sentry) {
         // @ts-ignore
         (window as any).Sentry?.captureException?.(error, {
-          tags: { component: "kyntha-app" },
+          tags: { component: "kynthai-app" },
           contexts: { extra: payload },
         });
       }

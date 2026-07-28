@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Kyntha US — Database Restore Script
+# Kynthai US — Database Restore Script
 # Restores a PostgreSQL backup created by backup.sh
 
 set -euo pipefail
@@ -7,7 +7,7 @@ set -euo pipefail
 if [[ $# -eq 0 ]]; then
   echo "Usage: $0 <backup_file> [--dry-run>"
   echo "Available backups:"
-  ls -la ./backups/kyntha_backup_*.sql.gz* 2>/dev/null || echo "No backups found in ./backups/"
+  ls -la ./backups/kynthai_backup_*.sql.gz* 2>/dev/null || echo "No backups found in ./backups/"
   exit 1
 fi
 

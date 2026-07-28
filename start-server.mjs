@@ -5,7 +5,7 @@ const MAX_RESTARTS = 50;
 let restarts = 0;
 
 function startServer() {
-  console.log('🚀 Starting Kyntha server...');
+  console.log('🚀 Starting Kynthai server...');
   
   const proc = spawn('node', ['node_modules/.bin/next', 'dev', '-p', '3000'], {
     cwd: process.cwd(),

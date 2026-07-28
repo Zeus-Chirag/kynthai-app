@@ -5,8 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const FILE = path.join(process.cwd(), 'src/components/kyntha/landing-page.tsx');
-const SECTIONS_DIR = path.join(process.cwd(), 'src/components/kyntha/sections');
+const FILE = path.join(process.cwd(), 'src/components/kynthaii/landing-page.tsx');
+const SECTIONS_DIR = path.join(process.cwd(), 'src/components/kynthaii/sections');
 const content = fs.readFileSync(FILE, 'utf-8');
 
 // Ensure sections dir exists

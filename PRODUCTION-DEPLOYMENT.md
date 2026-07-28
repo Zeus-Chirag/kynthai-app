@@ -1,6 +1,6 @@
-# Kyntha US — Production Deployment Guide
+# Kynthai US — Production Deployment Guide
 
-This document describes the zero-dontime production deployment process for the Kyntha application.
+This document describes the zero-dontime production deployment process for the Kynthai application.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ This document describes the zero-dontime production deployment process for the K
 ## Prerequisites
 
 1. **Server**: Linux with Docker Engine 24+ and Docker Compose v2+
-2. **Domain**: DNS `A` record pointing to server IP (e.g., `kyntha.app`, `www.kyntha.app`)
+2. **Domain**: DNS `A` record pointing to server IP (e.g., `kynthai.app`, `www.kynthai.app`)
 3. **Secrets**: All placeholders replaced in `.env.production`
 4. **PostgreSQL**: If using managed DB (RDS, Cloud SQL), set `DATABASE_URL` and `DIRECT_URL` accordingly
 
@@ -80,16 +80,16 @@ Flags:
 
 # 4. Health check
  curl -sf http://localhost:3000/api/health
- curl -I https://kyntha.app
+ curl -I https://kynthai.app
 ```
 
 ## Post-Deployment Verification
 
 | Check | Command / Action |
 |-------|------------------|
-| App health | `curl -sf https://kyntha.app/api/health` |
+| App health | `curl -sf https://kynthai.app/api/health` |
 | DB connectivity | `docker compose logs db` |
-| TLS certificate | `curl -I https://kyntha.app` (expect 200) |
+| TLS certificate | `curl -I https://kynthai.app` (expect 200) |
 | Error tracking | Check Sentry for envelope ingestion |
 | Email delivery | Trigger a password-reset flow |
 | Static assets | Load homepage, check browser console for 404s |
@@ -120,7 +120,7 @@ Ensure your database and Redis can handle the connection pool increase.
 - **Health**: `/api/health` (application + DB ping)
 - **Logs**: `docker compose logs -f app`, `docker compose logs -f caddy`
 - **Metrics**: Prometheus/Grafana integration can be added via Caddy's `prometheus` plugin
-- **Alerts**: Configure uptime monitor for `https://kyntha.app/api/health`
+- **Alerts**: Configure uptime monitor for `https://kynthai.app/api/health`
 - **Sentry**: Real-time error tracking and performance monitoring
 
 ## Security Notes

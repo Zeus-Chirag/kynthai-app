@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
-import { LegalLayout } from '@/components/kyntha/legal/privacy-policy'
+import { LegalLayout } from '@/components/kynthaii/legal/privacy-policy'
 import nppData from './npp-content.json'
 
 export const metadata: Metadata = {
   title: 'Notice of Privacy Practices | Notice of Privacy Practices',
-  description: 'Notice of Privacy Practices for Kyntha Health Technologies.',
+  description: 'Notice of Privacy Practices for Kynthai Health Technologies.',
 }
 
 export default function PrivacyPracticesPage() {
@@ -12,7 +12,7 @@ export default function PrivacyPracticesPage() {
   return (
     <LegalLayout
         title="Notice of Privacy Practices"
-        subtitle="Notice of Privacy Practices — how Kyntha uses, discloses, and protects your Protected Health Information (sensitive health data)."
+        subtitle="Notice of Privacy Practices — how Kynthai uses, discloses, and protects your Protected Health Information (sensitive health data)."
         updated={nppData.effectiveDate as string}
       >
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 mb-6">
@@ -20,7 +20,7 @@ export default function PrivacyPracticesPage() {
             <strong>Notice of Privacy Practices (NPP)</strong> — This notice describes how
             medical information about you may be used and disclosed and how you can get access
             to this information. For questions contact our privacy officer at
-            <a href="mailto:privacy@kyntha.app" className="underline ml-1">privacy@kyntha.app</a>.
+            <a href="mailto:privacy@kynthai.app" className="underline ml-1">privacy@kynthai.app</a>.
           </p>
         </div>
         <div className="prose prose-sm max-w-none text-foreground space-y-1">

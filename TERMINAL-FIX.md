@@ -62,7 +62,7 @@ npm config set fund false       # Skip funding messages
 fix-terminal
 
 # Or run the script manually:
-cd /Users/c.k/Downloads/kyntha-restored-7000-us
+cd /Users/c.k/Downloads/kynthai-restored-7000-us
 ./fix-terminal.sh
 # Wait 3-5 minutes for completion
 ```
@@ -111,7 +111,7 @@ When npm install hangs on postinstall scripts (like `sharp` native compilation o
 
 2. **Manual reinstall if needed**:
    ```bash
-   cd /Users/c.k/Downloads/kyntha-restored-7000-us
+   cd /Users/c.k/Downloads/kynthai-restored-7000-us
    rm -rf node_modules package-lock.json
    npm install --ignore-scripts
    ```

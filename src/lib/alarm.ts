@@ -1,5 +1,5 @@
 /**
- * Kyntha Ringtone System
+ * Kynthai Ringtone System
  * -----------------------
  * Generates in-app alarm sounds using the Web Audio API — no audio files needed.
  *

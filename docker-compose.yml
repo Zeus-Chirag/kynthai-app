@@ -16,7 +16,7 @@ services:
     environment:
       - NODE_ENV=production
       # DATABASE_URL must include ?sslmode=require for HIPAA compliance
-      # Example: postgresql://kyntha:password@db:5432/kyntha_us?sslmode=require
+      # Example: postgresql://kynthai:password@db:5432/kynthai_us?sslmode=require
       - DATABASE_URL=${DATABASE_URL}
       - DIRECT_URL=${DIRECT_URL}
       - SESSION_SECRET=${SESSION_SECRET}
@@ -48,8 +48,8 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN}
       - NEXT_PUBLIC_COMPLIANCE_MODE=US
       - NEXT_PUBLIC_JURISDICTION=Delaware, United States
-      - NEXT_PUBLIC_PRIVACY_OFFICER_EMAIL=privacy@kyntha.app
-      - NEXT_PUBLIC_SUPPORT_EMAIL=support@kyntha.app
+      - NEXT_PUBLIC_PRIVACY_OFFICER_EMAIL=privacy@kynthai.app
+      - NEXT_PUBLIC_SUPPORT_EMAIL=support@kynthai.app
     depends_on:
       db:
         condition: service_healthy
@@ -74,14 +74,14 @@ services:
         max-size: "10m"
         max-file: "3"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-kyntha}
+      POSTGRES_USER: ${POSTGRES_USER:-kynthai}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-kyntha_us}
+      POSTGRES_DB: ${POSTGRES_DB:-kynthai_us}
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kyntha} -d ${POSTGRES_DB:-kyntha_us}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kynthai} -d ${POSTGRES_DB:-kynthai_us}"]
       interval: 10s
       timeout: 5s
       retries: 5

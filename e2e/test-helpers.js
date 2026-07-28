@@ -1,3 +1,3 @@
-// Shared test helpers for Kyntha E2E tests
+// Shared test helpers for Kynthai E2E tests
 
 module.exports = {};

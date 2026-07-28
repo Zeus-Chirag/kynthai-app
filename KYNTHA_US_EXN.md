@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Kyntha US is a HIPAA-conscious, India→US-adapted multi-role healthcare management platform built on Next.js 15 + Prisma/PostgreSQL. It serves five user roles (patient, doctor, lab, caretaker, admin) through five distinct portal UIs, with feature completeness estimated at 65-70%. The codebase exhibits thoughtful architecture, extensive demo-mode scaffolding, and layered security — but also carries significant technical debt, missing integrations, and UK-origin artifacts that need cleaning before US launch.
+Kynthai US is a HIPAA-conscious, India→US-adapted multi-role healthcare management platform built on Next.js 15 + Prisma/PostgreSQL. It serves five user roles (patient, doctor, lab, caretaker, admin) through five distinct portal UIs, with feature completeness estimated at 65-70%. The codebase exhibits thoughtful architecture, extensive demo-mode scaffolding, and layered security — but also carries significant technical debt, missing integrations, and UK-origin artifacts that need cleaning before US launch.
 
 ---
 
@@ -74,8 +74,8 @@ src/
 │   ├── pricing/                # Subscription plans (Plus, Family Pro)
 │   └── layout.tsx, page.tsx    # Root layout and landing page
 ├── components/
-│   ├── kyntha/                 # 48 shared component files
-│   │   ├── logo.tsx            # Kyntha brand mark
+│   ├── kynthai/                 # 48 shared component files
+│   │   ├── logo.tsx            # Kynthai brand mark
 │   ├── medication/             # Medication-specific components
 │   │   ├── ai-chat.tsx         # Chat UI with pagination + free-tier gating
 │   │   ├── medications-list.tsx # CRUD medication management
@@ -170,7 +170,7 @@ src/
 - Notification center dropdown
 - Health insights, drug interactions, symptom analyzer, medicine identification/search
 
-**PatientCare** (`src/components/kyntha/patient/patient-care.tsx`):
+**PatientCare** (`src/components/kynthaii/patient/patient-care.tsx`):
 - Video consultation listing + booking
 - Prescription management (sent/accepted/expired)
 - Doctor availability calendar
@@ -234,7 +234,7 @@ src/
 
 **LabApp**:
 - Loading → verification form → verified dashboard flow
-- Demo: Kyntha Diagnostic Center with 6 test offerings
+- Demo: Kynthai Diagnostic Center with 6 test offerings
 - LabVerification: license upload, city, address, home collection toggle
 - LabDashboard: bookings, results management
 
@@ -375,7 +375,7 @@ src/
 1. **NHS Forum Landing** (`src/app/forum/page.tsx`) — UK-specific Discourse embed, replace with US health community or remove
 2. **NHS App Booking** — UK-only NHS app integration, completely irrelevant for US
 3. **Currency defaults** — `src/lib/currency.ts` has both INR and USD; verify USD is the primary
-4. **"Dr. Kyntha" naming** — AI assistant references UK-style naming; fine for US but verify branding
+4. **"Dr. Kynthai" naming** — AI assistant references UK-style naming; fine for US but verify branding
 5. **Agreement J signing** — UK-specific doctor onboarding (Agreement J signing), replace with US medical license verification (NPI number, state medical board check)
 
 ### 5.2 US Market Requirements
@@ -488,7 +488,7 @@ Demo Login → is_demo=true → No session → Demo profiles in memory
 
 ### UI Architecture
 - **Portal routing**: Conditional rendering based on `user.role` from Zustand store
-- **Shared components**: 48 files in `src/components/kyntha/`
+- **Shared components**: 48 files in `src/components/kynthaii/`
 - **Mobile-first**: Responsive with `sm:` breakpoints, bottom nav on mobile
 - **Dark mode**: `next-themes` with CSS variables
 - **Animations**: Framer Motion for page transitions + list animations

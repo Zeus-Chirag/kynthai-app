@@ -21,7 +21,7 @@ globalForRate.__rateBuckets = buckets
 
 // ── Redis-backed limiter (production) ─────────────────────────────────
 let redisLimiter: Ratelimit | null = null
-const redisPrefix = 'kyntha:ratelimit'
+const redisPrefix = 'kynthai:ratelimit'
 
 function getRedisLimiter(): Ratelimit | null {
   if (redisLimiter) return redisLimiter

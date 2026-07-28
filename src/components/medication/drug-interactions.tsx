@@ -16,7 +16,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
-import { MedicalDisclaimer } from '@/components/kyntha/medical-disclaimer'
+import { MedicalDisclaimer } from '@/components/kynthaii/medical-disclaimer'
 
 interface Interaction {
   medications: string[]

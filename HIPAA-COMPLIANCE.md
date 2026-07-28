@@ -1,8 +1,8 @@
-# Kyntha HIPAA Compliance — Field-Level Encryption Implementation
+# Kynthai HIPAA Compliance — Field-Level Encryption Implementation
 
 **Status:** ACTIVE (transitional mode enabled by default)  
 **Date:** 2026-07-11  
-**Officer:** Privacy/Technical Contact = privacy@kyntha.app  
+**Officer:** Privacy/Technical Contact = privacy@kynthai.app  
 **Scope:** All Protected Health Information (PHI) stored in the PostgreSQL database and file storage.
 
 ---
@@ -191,7 +191,7 @@ In transitional mode:
 
 1. Identify affected data scope.
 2. Rotate encryption keys (`scripts/rotate-encryption-key.ts`).
-3. Notify privacy officer: `privacy@kyntha.app`.
+3. Notify privacy officer: `privacy@kynthai.app`.
 4. Document breach in internal runbook.
 5. Notify affected users per HITECH breach notification rules.
 

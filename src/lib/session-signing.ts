@@ -7,7 +7,7 @@
  * Secret resolution order:
  *   1. SESSION_SIGNING_SECRET (preferred, explicit)
  *   2. SUPABASE_SERVICE_ROLE_KEY (fallback — always set in prod)
- *   3. 'kyntha-dev-fallback-secret' (dev only — refuses to sign in production)
+ *   3. 'kynthai-dev-fallback-secret' (dev only — refuses to sign in production)
  */
 
 import crypto from 'crypto';
@@ -16,7 +16,7 @@ function getSigningSecret(): string | null {
   const env = process.env;
   if (env.SESSION_SIGNING_SECRET) return env.SESSION_SIGNING_SECRET;
   if (env.SUPABASE_SERVICE_ROLE_KEY) return env.SUPABASE_SERVICE_ROLE_KEY;
-  if (env.NODE_ENV !== 'production') return 'kyntha-dev-fallback-secret';
+  if (env.NODE_ENV !== 'production') return 'kynthai-dev-fallback-secret';
   // Production with no secret — refuse to sign (fail-closed)
   return null;
 }

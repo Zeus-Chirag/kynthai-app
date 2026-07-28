@@ -1,12 +1,12 @@
 'use client'
 
-import { KynthaBrand } from '@/components/kyntha/logo'
+import { KynthaiBrand } from '@/components/kynthaii/logo'
 
 export default function DoctorLoading() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
-        <KynthaBrand iconSize={40} />
+        <KynthaiBrand iconSize={40} />
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
         <p className="text-sm text-muted-foreground animate-pulse">Loading doctor portal…</p>
         <div className="mt-6 w-80 max-w-[90vw] space-y-3">

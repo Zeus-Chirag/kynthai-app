@@ -1,7 +1,7 @@
 {
-  "id": "/?pwa=kyntha",
-  "name": "Kyntha - Your Health Companion",
-  "short_name": "Kyntha",
+  "id": "/?pwa=kynthai",
+  "name": "Kynthai - Your Health Companion",
+  "short_name": "Kynthai",
   "description": "AI-powered health assistant for medicines, appointments, and family care in the US",
   "start_url": "/",
   "scope": "/",

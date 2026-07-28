@@ -4,7 +4,7 @@ import { Suspense, useEffect } from "react"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { loadPortal } from "../portal-loaders"
-import { ErrorBoundary } from '@/components/kyntha/error-boundary'
+import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
 
 export default function CaretakerClient() {
   const router = useRouter()

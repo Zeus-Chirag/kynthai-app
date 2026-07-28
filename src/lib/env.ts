@@ -31,7 +31,7 @@ const OPTIONAL_WITH_DEFAULTS: Record<string, string> = {
   SENTRY_DSN: '',
   SENTRY_ORG: '',
   SENTRY_PROJECT: '',
-  NEXT_PUBLIC_API_URL: 'https://kyntha.app',
+  NEXT_PUBLIC_API_URL: 'https://kynthai.app',
 }
 
 export function env(key: string, fallback?: string): string | undefined {
@@ -55,7 +55,7 @@ export function validateEnv(): void {
   if (missing.length > 0) {
     const env = isProd ? 'production' : 'development'
     throw new Error(
-      `[Kyntha] Missing required environment variables for ${env}:\n` +
+      `[Kynthai] Missing required environment variables for ${env}:\n` +
       `  ${missing.map(m => `${m}=<missing>`).join('\n  ')}\n` +
       `See .env.example for documentation.`
     )
@@ -66,7 +66,7 @@ export function validateEnv(): void {
     const dbUrl = process.env.DATABASE_URL || ''
     if (!dbUrl.includes('sslmode=')) {
       throw new Error(
-        '[Kyntha][Health Data Protection] DATABASE_URL must include sslmode=require (or sslmode=verify-ca / sslmode=verify-full). ' +
+        '[Kynthai][Health Data Protection] DATABASE_URL must include sslmode=require (or sslmode=verify-ca / sslmode=verify-full). ' +
         'Database connections must be encrypted in transit.'
       )
     }
@@ -74,7 +74,7 @@ export function validateEnv(): void {
     const encKey = process.env.ENCRYPTION_KEY || ''
     if (encKey && encKey.length !== 64) {
       throw new Error(
-        `[Kyntha][Health Data Protection] ENCRYPTION_KEY must be exactly 64 hex characters (256 bits). ` +
+        `[Kynthai][Health Data Protection] ENCRYPTION_KEY must be exactly 64 hex characters (256 bits). ` +
         `Current length: ${encKey.length}. Generate with: openssl rand -hex 32`
       )
     }

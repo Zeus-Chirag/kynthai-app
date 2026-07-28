@@ -13,8 +13,8 @@ async function main() {
   
   // Check if landing page has doctor-related content
   const bodyText = await page.textContent('body');
-  const hasKyntha = bodyText?.includes('Kyntha');
-  console.log('[TEST] Has Kyntha branding:', hasKyntha);
+  const hasKynthai = bodyText?.includes('Kynthai');
+  console.log('[TEST] Has Kynthai branding:', hasKynthai);
   
   await browser.close();
   console.log('[TEST] Quick smoke test PASSED');

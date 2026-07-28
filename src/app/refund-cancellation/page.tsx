@@ -14,13 +14,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
-import { KynthaBrand } from '@/components/kyntha/logo'
+import { KynthaiBrand } from '@/components/kynthaii/logo'
 import {
   DOCTOR_BASE_FEE_PCT,
   LAB_BASE_FEE_PCT,
   PAYOUT_POLICY,
 } from '@/lib/commission'
-import { ErrorBoundary } from '@/components/kyntha/error-boundary'
+import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
 
 export default function RefundCancellationPage() {
   const router = useRouter()
@@ -34,9 +34,9 @@ export default function RefundCancellationPage() {
               onClick={() => window.history.length > 1 ? window.history.back() : router.push('/')}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4" /> Back to Kyntha
+              <ArrowLeft className="h-4 w-4" /> Back to Kynthai
             </button>
-            <KynthaBrand />
+            <KynthaiBrand />
             <Button
               size="sm"
               onClick={() => router.push('/login')}
@@ -68,12 +68,12 @@ export default function RefundCancellationPage() {
               <div className="flex-1">
                 <h3 className="font-semibold">Need a refund?</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Email us at <span className="font-medium text-foreground">privacy@kyntha.app</span> with your account email and reason.
+                  Email us at <span className="font-medium text-foreground">privacy@kynthai.app</span> with your account email and reason.
                   We process refunds within 5 business days.
                 </p>
               </div>
               <Button asChild variant="outline" className="shrink-0">
-                <a href="mailto:privacy@kyntha.app">Email Support</a>
+                <a href="mailto:privacy@kynthai.app">Email Support</a>
               </Button>
             </CardContent>
           </Card>
@@ -120,13 +120,13 @@ export default function RefundCancellationPage() {
               <h2 className="text-lg font-semibold text-foreground">5. General</h2>
               <ul className="mt-2 list-disc space-y-1 pl-5">
                 <li>All disputes are governed by Wyoming law, US jurisdiction.</li>
-                <li>Contact <span className="font-medium text-foreground">privacy@kyntha.app</span> for escalation.</li>
+                <li>Contact <span className="font-medium text-foreground">privacy@kynthai.app</span> for escalation.</li>
               </ul>
             </section>
           </div>
 
           <footer className="mt-12 border-t border-border/60 pt-6 text-xs text-muted-foreground">
-            Last updated: July 13, 2026. Kyntha Health Technologies LLC
+            Last updated: July 13, 2026. Kynthai Health Technologies LLC
           </footer>
         </div>
       </div>

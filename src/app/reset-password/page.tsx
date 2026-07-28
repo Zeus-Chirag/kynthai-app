@@ -7,9 +7,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { KynthaBrand } from '@/components/kyntha/logo'
-import { FadeIn } from '@/components/kyntha/animations'
-import { ErrorBoundary } from '@/components/kyntha/error-boundary'
+import { KynthaiBrand } from '@/components/kynthaii/logo'
+import { FadeIn } from '@/components/kynthaii/animations'
+import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
 
 export default function ResetPasswordPage() {
   const { toast } = useToast()
@@ -55,7 +55,7 @@ export default function ResetPasswordPage() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
           <div className="w-full max-w-sm">
             <div className="mb-6 flex justify-center">
-              <KynthaBrand iconSize={32} />
+              <KynthaiBrand iconSize={32} />
             </div>
             <FadeIn>
               <Card className="border-border/60">
@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
         <div className="w-full max-w-sm">
           <div className="mb-6 flex justify-center">
-            <KynthaBrand iconSize={32} />
+            <KynthaiBrand iconSize={32} />
           </div>
           <FadeIn>
             <Card className="border-border/60">

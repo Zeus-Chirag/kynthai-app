@@ -22,13 +22,13 @@ Call log:
 
 ```ts
   1   | /**
-  2   |  * Kyntha Healthcare — E2E Appointment Booking & Management Flow Tests
+  2   |  * Kynthai Healthcare — E2E Appointment Booking & Management Flow Tests
   3   |  * Tests all 8 appointment lifecycle scenarios with screenshots at each step.
   4   |  */
   5   | 
   6   | import { test, expect } from '@playwright/test';
   7   | 
-  8   | const DEMO_EMAIL = 'patient@demo.kyntha.app';
+  8   | const DEMO_EMAIL = 'patient@demo.kynthai.app';
   9   | const DEMO_PASSWORD = 'Demo@2024';
   10  | 
   11  | async function loginAsPatient(page: any) {

@@ -11,7 +11,7 @@
 
 import dynamic from 'next/dynamic';
 import { type ReactNode, Suspense } from 'react';
-import { ErrorBoundary } from '@/components/kyntha/error-boundary';
+import { ErrorBoundary } from '@/components/kynthaii/error-boundary';
 
 function PortalSkeleton() {
   return (
@@ -63,18 +63,18 @@ export function loadPortal(
 ): { key: string; node: ReactNode } {
   const loaders: Record<string, () => Promise<{ default: React.ComponentType<any> }>> = {
     patient: () =>
-      import('@/components/kyntha/patient/patient-app').then(m => ({ default: m.PatientApp })),
+      import('@/components/kynthaii/patient/patient-app').then(m => ({ default: m.PatientApp })),
     doctor: () =>
-      import('@/components/kyntha/doctor/doctor-app').then(m => ({ default: m.DoctorApp })),
-    lab: () => import('@/components/kyntha/lab/lab-app').then(m => ({ default: m.LabApp })),
+      import('@/components/kynthaii/doctor/doctor-app').then(m => ({ default: m.DoctorApp })),
+    lab: () => import('@/components/kynthaii/lab/lab-app').then(m => ({ default: m.LabApp })),
     caretaker: () =>
-      import('@/components/kyntha/caretaker/caretaker-app').then(m => ({
+      import('@/components/kynthaii/caretaker/caretaker-app').then(m => ({
         default: m.CaretakerApp,
       })),
     family: () =>
-      import('@/components/kyntha/family/family-portal').then(m => ({ default: m.FamilyPortal })),
+      import('@/components/kynthaii/family/family-portal').then(m => ({ default: m.FamilyPortal })),
     admin: () =>
-      import('@/components/kyntha/admin/admin-dashboard').then(m => ({
+      import('@/components/kynthaii/admin/admin-dashboard').then(m => ({
         default: m.AdminDashboard,
       })),
   };

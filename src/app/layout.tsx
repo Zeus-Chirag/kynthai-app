@@ -16,18 +16,18 @@ const geistMono = Geist_Mono({
   display: 'swap',
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kyntha.app';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Kyntha — America's AI Health Companion for Families",
-    template: '%s | Kyntha US',
+    default: "Kynthai — America's AI Health Companion for Families",
+    template: '%s | Kynthai US',
   },
   description:
     'AI-powered medicine reminders, doctor consults, lab tests & family health management — built for the US. Free to start, Privacy-first, secure and compliant.',
   keywords: [
-    'Kyntha',
+    'Kynthai',
     'AI health US',
     'medicine reminder USA',
     'family health app US',
@@ -43,20 +43,20 @@ export const metadata: Metadata = {
     'health tech US',
     'family medication management',
   ],
-  authors: [{ name: 'Kyntha Health Technologies LLC' }],
+  authors: [{ name: 'Kynthai Health Technologies LLC' }],
   manifest: '/manifest.json',
   openGraph: {
-    title: 'Kyntha — AI Health & Medication Manager for American Families',
+    title: 'Kynthai — AI Health & Medication Manager for American Families',
     description:
       'Manage medications, track adherence, check drug interactions, and connect with doctors. Built for families in the US.',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     type: 'website',
     locale: 'en_US',
-    siteName: 'Kyntha',
+    siteName: 'Kynthai',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Kyntha — America's AI Health Companion",
+    title: "Kynthai — America's AI Health Companion",
     description:
       'AI-powered medicine reminders, doctor consults, lab tests & family health management for US families.',
     images: ['/og-image.png'],
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Kyntha',
+    title: 'Kynthai',
   },
   other: {
     'geo.region': 'US',
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   alternates: {
-    canonical: 'https://kyntha.app',
+    canonical: 'https://kynthai.app',
   },
 };
 
@@ -120,7 +120,7 @@ export default function RootLayout({
         {/* Chunk load error auto-retry — prevents black screens */}
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
-            var retryKey='kyntha-chunk-retry';
+            var retryKey='kynthai-chunk-retry';
             window.addEventListener('error',function(e){
               if(e.message && (e.message.indexOf('ChunkLoadError')!==-1 || e.message.indexOf('Loading chunk')!==-1)){
                 var n=parseInt(sessionStorage.getItem(retryKey)||'0',10);

@@ -1,5 +1,5 @@
 -- ==========================================================================
--- Kyntha US — Migration 003: Doctor Presence + Free Tier Gates
+-- Kynthai US — Migration 003: Doctor Presence + Free Tier Gates
 -- ==========================================================================
 
 -- ── Doctor presence tracking ─────────────────────────────────────────────────

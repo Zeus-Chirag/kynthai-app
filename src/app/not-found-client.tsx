@@ -3,9 +3,9 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Home, Search, ArrowLeft, HeartPulse } from 'lucide-react'
-import { KynthaBrand } from '@/components/kyntha/logo'
+import { KynthaiBrand } from '@/components/kynthaii/logo'
 import { useRouter } from 'next/navigation'
-import { ErrorBoundary } from '@/components/kyntha/error-boundary'
+import { ErrorBoundary } from '@/components/kynthaii/error-boundary'
 
 export default function NotFound() {
   const router = useRouter()
@@ -15,7 +15,7 @@ export default function NotFound() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-            <KynthaBrand />
+            <KynthaiBrand />
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10">
               <span className="text-5xl font-bold text-emerald-500">404</span>
             </div>

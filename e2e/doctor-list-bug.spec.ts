@@ -5,7 +5,7 @@ test('Doctor listing bug — Care tab shows doctors after portal-loaders fix', a
   const csrfRes = await page.request.get('http://localhost:4000/api/auth/csrf');
   const csrfToken = (await csrfRes.json()).token;
   await page.request.post('http://localhost:4000/api/auth/login', {
-    data: { email: 'patient@demo.kyntha.app', password: 'Demo@2024' },
+    data: { email: 'patient@demo.kynthai.app', password: 'Demo@2024' },
     headers: { 'X-CSRF-Token': csrfToken },
   });
 

@@ -25,7 +25,7 @@ FRAME SEQUENCE — each frame is one SDXL render that you hold for N seconds
 | 02_mom_exhales     | 0:03-0:07 | 4.0s | Close-up of tired mom, exhaling, soft window light                        |
 | 03_four_apps       | 0:07-0:11 | 4.0s | Top-down of 4 smartphones each showing a different health app             |
 | 04_one_hand_phone  | 0:11-0:13 | 2.5s | Single hand reaching for one phone on linen                               |
-| 05_kyntha_screen   | 0:13-0:18 | 5.0s | Held phone showing clean Kyntha home with 4 family avatars + green checks  |
+| 05_kynthai_screen   | 0:13-0:18 | 5.0s | Held phone showing clean Kynthai home with 4 family avatars + green checks  |
 | 06_video_consult   | 0:18-0:20 | 2.5s | Older dad on a video call with doctor                                     |
 | 07_pill_badge      | 0:20-0:22 | 2.0s | Amber pill bottle on marble counter                                       |
 | 08_lab_card        | 0:22-0:24 | 2.5s | Hand holding phone, screen showing lab result card with checkmark          |
@@ -41,7 +41,7 @@ ON-SCREEN TEXT OVERLAYS (centered, bold, white, soft shadow)
 | 7.5s  | 1.0 | "Reminders... forget."                                      |
 | 8.5s  | 1.0 | "Records... lost on your phone."                            |
 | 9.5s  | 1.5 | "Doctor calls... missed. Mom's BP... in a notebook."        |
-| 13.5s | 2.0 | "Introducing Kyntha."                                      |
+| 13.5s | 2.0 | "Introducing Kynthai."                                      |
 | 15.5s | 2.0 | "America's AI health companion for families."               |
 | 17.0s | 1.2 | "✓ Medicine reminders"                                      |
 | 17.4s | 1.2 | "✓ Video calls with your doctor"                            |
@@ -51,7 +51,7 @@ ON-SCREEN TEXT OVERLAYS (centered, bold, white, soft shadow)
 | 20.5s | 1.5 | "Built for American families."                              |
 | 21.5s | 1.5 | "Powered by privacy-first AI."                              |
 | 26.5s | 2.5 | "Less chaos.  More calm.  The whole family — covered."     |
-| 28.5s | 1.5 | "kyntha.app"                                                |
+| 28.5s | 1.5 | "kynthai.app"                                                |
 | 29.0s | 1.0 | "Free to start. Join the family."                           |
 
 TRANSITIONS

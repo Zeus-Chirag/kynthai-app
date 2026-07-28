@@ -24,7 +24,7 @@ export type WebRTCSignalMessage = {
 
 // ── Config ─────────────────────────────────────────────────────────
 
-const SIGNALING_PREFIX = 'kyntha:signal';
+const SIGNALING_PREFIX = 'kynthai:signal';
 const MAX_PER_ROOM = 500;
 const FALLBACK_PAGE_SIZE = 200;
 

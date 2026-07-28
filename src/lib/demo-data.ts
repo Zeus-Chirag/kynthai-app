@@ -264,7 +264,7 @@ export const DEMO_DOCTOR_PRESCRIPTIONS: Prescription[] = [
 
 // ── AI Chat welcome ────────────────────────────────────────────────────────
 
-export const DEMO_AI_WELCOME = `Hi! I'm **Kyntha**, your AI health & medication assistant. I'm here to help you understand your medicines, manage side effects, and feel confident about your health.
+export const DEMO_AI_WELCOME = `Hi! I'm **Kynthai**, your AI health & medication assistant. I'm here to help you understand your medicines, manage side effects, and feel confident about your health.
 
 **How can I help you today?** Try asking about:
 • Any medicine you're taking
@@ -272,7 +272,7 @@ export const DEMO_AI_WELCOME = `Hi! I'm **Kyntha**, your AI health & medication 
 • Food or drink interactions
 • When to take your medications`;
 
-export const DEMO_AI_FALLBACK = `I'm Kyntha, your **health & medication** assistant. I'm here to help you understand your medicines, manage your health, and feel confident about your care.
+export const DEMO_AI_FALLBACK = `I'm Kynthai, your **health & medication** assistant. I'm here to help you understand your medicines, manage your health, and feel confident about your care.
 
 **In this demo, I can help with 20+ common medicines** including Metformin, Atorvastatin, Amoxicillin, Omeprazole, Losartan, Aspirin, Levothyroxine, and more.
 
@@ -464,11 +464,11 @@ export interface LabProfile {
 
 export const DEMO_LAB_PROFILE: LabProfile = {
   id: 'demo_lab',
-  name: 'Kyntha Diagnostic Center',
+  name: 'Kynthai Diagnostic Center',
   city: 'Austin, TX',
   address: '1234 Health Blvd, Austin, TX 78701',
   phone: '+1 (512) 555-0142',
-  email: 'demo@kynthadiagnostics.com',
+  email: 'demo@kynthaidiagnostics.com',
   tests: [
     'Complete Blood Count (CBC)',
     'Lipid Panel',
@@ -672,7 +672,7 @@ export const ADMIN_PARTNER_REVENUE: PartnerRevenueRow[] = [
   },
   {
     id: 'pr4',
-    name: 'Kyntha Diagnostic Center',
+    name: 'Kynthai Diagnostic Center',
     type: 'lab',
     grossRevenue: 5400,
     commission: 972,
@@ -825,7 +825,7 @@ export const DEMO_NOTIFICATIONS: DemoNotification[] = [
   {
     id: 'dn4',
     title: 'App Updated',
-    message: 'Kyntha 2.1 is now available with new features',
+    message: 'Kynthai 2.1 is now available with new features',
     time: '1d ago',
     read: true,
     type: 'system',
@@ -936,7 +936,7 @@ export function getDemoPriorities(onNavigate?: (tab: string) => void): Priority[
     },
     {
       id: 'dp3',
-      title: 'Chat with Dr. Kyntha',
+      title: 'Chat with Dr. Kynthai',
       description: 'Ask about side effects or drug interactions',
       priority: 'low',
       icon: Bot,

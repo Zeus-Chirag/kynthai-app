@@ -1,5 +1,5 @@
 -- ==========================================================================
--- Kyntha US — User preference columns on users table
+-- Kynthai US — User preference columns on users table
 -- Migration: 002_user_prefs_columns
 -- ==========================================================================
 

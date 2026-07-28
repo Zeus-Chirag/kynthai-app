@@ -1,5 +1,5 @@
 /**
- * Medical RAG — Retrieval Augmented Generation for the Kyntha AI chat.
+ * Medical RAG — Retrieval Augmented Generation for the Kynthai AI chat.
  *
  * Injects relevant medical knowledge chunks into the LLM prompt so the
  * generic model responds with specific, accurate healthcare information

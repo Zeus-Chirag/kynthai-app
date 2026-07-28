@@ -26,7 +26,7 @@ The root cause is **`COLORTERM=truecolor`** environment variable:
 
 ### Step 1: Run the Fix Script
 ```bash
-cd /Users/c.k/Downloads/kyntha-restored-7000-us
+cd /Users/c.k/Downloads/kynthai-restored-7000-us
 ./PERMANENT-TERMINAL-FIX.sh
 ```
 
@@ -94,7 +94,7 @@ When terminal processing fails, you see these literally on screen.
 
 **DO:**
 - Keep `NO_COLOR=1` environment variable
-- Run `npm install --ignore-scripts` for kyntha project
+- Run `npm install --ignore-scripts` for kynthai project
 - Use the fix script if issues recur
 
 ## Status

@@ -1,5 +1,5 @@
 -- ============================================================================
--- Kyntha US — Supabase Database Schema
+-- Kynthai US — Supabase Database Schema
 -- ============================================================================
 -- Apply this in: Supabase Dashboard → SQL Editor → New query → Paste → Run
 -- ============================================================================

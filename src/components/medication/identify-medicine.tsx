@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
-import { MedicalDisclaimer } from '@/components/kyntha/medical-disclaimer'
+import { MedicalDisclaimer } from '@/components/kynthaii/medical-disclaimer'
 
 interface IdentifyResult {
   name?: string

@@ -39,7 +39,7 @@ PERMANENT FIX - WHAT WAS CHANGED
    - Removed dangerous command substitution from PATH
 
 ✅ PERMANENT-TERMINAL-FIX.sh (CREATED)
-   - Located in: /Users/c.k/Downloads/kyntha-restored-7000-us/
+   - Located in: /Users/c.k/Downloads/kynthai-restored-7000-us/
    - Comprehensive fix script
    - Unsets COLORTERM, sets all color controls
    - Configures npm globally
@@ -62,7 +62,7 @@ IMPORTANT: HOW TO APPLY THE FIX
 The fix is ALREADY in place in .zshrc file. Here's what YOU must do:
 
 1. Run the fix script one final time:
-   cd /Users/c.k/Downloads/kyntha-restored-7000-us
+   cd /Users/c.k/Downloads/kynthai-restored-7000-us
    ./PERMANENT-TERMINAL-FIX.sh
 
 2. CLOSE ALL TERMINAL WINDOWS COMPLETELY
@@ -99,7 +99,7 @@ HOW TO RUN YOUR KYNTHA PROJECT
 ═══════════════════════════════════════════════════════════════════
 
 After applying the fix, run your project normally:
-  cd /Users/c.k/Downloads/kyntha-restored-7000-us
+  cd /Users/c.k/Downloads/kynthai-restored-7000-us
   npm run dev
 
 Open browser to: http://localhost:8000
@@ -137,9 +137,9 @@ Modified:
   ✓ ~/.zshrc (fixed corrupted startup code)
 
 Created:
-  ✓ /path/to/kyntha/PERMANENT-TERMINAL-FIX.sh
-  ✓ /path/to/kyntha/QUICK-FIX.md
-  ✓ /path/to/kyntha/FIX-APPLIED-SUMMARY.txt (this file)
+  ✓ /path/to/kynthai/PERMANENT-TERMINAL-FIX.sh
+  ✓ /path/to/kynthai/QUICK-FIX.md
+  ✓ /path/to/kynthai/FIX-APPLIED-SUMMARY.txt (this file)
 
 ═══════════════════════════════════════════════════════════════════
 WHY THIS IS PERMANENT

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   const u = user!
 
   // COMPLIANCE (COPPA/family governance): restricted-feature notice for minors.
-  // Kyntha SOS is a self-harm/emergency alert tool; a minor's legal guardian
+  // Kynthai SOS is a self-harm/emergency alert tool; a minor's legal guardian
   // must be present or notified. This notice does not block the SOS (which
   // must never be blocked — emergency use supersedes age restrictions), but
   // surfaces a required guardian-disclosure flag so the platform can log the

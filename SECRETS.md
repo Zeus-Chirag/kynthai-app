@@ -1,4 +1,4 @@
-# Secrets Management — Kyntha
+# Secrets Management — Kynthai
 
 ## Current Status
 

@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: 'assistant',
-            content: `You are Kyntha's AI symptom analyzer. A user describes their symptoms; provide a helpful, safe, educational analysis.
+            content: `You are Kynthai's AI symptom analyzer. A user describes their symptoms; provide a helpful, safe, educational analysis.
 
 Return ONLY valid JSON (no markdown) with this exact shape:
 {

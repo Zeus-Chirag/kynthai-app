@@ -1,5 +1,5 @@
 /**
- * Kyntha Currency System
+ * Kynthai Currency System
  * -----------------------------
  * All prices shown to users are USD.
  * No country-specific tax is included in displayed prices.

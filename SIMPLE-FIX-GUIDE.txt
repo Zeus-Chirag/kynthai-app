@@ -35,7 +35,7 @@ HOW TO START YOUR PROJECT:
 1. Open Terminal (if not already open)
 
 2. Go to your project folder:
-   cd /Users/c.k/Downloads/kyntha-restored-7000-us
+   cd /Users/c.k/Downloads/kynthai-restored-7000-us
 
 3. Start the development server:
    npm run dev

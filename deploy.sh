@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# ─── Kyntha US Production Deployment Script ───────────────────────────────────
-# This script automates the zero-downtime production deployment of the Kyntha
+# ─── Kynthai US Production Deployment Script ───────────────────────────────────
+# This script automates the zero-downtime production deployment of the Kynthai
 # application using Docker Compose.
 #
 # Prerequisites:
@@ -105,5 +105,5 @@ done
 log "Cleaning up old Docker images..."
 docker image prune -f --filter "until=72h" || true
 
-log "Deployment complete! Application is running at https://kyntha.app"
-log "Verify with: docker compose ps && curl -I https://kyntha.app"
+log "Deployment complete! Application is running at https://kynthai.app"
+log "Verify with: docker compose ps && curl -I https://kynthai.app"

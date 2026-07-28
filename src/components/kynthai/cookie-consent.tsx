@@ -1,0 +1,216 @@
+/**
+ * CookieConsent — US privacy compliance banner (CCPA/CPRA + US privacy).
+ *
+ * Shows on first visit, asks for consent before setting non-essential
+ * cookies. Stores the user's choice in localStorage for 12 months.
+ *
+ * CALIFORNIA CONSUMER RIGHTS: California residents have the right to opt
+ * out of the sale or sharing of personal information under CCPA/CPRA.
+ * Health data is treated as Protected Health Information (sensitive health data) under
+ * US privacy and the HITECH Act, which impose heightened security safeguards.
+ *
+ * FLOW: "Accept all" is explicit opt-in (enables analytics/marketing
+ * cookies). "Essential only" opts the user out of non-essential cookies.
+ * "Manage" opens the cookie preferences page. The close/dismiss button
+ * acts as a rejection (essential only).
+ *
+ * Essential cookies (authentication, session, preferences) are always
+ * active because they are strictly necessary for the service to function.
+ * All non-essential cookies and scripts are gated on hasConsented().
+ */
+
+'use client'
+
+import * as React from 'react'
+import { Cookie, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { useAppStore } from '@/lib/store'
+import { usePathname, useRouter } from 'next/navigation'
+
+const CONSENT_KEY = 'kynthai-cookie-consent-v1'
+const CONSENT_EXPIRY_MS = 365 * 24 * 60 * 60 * 1000 // 12 months
+
+// Public routes where a cookie banner would obscure essential UX.
+const PUBLIC_PATHS = ['/login', '/register', '/pricing', '/checkout', '/privacy', '/terms', '/cookies', '/accessibility', '/medical-disclaimer', '/grievance', '/refund-cancellation', '/forgot-password', '/reset-password']
+
+interface ConsentRecord {
+  accepted: boolean
+  timestamp: number
+}
+
+function getStoredConsent(): ConsentRecord | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(CONSENT_KEY)
+    if (!raw) return null
+    const parsed: ConsentRecord = JSON.parse(raw)
+    if (Date.now() - parsed.timestamp > CONSENT_EXPIRY_MS) {
+      localStorage.removeItem(CONSENT_KEY)
+      return null
+    }
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function setStoredConsent(accepted: boolean) {
+  if (typeof window === 'undefined') return
+  const record: ConsentRecord = { accepted, timestamp: Date.now() }
+  localStorage.setItem(CONSENT_KEY, JSON.stringify(record))
+  window.dispatchEvent(new CustomEvent('kynthai-consent-change', { detail: { accepted } }))
+}
+
+/**
+ * hasConsented — call this before loading any non-essential (analytics,
+ * marketing, advertising) cookies or scripts.
+ * Returns true only for accepted=true AND non-expired consent.
+ *
+ *   if (hasConsented()) { initAnalytics() }
+ */
+export function hasConsented(): boolean {
+  if (typeof window === 'undefined') return false
+  const stored = getStoredConsent()
+  return stored?.accepted ?? false
+}
+
+/**
+ * COMPLIANCE: denyNonEssentialCookies — purge any non-essential cookies
+ * that may have been set without consent or after explicit rejection.
+ */
+export function denyNonEssentialCookies(): void {
+  if (typeof window === 'undefined') return
+  const nonEssentialNames = [
+    '_ga', '_gid', '_gat', '_gtag_*',
+    'fbp', 'fbc',
+    'ads_prefs',
+    'li_sugr', 'liap',
+  ]
+  for (const name of nonEssentialNames) {
+    const prefix = name.replace('*', '')
+    document.cookie.split(';').forEach((c) => {
+      const cookieName = c.split('=')[0]?.trim() ?? ''
+      if (cookieName === prefix || (name.endsWith('*') && cookieName.startsWith(prefix))) {
+        document.cookie = cookieName + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/'
+        document.cookie = cookieName + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=' + window.location.hostname
+      }
+    })
+  }
+}
+
+export function clearCookieConsent() {
+  if (typeof window === 'undefined') return
+  localStorage.removeItem(CONSENT_KEY)
+  denyNonEssentialCookies()
+}
+
+export function CookieConsent() {
+  const pathname = usePathname()
+  const { setScreen } = useAppStore()
+  const router = useRouter()
+  const [visible, setVisible] = React.useState(false)
+
+  // Don't show the cookie banner on public utility pages — it would obscure
+  // essential page content (login form, legal pages, pricing, etc.).
+  React.useEffect(() => {
+    const stored = getStoredConsent()
+    const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
+    if (!stored && !isPublic) {
+      const timer = setTimeout(() => setVisible(true), 1500)
+      return () => clearTimeout(timer)
+    }
+    setVisible(false)
+    if (stored && !stored.accepted) {
+      denyNonEssentialCookies()
+    }
+    if (stored) {
+      window.dispatchEvent(new CustomEvent('kynthai-consent-change', { detail: { accepted: stored.accepted } }))
+    }
+  }, [pathname])
+
+  function accept() {
+    setStoredConsent(true)
+    setVisible(false)
+  }
+
+  function reject() {
+    denyNonEssentialCookies()
+    setStoredConsent(false)
+    setVisible(false)
+  }
+
+  function manage() {
+    clearCookieConsent()
+    setVisible(false)
+    router.push('/cookies')
+  }
+
+  if (!visible) return null
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-[60] p-4 sm:p-6 animate-in slide-in-from-bottom-4 duration-300">
+      <Card className="mx-auto max-w-3xl border-emerald-500/30 shadow-2xl">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+              <Cookie className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold">We use cookies</h3>
+              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                Kynthai uses essential cookies for authentication and local
+                storage for preferences. Essential cookies cannot be disabled
+                because they are required for the service to function. With
+                your consent, we also use analytics and marketing cookies to
+                improve your experience. See our{' '}
+                <button
+                  onClick={() => {
+                    setVisible(false)
+                    router.push('/privacy')
+                  }}
+                  className="font-medium text-emerald-600 underline"
+                >
+                  Privacy Policy
+                </button>{' '}
+                for details, including your CCPA/CPRA rights.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={accept}
+                  className="h-8 bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                >
+                  Accept all
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={reject}
+                  className="h-8"
+                >
+                  Essential only
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={manage}
+                  className="h-8 text-xs"
+                >
+                  Manage
+                </Button>
+              </div>
+            </div>
+            <button
+              onClick={reject}
+              className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

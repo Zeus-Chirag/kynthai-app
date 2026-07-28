@@ -6,7 +6,7 @@ test('debug login', async ({ page }) => {
   await page.goto('/login');
   await page.waitForTimeout(2000);
   await page.screenshot({ path: 'e2e-report/login-initial.png', fullPage: true });
-  await page.fill('input[type="email"]', 'patient@demo.kyntha.app');
+  await page.fill('input[type="email"]', 'patient@demo.kynthai.app');
   await page.fill('input[type="password"]', 'Demo@2024');
   await page.click('button[type="submit"]');
   await page.waitForTimeout(4000);

@@ -6,16 +6,16 @@ test('quick login sanity', async ({ page }) => {
   expect(csrfRes.ok()).toBeTruthy();
 
   const loginRes = await page.request.post('/api/auth/login', {
-    data: { email: 'patient@demo.kyntha.app', password: 'Demo@2024' },
+    data: { email: 'patient@demo.kynthai.app', password: 'Demo@2024' },
   });
   expect(loginRes.ok()).toBeTruthy();
 
   const setCookie = loginRes.headers()['set-cookie'];
   if (setCookie) {
-    const match = setCookie[0].match(/kyntha_session=([^;]+)/);
+    const match = setCookie[0].match(/kynthai_session=([^;]+)/);
     if (match) {
       await page.context().addCookies([{
-        name: 'kyntha_session', value: match[1], domain: 'localhost', path: '/',
+        name: 'kynthai_session', value: match[1], domain: 'localhost', path: '/',
       }]);
     }
   }

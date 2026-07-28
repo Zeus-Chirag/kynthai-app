@@ -4,7 +4,7 @@ export function initConsentAwareTelemetry() {
   if (typeof window === 'undefined') return
 
   try {
-    const raw = localStorage.getItem('kyntha-consent')
+    const raw = localStorage.getItem('kynthai-consent')
     if (!raw) return
     const consent = JSON.parse(raw)
     const analyticsEnabled = !!consent.analytics

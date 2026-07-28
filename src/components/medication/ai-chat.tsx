@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { MedicalDisclaimer } from '@/components/kyntha/medical-disclaimer';
+import { MedicalDisclaimer } from '@/components/kynthaii/medical-disclaimer';
 import { useAppStore } from '@/lib/store';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
 import ReactMarkdown from 'react-markdown';
@@ -135,7 +135,7 @@ export function AiChat() {
           id: 'welcome',
           role: 'assistant',
           content:
-            "Hi! I'm **Kyntha**, your AI health & medication assistant. I'm here to help you understand your medicines, manage side effects, and feel confident about your health.\n\n**How can I help you today?** Try asking about:\n• Any medicine you're taking\n• Side effects you're experiencing\n• Food or drink interactions\n• When to take your medications",
+            "Hi! I'm **Kynthai**, your AI health & medication assistant. I'm here to help you understand your medicines, manage side effects, and feel confident about your health.\n\n**How can I help you today?** Try asking about:\n• Any medicine you're taking\n• Side effects you're experiencing\n• Food or drink interactions\n• When to take your medications",
         },
       ]);
       return;
@@ -151,7 +151,7 @@ export function AiChat() {
           {
             id: 'welcome',
             role: 'assistant',
-            content: "Hi! I'm **Kyntha**, your AI medication assistant. How can I help you today?",
+            content: "Hi! I'm **Kynthai**, your AI medication assistant. How can I help you today?",
           },
         ]);
       })
@@ -200,7 +200,7 @@ export function AiChat() {
             id: `a-${Date.now()}`,
             role: 'assistant',
             content:
-              'I\'m Kyntha, your **health & medication** assistant. I\'m here to help you understand your medicines, manage your health, and feel confident about your care.\n\n**In this demo, I can help with 20+ common medicines** including Metformin, Atorvastatin, Amoxicillin, Omeprazole, Losartan, Aspirin, Levothyroxine, and more.\n\nTry asking me things like:\n• "What is Metformin used for?"\n• "What are the side effects of Atorvastatin?"\n• "Can I take Aspirin with food?"\n\nFor full capabilities — symptom analysis, drug interactions, and personalized health advice — create your free account. Your health journey starts here. 💚',
+              'I\'m Kynthai, your **health & medication** assistant. I\'m here to help you understand your medicines, manage your health, and feel confident about your care.\n\n**In this demo, I can help with 20+ common medicines** including Metformin, Atorvastatin, Amoxicillin, Omeprazole, Losartan, Aspirin, Levothyroxine, and more.\n\nTry asking me things like:\n• "What is Metformin used for?"\n• "What are the side effects of Atorvastatin?"\n• "Can I take Aspirin with food?"\n\nFor full capabilities — symptom analysis, drug interactions, and personalized health advice — create your free account. Your health journey starts here. 💚',
           },
         ]);
       }
@@ -268,13 +268,13 @@ export function AiChat() {
               <Bot className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold leading-tight">Kyntha Assistant</p>
+              <p className="font-semibold leading-tight">Kynthai Assistant</p>
               <p className="text-xs text-muted-foreground">AI-powered medication Q&amp;A</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             <a
-              href="mailto:hello@kyntha.app?subject=Talk+to+Human"
+              href="mailto:hello@kynthai.app?subject=Talk+to+Human"
               className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
               title="Need to talk to a human? Email our support team"
             >
@@ -419,7 +419,7 @@ export function AiChat() {
         </div>
         <p className="text-[11px] text-muted-foreground mt-2 text-center">
           I'm an AI assistant — not a doctor. For medical concerns, email{' '}
-          <a href="mailto:hello@kyntha.app" className="text-emerald-600 hover:underline">hello@kyntha.app</a>
+          <a href="mailto:hello@kynthai.app" className="text-emerald-600 hover:underline">hello@kynthai.app</a>
           {' '}or call 911 in an emergency.
         </p>
       </CardContent>

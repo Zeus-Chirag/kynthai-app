@@ -209,7 +209,7 @@ function generateInsight(
 
   // AI encouragement
   if (chatCount === 0) {
-    parts.push('Try asking Dr. Kyntha a question');
+    parts.push('Try asking Dr. Kynthai a question');
   }
 
   return parts.slice(0, 2).join('. ') + '.';

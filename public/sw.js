@@ -1,11 +1,11 @@
-/* Kyntha Service Worker
+/* Kynthai Service Worker
  *
  * - Network-first for HTML navigations (fast latest UI, offline fallback).
  * - Cache-first for static assets (JS/CSS/images/fonts) so reloads are instant.
  * - Pre-caches core static assets on install.
  */
 
-const VERSION = 'kyntha-v2'
+const VERSION = 'kynthai-v2'
 const STATIC_CACHE = `${VERSION}-static`
 const RUNTIME_CACHE = `${VERSION}-runtime`
 
@@ -92,7 +92,7 @@ self.addEventListener('fetch', (event) => {
           if (offline) return offline
           const cached = await cache.match(req)
           if (cached) return cached
-          return new Response('You are offline. Please reconnect to use Kyntha.', {
+          return new Response('You are offline. Please reconnect to use Kynthai.', {
             status: 503,
             headers: { 'Content-Type': 'text/plain' },
           })
@@ -168,16 +168,16 @@ self.addEventListener('push', (event) => {
     data = event.data ? event.data.json() : {}
   } catch {
     // Payload wasn't JSON — treat it as plain text.
-    data = { title: 'Kyntha', body: event.data ? event.data.text() : '' }
+    data = { title: 'Kynthai', body: event.data ? event.data.text() : '' }
   }
-  const title = data.title || 'Kyntha'
+  const title = data.title || 'Kynthai'
   const options = {
     body: data.body || '',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     vibrate: [100, 50, 100],
     data: { url: data.url || '/' },
-    tag: data.tag || 'kyntha-default',
+    tag: data.tag || 'kynthai-default',
     renotify: !!data.renotify,
   }
   event.waitUntil(self.registration.showNotification(title, options))
@@ -200,7 +200,7 @@ self.addEventListener('notificationclick', (event) => {
             return client.focus()
           }
         }
-        // Otherwise try to focus any already-open Kyntha window.
+        // Otherwise try to focus any already-open Kynthai window.
         for (const client of clientList) {
           if ('focus' in client) {
             return client.focus()

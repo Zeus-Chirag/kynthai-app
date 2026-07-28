@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="280" height="64" viewBox="0 0 280 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kyntha logo">
+<svg width="280" height="64" viewBox="0 0 280 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kynthai logo">
   <defs>
-    <linearGradient id="kyntha-tree-grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+    <linearGradient id="kynthai-tree-grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
       <stop stopColor="#10b981"/>
       <stop offset="1" stopColor="#0d9488"/>
     </linearGradient>
-    <linearGradient id="kyntha-word-grad" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+    <linearGradient id="kynthai-word-grad" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
       <stop stopColor="#10b981"/>
       <stop offset="1" stopColor="#0d9488"/>
     </linearGradient>
   </defs>
-  <!-- Icon tile — geometry matches src/components/kyntha/logo.tsx -->
-  <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#kyntha-tree-grad)"/>
+  <!-- Icon tile — geometry matches src/components/kynthaii/logo.tsx -->
+  <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#kynthai-tree-grad)"/>
   <line x1="14" y1="40" x2="34" y2="40" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
   <path d="M 24 40 L 24 32" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
   <path d="M 22 38 L 26 38" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
   <path d="M 24 32 C 16 28, 8 24, 10 16 C 12 10, 18 8, 24 10 C 26 8, 30 8, 34 10 C 38 8, 40 12, 40 16 C 42 22, 38 28, 24 32Z" fill="white" opacity="0.95"/>
   <path d="M 24 28 C 20 26, 16 22, 17 17 C 18 13, 21 12, 24 13 C 27 12, 30 13, 31 17 C 32 22, 28 26, 24 28Z" fill="white" opacity="0.35"/>
 
-  <!-- Wordmark "Kyntha" — visually centered within the 64px tile height -->
-  <text x="62" y="46" font-family="'Geist Sans', 'Inter', sans-serif" font-size="32" font-weight="700" letter-spacing="-0.5" fill="url(#kyntha-word-grad)">Kyntha</text>
+  <!-- Wordmark "Kynthai" — visually centered within the 64px tile height -->
+  <text x="62" y="46" font-family="'Geist Sans', 'Inter', sans-serif" font-size="32" font-weight="700" letter-spacing="-0.5" fill="url(#kynthai-word-grad)">Kynthai</text>
 </svg>

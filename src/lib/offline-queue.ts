@@ -1,5 +1,5 @@
 /**
- * Offline Action Queue — lightweight offline support for Kyntha.
+ * Offline Action Queue — lightweight offline support for Kynthai.
  *
  * Stores failed API mutations in localStorage and auto-syncs when
  * connectivity returns. No service worker, no IndexedDB — just
@@ -29,8 +29,8 @@ interface OfflineState {
 
 // ── Storage Keys ───────────────────────────────────────────────────
 
-const QUEUE_KEY = 'kyntha_offline_queue'
-const CACHE_PREFIX = 'kyntha_cache_'
+const QUEUE_KEY = 'kynthai_offline_queue'
+const CACHE_PREFIX = 'kynthai_cache_'
 const MAX_QUEUE = 50
 const MAX_RETRIES = 3
 const SYNC_INTERVAL = 30_000 // 30s

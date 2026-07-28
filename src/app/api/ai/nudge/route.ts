@@ -168,9 +168,9 @@ export async function GET(req: NextRequest) {
         id: 'interaction-check',
         type: 'warning',
         title: 'New medication + symptoms logged',
-        message: 'You recently logged symptoms and added a new medication. Consider asking Dr. Kyntha about possible interactions.',
+        message: 'You recently logged symptoms and added a new medication. Consider asking Dr. Kynthai about possible interactions.',
         action: 'ask-ai',
-        actionLabel: 'Ask Dr. Kyntha',
+        actionLabel: 'Ask Dr. Kynthai',
         dismissible: true,
       })
     }

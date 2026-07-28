@@ -1,4 +1,4 @@
-# ARIA / Accessibility Audit — Kyntha (WCAG 2.2 AA)
+# ARIA / Accessibility Audit — Kynthai (WCAG 2.2 AA)
 
 ## Methodology
 - Source: all `src/**/*.tsx` files (client islands + shared UI)
@@ -9,7 +9,7 @@
 
 ## CRITICAL (automated checkers will flag; screen-reader users blocked)
 
-### FIND-001  `src/components/kyntha/caretaker/member-schedule.tsx:116`
+### FIND-001  `src/components/kynthaii/caretaker/member-schedule.tsx:116`
 **Title-only icon button — zero accessible name**
 
 ```tsx
@@ -27,20 +27,20 @@ giving no indication that the button dismisses the alarm.
 
 ## HIGH (user confusion, keyboard + AT friction)
 
-### FIND-002  `src/components/kyntha/landing-nav.tsx:56-61`
+### FIND-002  `src/components/kynthaii/landing-nav.tsx:56-61`
 **Brand logo button — empty accessible name**
 
 ```tsx
 <button onClick={() => goScreen('landing')} className="flex items-center">
-  <KynthaBrand />
+  <KynthaiBrand />
 </button>
 ```
 
-`KynthaBrand` renders a decorative logo SVG with no `title`/`aria-label`. The surrounding
+`KynthaiBrand` renders a decorative logo SVG with no `title`/`aria-label`. The surrounding
 `<button>` has no accessible name. Screen reader users hear "button" with no label.
 
-**Fix:** add `aria-label="Kyntha home"` to the `<button>` (or add `role="img"` + `aria-label`
-to the SVG inside `KynthaBrand`).
+**Fix:** add `aria-label="Kynthai home"` to the `<button>` (or add `role="img"` + `aria-label`
+to the SVG inside `KynthaiBrand`).
 
 ---
 
@@ -61,7 +61,7 @@ or a screen-reader user activating the button will unintentionally submit the fo
 
 ---
 
-### FIND-004  `src/components/kyntha/landing-page.tsx:963`
+### FIND-004  `src/components/kynthaii/landing-page.tsx:963`
 **Inline `<button>` inside a `<p>` — `href=#`-style navigation without keyboard support**
 
 ```tsx
@@ -78,7 +78,7 @@ user expectation for underlined inline text is a link, not a button.
 
 ---
 
-### FIND-005  `src/components/kyntha/landing-nav.tsx:56` — Navigation landmark branding
+### FIND-005  `src/components/kynthaii/landing-nav.tsx:56` — Navigation landmark branding
 **Logo button inside `<header>` duplicates `<nav>` landmark**
 
 Slight structural issue: the logo `<button>` lives directly inside `<header>` while the main
@@ -93,7 +93,7 @@ header for orientation.
 
 ## MEDIUM (WCAG technique deficiencies; potential WCAG failure at scale)
 
-### FIND-006  `src/components/kyntha/landing-nav.tsx:232-241` (mobile menu)
+### FIND-006  `src/components/kynthaii/landing-nav.tsx:232-241` (mobile menu)
 **`aria-expanded` / `aria-controls` not wired to the mobile drawer**
 
 ```tsx
@@ -112,7 +112,7 @@ which element it targets. The drawer itself also lacks an `id` to receive the as
 
 ---
 
-### FIND-007  `src/components/kyntha/landing-nav.tsx:106-113` — Menu toggle has no visual
+### FIND-007  `src/components/kynthaii/landing-nav.tsx:106-113` — Menu toggle has no visual
 focus indicator enhancement
 *(Styling-only; behaviour is fine, but with custom rounded borders + `hover:` only,
 keyboard focus ring is minimal. Combined with the aria-controls gap in FIND-006, the
@@ -165,7 +165,7 @@ All five social links have `aria-label={s.label}`. ✓ Passes. They also have pr
 ## Recommended Fix Priority
 
 1. **FIND-001** — Add `aria-label="Dismiss alarm"` to the ✕ button (1-line change)
-2. **FIND-002** — Add `aria-label="Kyntha home"` to the brand button (1-line change)
+2. **FIND-002** — Add `aria-label="Kynthai home"` to the brand button (1-line change)
 3. **FIND-003** — Add `type="button"` to all navigation/close buttons inside forms (5 files, 1-line each)
 4. **FIND-004** — Replace inline `<button>` with Next.js `<Link>` (1-line change)
 5. **FIND-006** — Add `aria-controls` + drawer `id` to mobile menu toggle (2-line change)

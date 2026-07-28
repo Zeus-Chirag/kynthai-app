@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     if (!signedValue) {
       return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');
     }
-    res.cookies.set('kyntha-session', signedValue, {
+    res.cookies.set('kynthai-session', signedValue, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',

@@ -1,4 +1,4 @@
-// Kyntha — AI Health Management Platform
+// Kynthai — AI Health Management Platform
 generator client {
   provider = "prisma-client-js"
 }
@@ -586,7 +586,7 @@ model ConsultationNote {
   @@map("consultation_notes")
 }
 
-// ── Kyntha 2.0: New Tables ─────────────────────────────────────────
+// ── Kynthai 2.0: New Tables ─────────────────────────────────────────
 
 model FreeTierUsage {
   id        String   @id @default(cuid())
