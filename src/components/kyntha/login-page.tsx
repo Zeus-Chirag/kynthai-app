@@ -207,7 +207,7 @@ export function LoginPage({
           email,
           password,
           name,
-          role: active.id === 'caretaker' ? 'caretaker' : active.id,
+          role: active.id,
           phone: phone || undefined,
           dateOfBirth: dateOfBirth || undefined,
           consentAccepted: termsConsent,
@@ -568,6 +568,8 @@ export function LoginPage({
                       autoComplete="email"
                     />
                   </div>
+
+                  {/* Confirm password field - removed as per schema update */}
 
                   <div className="space-y-1.5">
                     <Label htmlFor="password">Password</Label>

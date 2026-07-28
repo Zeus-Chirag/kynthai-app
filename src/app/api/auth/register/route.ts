@@ -109,13 +109,14 @@ export async function POST(req: NextRequest) {
       }
     );
 
+    const role = body.role || 'patient';
     let { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name,
-          role: 'patient',
+          role,
         },
         emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
       },
@@ -173,7 +174,7 @@ export async function POST(req: NextRequest) {
           id: authData.user.id,
           email,
           name,
-          role: 'patient',
+          role: role || 'patient',
           phone: phone || null,
           dateOfBirth,
           password: null, // Supabase manages passwords
@@ -185,7 +186,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    await logAudit(profile.id, 'auth.register', 'role=patient');
+    await logAudit(profile.id, 'auth.register', `role=${role}`);
+
 
     const responseBody = {
       id: profile.id,
