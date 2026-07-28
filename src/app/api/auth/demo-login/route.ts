@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     };
     const res = jsonOk(responseBody);
     // Set a signed session cookie for demo mode
-    const signedValue = signSessionToken(user.id);
+    const signedValue = await signSessionToken(user.id);
     if (!signedValue) {
       return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');
     }

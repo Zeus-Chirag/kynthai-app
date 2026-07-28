@@ -10,8 +10,6 @@
  *   3. 'kynthai-dev-fallback-secret' (dev only — refuses to sign in production)
  */
 
-import crypto from 'crypto';
-
 function getSigningSecret(): string | null {
   const env = process.env;
   if (env.SESSION_SIGNING_SECRET) return env.SESSION_SIGNING_SECRET;
@@ -24,11 +22,9 @@ function getSigningSecret(): string | null {
 /**
  * Sign a userId → returns "userId:hmacHex" or null if signing unavailable in prod.
  */
-export function signSessionToken(userId: string): string | null {
+export async function signSessionToken(userId: string): Promise<string | null> {
   const secret = getSigningSecret();
   if (!secret) {
-    // Production without a signing secret is a configuration error.
-    // We still return a value so the caller doesn't crash, but it won't verify.
     if (process.env.NODE_ENV === 'production') {
       console.error(
         '[session-signing] CRITICAL: No SESSION_SIGNING_SECRET or SUPABASE_SERVICE_ROLE_KEY set in production. ' +
@@ -37,10 +33,10 @@ export function signSessionToken(userId: string): string | null {
     }
     return null;
   }
-  const hmac = crypto
-    .createHmac('sha256', secret)
-    .update(userId)
-    .digest('hex');
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(userId));
+  const hmac = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
   return `${userId}:${hmac}`;
 }
 
@@ -48,29 +44,27 @@ export function signSessionToken(userId: string): string | null {
  * Verify a signed token → returns userId if valid, null if tampered or malformed.
  * Fails closed: any parsing/verification error returns null (unauthenticated).
  */
-export function verifySessionToken(signed: string): string | null {
+export async function verifySessionToken(signed: string): Promise<string | null> {
   if (!signed || typeof signed !== 'string') return null;
-
   const colonIdx = signed.indexOf(':');
   if (colonIdx === -1) return null;
-
   const userId = signed.slice(0, colonIdx);
   const providedHmac = signed.slice(colonIdx + 1);
-
   if (!userId || !providedHmac || providedHmac.length !== 64) return null;
-
   const secret = getSigningSecret();
-  if (!secret) return null; // can't verify without secret
-
-  const expectedHmac = crypto
-    .createHmac('sha256', secret)
-    .update(userId)
-    .digest('hex');
-
-  // Constant-time comparison to prevent timing attacks
-  if (!crypto.timingSafeEqual(Buffer.from(providedHmac, 'hex'), Buffer.from(expectedHmac, 'hex'))) {
-    return null;
+  if (!secret) return null;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(userId));
+  const expectedHmac = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+  // Constant-time comparison
+  const provided = new Uint8Array(providedHmac.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+  const expected = new Uint8Array(expectedHmac.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+  if (provided.length !== expected.length) return null;
+  let diff = 0;
+  for (let i = 0; i < provided.length; i++) {
+    diff |= provided[i] ^ expected[i];
   }
-
+  if (diff !== 0) return null;
   return userId;
 }

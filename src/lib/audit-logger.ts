@@ -2,7 +2,15 @@
  * Audit Logging System for Kynthai
  */
 
-import { db } from '@/lib/db'
+// Lazy import to avoid PrismaClient instantiation at edge/runtime import time
+let _db: any = null
+function getDb() {
+  if (!_db) {
+    const mod = require('@/lib/db')
+    _db = mod.db
+  }
+  return _db
+}
 
 export const AUDIT_LOG_SYNC = process.env.AUDIT_LOG_SYNC === 'true'
 export const MAX_METADATA_LENGTH = 4096
@@ -136,7 +144,7 @@ function scheduleFlush(): void {
     if (auditQueue.length === 0) return
     const batch = auditQueue.splice(0, 50)
     try {
-      await db.auditLog.createMany({
+      await getDb().auditLog.createMany({
         data: batch.map(({ userId, action, ctx }) => ({
           userId,
           action,
@@ -178,7 +186,7 @@ export async function recordAuditSync(
 ): Promise<{ ok: boolean }> {
   const category = ctx.category ?? categorizeAction(action)
   try {
-    await db.auditLog.create({
+    await getDb().auditLog.create({
       data: {
         userId,
         action,
@@ -245,8 +253,8 @@ export async function queryAuditLogs(query: AuditLogQuery): Promise<{ logs: any[
     where.createdAt = c
   }
   const [logs, total] = await Promise.all([
-    db.auditLog.findMany({ where, orderBy: { createdAt: 'desc' }, take: query.limit ?? 100, skip: query.offset ?? 0 }),
-    db.auditLog.count({ where }),
+    getDb().auditLog.findMany({ where, orderBy: { createdAt: 'desc' }, take: query.limit ?? 100, skip: query.offset ?? 0 }),
+    getDb().auditLog.count({ where }),
   ])
   const hasMore = (query.offset ?? 0) + logs.length < total
   const nextCursor = hasMore ? Buffer.from(`${query.offset ?? 0 + (query.limit ?? 100)}`).toString('base64') : null
@@ -266,5 +274,5 @@ export async function countAuditEvents(query: Omit<AuditLogQuery, 'limit' | 'off
     if (query.endDate) c.lte = query.endDate
     where.createdAt = c
   }
-  return db.auditLog.count({ where })
+  return getDb().auditLog.count({ where })
 }

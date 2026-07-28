@@ -19,15 +19,17 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import crypto from 'crypto'
+// Web Crypto API (available in Edge Runtime)
 
 const CSRF_COOKIE = 'kynthai-csrf'
 const CSRF_HEADER = 'x-csrf-token'
 const TOKEN_LENGTH = 32
 
 /** Generate a cryptographically random CSRF token. */
-export function generateCsrfToken(): string {
-  return crypto.randomBytes(TOKEN_LENGTH).toString('hex')
+export async function generateCsrfToken(): Promise<string> {
+  const bytes = new Uint8Array(TOKEN_LENGTH)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 /**
@@ -42,7 +44,7 @@ export async function setCsrfCookie(): Promise<{ token: string }> {
   const existing = store.get(CSRF_COOKIE)?.value
   if (existing) return { token: existing }
 
-  const token = generateCsrfToken()
+  const token = await generateCsrfToken()
   store.set(CSRF_COOKIE, token, {
     httpOnly: false, // Must be readable by client JS
     secure: process.env.NODE_ENV === 'production',
@@ -82,10 +84,21 @@ export async function checkCsrf(req: NextRequest): Promise<NextResponse | null> 
   }
 
   // Use timing-safe comparison to prevent timing attacks
-  const cookieBuf = Buffer.from(cookieToken)
-  const headerBuf = Buffer.from(headerToken)
+  const cookieBytes = new TextEncoder().encode(cookieToken)
+  const headerBytes = new TextEncoder().encode(headerToken)
 
-  if (cookieBuf.length !== headerBuf.length || !crypto.timingSafeEqual(cookieBuf, headerBuf)) {
+  if (cookieBytes.length !== headerBytes.length) {
+    return NextResponse.json(
+      { error: 'CSRF token mismatch.' },
+      { status: 403 }
+    )
+  }
+
+  let diff = 0
+  for (let i = 0; i < cookieBytes.length; i++) {
+    diff |= cookieBytes[i] ^ headerBytes[i]
+  }
+  if (diff !== 0) {
     return NextResponse.json(
       { error: 'CSRF token mismatch.' },
       { status: 403 }

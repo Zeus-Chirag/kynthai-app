@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
     }
     // If using local auth (no Supabase cookies), set a signed session cookie
     if (usedLocalAuth) {
-      const signedValue = signSessionToken(user.id);
+      const signedValue = await signSessionToken(user.id);
       if (!signedValue) {
         // Signing failed in production — abort rather than set an unsigned cookie
         return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');

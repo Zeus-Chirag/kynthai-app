@@ -244,7 +244,7 @@ export async function requireAuth(
   let userId: string | null = null
   if (error || !supabaseUser) {
     const kynthaiSession = req.cookies.get('kynthai-session')
-    if (kynthaiSession?.value) userId = verifySessionToken(kynthaiSession.value)
+    if (kynthaiSession?.value) userId = await verifySessionToken(kynthaiSession.value)
     // verifySessionToken returns null on any tampering — fail closed (treat as unauth)
   } else {
     userId = supabaseUser.id
