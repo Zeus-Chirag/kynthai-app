@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { checkCsrf } from '@/lib/csrf';
 import { rateLimit, getIp, isValidEmail } from '@/lib/security';
 import { jsonError, jsonOk, readJson } from '@/lib/api-helpers';
+import { signSessionToken } from '@/lib/session-signing';
 import { loginSchema } from '@/lib/schemas';
 import { logSecurityEvent } from '@/lib/security-audit';
 import { logger } from '@/lib/logger';
@@ -76,14 +77,18 @@ export async function POST(req: NextRequest) {
       isUserMinor: isUserMinorFlag,
     };
     const res = jsonOk(responseBody);
-    // Set a simple session cookie for demo mode
-    res.cookies.set('kyntha-session', user.id, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
-          });
+    // Set a signed session cookie for demo mode
+    const signedValue = signSessionToken(user.id);
+    if (!signedValue) {
+      return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');
+    }
+    res.cookies.set('kyntha-session', signedValue, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+    });
     return res;
   } catch (error) {
     logger.phiSafeError(error, 'demo-login.POST');

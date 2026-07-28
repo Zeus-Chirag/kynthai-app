@@ -1,6 +1,7 @@
 import { z, ZodError } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { verifySessionToken } from './session-signing';
 import { logAudit, getSessionUser } from './auth';
 import { recordAudit, recordAuditSync, AuditContext, AuditCategory } from './audit-logger';
 import { rateLimit, rateLimitProduction, getIp } from './security';
@@ -239,11 +240,12 @@ export async function requireAuth(
   );
   const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
 
-  // Fallback: local kyntha-session cookie for dev/demo mode
+  // Fallback: local kyntha-session cookie for dev/demo mode — HMAC verified
   let userId: string | null = null
   if (error || !supabaseUser) {
     const kynthaSession = req.cookies.get('kyntha-session')
-    if (kynthaSession?.value) userId = kynthaSession.value
+    if (kynthaSession?.value) userId = verifySessionToken(kynthaSession.value)
+    // verifySessionToken returns null on any tampering — fail closed (treat as unauth)
   } else {
     userId = supabaseUser.id
   }

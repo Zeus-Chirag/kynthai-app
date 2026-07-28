@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { logAudit } from '@/lib/auth';
 import { isValidEmail, rateLimit, getIp } from '@/lib/security';
 import { checkCsrf } from '@/lib/csrf';
+import { signSessionToken } from '@/lib/session-signing';
 import {
   jsonError,
   jsonOk,
@@ -156,9 +157,14 @@ export async function POST(req: NextRequest) {
     for (const cookie of supabaseResponseCookies) {
       res.cookies.set(cookie.name, cookie.value, cookie.options as any);
     }
-    // If using local auth (no Supabase cookies), set a simple session cookie
+    // If using local auth (no Supabase cookies), set a signed session cookie
     if (usedLocalAuth) {
-      res.cookies.set('kyntha-session', user.id, {
+      const signedValue = signSessionToken(user.id);
+      if (!signedValue) {
+        // Signing failed in production — abort rather than set an unsigned cookie
+        return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');
+      }
+      res.cookies.set('kyntha-session', signedValue, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

@@ -21,6 +21,7 @@ import { validateEnv } from './lib/env';
 import { recordAudit, AuditCategory } from './lib/audit-logger';
 import { logger } from '@/lib/logger';
 import { checkCsrf } from '@/lib/csrf';
+import { verifySessionToken } from './lib/session-signing';
 
 // HMR-safe env validation (fail-loud in production, skip during build)
 let envValidated = false;
@@ -401,11 +402,15 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
       const payload = JSON.parse(Buffer.from(std, 'base64').toString('utf-8'));
       if (payload.user?.id) supabaseUser = { id: payload.user.id };
     }
-    // Also check for local session cookie (kyntha-session)
+    // Also check for local session cookie (kyntha-session) — HMAC verified
     if (!supabaseUser) {
       const localSessionCookie = cookies.find(c => c.name === 'kyntha-session');
       if (localSessionCookie?.value) {
-        supabaseUser = { id: localSessionCookie.value };
+        const verifiedUserId = verifySessionToken(localSessionCookie.value);
+        if (verifiedUserId) {
+          supabaseUser = { id: verifiedUserId };
+        }
+        // If verifySessionToken returns null the cookie is tampered — treat as unauth
       }
     }
   } catch {
