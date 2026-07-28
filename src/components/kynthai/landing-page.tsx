@@ -282,7 +282,7 @@ function HowItWorks() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {steps.map((s, i) => (
           <div key={s.title} className="group flex h-full">
             <Card className="relative flex w-full flex-col overflow-hidden border-border/60 bg-card transition-all duration-200 hover:-translate-y-1.5 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-900/5">
@@ -366,7 +366,7 @@ function BentoFeatures() {
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-6 lg:grid-cols-12">
+      <div className="mt-4 grid gap-3 md:grid-cols-6 lg:grid-cols-12">
         {/* Big AI chat card */}
         <div className="md:col-span-6 lg:col-span-7">
           <div className="h-full">
@@ -378,7 +378,7 @@ function BentoFeatures() {
                     'radial-gradient(closest-side, rgba(16,185,129,0.5), transparent 70%)',
                 }}
               />
-              <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
+              <CardContent className="flex flex-col gap-3 p-4 sm:p-6">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/30">
                   <Sparkles className="h-5 w-5" />
                 </div>
@@ -413,8 +413,8 @@ function BentoFeatures() {
         </div>
 
         {/* Right column small cards */}
-        <div className="grid gap-4 md:col-span-6 lg:col-span-5">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-3 md:col-span-6 lg:col-span-5">
+          <div className="grid grid-cols-2 gap-3">
             <SmallFeature icon={Bell} title="Smart Reminders" body="Adaptive schedules with snooze & streaks." accent="from-emerald-500 to-emerald-600" />
             <SmallFeature icon={Video} title="Video Consults" body="Book consultations with US-licensed doctors in minutes." accent="from-teal-500 to-teal-600" />
             <SmallFeature icon={Camera} title="Identify Meds" body="Snap a pill — AI suggests what it might be (informational only, not a diagnosis)." accent="from-emerald-500 to-teal-600" />
@@ -432,7 +432,7 @@ function BentoFeatures() {
         {/* Interactions wide card */}
         <div className="md:col-span-6 lg:col-span-7">
           <Card className="h-full border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-card to-emerald-500/5">
-            <CardContent className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:p-8">
+            <CardContent className="flex flex-col items-start gap-3 p-4 sm:flex-row sm:items-center sm:p-6">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-600/30">
                 <AlertTriangle className="h-5 w-5" />
               </div>
@@ -452,18 +452,18 @@ function BentoFeatures() {
 
         <div className="md:col-span-6 lg:col-span-5">
           <Card className="h-full border-emerald-500/20">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <Users className="h-5 w-5" />
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                  <Users className="h-4 w-4" />
                 </div>
                 <h3 className="text-lg font-semibold">Family Care Hub</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Manage up to 4 family members from a single dashboard. Caretakers
                 get live adherence updates, missed-dose alerts and weekly AI insights.
               </p>
-              <div className="mt-4 grid grid-cols-4 gap-2">
+              <div className="mt-3 grid grid-cols-4 gap-2">
                 {['Alex', 'Jordan', 'You', 'Sam'].map((m, i) => (
                   <div
                     key={m}
@@ -487,14 +487,14 @@ function BentoFeatures() {
 
         <div className="md:col-span-6 lg:col-span-5">
           <Card className="h-full border-emerald-500/20">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <TrendingUp className="h-5 w-5" />
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                  <TrendingUp className="h-4 w-4" />
                 </div>
                 <h3 className="text-lg font-semibold">AI Health Insights</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Weekly adherence trends, strengths, concerns, and personalised recommendations.
               </p>
             </CardContent>
@@ -503,14 +503,14 @@ function BentoFeatures() {
 
         <div className="md:col-span-6 lg:col-span-7">
           <Card className="h-full border-emerald-500/20">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <ScanSearch className="h-5 w-5" />
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                  <ScanSearch className="h-4 w-4" />
                 </div>
                 <h3 className="text-lg font-semibold">Prescription Scanner</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Scan a prescription — AI extracts every medication, dose, frequency, and instructions.
               </p>
             </CardContent>
@@ -518,7 +518,7 @@ function BentoFeatures() {
         </div>
       </div>
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-6 flex justify-center">
         <Button variant="outline" size="lg" className="group rounded-full border-border/60 px-8 py-6 text-base hover:border-emerald-500/40 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 hover:shadow-md" onClick={() => document.getElementById('features-anchor')?.scrollIntoView({ behavior: 'smooth' })}>
           See all features
           <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -545,7 +545,7 @@ function SmallFeature({
   return (
     <div className={wide ? 'h-full' : undefined}>
       <Card className="group h-full border-border/60 bg-card/80 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/25 hover:shadow-lg hover:shadow-emerald-900/5">
-        <CardContent className={cn('p-5 sm:p-6', wide && 'flex h-full flex-col justify-between')}>
+        <CardContent className={cn('p-4 sm:p-5', wide && 'flex h-full flex-col justify-between')}
           <div
             className={cn(
               'flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-md transition-transform duration-200 group-hover:scale-110',
@@ -554,7 +554,7 @@ function SmallFeature({
           >
             <DynamicIcon className="h-[18px] w-[18px]" />
           </div>
-          <h3 className="mt-3 text-sm font-semibold">{title}</h3>
+          <h3 className="mt-2 text-sm font-semibold">{title}</h3>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
         </CardContent>
       </Card>
@@ -628,7 +628,7 @@ function UserTypeFeatures({ onGetStarted }: { onGetStarted: (portal?: string) =>
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {features.map((f) => (
           <div key={f.id} className="flex h-full">
             <Card
@@ -746,7 +746,7 @@ function ValueStatements() {
           </p>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-3 items-stretch">
+        <div className="mt-4 grid gap-3 md:grid-cols-3 items-stretch">
           {trustStatements.map((r) => (
             <div key={r.title} className="flex h-full">
               <Card className="flex w-full flex-col gap-4 p-6 transition-all hover:-translate-y-1 hover:shadow-lg">

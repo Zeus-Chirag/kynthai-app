@@ -70,7 +70,7 @@ export function BentoFeatures() {
   return (
     <section
       id="bento-features"
-      className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+      className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
     >
       {/* Section background accent */}
       <div
@@ -98,7 +98,7 @@ export function BentoFeatures() {
         </p>
       </div>
 
-      <div className="mt-10 grid gap-4 md:grid-cols-6 lg:grid-cols-12">
+      <div className="mt-6 grid gap-4 md:grid-cols-6 lg:grid-cols-12">
         {/* Big AI chat card */}
         <div className="md:col-span-6 lg:col-span-7">
           <div className="h-full">
@@ -279,7 +279,7 @@ export function BentoFeatures() {
         </div>
       </div>
 
-      <div className="mt-14 flex justify-center">
+      <div className="mt-6 flex justify-center">
         <Button
           variant="outline"
           size="lg"
