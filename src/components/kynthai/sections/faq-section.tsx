@@ -43,7 +43,7 @@ function FAQ() {
   ];
 
   return (
-    <section className="border-y border-border/60 bg-muted/30 py-16 lg:py-24">
+    <section className="border-y border-border/60 bg-muted/30 py-10 lg:py-16">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <Badge
@@ -67,7 +67,7 @@ function FAQ() {
           </p>
         </div>
 
-        <Card className="mt-10 p-2 sm:p-4">
+        <Card className="mt-4 p-2 sm:p-4">
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((f, i) => (
               <AccordionItem key={f.q} value={`item-${i}`}>

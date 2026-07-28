@@ -9,7 +9,7 @@ import type { LoginPortal } from '@/lib/store';
 
 export function Commission({ onPick }: { onPick: (p: LoginPortal) => void }) {
   return (
-    <section id="features-anchor" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section id="features-anchor" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Badge
           variant="secondary"
@@ -23,7 +23,7 @@ export function Commission({ onPick }: { onPick: (p: LoginPortal) => void }) {
         </p>
       </div>
 
-      <div className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-2">
+      <div className="mx-auto mt-4 grid max-w-4xl gap-3 sm:grid-cols-2">
         <Card className="relative overflow-hidden border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5">
           <CardContent className="p-7">
             <div className="flex items-center gap-3">

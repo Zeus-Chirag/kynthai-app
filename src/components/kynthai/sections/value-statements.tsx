@@ -33,7 +33,7 @@ export function ValueStatements() {
 
   return (
     <section className="relative overflow-hidden border-y border-border/60 bg-gradient-to-b from-emerald-500/5 via-background to-teal-500/5">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
         <div className="mx-auto max-w-2xl text-center">
           <Badge
             variant="secondary"
@@ -53,7 +53,7 @@ export function ValueStatements() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3 items-stretch">
+        <div className="mt-4 grid gap-3 md:grid-cols-3 items-stretch">
           {trustStatements.map(r => (
             <div key={r.title} className="flex h-full">
               <Card className="flex w-full flex-col gap-4 p-6 transition-all hover:-translate-y-1 hover:shadow-lg">

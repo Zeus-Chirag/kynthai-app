@@ -60,7 +60,7 @@ function UserTypeFeatures({ onGetStarted }: { onGetStarted: (portal?: string) =>
   return (
     <section
       aria-labelledby="features-user-type-heading"
-      className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+      className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
     >
       <div className="mx-auto max-w-2xl text-center">
         <Badge
@@ -80,7 +80,7 @@ function UserTypeFeatures({ onGetStarted }: { onGetStarted: (portal?: string) =>
         </p>
       </div>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {features.map(f => (
           <div key={f.id} className="flex h-full">
             <Card

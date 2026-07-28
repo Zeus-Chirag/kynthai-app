@@ -26,11 +26,11 @@ function HonestSocialProof() {
           background: 'radial-gradient(closest-side, rgba(16,185,129,0.1) 0%, transparent 70%)',
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-        <div className="grid gap-8 lg:grid-cols-2">
+      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="grid gap-6 lg:grid-cols-2">
           {/* Left: what we're building */}
           <div>
-            <div className="mx-auto max-w-2xl text-center lg:text-left lg:mx-0 mb-10">
+            <div className="mx-auto max-w-2xl text-center lg:text-left lg:mx-0 mb-6">
               <Badge
                 variant="secondary"
                 className="mb-4 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium"
@@ -89,7 +89,7 @@ function HonestSocialProof() {
         </div>
 
         {/* Trust strip */}
-        <div className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-6 py-5">
+        <div className="mx-auto mt-6 flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-6 py-4">
           {[
             { label: 'Building in public', Icon: Sparkles },
             { label: 'AI-powered reminders', Icon: Bell },

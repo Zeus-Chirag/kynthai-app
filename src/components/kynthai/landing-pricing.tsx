@@ -56,7 +56,7 @@ export function LandingPricing({ onGetStarted }: { onGetStarted: () => void }) {
   ]
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Badge
           variant="secondary"
@@ -76,7 +76,7 @@ export function LandingPricing({ onGetStarted }: { onGetStarted: () => void }) {
         </div>
       </div>
 
-      <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3 items-stretch">
+      <div className="mx-auto mt-6 grid max-w-5xl gap-3 md:grid-cols-3 items-stretch">
         {tiers.map((t) => (
           <Card
             key={t.name}

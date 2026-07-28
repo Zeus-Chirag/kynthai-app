@@ -34,7 +34,7 @@ export function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Badge
           variant="secondary"
@@ -52,7 +52,7 @@ export function HowItWorks() {
       </div>
 
       {/* Step connector line (desktop only) */}
-      <div className="pointer-events-none relative mt-10 hidden lg:block" aria-hidden="true">
+      <div className="pointer-events-none relative mt-6 hidden lg:block" aria-hidden="true">
         <div className="mx-auto max-w-5xl">
           <div
             className="h-px w-full bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent"
@@ -61,7 +61,7 @@ export function HowItWorks() {
         </div>
       </div>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {steps.map((s, i) => (
           <div key={s.title} className="group flex h-full">
             <Card className="relative flex w-full flex-col overflow-hidden border-border/60 bg-card transition-all duration-200 hover:-translate-y-1.5 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-900/5">

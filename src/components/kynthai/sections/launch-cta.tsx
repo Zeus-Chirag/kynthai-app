@@ -11,7 +11,7 @@ import type { LoginPortal } from '@/lib/store';
 /* ------------------------------------------------------------------ */
 export function LaunchCTA({ onPickPortal }: { onPickPortal: (portal: LoginPortal) => void }) {
   return (
-    <section className="border-y border-border/60 bg-gradient-to-b from-emerald-500/[0.03] to-teal-500/[0.03] py-16 lg:py-20">
+    <section className="border-y border-border/60 bg-gradient-to-b from-emerald-500/[0.03] to-teal-500/[0.03] py-10 lg:py-14">
       <div className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
         <Badge
           variant="secondary"

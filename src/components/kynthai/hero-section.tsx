@@ -37,7 +37,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         />
       </div>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-20">
+      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-16">
         {/* Left: copy column */}
         <div>
           {/* Trust badge */}

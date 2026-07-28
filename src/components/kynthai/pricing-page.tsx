@@ -446,7 +446,7 @@ export function PricingPage() {
 
         {/* Platform fee transparency cards */}
         <Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5">
               <CardContent className="p-5 sm:p-6">
                 <div className="flex items-start gap-4">
