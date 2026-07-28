@@ -38,9 +38,9 @@ npx license-checker --summary
 | **Zod** | ^3.23.8 | MIT | Colin McDonnell | https://github.com/colinhacks/zod/blob/master/LICENSE |
 | **Zustand** | ^5.0.14 | MIT | Paul Henschel | https://github.com/pmndrs/zustand/blob/main/LICENSE |
 | **Prisma** (engine + client) | ^6.11.1 | Apache-2.0 | Prisma (formerly Prisma.io) | https://github.com/prisma/prisma/blob/main/LICENSE |
-| **Stripe** | ^22.2.2 | MIT | Stripe, Inc. | https://github.com/stripe/stripe-node/blob/master/LICENSE.md |
+| **Stripe** | ^22.2.2 | MIT | Stripe, Inc. | https://github.com/stripe/stripe-node/blob/master/LICENSE |
 | **OpenAI SDK** | ^6.45.0 | Apache-2.0 | OpenAI, Inc. | https://github.com/openai/openai-node/blob/main/LICENSE |
-| **ZenMux** *(via ZAI_MODEL / AI provider)* | N/A (API service) | Proprietary (API T&C) | ZenMux / ZenMux Labs | https://zenmux.ai/terms (or equivalent vendor T&C) |
+| **ZenMux** *(via ZAI_MODEL / AI provider)* | N/A (API service) | Proprietary (API T&C) | ZenMux / ZenMux Labs | https://zenmux.ai/ (or equivalent vendor T&C) |
 
 ### Additional Notable Dependencies
 
