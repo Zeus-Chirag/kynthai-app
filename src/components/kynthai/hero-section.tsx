@@ -4,7 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
-import { PhoneMockup } from './phone-mockup';
+import { PhoneMockup } from './phone-mockup-wrapper';
 
 interface HeroSectionProps {
   onGetStarted: (portal?: string) => void;
