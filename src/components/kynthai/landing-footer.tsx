@@ -63,9 +63,13 @@ export function LandingFooter() {
             title="Product"
             links={[
               { label: 'Pricing', href: '/pricing' },
+              { label: 'How It Works', href: '/#how-it-works' },
+              { label: 'Features', href: '/#bento-features' },
+              { label: 'FAQ', href: '/#faq' },
               { label: 'Family Portal', onClick: () => router.push('/login') },
               { label: 'Doctor Portal', onClick: () => router.push('/login') },
               { label: 'Lab Portal', onClick: () => router.push('/login') },
+              { label: 'Reviews', href: '/#reviews' },
             ]}
           />
 
@@ -77,6 +81,10 @@ export function LandingFooter() {
               { label: 'Symptom Analyzer', onClick: () => router.push('/login') },
               { label: 'Identify Medicine', onClick: () => router.push('/login') },
               { label: 'Drug Interactions', onClick: () => router.push('/login') },
+              { label: 'Prescription Scanner', onClick: () => router.push('/login') },
+              { label: 'Health Insights', onClick: () => router.push('/login') },
+              { label: 'Smart Reminders', onClick: () => router.push('/login') },
+              { label: 'Lab Test Booking', onClick: () => router.push('/login') },
             ]}
           />
 
