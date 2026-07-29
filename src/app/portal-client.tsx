@@ -219,7 +219,10 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   // ── Onboarding ─────────────────────────────────────────────────────────
   // In demo mode, skip onboarding entirely — auto-complete immediately
   const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
-  if (!onboardingComplete && !isDemoMode) {
+  // Only show onboarding for authenticated users on their first login,
+  // NOT for first-time visitors to the landing page (they should see the marketing site)
+  const isAuthenticatedVisitor = !!user;
+  if (!onboardingComplete && !isDemoMode && isAuthenticatedVisitor) {
     return (
       <ErrorBoundary>
         <Onboarding
