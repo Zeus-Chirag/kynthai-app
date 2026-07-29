@@ -1,11 +1,9 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { PhoneMockup } from './phone-mockup';
 
 interface HeroSectionProps {
@@ -41,11 +39,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         {/* Left: copy column */}
         <div>
           {/* Trust badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <div>
             <Badge
               variant="secondary"
               className="mb-3 sm:mb-4 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium text-[11px] sm:text-sm"
@@ -53,54 +47,34 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Built for the US · Privacy-first · Secure billing
             </Badge>
-          </motion.div>
+          </div>
 
           {/* H1 — dominant, high-contrast */}
-          <motion.h1
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="text-balance text-[2rem] leading-[1.08] font-bold tracking-tight sm:text-5xl lg:text-[3.7rem]"
-          >
+          <h1 className="text-balance text-[2rem] leading-[1.08] font-bold tracking-tight sm:text-5xl lg:text-[3.7rem]">
             America&apos;s AI health companion
             <br />
             <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
               for every member of your family.
             </span>
-          </motion.h1>
+          </h1>
 
           {/* Gradient subline — higher visual rank than plain text */}
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-3 text-base font-semibold sm:mt-4 sm:text-xl lg:text-2xl"
-          >
+          <p className="mt-3 text-base font-semibold sm:mt-4 sm:text-xl lg:text-2xl">
             <span className="bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent">
               Smart reminders, verified doctors &amp; lab tests
             </span>
             <span className="text-foreground"> — all in one trusted app.</span>
-          </motion.p>
+          </p>
 
           {/* Body copy — relaxed leading, muted opacity */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.26 }}
-            className="mt-2 max-w-xl text-pretty text-sm leading-relaxed text-foreground/75 sm:mt-3 sm:text-base lg:text-lg"
-          >
+          <p className="mt-2 max-w-xl text-pretty text-sm leading-relaxed text-foreground/75 sm:mt-3 sm:text-base lg:text-lg">
             Missed doses, confusing labels, scheduling headaches — Kynthai brings smart reminders,
             AI-guided medication information, verified consults, and home diagnostic tests together.
             Built in the US, for US families, in USD, with Privacy-first safeguards.
-          </motion.p>
+          </p>
 
           {/* CTA buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.34 }}
-            className="mt-4 flex flex-col gap-2 sm:mt-5 sm:flex-row sm:items-center sm:gap-3"
-          >
+          <div className="mt-4 flex flex-col gap-2 sm:mt-5 sm:flex-row sm:items-center sm:gap-3">
             <Button
               size="lg"
               onClick={() => onGetStarted('caretaker')}
@@ -120,15 +94,10 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             >
               See How It Works
             </Button>
-          </motion.div>
+          </div>
 
           {/* Trust pill-row */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.45 }}
-            className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium text-muted-foreground sm:mt-6 sm:gap-x-5 sm:text-xs"
-          >
+          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium text-muted-foreground sm:mt-6 sm:gap-x-5 sm:text-xs">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Privacy-first
             </span>
@@ -140,7 +109,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             <span className="font-semibold text-foreground">Free to start</span>
             <span className="h-1 w-1 rounded-full bg-border" aria-hidden />
             <span>No credit card required</span>
-          </motion.div>
+          </div>
         </div>
 
         {/* Right: phone mockup — visible on all screens */}

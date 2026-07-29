@@ -1,59 +1,65 @@
-/**
- * @type {import('next').NextConfig}
- */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Ensure Next.js 16 compatibility with Vercel
-  // The Adapters API in Next.js 16.2 may conflict with Vercel's deployment
-  // Pinning output ensures proper function exports
-  output: undefined,
+  // Enable SWC minification for faster builds (already default in Next.js 15)
+  swcMinify: true,
 
+  // Compress responses with gzip
+  compress: true,
+
+  // Enable React strict mode for development
+  reactStrictMode: true,
+
+  // Optimize images
   images: {
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    deviceSizes: [375, 640, 750, 1080, 1200, 1920],
   },
-  // Hide Next.js version fingerprint from responses
-  poweredByHeader: false,
 
-  // Security headers
+  // Experimental: optimize CSS, bundle analysis
+  experimental: {
+    optimizeCss: false, // Set to true if @next/bundle-analyzer is installed
+    scrollRestoration: true,
+  },
+
+  // Production source maps (hidden in prod, available for error tracking)
+  productionBrowserSourceMaps: false,
+
+  // Headers for performance and security
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/(.*)',
         headers: [
-          { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=()' },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+        ],
+      },
+      {
+        source: '/fonts/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
     ];
   },
-
-  experimental: {
-    serverActions: { bodySizeLimit: '2mb' },
-  },
-  turbopack: {
-    resolveAlias: {
-      '@': './src',
-    },
-  },
-
-  // Disable Next.js telemetry
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 };
 
-// Bundle analyzer (run with ANALYZE=true npm run build)
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
-
-module.exports = withBundleAnalyzer(nextConfig);
+export default nextConfig;
