@@ -12,11 +12,8 @@ type UsersRow = Database['public']['Tables']['users']['Row'];
 // Typed query wrappers — bypass PostgrestBuilder inference issues by going
 // through `any` at the helper boundary; the type aliases above still provide
 // payload-level type safety at each call site.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sbUsers = () => (supabase as any).from('users');
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sbInsertUsers = (payload: UsersInsert) => sbUsers().insert(payload) as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sbSelectUsersById = (userId: string) =>
   sbUsers().select('*').eq('id', userId).single() as any;
 

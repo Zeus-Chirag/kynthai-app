@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const autocannon = require('autocannon');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';

@@ -11,7 +11,6 @@ export const isSupabaseConfigured = () => {
 };
 
 // Generic query helper
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function sb<T>(
   table: string,
   query: (client: any) => Promise<{ data: T | null; error: Error | null }>

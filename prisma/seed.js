@@ -3,6 +3,7 @@
  * Creates demo users across all 4 portals + admin.
  * Run: node prisma/seed.js
  */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 

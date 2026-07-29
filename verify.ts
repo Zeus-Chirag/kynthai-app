@@ -8,7 +8,7 @@
  * No build needed — purely read + regex checks.
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = process.cwd();
@@ -141,8 +141,7 @@ check('patient-app: has proper state management with useCallback', () => {
 const apiRoutesDir = join(ROOT, 'src/app/api');
 let apiRouteFiles: string[] = [];
 try {
-  apiRouteFiles = require('node:fs')
-    .readdirSync(apiRoutesDir)
+  apiRouteFiles = readdirSync(apiRoutesDir)
     .filter((f: string) => f.endsWith('.ts'))
     .map((f: string) => join(apiRoutesDir, f));
 } catch {

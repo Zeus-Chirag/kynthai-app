@@ -4,11 +4,14 @@
 
 // Lazy import to avoid PrismaClient instantiation at edge/runtime import time
 let _db: any = null
-function getDb() {
-  if (!_db) {
-    const mod = require('@/lib/db')
-    _db = mod.db
+let _dbPromise: Promise<any> | null = null
+async function getDb() {
+  if (_db) return _db
+  if (!_dbPromise) {
+    _dbPromise = import('@/lib/db')
   }
+  const mod = await _dbPromise
+  _db = mod.db
   return _db
 }
 
@@ -144,7 +147,8 @@ function scheduleFlush(): void {
     if (auditQueue.length === 0) return
     const batch = auditQueue.splice(0, 50)
     try {
-      await getDb().auditLog.createMany({
+      const db = await getDb()
+      await db.auditLog.createMany({
         data: batch.map(({ userId, action, ctx }) => ({
           userId,
           action,
@@ -186,7 +190,8 @@ export async function recordAuditSync(
 ): Promise<{ ok: boolean }> {
   const category = ctx.category ?? categorizeAction(action)
   try {
-    await getDb().auditLog.create({
+    const db = await getDb()
+    await db.auditLog.create({
       data: {
         userId,
         action,
@@ -252,9 +257,10 @@ export async function queryAuditLogs(query: AuditLogQuery): Promise<{ logs: any[
     if (query.endDate) c.lte = query.endDate
     where.createdAt = c
   }
+  const db = await getDb()
   const [logs, total] = await Promise.all([
-    getDb().auditLog.findMany({ where, orderBy: { createdAt: 'desc' }, take: query.limit ?? 100, skip: query.offset ?? 0 }),
-    getDb().auditLog.count({ where }),
+    db.auditLog.findMany({ where, orderBy: { createdAt: 'desc' }, take: query.limit ?? 100, skip: query.offset ?? 0 }),
+    db.auditLog.count({ where }),
   ])
   const hasMore = (query.offset ?? 0) + logs.length < total
   const nextCursor = hasMore ? Buffer.from(`${query.offset ?? 0 + (query.limit ?? 100)}`).toString('base64') : null
@@ -274,5 +280,6 @@ export async function countAuditEvents(query: Omit<AuditLogQuery, 'limit' | 'off
     if (query.endDate) c.lte = query.endDate
     where.createdAt = c
   }
-  return getDb().auditLog.count({ where })
+  const db = await getDb()
+  return db.auditLog.count({ where })
 }

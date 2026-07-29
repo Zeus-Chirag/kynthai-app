@@ -22,9 +22,9 @@ export function LandingFooter() {
   return (
     <footer className="border-t border-border/60 bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 sm:gap-10 md:gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
-          <div>
+          <div className="border-b border-border/40 pb-6 md:border-0 md:pb-0">
             <KynthaiBrand />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               Health management for families, patients, doctors and labs — in one beautiful app.
