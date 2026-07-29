@@ -545,7 +545,7 @@ function SmallFeature({
   return (
     <div className={wide ? 'h-full' : undefined}>
       <Card className="group h-full border-border/60 bg-card/80 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/25 hover:shadow-lg hover:shadow-emerald-900/5">
-        <CardContent className={cn('p-4 sm:p-5', wide && 'flex h-full flex-col justify-between')}
+        <CardContent className={cn('p-4 sm:p-5', wide && 'flex h-full flex-col justify-between')}>
           <div
             className={cn(
               'flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-md transition-transform duration-200 group-hover:scale-110',
