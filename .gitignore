@@ -115,3 +115,7 @@ CLAUDE.md
 test-results/
 .env.production
 .env.staging
+
+# Vercel env-var seed (secrets stay local)
+scripts/.vercel-env.local.json
+*.local.json

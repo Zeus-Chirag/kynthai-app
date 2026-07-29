@@ -1,0 +1,13 @@
+{
+  "_doc": "Template for scripts/.vercel-env.local.json (gitignored). Copy this file, replace placeholders, and pass it to: VERCEL_TOKEN=... node scripts/apply-vercel-env.mjs scripts/.vercel-env.local.json",
+  "_projectId_note": "Get this from Vercel → Project → Settings → General → Project ID",
+  "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxx",
+  "vars": [
+    { "key": "NEXT_PUBLIC_SUPABASE_URL",      "value": "https://YOUR_PROJECT.supabase.co", "type": "plain" },
+    { "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY", "value": "eyJhbGc...", "type": "sensitive" },
+    { "key": "SUPABASE_SERVICE_ROLE_KEY",     "value": "eyJhbGc...", "type": "sensitive" },
+    { "key": "DATABASE_URL",                  "value": "postgresql://...", "type": "sensitive" },
+    { "key": "NEXTAUTH_SECRET",               "value": "<openssl rand -hex 32>", "type": "sensitive" },
+    { "key": "ENCRYPTION_KEY",                "value": "<openssl rand -hex 32>", "type": "sensitive" }
+  ]
+}
