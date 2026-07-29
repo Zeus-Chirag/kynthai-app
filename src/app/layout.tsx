@@ -115,24 +115,18 @@ export default function RootLayout({
         )}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased text-foreground`}
       >
-        {/* Chunk load error auto-retry — prevents black screens */}
+        {/* Graceful chunk-load recovery — silently retries once, then shows a helpful message instead of infinite reloads */}
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
-            var retryKey='kynthai-chunk-retry';
+            var retried=sessionStorage.getItem('kynthai-chunk-retry');
+            if(retried){sessionStorage.removeItem('kynthai-chunk-retry')}
             window.addEventListener('error',function(e){
-              if(e.message && (e.message.indexOf('ChunkLoadError')!==-1 || e.message.indexOf('Loading chunk')!==-1)){
-                var n=parseInt(sessionStorage.getItem(retryKey)||'0',10);
-                if(n<3){
-                  sessionStorage.setItem(retryKey,String(n+1));
-                  // Clear service worker cache on retry
-                  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(s){s.unregister()})})}
-                  window.location.reload(true);
-                }else{
-                  sessionStorage.removeItem(retryKey);
-                  // Final fallback: clear all storage and reload
-                  try{localStorage.clear();sessionStorage.clear()}catch(x){}
+              if(e.message&&(e.message.indexOf('ChunkLoadError')!==-1||e.message.indexOf('Loading chunk')!==-1)){
+                var n=parseInt(sessionStorage.getItem('kynthai-chunk-retry')||'0',10);
+                if(n<1){
+                  sessionStorage.setItem('kynthai-chunk-retry','1');
                   window.location.reload(true);
                 }
               }
