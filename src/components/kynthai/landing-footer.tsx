@@ -18,8 +18,8 @@ export function LandingFooter() {
 
   return (
     <footer className="border-t border-border/60 bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-8 sm:gap-10 md:gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="grid gap-6 sm:gap-6 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="border-b border-border/40 pb-6 md:border-0 md:pb-0">
             <KynthaiBrand />
@@ -135,8 +135,8 @@ type FooterLink =
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <nav aria-label={title}>
-      <p className="text-sm font-semibold text-foreground">{title}</p>
-      <ul className="mt-3 space-y-2" role="list">
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/80">{title}</p>
+      <ul className="mt-2.5 space-y-1.5" role="list">
         {links.map(l => (
           <li key={l.label}>
             {l.href ? (
