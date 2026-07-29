@@ -516,7 +516,7 @@ export function LoginPage({
                         onChange={e => setPhone(e.target.value)}
                         autoComplete="tel"
                       />
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Used only for account security and care-team alerts.
                       </p>
                     </div>
@@ -585,7 +585,7 @@ export function LoginPage({
                       <button
                         type="button"
                         onClick={() => setShowPassword(s => !s)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-muted-foreground hover:text-foreground"
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? (
@@ -610,7 +610,7 @@ export function LoginPage({
                         onCheckedChange={v => setTermsConsent(v === true)}
                         className="mt-0.5"
                       />
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[13px] text-muted-foreground leading-relaxed">
                         I agree to the{' '}
                         <button
                           type="button"
@@ -636,7 +636,7 @@ export function LoginPage({
                         onCheckedChange={v => setDataConsent(v === true)}
                         className="mt-0.5"
                       />
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[13px] text-muted-foreground leading-relaxed">
                         I consent to processing of my personal and health data under US health
                         data laws.{' '}
                         <span className="font-medium text-foreground">Privacy-first</span>.
@@ -648,7 +648,7 @@ export function LoginPage({
                         onCheckedChange={v => setAiTrainingConsent(v === true)}
                         className="mt-0.5"
                       />
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-[13px] text-muted-foreground leading-relaxed">
                         I consent to letting Kynthai use <em>de-identified</em> health data to
                         improve AI features. My personal data is never shared or identifiable. See
                         the{' '}
