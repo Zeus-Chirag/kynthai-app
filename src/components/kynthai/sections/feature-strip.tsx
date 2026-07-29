@@ -12,7 +12,7 @@ export function FeatureStrip() {
     { label: 'US-built', icon: Users },
   ];
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-6 py-4 backdrop-blur-sm">
         {items.map(it => (
           <div

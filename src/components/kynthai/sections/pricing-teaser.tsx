@@ -87,7 +87,7 @@ function PricingTeaser({
   return (
     <section
       id="pricing-preview"
-      className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
+      className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20"
     >
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-50"
@@ -123,7 +123,7 @@ function PricingTeaser({
         </div>
       </div>
 
-      <div className="mx-auto mt-6 grid max-w-5xl gap-3 md:grid-cols-3 items-stretch">
+      <div className="mx-auto mt-8 grid max-w-5xl gap-4 sm:gap-5 md:grid-cols-3 items-stretch">
         {tiers.map(t => (
           <div key={t.name} className={cn('flex h-full', t.highlight ? 'md:-mt-2 md:mb-0' : '')}>
             <Card

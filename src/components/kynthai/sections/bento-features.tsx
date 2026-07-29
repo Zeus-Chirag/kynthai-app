@@ -70,7 +70,7 @@ export function BentoFeatures() {
   return (
     <section
       id="bento-features"
-      className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
+      className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20"
     >
       {/* Section background accent */}
       <div
@@ -98,7 +98,7 @@ export function BentoFeatures() {
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-6 lg:grid-cols-12">
+      <div className="mt-8 grid gap-3 sm:gap-4 md:grid-cols-6 lg:grid-cols-12 lg:gap-5">
         {/* Big AI chat card */}
         <div className="md:col-span-6 lg:col-span-7">
           <div className="h-full">
@@ -150,7 +150,7 @@ export function BentoFeatures() {
 
         {/* Right column small cards */}
         <div className="grid gap-4 md:col-span-6 lg:col-span-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <SmallFeature
               icon={Bell}
               title="Smart Reminders"
@@ -223,7 +223,7 @@ export function BentoFeatures() {
                 Manage up to 4 family members from a single dashboard. Caretakers get live adherence
                 updates, missed-dose alerts and weekly AI insights.
               </p>
-              <div className="mt-4 grid grid-cols-4 gap-2">
+                <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
                 {['Alex', 'Jordan', 'You', 'Sam'].map((m, i) => (
                   <div
                     key={m}
