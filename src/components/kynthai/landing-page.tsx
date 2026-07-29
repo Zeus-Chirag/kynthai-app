@@ -57,6 +57,7 @@ import { EarlyAdopterBanner } from './early-adopter-banner'
 import { EarlyAdopterCard } from './early-adopter-card'
 import { HeroSection } from './hero-section'
 import { WhyAmericaSection } from './sections/why-america-section'
+import { FAQ } from './sections/faq-section'
 
 // AI feature count — update this when adding/removing AI features.
 // Matches the AI-related API routes and UI features.
