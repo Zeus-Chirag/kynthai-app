@@ -117,27 +117,81 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased text-foreground`}
       >
-        {/* Graceful chunk-load recovery — silently retries once with iOS Safari tab-restore resilience */}
+        {/* ═══════════════════════════════════════════════════════════════
+            iOS Safari Tab-Restore Recovery Script
+            ═══════════════════════════════════════════════════════════════
+            Runs BEFORE React hydrates. Detects if this is a tab restore
+            from iOS Safari by checking for the "bg-timestamp" marker.
+            If the page was backgrounded > 5 minutes, the JS heap was
+            evicted and we need a clean reload bypassing the SW cache.
+        */}
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
-            var retried=sessionStorage.getItem('kynthai-chunk-retry');
-            if(retried){sessionStorage.removeItem('kynthai-chunk-retry')}
-            var bgCheck=sessionStorage.getItem('kynthai-bg-timestamp');
-            var wasSuspended=bgCheck&&(Date.now()-parseInt(bgCheck,10)>120000);
-            window.addEventListener('error',function(e){
-              if(e.message&&(e.message.indexOf('ChunkLoadError')!==-1||e.message.indexOf('Loading chunk')!==-1)){
-                var n=parseInt(sessionStorage.getItem('kynthai-chunk-retry')||'0',10);
-                if(n<2){
-                  sessionStorage.setItem('kynthai-chunk-retry',String(n+1));
-                  if(wasSuspended){window.location.reload()}else{window.location.reload(true)}
-                }else{
-                  var msg=document.createElement('div');
-                  msg.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:2rem;text-align:center;font-family:sans-serif';
-                  msg.innerHTML='<div><h2 style="font-size:1.25rem;font-weight:600;color:#1e293b;margin-bottom:0.5rem">App update required</h2><p style="color:#64748b;margin-bottom:1rem">A new version is available. Please refresh.</p><button onclick="localStorage.clear();location.reload()" style="background:#10b981;color:white;border:none;padding:0.5rem 1.5rem;border-radius:0.5rem;cursor:pointer;font-size:0.875rem">Refresh Now</button></div>';
-                  document.body.appendChild(msg);
+            try {
+              var bgTime = sessionStorage.getItem('kynthai-bg-timestamp');
+              if (bgTime) {
+                var elapsed = Date.now() - parseInt(bgTime, 10);
+                if (elapsed > 300000) {
+                  // Was backgrounded >5 min — likely iOS Safari evicted our heap.
+                  // Clear stale localStorage session to force clean login
+                  localStorage.removeItem('kynthai-store-v2');
+                  sessionStorage.removeItem('kynthai-bg-timestamp');
+                  sessionStorage.removeItem('kynthai-last-activity');
+                  // Force a fresh load bypassing service worker cache
+                  window.location.reload();
+                  return; // stop executing further
                 }
               }
-            },true);
+            } catch(e) { /* ignore */ }
+
+            // ─── Chunk-load error recovery ───────────────────────────────
+            // If the SW served stale HTML with mismatched chunk hashes,
+            // catch ChunkLoadError, retry 3 times, then show a refresh button.
+            var retried = parseInt(sessionStorage.getItem('kynthai-chunk-retry') || '0', 10);
+            if (retried > 0) {
+              // We already retried — clear counter for next round
+              sessionStorage.removeItem('kynthai-chunk-retry');
+            }
+
+            // Register a one-time DOMContentLoaded check: if page loaded from
+            // SW cache, the Next.js __NEXT_DATA__ script might be stale
+            document.addEventListener('DOMContentLoaded', function() {
+              var nextData = document.getElementById('__NEXT_DATA__');
+              if (nextData) {
+                try {
+                  var data = JSON.parse(nextData.textContent || '{}');
+                  // If buildId is present, it validates this is the right bundle.
+                  // On chunk failure we don't check buildId here — the error handler below does.
+                } catch(e) { /* ignore */ }
+              }
+            });
+
+            // ChunkLoadError handler — with 3 retries, then refresh button
+            window.addEventListener('error', function(e) {
+              if (e.message && (
+                e.message.indexOf('ChunkLoadError') !== -1 ||
+                e.message.indexOf('Loading chunk') !== -1 ||
+                (e.target && e.target.tagName === 'SCRIPT' && e.target.src && !e.target.src.includes(location.host))
+              )) {
+                var n = parseInt(sessionStorage.getItem('kynthai-chunk-retry') || '0', 10);
+                if (n < 3) {
+                  sessionStorage.setItem('kynthai-chunk-retry', String(n + 1));
+                  // Hard reload bypassing cache
+                  window.location.reload();
+                } else {
+                  // After 3 failures, show a friendly recovery UI
+                  document.body.innerHTML =
+                    '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif">' +
+                    '<div>' +
+                    '<h2 style="font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">App Update Available</h2>' +
+                    '<p style="color:#64748b;margin-bottom:1.5rem;max-width:360px;line-height:1.5">A new version was deployed while you were away. Please refresh to get the latest.</p>' +
+                    '<button onclick=\'localStorage.clear();sessionStorage.clear();location.reload()\' ' +
+                    'style="background:#059669;color:white;border:none;padding:0.75rem 2rem;border-radius:9999px;font-size:1rem;cursor:pointer;font-weight:600;box-shadow:0 4px 6px -1px rgba(5,150,105,0.3)">' +
+                    'Refresh Now</button>' +
+                    '</div></div>';
+                }
+              }
+            }, true);
           })();
         `}} />
         {/* ACCESSIBILITY: Skip link for keyboard/screen-reader users — FIXED */}

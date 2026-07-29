@@ -187,51 +187,31 @@ export const useAppStore = create<AppState>()(
       onRehydrateStorage: () => state => {
         if (!state) return;
 
-        // ─── iOS Safari tab-restore guard ────────────────────────────────
-        // After hours in the background, Safari may restore a stale persisted
-        // state with an expired backend token. Detect this by checking if the
-        // persisted session is older than 30 minutes — if so, force logout
-        // to show a clean login screen instead of an empty broken dashboard.
+        // ─── Corrupted localStorage recovery ─────────────────────────────
+        // If the persisted data is corrupt (not JSON), clear it and start fresh.
+        // Otherwise just mark as hydrated — let the rest of the app handle
+        // stale sessions via the AuthGuard component.
         const storedRaw = typeof window !== 'undefined'
           ? window.localStorage?.getItem('kynthai-store-v2')
           : null;
         if (storedRaw && state.user) {
           try {
             const parsed = JSON.parse(storedRaw);
-            if (parsed?.state?.user?.id) {
-              const persisted = parsed.state;
-              // Check if user was logged in for more than 30 min with no activity
-              // by checking against page reload timestamp in sessionStorage
-              const lastActivity = parseInt(
-                window.sessionStorage?.getItem('kynthai-last-activity') || '0', 10
-              );
-              const now = Date.now();
-              const idleMs = now - (lastActivity || now);
-              const isTabRestore = !lastActivity && document?.visibilityState === 'visible';
-              // If the page was freshly loaded (no last-activity marker) AND
-              // the persisted user session looks real, it's likely a tab restore.
-              // Force logout so the user sees the login screen instead of broken UI.
-              if ((idleMs > 30 * 60 * 1000 || isTabRestore) && !persisted.isDemo) {
-                // Clear the persisted session
-                window.localStorage?.removeItem('kynthai-store-v2');
-                state.setHydrated(true);
-                state.logout();
-                return;
-              }
+            if (!parsed?.state?.user?.id) {
+              // Incomplete stored state — clear it
+              window.localStorage?.removeItem('kynthai-store-v2');
+              state.setHydrated(true);
+              state.logout();
+              return;
             }
           } catch {
-            // Corrupted localStorage — clear it and start fresh
+            // Corrupted JSON — clear it
             window.localStorage?.removeItem('kynthai-store-v2');
             state.setHydrated(true);
             state.logout();
             return;
           }
         }
-
-        // Mark activity timestamp for next tab-restore detection
-        try {
-          window.sessionStorage?.setItem('kynthai-last-activity', String(Date.now()));
-        } catch { /* sessionStorage may not be available */ }
 
         state.setHydrated(true);
       },
