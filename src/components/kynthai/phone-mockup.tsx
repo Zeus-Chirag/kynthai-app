@@ -24,7 +24,26 @@ import {
 import { cn } from '@/lib/utils';
 import { KynthaiIcon } from './logo';
 
-/** ── CSS keyframes (injected once) ─────────────────────────────────── */
+/* ── Entrance animation — fast, 2 groups ─────────────────────────────── */
+const containerEntrance = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+const sectionEntrance = (i: number) => ({
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0.04 * i, duration: 0.3, ease: 'easeOut' as const },
+  },
+});
+
+/** ── CSS keyframes for infinite animations (injected once) ──────────── */
 const STYLES_ID = 'kynthai-phone-styles';
 
 function injectStyles() {
@@ -32,26 +51,14 @@ function injectStyles() {
   const css = `
     @keyframes phone-pulse-bell { 0%,100%{transform:scale(1)} 50%{transform:scale(1.35)} }
     @keyframes phone-ring-pulse { 0%,100%{opacity:0;transform:scale(0.85)} 50%{opacity:0.2;transform:scale(1.25)} 100%{opacity:0;transform:scale(1.6)} }
-    @keyframes phone-badge-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
     @keyframes phone-tick { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-3px)} 50%{transform:translateY(0)} 75%{transform:translateY(-1px)} }
     @keyframes phone-sheen { from{transform:translateX(-100%) skew(-15deg)} to{transform:translateX(300%) skew(-15deg)} }
-    @keyframes phone-spin-slow { from{transform:translateX(-100%) skew(-15deg)} to{transform:translateX(300%) skew(-15deg)} }
   `;
   const style = document.createElement('style');
   style.id = STYLES_ID;
   style.textContent = css;
   document.head.appendChild(style);
 }
-
-/** ── Entrance animation — unified, fast ──────────────────────────────── */
-const entrance = {
-  initial: { opacity: 0, y: 10 },
-  animate: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.03 * i, duration: 0.3, ease: 'easeOut' },
-  }),
-};
 
 function RingPulse({ className }: { className: string }) {
   return (
@@ -73,16 +80,14 @@ export function PhoneMockup({
   className?: string;
   ariaHidden?: boolean;
 }) {
-  // Inject CSS keyframes once
   React.useEffect(() => { injectStyles(); }, []);
 
   return (
-    <div
-      className={cn(
-        'relative mx-auto w-full max-w-[270px] sm:max-w-[305px]',
-        'animate-in fade-in duration-700',
-        className,
-      )}
+    <motion.div
+      variants={containerEntrance}
+      initial="hidden"
+      animate="visible"
+      className={cn('relative mx-auto w-full max-w-[270px] sm:max-w-[305px]', className)}
       aria-hidden={ariaHidden}
     >
       {/* ── Layered glow background ─────────────────────────────────── */}
@@ -95,13 +100,10 @@ export function PhoneMockup({
         }}
       />
       <RingPulse className="-inset-4 h-[110%] w-[110%]" />
-      <RingPulse
-        className="left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2"
-      />
+      <RingPulse className="left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2" />
 
       {/* ── Phone body ──────────────────────────────────────────────── */}
       <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[3px] shadow-2xl shadow-emerald-900/50 sm:p-[4px]">
-        {/* top-edge sheen */}
         <div
           className="pointer-events-none absolute inset-0 rounded-[3rem]"
           aria-hidden
@@ -142,30 +144,25 @@ export function PhoneMockup({
           </div>
 
           {/* ── Hero greeting card ──────────────────────────────────── */}
-          <div
+          <motion.div
+            variants={sectionEntrance(0)}
+            initial="hidden"
+            animate="visible"
             className="relative mx-3 mt-2 overflow-hidden rounded-2xl p-3 text-white sm:mx-4 sm:p-4"
             style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 55%, #065f46 100%)' }}
           >
-            <div
-              className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
-              aria-hidden
-            >
+            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden>
               <div
                 className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
                 style={{ animation: 'phone-sheen 4s linear infinite' }}
               />
             </div>
-
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
-                <Sparkles className="h-3 w-3" />
-                Good morning, Aarav
+                <Sparkles className="h-3 w-3" /> Good morning, Aarav
               </span>
-              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm">
-                Plus
-              </span>
+              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm">Plus</span>
             </div>
-
             <div className="mt-3 flex items-end justify-between gap-2">
               <div className="flex-1 space-y-1.5">
                 <div className="rounded-xl bg-white/12 px-2.5 py-1.5">
@@ -182,14 +179,17 @@ export function PhoneMockup({
                 <Activity className="h-5 w-5" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Next reminder card ──────────────────────────────────── */}
-          <div className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-2.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 sm:mx-4 sm:p-3">
+          <motion.div
+            variants={sectionEntrance(1)}
+            initial="hidden"
+            animate="visible"
+            className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-2.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 sm:mx-4 sm:p-3"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-700">
-                Next reminder
-              </span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-700">Next reminder</span>
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700">
                 <Clock className="h-3 w-3" /> 10:30 AM
               </span>
@@ -199,12 +199,8 @@ export function PhoneMockup({
                 <Pill className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-neutral-900 dark:text-neutral-100">
-                  Metformin 500mg
-                </p>
-                <p className="truncate text-[11px] font-medium text-neutral-700">
-                  After breakfast · 1 tablet
-                </p>
+                <p className="truncate text-sm font-bold text-neutral-900 dark:text-neutral-100">Metformin 500mg</p>
+                <p className="truncate text-[11px] font-medium text-neutral-700">After breakfast · 1 tablet</p>
               </div>
               <button
                 className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-[11px] font-bold text-white shadow-md shadow-emerald-700/30 active:scale-95 transition-transform"
@@ -213,14 +209,17 @@ export function PhoneMockup({
                 Take
               </button>
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Today&apos;s checklist ───────────────────────────────── */}
-          <div className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-2.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 sm:mx-4 sm:p-3">
+          <motion.div
+            variants={sectionEntrance(2)}
+            initial="hidden"
+            animate="visible"
+            className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-2.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 sm:mx-4 sm:p-3"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-700">
-                Today
-              </span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-700">Today</span>
               <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                 <Zap className="h-3 w-3" /> 3 / 4
               </span>
@@ -231,52 +230,37 @@ export function PhoneMockup({
                 { name: 'Metformin 500mg', time: '10:30 AM', done: false },
                 { name: 'Omega-3 Fish Oil', time: '1:00 PM', done: false },
               ].map(r => (
-                <li
-                  key={r.name}
-                  className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-700/50"
-                >
-                  <CheckCircle2
-                    className={cn(
-                      'h-4 w-4 shrink-0',
-                      r.done ? 'text-emerald-600' : 'text-neutral-300'
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      'flex-1 text-[11px] font-bold',
-                      r.done
-                        ? 'text-neutral-400 line-through'
-                        : 'text-neutral-900 dark:text-neutral-100'
-                    )}
-                  >
+                <li key={r.name} className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-700/50">
+                  <CheckCircle2 className={cn('h-4 w-4 shrink-0', r.done ? 'text-emerald-600' : 'text-neutral-300')} />
+                  <span className={cn('flex-1 text-[11px] font-bold', r.done ? 'text-neutral-400 line-through' : 'text-neutral-900 dark:text-neutral-100')}>
                     {r.name}
                   </span>
                   <span className="text-[10px] font-semibold text-neutral-700">{r.time}</span>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* ── AI insight card ─────────────────────────────────────── */}
-          <div className="mx-3 mt-2.5 rounded-2xl border border-amber-200/70 bg-amber-50 p-2.5 shadow-sm dark:border-amber-700/30 dark:bg-amber-900/10 sm:mx-4 sm:p-3">
+          <motion.div
+            variants={sectionEntrance(3)}
+            initial="hidden"
+            animate="visible"
+            className="mx-3 mt-2.5 rounded-2xl border border-amber-200/70 bg-amber-50 p-2.5 shadow-sm dark:border-amber-700/30 dark:bg-amber-900/10 sm:mx-4 sm:p-3"
+          >
             <div className="flex items-start gap-2">
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 shadow-sm">
                 <Bot className="h-3.5 w-3.5 text-white" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400">
-                  AI Insight · Kynthai Pro
-                </p>
+                <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400">AI Insight · Kynthai Pro</p>
                 <p className="mt-0.5 text-[11px] leading-snug text-amber-800 dark:text-amber-200">
-                  Metformin + Omega-3 have no known interactions. Take with food to reduce GI
-                  discomfort.
+                  Metformin + Omega-3 have no known interactions. Take with food to reduce GI discomfort.
                 </p>
-                <p className="mt-0.5 text-[10px] font-medium text-amber-500 dark:text-amber-500">
-                  Informational only — not medical advice
-                </p>
+                <p className="mt-0.5 text-[10px] font-medium text-amber-500 dark:text-amber-500">Informational only — not medical advice</p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Bottom navigation ───────────────────────────────────── */}
           <div className="mx-3 mb-2 mt-3 flex items-center justify-around rounded-2xl border border-neutral-200 bg-white/90 px-2 py-2 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-800/90 sm:mx-4 sm:px-4">
@@ -297,33 +281,33 @@ export function PhoneMockup({
       {/* ── Floating notification badges ──────────────────────────────── */}
       <FloatingBadge
         className="-left-14 top-20 hidden md:flex"
-        delay={1.1}
+        delay={0.8}
         icon={<Heart className="h-3.5 w-3.5 text-rose-500" />}
         title="Mom's BP taken"
         sub="By you · 2 min ago"
       />
       <FloatingBadge
         className="-right-12 top-40 hidden md:flex"
-        delay={1.4}
+        delay={1.0}
         icon={<Search className="h-3.5 w-3.5 text-emerald-600" />}
         title="Drug interaction"
         sub="Metformin — safe"
       />
       <FloatingBadge
         className="-left-16 bottom-24 hidden lg:flex"
-        delay={1.7}
+        delay={1.2}
         icon={<Sparkles className="h-3.5 w-3.5 text-amber-500" />}
         title="AI insight ready"
         sub="Weekly report"
       />
       <FloatingBadge
         className="-right-16 bottom-36 hidden lg:flex"
-        delay={2}
+        delay={1.4}
         icon={<ShieldCheck className="h-3.5 w-3.5 text-blue-600" />}
         title="Privacy-safe upload"
         sub="Lab report scanned"
       />
-    </div>
+    </motion.div>
   );
 }
 
@@ -355,24 +339,20 @@ function FloatingBadge({
   delay?: number;
 }) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.9 }}
+      animate={{ opacity: 1, y: [0, -4, 0], scale: 1 }}
+      transition={{ delay, duration: 0.5, ease: 'easeOut' }}
       className={cn(
         'absolute z-20 flex items-center gap-2 rounded-2xl border border-neutral-200/80 bg-white/95 px-3 py-2 shadow-2xl shadow-emerald-900/20 backdrop-blur-xl',
-        'animate-in fade-in slide-in-from-top-2 duration-500',
         className,
       )}
-      style={{
-        animationDelay: `${delay}s`,
-        animationFillMode: 'backwards',
-      }}
     >
-      <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-neutral-50">
-        {icon}
-      </div>
+      <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-neutral-50">{icon}</div>
       <div>
         <p className="text-[11px] font-bold text-neutral-900">{title}</p>
         <p className="text-[10px] font-semibold text-neutral-700">{sub}</p>
       </div>
-    </div>
+    </motion.div>
   );
 }
