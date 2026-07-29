@@ -143,8 +143,8 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           </motion.div>
         </div>
 
-        {/* Right: phone mockup */}
-        <div className="hidden lg:flex items-center justify-center">
+        {/* Right: phone mockup — visible on all screens */}
+        <div className="flex items-center justify-center mt-4 lg:mt-0">
           <PhoneMockup />
         </div>
       </div>
