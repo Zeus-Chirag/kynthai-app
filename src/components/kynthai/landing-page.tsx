@@ -198,20 +198,20 @@ function TrustStats() {
         className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-40 blur-3xl"
         aria-hidden
         style={{ background: 'radial-gradient(ellipse at center, rgba(16,185,129,0.08) 0%, transparent 70%)' }}
-      />          <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-3 px-4 py-10 sm:px-6 sm:gap-5 sm:py-12 lg:grid-cols-6 lg:px-8 lg:gap-7">
+      />          <div            className="relative mx-auto grid max-w-7xl grid-cols-2 gap-3 px-4 py-8 sm:px-6 sm:gap-5 sm:py-12 lg:grid-cols-6 lg:px-8 lg:gap-7">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="group flex flex-col items-center rounded-2xl border border-border/50 bg-card/50 p-3 text-center transition-all duration-200 hover:border-emerald-500/25 hover:bg-emerald-500/[0.04] hover:shadow-lg hover:shadow-emerald-900/5 sm:p-5"
+            className="group flex flex-col items-center rounded-2xl border border-border/50 bg-card/50 p-4 text-center transition-all duration-200 hover:border-emerald-500/25 hover:bg-emerald-500/[0.04] hover:shadow-lg hover:shadow-emerald-900/5 sm:p-5"
           >
             <div className="bg-gradient-to-br from-emerald-600 to-teal-700 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl lg:text-[2.5rem]">
               {s.value}
             </div>
-            <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/70 sm:text-[11px] sm:mt-1.5">
+            <div className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-foreground/70 sm:text-[11px] sm:mt-1.5">
               {s.label}
             </div>
             {s.note && (
-              <div className="mt-0.5 text-[9px] font-medium text-emerald-600/90 dark:text-emerald-400/90 sm:text-[10px]">
+              <div className="mt-0.5 text-[10px] font-medium text-emerald-600/90 dark:text-emerald-400/90 sm:text-[10px]">
                 {s.note}
               </div>
             )}
@@ -403,7 +403,7 @@ function BentoFeatures() {
                 </div>
                 <div className="flex flex-wrap gap-1.5 pt-1 sm:gap-2">
                   {['Text input', 'Text replies', 'Markdown', 'History'].map((t) => (
-                    <Badge key={t} variant="outline" className="border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[10px] sm:text-xs">
+                    <Badge key={t} variant="outline" className="border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] sm:text-xs">
                       {t}
                     </Badge>
                   ))}
@@ -464,21 +464,21 @@ function BentoFeatures() {
                 Manage up to 4 family members from a single dashboard. Caretakers
                 get live adherence updates, missed-dose alerts and weekly AI insights.
               </p>
-              <div className="mt-2 grid grid-cols-4 gap-1.5 sm:mt-3 sm:gap-2">
+              <div className="mt-2 grid grid-cols-4 gap-2 sm:mt-3 sm:gap-2">
                 {['Alex', 'Jordan', 'You', 'Sam'].map((m, i) => (
                   <div
                     key={m}
-                    className="rounded-xl border border-border/60 bg-card p-1.5 text-center sm:p-2"
+                    className="rounded-xl border border-border/60 bg-card p-2 text-center sm:p-2"
                   >
                     <div
-                      className="mx-auto flex h-6 w-6 items-center justify-center rounded-full text-[8px] font-semibold text-white sm:h-8 sm:w-8 sm:text-[10px]"
+                      className="mx-auto flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold text-white sm:h-8 sm:w-8 sm:text-[10px]"
                       style={{
                         background: `linear-gradient(135deg, hsl(${160 + i * 10} 70% 45%), hsl(${175 + i * 6} 70% 40%))`,
                       }}
                     >
                       {m[0]}
                     </div>
-                    <p className="mt-0.5 text-[8px] text-muted-foreground sm:mt-1 sm:text-[10px]">{m}</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground sm:mt-1 sm:text-[10px]">{m}</p>
                   </div>
                 ))}
               </div>
@@ -741,8 +741,7 @@ function ValueStatements() {
           <p className="mt-2 text-sm text-muted-foreground sm:mt-3 sm:text-base">
             We&apos;re building Kynthai in the open. No fake reviews, no inflated numbers —
             just a product that solves real health-management problems for households like yours.
-          </p>
-          <p className="mt-1 text-[10px] italic text-muted-foreground sm:mt-2">
+          </p>              <p className="mt-1 text-[11px] italic text-muted-foreground sm:mt-2">
             All statements are anonymized summaries. No personal health information is disclosed.
           </p>
         </div>
