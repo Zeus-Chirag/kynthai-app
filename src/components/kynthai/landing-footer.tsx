@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { KynthaiBrand } from './logo';
 import { Mail, ShieldCheck, HeartPulse, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
 
@@ -10,8 +9,6 @@ import { Mail, ShieldCheck, HeartPulse, Twitter, Instagram, Linkedin, Youtube } 
 /* LandingFooter — site footer with navigation links (client island)  */
 /* ------------------------------------------------------------------ */
 export function LandingFooter() {
-  const router = useRouter();
-
   const socials = [
     { label: 'Twitter / X', icon: Twitter, href: 'https://twitter.com/kynthai' },
     { label: 'Instagram', icon: Instagram, href: 'https://instagram.com/kynthai' },
@@ -66,9 +63,9 @@ export function LandingFooter() {
               { label: 'How It Works', href: '/#how-it-works' },
               { label: 'Features', href: '/#bento-features' },
               { label: 'FAQ', href: '/#faq' },
-              { label: 'Family Portal', onClick: () => router.push('/login') },
-              { label: 'Doctor Portal', onClick: () => router.push('/login') },
-              { label: 'Lab Portal', onClick: () => router.push('/login') },
+              { label: 'Family Portal', href: '/login' },
+              { label: 'Doctor Portal', href: '/login' },
+              { label: 'Lab Portal', href: '/login' },
               { label: 'Reviews', href: '/#reviews' },
             ]}
           />
@@ -77,14 +74,14 @@ export function LandingFooter() {
           <FooterColumn
             title="AI Features"
             links={[
-              { label: 'AI Health Chat', onClick: () => router.push('/login') },
-              { label: 'Symptom Analyzer', onClick: () => router.push('/login') },
-              { label: 'Identify Medicine', onClick: () => router.push('/login') },
-              { label: 'Drug Interactions', onClick: () => router.push('/login') },
-              { label: 'Prescription Scanner', onClick: () => router.push('/login') },
-              { label: 'Health Insights', onClick: () => router.push('/login') },
-              { label: 'Smart Reminders', onClick: () => router.push('/login') },
-              { label: 'Lab Test Booking', onClick: () => router.push('/login') },
+              { label: 'AI Health Chat', href: '/login' },
+              { label: 'Symptom Analyzer', href: '/login' },
+              { label: 'Identify Medicine', href: '/login' },
+              { label: 'Drug Interactions', href: '/login' },
+              { label: 'Prescription Scanner', href: '/login' },
+              { label: 'Health Insights', href: '/login' },
+              { label: 'Smart Reminders', href: '/login' },
+              { label: 'Lab Test Booking', href: '/login' },
             ]}
           />
 
