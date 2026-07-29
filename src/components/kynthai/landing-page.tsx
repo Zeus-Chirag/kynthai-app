@@ -138,7 +138,7 @@ export function LandingPage({
         <UserTypeFeatures onGetStarted={onGetStarted} />
 
         {/* Early adopter pricing card */}
-        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-2xl text-center mb-6">
             <Badge
               variant="secondary"
@@ -255,7 +255,7 @@ function HowItWorks() {
   ]
 
   return (
-    <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+    <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20">
       <div className="mx-auto max-w-2xl text-center">
         <Badge
           variant="secondary"
@@ -282,7 +282,7 @@ function HowItWorks() {
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
+      <div className="mt-8 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {steps.map((s, i) => (
           <div key={s.title} className="group flex h-full">
             <Card className="relative flex w-full flex-col overflow-hidden border-border/60 bg-card transition-all duration-200 hover:-translate-y-1.5 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-900/5">
@@ -321,7 +321,7 @@ function FeatureStrip() {
     { label: 'US-built', icon: Users },
   ]
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-6 py-4 backdrop-blur-sm">
         {items.map((it) => (
           <div
@@ -342,7 +342,7 @@ function FeatureStrip() {
 /* ------------------------------------------------------------------ */
 function BentoFeatures() {
   return (
-    <section id="bento-features" className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+    <section id="bento-features" className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20">
       {/* Section background accent */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-50"
@@ -366,7 +366,7 @@ function BentoFeatures() {
         </p>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-6 lg:grid-cols-12">
+      <div className="mt-8 grid gap-3 sm:gap-4 md:grid-cols-6 lg:grid-cols-12 lg:gap-5">
         {/* Big AI chat card */}
         <div className="md:col-span-6 lg:col-span-7">
           <div className="h-full">
@@ -414,7 +414,7 @@ function BentoFeatures() {
 
         {/* Right column small cards */}
         <div className="grid gap-3 md:col-span-6 lg:col-span-5">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <SmallFeature icon={Bell} title="Smart Reminders" body="Adaptive schedules with snooze & streaks." accent="from-emerald-500 to-emerald-600" />
             <SmallFeature icon={Video} title="Video Consults" body="Book consultations with US-licensed doctors in minutes." accent="from-teal-500 to-teal-600" />
             <SmallFeature icon={Camera} title="Identify Meds" body="Snap a pill — AI suggests what it might be (informational only, not a diagnosis)." accent="from-emerald-500 to-teal-600" />
@@ -1128,7 +1128,7 @@ function PricingTeaser({ onGetStarted }: { onGetStarted: (portal?: string) => vo
   ]
 
   return (
-    <section id="pricing-preview" className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+    <section id="pricing-preview" className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20">
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-50"
         aria-hidden
@@ -1157,7 +1157,7 @@ function PricingTeaser({ onGetStarted }: { onGetStarted: (portal?: string) => vo
         </div>
       </div>
 
-      <div className="mx-auto mt-6 grid max-w-5xl gap-5 md:grid-cols-3 items-stretch">
+      <div className="mx-auto mt-8 grid max-w-5xl gap-4 sm:gap-5 md:grid-cols-3 items-stretch">
         {tiers.map((t) => (
           <div key={t.name} className={cn('flex h-full', t.highlight ? 'md:-mt-2 md:mb-0' : '')}>
             <Card
