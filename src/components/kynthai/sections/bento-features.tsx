@@ -98,7 +98,7 @@ export function BentoFeatures() {
         </p>
       </div>
 
-      <div className="mt-8 grid gap-3 sm:gap-4 md:grid-cols-6 lg:grid-cols-12 lg:gap-5">
+      <div className="mt-6 grid gap-2 sm:gap-4 md:grid-cols-6 lg:grid-cols-12 lg:gap-5">
         {/* Big AI chat card */}
         <div className="md:col-span-6 lg:col-span-7">
           <div className="h-full">
@@ -110,34 +110,34 @@ export function BentoFeatures() {
                     'radial-gradient(closest-side, rgba(16,185,129,0.5), transparent 70%)',
                 }}
               />
-              <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/30">
-                  <Sparkles className="h-5 w-5" />
+              <CardContent className="flex flex-col gap-3 p-4 sm:p-8">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/30 sm:h-11 sm:w-11">
+                  <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">AI Health Assistant</h3>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
+                  <h3 className="text-lg font-semibold sm:text-xl">AI Health Assistant</h3>
+                  <p className="mt-1 text-xs text-muted-foreground sm:mt-1.5 sm:text-sm">
                     Ask about medicines, side effects, interactions and timing. Get answers in plain
                     language — with text output.
                   </p>
                 </div>
                 <div className="mt-2 rounded-2xl border border-border/60 bg-background/70 p-4">
                   <p className="text-xs text-muted-foreground">You</p>
-                  <p className="mt-0.5 text-sm">Can I take this medicine with food?</p>
-                  <div className="mt-3 flex items-start gap-2">
-                    <Sparkles className="mt-0.5 h-4 w-4 text-emerald-600" />
-                    <p className="text-sm">
+                  <p className="mt-0.5 text-xs sm:text-sm">Can I take this medicine with food?</p>
+                  <div className="mt-2 flex items-start gap-2 sm:mt-3">
+                    <Sparkles className="mt-0.5 h-3.5 w-3.5 text-emerald-600 sm:h-4 sm:w-4" />
+                    <p className="text-xs sm:text-sm">
                       Some medicines are easier on the stomach when taken with food. Always follow
                       your doctor&apos;s instructions or the label.
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 pt-1">
+                <div className="flex flex-wrap gap-1.5 pt-1 sm:gap-2">
                   {['Text input', 'Text replies', 'Markdown', 'History'].map(t => (
                     <Badge
                       key={t}
                       variant="outline"
-                      className="border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                      className="border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[10px] sm:text-xs"
                     >
                       {t}
                     </Badge>
@@ -148,9 +148,8 @@ export function BentoFeatures() {
           </div>
         </div>
 
-        {/* Right column small cards */}
-        <div className="grid gap-4 md:col-span-6 lg:col-span-5">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {/* Right column small cards */}          <div className="grid gap-2 sm:gap-4 md:col-span-6 lg:col-span-5">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4">
             <SmallFeature
               icon={Bell}
               title="Smart Reminders"
@@ -188,13 +187,13 @@ export function BentoFeatures() {
         {/* Interactions wide card */}
         <div className="md:col-span-6 lg:col-span-7">
           <Card className="h-full border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-card to-emerald-500/5">
-            <CardContent className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:p-8">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-600/30">
-                <AlertTriangle className="h-5 w-5" />
+            <CardContent className="flex flex-col items-start gap-3 p-4 sm:flex-row sm:items-center sm:p-8">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-600/30 sm:h-11 sm:w-11">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold">Drug & Food Interactions</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">
+                <h3 className="text-lg font-semibold sm:text-xl">Drug & Food Interactions</h3>
+                <p className="mt-1 text-xs text-muted-foreground sm:mt-1.5 sm:text-sm">
                   Kynthai cross-checks every active medication for drug-drug, drug-food and timing
                   conflicts — with severity tags and suggested alternatives (informational only, not
                   medical advice).
@@ -212,14 +211,14 @@ export function BentoFeatures() {
 
         <div className="md:col-span-6 lg:col-span-5">
           <Card className="h-full border-emerald-500/20">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <Users className="h-5 w-5" />
+            <CardContent className="p-4 sm:p-8">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 sm:h-10 sm:w-10">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <h3 className="text-lg font-semibold">Family Care Hub</h3>
+                <h3 className="text-base font-semibold sm:text-lg">Family Care Hub</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-2 text-xs text-muted-foreground sm:mt-3 sm:text-sm">
                 Manage up to 4 family members from a single dashboard. Caretakers get live adherence
                 updates, missed-dose alerts and weekly AI insights.
               </p>
@@ -247,14 +246,14 @@ export function BentoFeatures() {
 
         <div className="md:col-span-6 lg:col-span-5">
           <Card className="h-full border-emerald-500/20">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <TrendingUp className="h-5 w-5" />
+            <CardContent className="p-4 sm:p-8">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 sm:h-10 sm:w-10">
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <h3 className="text-lg font-semibold">AI Health Insights</h3>
+                <h3 className="text-base font-semibold sm:text-lg">AI Health Insights</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-2 text-xs text-muted-foreground sm:mt-3 sm:text-sm">
                 Weekly adherence trends, strengths, concerns, and personalised recommendations.
               </p>
             </CardContent>
@@ -263,14 +262,14 @@ export function BentoFeatures() {
 
         <div className="md:col-span-6 lg:col-span-7">
           <Card className="h-full border-emerald-500/20">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <ScanSearch className="h-5 w-5" />
+            <CardContent className="p-4 sm:p-8">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 sm:h-10 sm:w-10">
+                  <ScanSearch className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <h3 className="text-lg font-semibold">Prescription Scanner</h3>
+                <h3 className="text-base font-semibold sm:text-lg">Prescription Scanner</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-2 text-xs text-muted-foreground sm:mt-3 sm:text-sm">
                 Scan a prescription — AI extracts every medication, dose, frequency, and
                 instructions.
               </p>

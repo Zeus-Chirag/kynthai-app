@@ -26,28 +26,28 @@ function HonestSocialProof() {
           background: 'radial-gradient(closest-side, rgba(16,185,129,0.1) 0%, transparent 70%)',
         }}
       />
-      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div className="grid gap-6 lg:grid-cols-2">
+      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-14">
+        <div className="grid gap-5 lg:grid-cols-2">
           {/* Left: what we're building */}
           <div>
-            <div className="mx-auto max-w-2xl text-center lg:text-left lg:mx-0 mb-6">
+            <div className="mx-auto max-w-2xl text-center lg:text-left lg:mx-0 mb-5">
               <Badge
                 variant="secondary"
-                className="mb-4 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium"
+                className="mb-3 border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium"
               >
                 Built for American families
               </Badge>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">
                 A health companion <span className="text-emerald-600">you can trust</span>
               </h2>
-              <p className="mt-3 text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground sm:mt-3 sm:text-base">
                 We&apos;re not here to sell you on fake numbers. Kynthai is a new kind of health app
                 — transparent about where we are, honest about what we&apos;re building, and
                 accountable to every user who trusts us with their family&apos;s health.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 sm:gap-5">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5">
               {[
                 { value: 'Live now', label: 'Available today for US families', icon: Sparkles },
                 { value: 'No VC', label: 'Built for users, not investors', icon: DollarSign },
@@ -56,7 +56,7 @@ function HonestSocialProof() {
                 <div
                   key={s.label}
                   className={cn(
-                    'flex flex-col items-center justify-center rounded-2xl border p-5 sm:p-6 text-center transition-all duration-200 border-border/60 bg-card/60 hover:border-emerald-500/20 hover:shadow-lg'
+                    'flex flex-col items-center justify-center rounded-2xl border p-4 sm:p-6 text-center transition-all duration-200 border-border/60 bg-card/60 hover:border-emerald-500/20 hover:shadow-lg'
                   )}
                 >
                   <s.icon className="mb-2 h-5 w-5 text-muted-foreground" />
@@ -69,8 +69,8 @@ function HonestSocialProof() {
 
           {/* Right: what we believe */}
           <div className="flex flex-col justify-center gap-4">
-            <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold">How we build</h3>
+            <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-4 shadow-sm sm:p-6">
+              <h3 className="text-base font-semibold sm:text-lg">How we build</h3>
               <ul className="mt-4 space-y-3">
                 {[
                   'Transparent pricing in USD — no hidden fees, no surprise charges.',
@@ -89,7 +89,7 @@ function HonestSocialProof() {
         </div>
 
         {/* Trust strip */}
-        <div className="mx-auto mt-6 flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-6 py-4">
+        <div className="mx-auto mt-5 flex max-w-4xl flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.03] via-card to-emerald-500/[0.03] px-4 py-3 sm:mt-6 sm:gap-x-6 sm:gap-y-3 sm:px-6 sm:py-4">
           {[
             { label: 'Building in public', Icon: Sparkles },
             { label: 'AI-powered reminders', Icon: Bell },

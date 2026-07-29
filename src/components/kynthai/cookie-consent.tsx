@@ -149,15 +149,24 @@ export function CookieConsent() {
   if (!visible) return null
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[60] p-4 sm:p-6 animate-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-6 animate-in slide-in-from-bottom-4 duration-300">
       <Card className="mx-auto max-w-3xl border-emerald-500/30 shadow-2xl">
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+        <CardContent className="p-3 sm:p-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <div className="hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
               <Cookie className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold">We use cookies</h3>
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="text-sm font-semibold">We use cookies</h3>
+                <button
+                  onClick={reject}
+                  className="shrink-0 rounded-lg p-1 -mr-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
                 Kynthai uses essential cookies for authentication and local
                 storage for preferences. Essential cookies cannot be disabled
@@ -175,11 +184,11 @@ export function CookieConsent() {
                 </button>{' '}
                 for details, including your CCPA/CPRA rights.
               </p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:mt-3 sm:gap-2">
                 <Button
                   size="sm"
                   onClick={accept}
-                  className="h-8 bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                  className="h-7 text-xs sm:h-8 sm:text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
                 >
                   Accept all
                 </Button>
@@ -187,7 +196,7 @@ export function CookieConsent() {
                   size="sm"
                   variant="outline"
                   onClick={reject}
-                  className="h-8"
+                  className="h-7 text-xs sm:h-8 sm:text-sm"
                 >
                   Essential only
                 </Button>
@@ -195,19 +204,12 @@ export function CookieConsent() {
                   size="sm"
                   variant="ghost"
                   onClick={manage}
-                  className="h-8 text-xs"
+                  className="h-7 text-xs sm:h-8"
                 >
                   Manage
                 </Button>
               </div>
             </div>
-            <button
-              onClick={reject}
-              className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
         </CardContent>
       </Card>

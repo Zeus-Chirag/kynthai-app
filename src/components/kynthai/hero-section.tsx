@@ -37,7 +37,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         />
       </div>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-16">
+      <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-16">
         {/* Left: copy column */}
         <div>
           {/* Trust badge */}
@@ -48,9 +48,9 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           >
             <Badge
               variant="secondary"
-              className="mb-4 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium"
+              className="mb-3 sm:mb-4 gap-1.5 border-emerald-500/35 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-medium text-[11px] sm:text-sm"
             >
-              <ShieldCheck className="h-3.5 w-3.5" />
+              <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Built for the US · Privacy-first · Secure billing
             </Badge>
           </motion.div>
@@ -60,7 +60,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="text-balance text-[2.65rem] leading-[1.08] font-bold tracking-tight sm:text-6xl lg:text-[3.7rem]"
+            className="text-balance text-[2rem] leading-[1.08] font-bold tracking-tight sm:text-5xl lg:text-[3.7rem]"
           >
             America&apos;s AI health companion
             <br />
@@ -74,7 +74,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-4 text-xl font-semibold sm:text-2xl"
+            className="mt-3 text-base font-semibold sm:mt-4 sm:text-xl lg:text-2xl"
           >
             <span className="bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent">
               Smart reminders, verified doctors &amp; lab tests
@@ -87,7 +87,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.26 }}
-            className="mt-3 max-w-xl text-pretty text-base leading-relaxed text-foreground/75 sm:text-lg"
+            className="mt-2 max-w-xl text-pretty text-sm leading-relaxed text-foreground/75 sm:mt-3 sm:text-base lg:text-lg"
           >
             Missed doses, confusing labels, scheduling headaches — Kynthai brings smart reminders,
             AI-guided medication information, verified consults, and home diagnostic tests together.
@@ -99,12 +99,12 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.34 }}
-            className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center"
+            className="mt-4 flex flex-col gap-2 sm:mt-5 sm:flex-row sm:items-center sm:gap-3"
           >
             <Button
               size="lg"
               onClick={() => onGetStarted('caretaker')}
-              className="h-12 min-h-12 w-full gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-7 text-base font-semibold shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700 sm:w-auto"
+              className="h-11 min-h-11 w-full gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-6 text-sm font-semibold shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700 sm:h-12 sm:w-auto sm:px-7 sm:text-base"
             >
               Get Started Free
               <ArrowRight className="h-4 w-4" />
@@ -116,7 +116,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
                 const el = document.getElementById('how-it-works');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="h-12 w-full rounded-full px-7 text-base font-semibold"
+              className="h-11 w-full rounded-full px-6 text-sm font-semibold sm:h-12 sm:px-7 sm:text-base"
             >
               See How It Works
             </Button>
@@ -127,7 +127,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.45 }}
-            className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-xs font-medium text-muted-foreground"
+            className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium text-muted-foreground sm:mt-6 sm:gap-x-5 sm:text-xs"
           >
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Privacy-first
