@@ -117,17 +117,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased text-foreground`}
       >
-        {/* Graceful chunk-load recovery — silently retries once, then shows a helpful message instead of infinite reloads */}
+        {/* Graceful chunk-load recovery — silently retries once with iOS Safari tab-restore resilience */}
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
             var retried=sessionStorage.getItem('kynthai-chunk-retry');
             if(retried){sessionStorage.removeItem('kynthai-chunk-retry')}
+            var bgCheck=sessionStorage.getItem('kynthai-bg-timestamp');
+            var wasSuspended=bgCheck&&(Date.now()-parseInt(bgCheck,10)>120000);
             window.addEventListener('error',function(e){
               if(e.message&&(e.message.indexOf('ChunkLoadError')!==-1||e.message.indexOf('Loading chunk')!==-1)){
                 var n=parseInt(sessionStorage.getItem('kynthai-chunk-retry')||'0',10);
-                if(n<1){
-                  sessionStorage.setItem('kynthai-chunk-retry','1');
-                  window.location.reload(true);
+                if(n<2){
+                  sessionStorage.setItem('kynthai-chunk-retry',String(n+1));
+                  if(wasSuspended){window.location.reload()}else{window.location.reload(true)}
+                }else{
+                  var msg=document.createElement('div');
+                  msg.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:2rem;text-align:center;font-family:sans-serif';
+                  msg.innerHTML='<div><h2 style="font-size:1.25rem;font-weight:600;color:#1e293b;margin-bottom:0.5rem">App update required</h2><p style="color:#64748b;margin-bottom:1rem">A new version is available. Please refresh.</p><button onclick="localStorage.clear();location.reload()" style="background:#10b981;color:white;border:none;padding:0.5rem 1.5rem;border-radius:0.5rem;cursor:pointer;font-size:0.875rem">Refresh Now</button></div>';
+                  document.body.appendChild(msg);
                 }
               }
             },true);

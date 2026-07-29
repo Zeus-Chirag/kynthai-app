@@ -98,6 +98,69 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   const setLoginPortal = useAppStore((s) => s.setLoginPortal);
   const store = useAppStore(); // for login()
 
+  // ─── iOS Safari tab-restore / page-visibility recovery ──────────────
+  // When Safari brings a background tab back to foreground after hours,
+  // the JS heap is entirely fresh, but localStorage may have a stale user
+  // session. If the store looks corrupted or empty, force a hard reload.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Track visibility changes — if the page was backgrounded (suspended)
+    // and is now visible, check if chunks are stale by verifying a known
+    // window property that survives only if React rehydrated properly.
+    let wasHidden = false;
+    const handleVisibility = () => {
+      if (document.hidden) {
+        wasHidden = true;
+        // Save current timestamp when page goes to background
+        try { sessionStorage.setItem('kynthai-bg-timestamp', String(Date.now())); }
+        catch { /* noop */ }
+      } else if (wasHidden) {
+        // Page came back to foreground — check if the store survived
+        wasHidden = false;
+        try {
+          const bgTime = parseInt(sessionStorage.getItem('kynthai-bg-timestamp') || '0', 10);
+          const elapsed = Date.now() - bgTime;
+          // If backgrounded > 1 minute, verify hydration state
+          if (elapsed > 60000) {
+            // Check if React state survived by looking for a DOM marker
+            const mainContent = document.getElementById('main-content');
+            const appStillWorks = mainContent && mainContent.children.length > 0;
+            if (!appStillWorks) {
+              // Store is corrupted — clear localStorage and reload
+              try {
+                localStorage.removeItem('kynthai-store-v2');
+                sessionStorage.removeItem('kynthai-chunk-retry');
+              } catch { /* noop */ }
+              window.location.reload();
+              return;
+            }
+            // Update activity timestamp so store hydration knows it's not stale
+            try { sessionStorage.setItem('kynthai-last-activity', String(Date.now())); }
+            catch { /* noop */ }
+          }
+        } catch { /* noop */ }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    // Also track activity on user interaction (click, scroll, keypress)
+    const updateActivity = () => {
+      try { sessionStorage.setItem('kynthai-last-activity', String(Date.now())); }
+      catch { /* noop */ }
+    };
+    document.addEventListener('click', updateActivity, { passive: true });
+    document.addEventListener('scroll', updateActivity, { passive: true });
+    document.addEventListener('keydown', updateActivity, { passive: true });
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      document.removeEventListener('click', updateActivity);
+      document.removeEventListener('scroll', updateActivity);
+      document.removeEventListener('keydown', updateActivity);
+    };
+  }, []);
+
   // Mirror devtools — suppress noisy message in console
   useEffect(() => {
     if (typeof window !== 'undefined') {
