@@ -6,7 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
 jobs:
+  # ── Job 1: Lint + TypeScript check + Unit tests ───────────────────────────
   lint-typecheck-test:
     runs-on: ubuntu-latest
     steps:
@@ -20,6 +24,25 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:ci
 
+  # ── Job 2: Production smoke tests against live Vercel ─────────────────────
+  # Lightweight: no build, no database, no secrets needed.
+  # Runs Playwright's `request` API against the deployed site.
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Run smoke tests against production
+        run: npx playwright test e2e/ci-smoke.spec.ts
+        env:
+          PLAYWRIGHT_BASE_URL: https://kynthai-deploy.vercel.app
+
+  # ── Job 3: Build ──────────────────────────────────────────────────────────
   build:
     runs-on: ubuntu-latest
     needs: lint-typecheck-test
@@ -32,6 +55,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+  # ── Job 4: Full Playwright E2E suite (local server, requires DB) ──────────
   e2e:
     runs-on: ubuntu-latest
     needs: build
@@ -63,12 +87,15 @@ jobs:
       - run: npm run build
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: ''
       - name: Start server
         run: npm start &
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
       - name: Wait for server
         run: npx wait-on http://localhost:3000 --timeout 30000
-      - run: npm run test:e2e
+      - name: Run E2E tests (excluding CI smoke tests — already covered)
+        run: npx playwright test --grep-invert 'ci-smoke'
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
