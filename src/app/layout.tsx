@@ -49,7 +49,10 @@ export const metadata: Metadata = {
     title: 'Kynthai — AI Health & Medication Manager for American Families',
     description:
       'Manage medications, track adherence, check drug interactions, and connect with doctors. Built for families in the US.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    images: [
+      { url: '/og-image.webp', width: 1200, height: 630, type: 'image/webp' },
+      { url: '/og-image.png', width: 1200, height: 630, type: 'image/png' },
+    ],
     type: 'website',
     locale: 'en_US',
     siteName: 'Kynthai',
@@ -109,6 +112,10 @@ export default function RootLayout({
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Preconnect to critical origins for faster DNS + TLS */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://livekit.kynthai.app" />
         {/* Stripe publishable key for frontend payment components */}
         {process.env.NEXT_PUBLIC_STRIPE_PK && (
           <meta name="stripe-pk" content={process.env.NEXT_PUBLIC_STRIPE_PK} />
@@ -117,83 +124,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased text-foreground`}
       >
-        {/* ═══════════════════════════════════════════════════════════════
-            iOS Safari Tab-Restore Recovery Script
-            ═══════════════════════════════════════════════════════════════
-            Runs BEFORE React hydrates. Detects if this is a tab restore
-            from iOS Safari by checking for the "bg-timestamp" marker.
-            If the page was backgrounded > 5 minutes, the JS heap was
-            evicted and we need a clean reload bypassing the SW cache.
-        */}
-        <script dangerouslySetInnerHTML={{ __html: `
-          (function(){
-            try {
-              var bgTime = sessionStorage.getItem('kynthai-bg-timestamp');
-              if (bgTime) {
-                var elapsed = Date.now() - parseInt(bgTime, 10);
-                if (elapsed > 300000) {
-                  // Was backgrounded >5 min — likely iOS Safari evicted our heap.
-                  // Clear stale localStorage session to force clean login
-                  localStorage.removeItem('kynthai-store-v2');
-                  sessionStorage.removeItem('kynthai-bg-timestamp');
-                  sessionStorage.removeItem('kynthai-last-activity');
-                  // Force a fresh load bypassing service worker cache
-                  window.location.reload();
-                  return; // stop executing further
-                }
-              }
-            } catch(e) { /* ignore */ }
-
-            // ─── Chunk-load error recovery ───────────────────────────────
-            // If the SW served stale HTML with mismatched chunk hashes,
-            // catch ChunkLoadError, retry 3 times, then show a refresh button.
-            var retried = parseInt(sessionStorage.getItem('kynthai-chunk-retry') || '0', 10);
-            if (retried > 0) {
-              // We already retried — clear counter for next round
-              sessionStorage.removeItem('kynthai-chunk-retry');
-            }
-
-            // Register a one-time DOMContentLoaded check: if page loaded from
-            // SW cache, the Next.js __NEXT_DATA__ script might be stale
-            document.addEventListener('DOMContentLoaded', function() {
-              var nextData = document.getElementById('__NEXT_DATA__');
-              if (nextData) {
-                try {
-                  var data = JSON.parse(nextData.textContent || '{}');
-                  // If buildId is present, it validates this is the right bundle.
-                  // On chunk failure we don't check buildId here — the error handler below does.
-                } catch(e) { /* ignore */ }
-              }
-            });
-
-            // ChunkLoadError handler — with 3 retries, then refresh button
-            window.addEventListener('error', function(e) {
-              if (e.message && (
-                e.message.indexOf('ChunkLoadError') !== -1 ||
-                e.message.indexOf('Loading chunk') !== -1 ||
-                (e.target && e.target.tagName === 'SCRIPT' && e.target.src && !e.target.src.includes(location.host))
-              )) {
-                var n = parseInt(sessionStorage.getItem('kynthai-chunk-retry') || '0', 10);
-                if (n < 3) {
-                  sessionStorage.setItem('kynthai-chunk-retry', String(n + 1));
-                  // Hard reload bypassing cache
-                  window.location.reload();
-                } else {
-                  // After 3 failures, show a friendly recovery UI
-                  document.body.innerHTML =
-                    '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif">' +
-                    '<div>' +
-                    '<h2 style="font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">App Update Available</h2>' +
-                    '<p style="color:#64748b;margin-bottom:1.5rem;max-width:360px;line-height:1.5">A new version was deployed while you were away. Please refresh to get the latest.</p>' +
-                    '<button onclick=\'localStorage.clear();sessionStorage.clear();location.reload()\' ' +
-                    'style="background:#059669;color:white;border:none;padding:0.75rem 2rem;border-radius:9999px;font-size:1rem;cursor:pointer;font-weight:600;box-shadow:0 4px 6px -1px rgba(5,150,105,0.3)">' +
-                    'Refresh Now</button>' +
-                    '</div></div>';
-                }
-              }
-            }, true);
-          })();
-        `}} />
+        {/* Deferred script for iOS Safari tab-restore recovery & chunk-load error retry */}
+        <script defer src="/sw-recovery.js" />
         {/* ACCESSIBILITY: Skip link for keyboard/screen-reader users — FIXED */}
         <a
           href="#main-content"

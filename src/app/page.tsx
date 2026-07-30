@@ -1,5 +1,9 @@
 import { StructuredData } from '@/components/structured-data';
 
+// ISR: Revalidate landing page every 1 hour to reduce server load
+// while keeping content fresh for SEO crawlers
+export const revalidate = 3600;
+
 interface RootPageProps {
   children: React.ReactNode;
 }
