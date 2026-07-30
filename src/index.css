@@ -1,1 +1,41 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── Animation Keyframes ───────────────────────────────────────────── */
+@keyframes kynthai-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes kynthai-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes kynthai-pulse-soft {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes kynthai-fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes kynthai-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Utility Classes ────────────────────────────────────────────────── */
+.animate-kynthai-gradient {
+  animation: kynthai-gradient 3s ease infinite;
+  background-size: 220% 100%;
+}
+
+.animate-kynthai-float {
+  animation: kynthai-float 4s ease-in-out infinite;
+}
+
+.animate-kynthai-pulse-soft {
+  animation: kynthai-pulse-soft 2.5s ease-in-out infinite;
+}

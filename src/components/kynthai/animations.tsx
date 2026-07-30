@@ -263,7 +263,7 @@ export function TiltCard({
       style={{
         rotateX: srx,
         rotateY: sry,
-        transformPerspective: 900,
+        perspective: '900px',
         transformStyle: 'preserve-3d',
       }}
       className={className}
