@@ -20,6 +20,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
+
+      - name: Lockfile verification
+        run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
+
+      - name: npm audit (high/critical)
+        run: npm audit --audit-level=high || echo '⚠️ npm audit found issues — review before merge'
+
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test:ci

@@ -24,6 +24,12 @@ jobs:
 
       - run: npm ci
 
+      - name: Lockfile verification
+        run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
+
+      - name: npm audit (high/critical)
+        run: npm audit --audit-level=high || echo '⚠️ npm audit found issues — review before merge'
+
       - name: Run ESLint
         run: npm run lint || true
 

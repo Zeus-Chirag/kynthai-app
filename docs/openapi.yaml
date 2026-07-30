@@ -1,0 +1,299 @@
+openapi: "3.0.3"
+info:
+  title: Kynthai US API
+  description: |
+    Kynthai health platform API.
+    All routes under `/api/v1/*` are also available at `/api/*` for backward compatibility.
+  version: "0.2.0"
+  contact:
+    email: engineering@kynthai.app
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://kynthai.app
+    description: Production
+  - url: https://kynthai-deploy.vercel.app
+    description: Staging / CI
+
+paths:
+  # ── Health ─────────────────────────────────────────────────────────
+  /api/health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags: [Infrastructure]
+      responses:
+        "200":
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok, degraded] }
+                  timestamp: { type: string, format: date-time }
+                  uptime: { type: number }
+                  checks:
+                    type: object
+                    properties:
+                      database: { type: string, enum: [ok, error] }
+                      env: { type: string }
+        "503":
+          description: Service degraded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  # ── Authentication ──────────────────────────────────────────────────
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      operationId: register
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User created
+        "400":
+          description: Validation error
+        "429":
+          description: Rate limited (10 requests per 60s)
+  /api/auth/login:
+    post:
+      summary: Log in
+      operationId: login
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Invalid credentials
+
+  # ── AI ──────────────────────────────────────────────────────────────
+  /api/chat:
+    post:
+      summary: Send a chat message to the AI assistant
+      operationId: chat
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: User message
+                conversationId:
+                  type: string
+                  format: uuid
+                context:
+                  type: object
+                  properties:
+                    role: { type: string, enum: [patient, doctor, caretaker] }
+                    userId: { type: string, format: uuid }
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reply: { type: string }
+                  conversationId: { type: string }
+                  usage:
+                    type: object
+                    properties:
+                      promptTokens: { type: integer }
+                      completionTokens: { type: integer }
+                      totalTokens: { type: integer }
+        "503":
+          description: AI service unavailable (circuit breaker open)
+
+  # ── Emergency ───────────────────────────────────────────────────────
+  /api/emergency-sos:
+    post:
+      summary: Trigger an emergency SOS alert
+      operationId: emergencySOS
+      tags: [Emergency]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SOSRequest"
+      responses:
+        "201":
+          description: SOS alert created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  alertId: { type: string }
+                  notifiedDoctors:
+                    type: array
+                    items: { type: string }
+                  notifiedFamily:
+                    type: array
+                    items: { type: string }
+        "401":
+          description: Unauthorized
+
+  # ── Stripe ──────────────────────────────────────────────────────────
+  /api/stripe/webhook:
+    post:
+      summary: Stripe webhook receiver
+      operationId: stripeWebhook
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Webhook processed
+        "400":
+          description: Invalid signature
+
+  # ── User Profile ────────────────────────────────────────────────────
+  /api/user/profile:
+    get:
+      summary: Get current user profile
+      operationId: getProfile
+      tags: [User]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        timestamp: { type: string, format: date-time }
+        uptime: { type: number }
+        checks:
+          type: object
+          properties:
+            database: { type: string }
+            env: { type: string }
+
+    RegisterRequest:
+      type: object
+      required: [email, password, role]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+        role:
+          type: string
+          enum: [patient, doctor, caretaker, lab, admin]
+        phone:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    SOSRequest:
+      type: object
+      properties:
+        location:
+          type: object
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+        familyMemberId:
+          type: string
+        memberName:
+          type: string
+        message:
+          type: string
+
+    UserProfile:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        name: { type: string }
+        role: { type: string }
+        avatar: { type: string, format: uri, nullable: true }
+        createdAt: { type: string, format: date-time }
+        emailVerified: { type: boolean }
+        phone: { type: string, nullable: true }
+
+  # ── Response Wrappers ─────────────────────────────────────────────────
+  responses:
+    RateLimited:
+      description: Too many requests
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: { type: string, example: "Rate limit exceeded. Try again in 60 seconds." }
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: { type: string, example: "Authentication required" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: { type: string, example: "Resource not found" }

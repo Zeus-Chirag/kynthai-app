@@ -2,6 +2,32 @@ import OpenAI from 'openai'
 import { withOpenAICircuitBreaker } from './circuit-breaker'
 import { logger } from './logger'
 
+// Per-model cost per 1K tokens (USD)
+// Source: https://openai.com/pricing (as of 2026-07-30)
+const MODEL_COST_TABLE: Record<string, { input: number; output: number }> = {
+  'gpt-4o': { input: 0.0025, output: 0.01 },
+  'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
+  'gpt-4o-mini-2024-07-18': { input: 0.00015, output: 0.0006 },
+  'gpt-4-turbo': { input: 0.01, output: 0.03 },
+  'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
+}
+
+const DEFAULT_INPUT_COST = 0.001
+const DEFAULT_OUTPUT_COST = 0.002
+
+function estimateCost(model: string, promptTokens: number, completionTokens: number): number {
+  const rates = MODEL_COST_TABLE[model]
+  if (!rates) {
+    // Fallback: use averages for unknown models
+    const inputCost = (promptTokens / 1000) * DEFAULT_INPUT_COST
+    const outputCost = (completionTokens / 1000) * DEFAULT_OUTPUT_COST
+    return Math.round((inputCost + outputCost) * 100000) / 100000
+  }
+  const inputCost = (promptTokens / 1000) * rates.input
+  const outputCost = (completionTokens / 1000) * rates.output
+  return Math.round((inputCost + outputCost) * 100000) / 100000
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // sensitive health data / AI PROCESSOR BOUNDARY
 // ──────────────────────────────────────────────────────────────────────────────
@@ -89,16 +115,30 @@ export async function aiChat(
       )
 
       const choice = response.choices?.[0]
+      const usage = response.usage
+        ? {
+            promptTokens: response.usage.prompt_tokens,
+            completionTokens: response.usage.completion_tokens,
+            totalTokens: response.usage.total_tokens,
+          }
+        : undefined
+
+      // Log token usage for cost tracking and observability
+      if (usage) {
+        const costEstimate = estimateCost(model, usage.promptTokens, usage.completionTokens)
+        logger.info('ai.token_usage', {
+          model,
+          promptTokens: usage.promptTokens,
+          completionTokens: usage.completionTokens,
+          totalTokens: usage.totalTokens,
+          estimatedCostUsd: costEstimate,
+        })
+      }
+
       return {
         content: choice?.message?.content || null,
         finishReason: choice?.finish_reason || 'stop',
-        usage: response.usage
-          ? {
-              promptTokens: response.usage.prompt_tokens,
-              completionTokens: response.usage.completion_tokens,
-              totalTokens: response.usage.total_tokens,
-            }
-          : undefined,
+        usage,
       }
     } catch (err: any) {
       if (err.name === 'CircuitBreakerOpenError') throw err
