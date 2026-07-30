@@ -122,32 +122,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // If email already exists in Supabase, look up the existing user
+    // If email already exists in Supabase, return generic message to prevent email enumeration
     if (authError && authError.message?.includes('already registered')) {
-      // Use admin API to find the existing user by email
-      const adminSupabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-          cookies: {
-            getAll() { return req.cookies.getAll(); },
-            setAll() {},
-          },
-        }
-      );
-      const { data: { users } } = await adminSupabase.auth.admin.listUsers();
-      const existingUser = users?.find((u: any) => u.email === email);
-      if (existingUser) {
-        // Sign in the existing user to get a session
-        const signInResult = await supabase.auth.signInWithPassword({ email, password });
-        if (signInResult.error) {
-          return jsonError('Email already registered. Please log in.', 409);
-        }
-        authData = signInResult.data;
-        authError = null;
-      } else {
-        return jsonError('Registration failed', 400);
-      }
+      // Always return the same message regardless of whether email exists
+      return jsonOk({
+        message: 'If this email is available, a verification link has been sent. Please check your inbox.',
+        verificationEmailSent: true,
+      });
     } else if (authError) {
       return jsonError(authError.message || 'Registration failed', 400);
     }
