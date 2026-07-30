@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
     // Wrap all SOS mutations in a single atomic transaction so no alert is
     // partially persisted if something fails mid-way.
     const allNotifiedIds: string[] = []
-    const alerts = await db.$transaction(async (tx) => {
-      const created = []
+    const alerts = await db.$transaction(async (tx): Promise<any[]> => {
+      const created: any[] = []
       for (const membership of memberships) {
         const alert = await tx.emergencyAlert.create({
           data: {

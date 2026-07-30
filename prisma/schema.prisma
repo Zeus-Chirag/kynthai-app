@@ -4,8 +4,17 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+
+  // Connection pooling with PgBouncer:
+  //   DATABASE_URL = postgresql://user:pass@host:6543/postgres?pgbouncer=true&sslmode=require
+  //   DIRECT_URL   = postgresql://user:pass@host:5432/postgres?sslmode=require
+  //
+  // Prisma uses DATABASE_URL (pooled) for runtime queries and DIRECT_URL
+  // for migrations (which don't work through PgBouncer).
+  // If DIRECT_URL is not set, it falls back to DATABASE_URL (no pooling).
 }
 
 // ── Enums ───────────────────────────────────────────────────────────────

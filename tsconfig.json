@@ -7,7 +7,7 @@
       "DOM.Iterable"
     ],
     "jsx": "react-jsx",
-    "strict": false,
+    "strict": true,
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "noUncheckedIndexedAccess": false,

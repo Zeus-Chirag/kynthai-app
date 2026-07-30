@@ -133,7 +133,8 @@ function maskPathIds(pathname: string): string {
 }
 
 // ── Public API Paths (logging bypass + rate-limit exemption) ─────────────────
-// Merged from legacy middleware.ts and updated proxy.ts
+// Merged from legacy middleware.ts and updated proxy.ts.
+// Also includes /api/v1/ variants for API versioning.
 const PUBLIC_API_PATHS = new Set([
   '/api/auth/register',
   '/api/auth/login',
@@ -150,6 +151,22 @@ const PUBLIC_API_PATHS = new Set([
   '/api/prescription-scan',
   '/api/doctors',
   '/api/labs',
+  // API v1 variants (rewritten to /api/* above, but match here for edge case)
+  '/api/v1/auth/register',
+  '/api/v1/auth/login',
+  '/api/v1/auth/csrf',
+  '/api/v1/auth/forgot-password',
+  '/api/v1/auth/reset-password',
+  '/api/v1/health',
+  '/api/v1/stripe/webhook',
+  '/api/v1/upload/',
+  '/api/v1/search-medicine',
+  '/api/v1/identify-medicine',
+  '/api/v1/ai/nudge',
+  '/api/v1/consult-messages',
+  '/api/v1/prescription-scan',
+  '/api/v1/doctors',
+  '/api/v1/labs',
 ]);
 
 function isPublicApi(pathname: string): boolean {
@@ -165,29 +182,39 @@ function isPublicApi(pathname: string): boolean {
 
 // ── Auth-required prefixes ────────────────────────────────────────────────────
 
-const AUTH_REQUIRED_PREFIXES = [
-  '/api/appointments',
-  '/api/medications',
-  '/api/consultation-prep',
-  '/api/emergency',
-  '/api/emergency-sos',
-  '/api/family',
-  '/api/lab-bookings',
-  '/api/labs',
-  '/api/payments',
-  '/api/prescriptions',
-  '/api/notifications',
-  '/api/chat',
-  '/api/insights',
-  '/api/health-report',
-  '/api/chronic',
-  '/api/doctors',
-  '/api/reminders',
-  '/api/challenges',
-  '/api/account',
-  '/api/consent',
-  '/api/me',
-];
+// Auth-required API prefixes (both /api/ and /api/v1/ variants).
+// The /api/v1/ variants are rewritten to /api/ at the top of middleware(),
+// but we keep them here for any edge case.
+function buildAuthPrefixes(): string[] {
+  const v0: string[] = [
+    '/api/appointments',
+    '/api/medications',
+    '/api/consultation-prep',
+    '/api/emergency',
+    '/api/emergency-sos',
+    '/api/family',
+    '/api/lab-bookings',
+    '/api/labs',
+    '/api/payments',
+    '/api/prescriptions',
+    '/api/notifications',
+    '/api/chat',
+    '/api/insights',
+    '/api/health-report',
+    '/api/chronic',
+    '/api/doctors',
+    '/api/reminders',
+    '/api/challenges',
+    '/api/account',
+    '/api/consent',
+    '/api/me',
+  ];
+  // Add /api/v1/ variants
+  const v1: string[] = v0.map(p => '/api/v1' + p.slice(4));
+  return [...v0, ...v1];
+}
+
+const AUTH_REQUIRED_PREFIXES = buildAuthPrefixes();
 
 function requiresAuth(pathname: string): boolean {
   return AUTH_REQUIRED_PREFIXES.some(prefix => pathname.startsWith(prefix));
@@ -384,7 +411,16 @@ export const config = {
 export default async function middleware(req: NextRequest): Promise<NextResponse> {
   ensureEnvValidated();
 
-  const { pathname } = req.nextUrl;
+  let { pathname } = req.nextUrl;
+
+  // ── API versioning: transparently rewrite /api/v1/* to /api/* ─────────
+  // This allows consuming /api/v1/doctors, /api/v1/medications, etc.
+  // while keeping the current route handlers at their existing paths.
+  // New endpoint development can target /api/v1/ going forward.
+  const V1_PREFIX = '/api/v1/';
+  if (pathname.startsWith(V1_PREFIX)) {
+    pathname = '/api/' + pathname.slice(V1_PREFIX.length);
+  }
   const method = req.method;
   const isApi = pathname.startsWith('/api/');
   const rawIp = getClientIp(req); // unmasked — used for rate-limiting keys
