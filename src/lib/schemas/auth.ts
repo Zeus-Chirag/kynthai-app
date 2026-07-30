@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const loginSchema = z.object({
   email: z.string().email('Valid email is required').max(254),
   password: z.string().min(1, 'Password is required').max(200),
+  captchaToken: z.string().optional(),
 })
 
 export const registerSchema = z.object({

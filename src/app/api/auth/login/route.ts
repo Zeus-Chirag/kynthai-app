@@ -4,6 +4,8 @@ import { logAudit } from '@/lib/auth';
 import { isValidEmail, rateLimit, getIp } from '@/lib/security';
 import { checkCsrf } from '@/lib/csrf';
 import { signSessionToken } from '@/lib/session-signing';
+import { verifyTurnstileToken, isCaptchaConfigured } from '@/lib/captcha';
+import { assessLoginRisk, logSuspiciousLogin, computeDeviceFingerprint } from '@/lib/login-anomaly';
 import {
   jsonError,
   jsonOk,
@@ -43,8 +45,19 @@ export async function POST(req: NextRequest) {
       }
       return jsonError('Validation failed', 422, 'VALIDATION_ERROR', { fields });
     }
-    const { email, password } = loginResult.data;
+    const { email, password, captchaToken } = loginResult.data;
     if (!isValidEmail(email)) return jsonError('Valid email is required', 400);
+
+    // ── CAPTCHA verification ──────────────────────────────────────────
+    if (isCaptchaConfigured()) {
+      if (!captchaToken) {
+        return jsonError('CAPTCHA verification is required. Please complete the security check.', 400, 'CAPTCHA_REQUIRED');
+      }
+      const captchaResult = await verifyTurnstileToken(captchaToken, ip);
+      if (!captchaResult.valid) {
+        return jsonError(captchaResult.error || 'CAPTCHA verification failed', 400, 'CAPTCHA_FAILED');
+      }
+    }
 
     // ── Account-based brute-force lockout check ──────────────────────────
     const lockoutErr = await checkAccountLockout(email, ip);
@@ -148,7 +161,67 @@ export async function POST(req: NextRequest) {
       dateOfBirth: user.dateOfBirth ?? null,
     } as any);
 
+    // ── Suspicious login detection ──────────────────────────────────
+    const deviceFingerprint = computeDeviceFingerprint(
+      req.headers.get('user-agent') || '',
+      req.headers.get('accept-language') || undefined,
+      req.headers.get('sec-ch-ua') || undefined
+    );
+
+    const riskAssessment = await assessLoginRisk({
+      userId: user.id,
+      email: user.email,
+      ip,
+      userAgent: req.headers.get('user-agent') || '',
+      deviceFingerprint,
+      timestamp: new Date(),
+    });
+
+    if (riskAssessment.shouldBlock) {
+      await logSuspiciousLogin(user.id, {
+        userId: user.id,
+        email: user.email,
+        ip,
+        userAgent: req.headers.get('user-agent') || '',
+        deviceFingerprint,
+        timestamp: new Date(),
+      }, riskAssessment);
+      return jsonError('This login attempt was blocked for security reasons. Please try again or contact support.', 423, 'LOGIN_BLOCKED');
+    }
+
+    if (riskAssessment.shouldChallenge) {
+      await logSuspiciousLogin(user.id, {
+        userId: user.id,
+        email: user.email,
+        ip,
+        userAgent: req.headers.get('user-agent') || '',
+        deviceFingerprint,
+        timestamp: new Date(),
+      }, riskAssessment);
+      // Still allow login but flag in audit log
+    }
+
     await logAudit(user.id, 'auth.login', `role=${user.role}`);
+
+    // Store device fingerprint in audit log metadata for future reference
+    try {
+      const { db } = await import('@/lib/db');
+      await db.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'auth.login.device',
+          category: 'auth',
+          outcome: 'success',
+          riskScore: riskAssessment.score,
+          metadata: JSON.stringify({ deviceFingerprint, ip, riskScore: riskAssessment.score }),
+          ip,
+          userAgent: req.headers.get('user-agent')?.slice(0, 512),
+          details: `risk=${riskAssessment.level} score=${riskAssessment.score}`,
+        },
+      });
+    } catch {
+      // Non-critical
+    }
 
     const responseBody = {
       id: user.id,

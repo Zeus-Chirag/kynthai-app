@@ -7,6 +7,7 @@ import {
   isValidE164,
   rateLimit,
   validatePasswordStrength,
+  getIp,
 } from '@/lib/security';
 import { checkCsrf } from '@/lib/csrf';
 import {
@@ -20,6 +21,7 @@ import { registerSchema } from '@/lib/schemas';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { syncSupabaseUser } from '@/lib/supabase/sync';
+import { verifyTurnstileToken, isCaptchaConfigured } from '@/lib/captcha';
 export const dynamic = 'force-dynamic';
 
 const WEAK_PASSWORDS = new Set([
@@ -74,6 +76,21 @@ export async function POST(req: NextRequest) {
     }
 
     if (!isValidEmail(email)) return jsonError('Valid email is required', 400);
+
+    // ── CAPTCHA verification ──────────────────────────────────────────
+    if (isCaptchaConfigured()) {
+      const raw = rawBody as Record<string, unknown>;
+      const captchaToken = (raw.captchaToken || raw['cf-turnstile-response']) as string | undefined;
+      if (!captchaToken) {
+        return jsonError('CAPTCHA verification is required. Please complete the security check.', 400, 'CAPTCHA_REQUIRED');
+      }
+      const ip = getIp(req);
+      const captchaResult = await verifyTurnstileToken(captchaToken, ip);
+      if (!captchaResult.valid) {
+        return jsonError(captchaResult.error || 'CAPTCHA verification failed', 400, 'CAPTCHA_FAILED');
+      }
+    }
+
     const strength = validatePasswordStrength(password);
     if (!strength.valid) return jsonError(strength.errors.join('; '), 400);
     if (WEAK_PASSWORDS.has(password.toLowerCase())) {
