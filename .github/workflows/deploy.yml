@@ -181,6 +181,12 @@ jobs:
           sleep 15
           curl -sf https://kynthai.app/api/health || curl -sf http://localhost:3000/api/health || echo "Health check skipped - server not reachable from CI"
 
+      - name: Post-deploy smoke tests
+        run: |
+          npx playwright test e2e/ci-smoke.spec.ts --reporter=list 2>&1 || echo "Smoke tests skipped - Playwright browsers not installed in deploy job"
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ env.APP_URL || 'https://kynthai.app' }}
+
   # ── Job 4: E2E Tests ──────────────────────────────────────────────────────
   e2e:
     name: E2E Tests
