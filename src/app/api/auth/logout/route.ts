@@ -21,24 +21,30 @@ export async function POST(req: NextRequest) {
 
   const { data: { user: supabaseUser } } = await supabase.auth.getUser();
 
+  let userId = 'unknown';
   if (supabaseUser) {
     const profile = await getSupabaseProfile(supabaseUser);
     if (profile) {
+      userId = profile.id;
       await logAudit(profile.id, 'auth.logout');
     }
   }
 
+  // Sign out from Supabase
   await supabase.auth.signOut();
 
   // Build response with cleared cookies
   const res = NextResponse.json({ success: true });
+
+  // Explicitly clear kynthai-session cookie (used by local auth fallback)
+  res.headers.append('Set-Cookie', 'kynthai-session=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict');
 
   // Parse cookies from raw Cookie header and clear them all
   const cookieHeader = req.headers.get('cookie') ?? '';
   const cookiePairs = cookieHeader.split(';');
   for (const pair of cookiePairs) {
     const name = pair.trim().split('=')[0];
-    if (name) {
+    if (name && name.trim()) {
       // Use append to add multiple Set-Cookie headers
       res.headers.append('Set-Cookie', `${name}=; Path=/; Max-Age=0`);
     }

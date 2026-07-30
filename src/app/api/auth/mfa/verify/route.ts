@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 import { verifyMfaFactor } from '@/lib/mfa'
 import { jsonError, jsonOk, applyStandardHeaders, readJson } from '@/lib/api-helpers'
 import { rateLimit } from '@/lib/security'
@@ -25,9 +26,26 @@ export async function POST(req: NextRequest) {
       return jsonError('factorId, challengeId, and code are required', 400)
     }
 
+    // Verify that user is authenticated and get their actual user ID
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return req.cookies.getAll() },
+          setAll() {},
+        },
+      }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return jsonError('Authentication required', 401)
+    }
+
     const result = await verifyMfaFactor(req, raw.factorId, raw.challengeId, raw.code)
 
-    await logAudit('system', 'mfa.verify', 'TOTP factor verified')
+    // Use the actual authenticated user ID
+    await logAudit(user.id, 'mfa.verify', 'TOTP factor verified')
 
     return jsonOk(result)
   } catch (error: any) {
