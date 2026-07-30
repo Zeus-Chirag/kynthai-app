@@ -57,6 +57,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
         <button
           onClick={() => goScreen('landing')}
           className="flex items-center"
+          aria-label="Kynthai home"
         >
           <KynthaiBrand />
         </button>

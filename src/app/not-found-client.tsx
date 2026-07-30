@@ -24,7 +24,7 @@ export default function NotFound() {
               The page you're looking for doesn't exist or has been moved.
             </p>
             <div className="flex gap-3 mt-2">
-              <Button variant="outline" onClick={() => window.history.back()}>
+              <Button variant="outline" type="button" onClick={() => window.history.back()}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go Back
               </Button>
