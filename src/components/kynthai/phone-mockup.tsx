@@ -43,22 +43,7 @@ const sectionEntrance = (i: number) => ({
   },
 });
 
-/** ── CSS keyframes for infinite animations (injected once) ──────────── */
-const STYLES_ID = 'kynthai-phone-styles';
-
-function injectStyles() {
-  if (typeof document === 'undefined' || document.getElementById(STYLES_ID)) return;
-  const css = `
-    @keyframes phone-pulse-bell { 0%,100%{transform:scale(1)} 50%{transform:scale(1.35)} }
-    @keyframes phone-ring-pulse { 0%,100%{opacity:0;transform:scale(0.85)} 50%{opacity:0.2;transform:scale(1.25)} 100%{opacity:0;transform:scale(1.6)} }
-    @keyframes phone-tick { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-3px)} 50%{transform:translateY(0)} 75%{transform:translateY(-1px)} }
-    @keyframes phone-sheen { from{transform:translateX(-100%) skew(-15deg)} to{transform:translateX(300%) skew(-15deg)} }
-  `;
-  const style = document.createElement('style');
-  style.id = STYLES_ID;
-  style.textContent = css;
-  document.head.appendChild(style);
-}
+/** ── CSS keyframes are defined in src/app/globals.css ──────────────── */
 
 function RingPulse({ className }: { className: string }) {
   return (
@@ -80,7 +65,6 @@ export function PhoneMockup({
   className?: string;
   ariaHidden?: boolean;
 }) {
-  React.useEffect(() => { injectStyles(); }, []);
 
   return (
     <motion.div

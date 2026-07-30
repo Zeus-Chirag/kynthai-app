@@ -13,6 +13,7 @@ import {
 } from '@/lib/api-helpers';
 import { loginSchema } from '@/lib/schemas';
 import { isIpBlocked, logSecurityEvent } from '@/lib/security-audit';
+import { checkAccountLockout, recordFailedAttempt, resetLockout } from '@/lib/login-lockout';
 import { getSupabaseProfile } from '@/lib/supabase/sync';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
@@ -44,6 +45,10 @@ export async function POST(req: NextRequest) {
     }
     const { email, password } = loginResult.data;
     if (!isValidEmail(email)) return jsonError('Valid email is required', 400);
+
+    // ── Account-based brute-force lockout check ──────────────────────────
+    const lockoutErr = await checkAccountLockout(email, ip);
+    if (lockoutErr) return lockoutErr;
 
     // ── Supabase Auth: sign in ──────────────────────────────────────────
     let supabaseResponseCookies: { name: string; value: string; options?: Record<string, unknown> }[] = [];
@@ -88,7 +93,7 @@ export async function POST(req: NextRequest) {
           }
         }
         if (!user) {
-          await logSecurityEvent('unknown', 'auth.login.failed', `ip=${ip} email=${email}`);
+          await recordFailedAttempt(email, ip);
           return jsonError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
         }
       } else {
@@ -123,10 +128,13 @@ export async function POST(req: NextRequest) {
         }
       }
       if (!user) {
-        await logSecurityEvent('unknown', 'auth.login.failed', `ip=${ip} email=${email}`);
+        await recordFailedAttempt(email, ip);
         return jsonError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
       }
     }
+
+    // Reset lockout on successful login
+    await resetLockout(email);
 
     // Compliance: enforce consent before issuing session
     const consentErr = checkConsent({

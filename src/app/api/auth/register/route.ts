@@ -26,7 +26,7 @@ const WEAK_PASSWORDS = new Set([
   'password', '123456', '12345678', 'qwerty', 'abc123', '111111',
   '1234567', 'password1', '123456789', '12345', 'admin', 'letmein',
   'welcome', 'monkey', 'iloveyou', '000000', 'sunshine', 'princess',
-  'football', 'baseball',
+  'football', 'baseball', 'password123', 'Password123', '@Password123',
 ]);
 
 export async function POST(req: NextRequest) {
