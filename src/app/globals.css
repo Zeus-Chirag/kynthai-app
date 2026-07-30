@@ -181,21 +181,32 @@
 }
 
 /* ── Phone mockup animation keyframes (used by PhoneMockup) ──────────── */
+/* GPU-composited: use transform/opacity only to avoid paint thrashing */
 @keyframes phone-pulse-bell { 0%,100%{transform:scale(1)} 50%{transform:scale(1.35)} }
-@keyframes phone-ring-pulse { 0%{opacity:0;transform:scale(0.85)} 50%{opacity:0.2;transform:scale(1.25)} 100%{opacity:0;transform:scale(1.6)} }
-@keyframes phone-tick { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-3px)} 50%{transform:translateY(0)} 75%{transform:translateY(-1px)} }
-@keyframes phone-sheen { from{transform:translateX(-100%) skew(-15deg)} to{transform:translateX(300%) skew(-15deg)} }
-.animate-phone-pulse-bell { animation: phone-pulse-bell 2s ease-in-out infinite; }
-.animate-phone-tick { animation: phone-tick 3.5s ease-in-out infinite; }
-.animate-phone-sheen { animation: phone-sheen 4s linear infinite; }
+@keyframes phone-ring-pulse { 0%{opacity:0;transform:scale(0.8)} 35%{opacity:0.22;transform:scale(1.15)} 70%{opacity:0.08;transform:scale(1.4)} 100%{opacity:0;transform:scale(1.7)} }
+@keyframes phone-tick { 0%,100%{transform:translateY(0)} 20%{transform:translateY(-4px)} 40%{transform:translateY(0)} 65%{transform:translateY(-2px)} }
+@keyframes phone-sheen { 
+  0%   { transform: translateX(-120%) skew(-15deg); }
+  45%  { transform: translateX(200%) skew(-15deg); }
+  55%  { transform: translateX(200%) skew(-15deg); }
+  100% { transform: translateX(-120%) skew(-15deg); }
+}
+.animate-phone-pulse-bell { animation: phone-pulse-bell 2.5s ease-in-out infinite; }
+.animate-phone-tick { animation: phone-tick 4s ease-in-out infinite; }
+.animate-phone-sheen { 
+  animation: phone-sheen 6s ease-in-out infinite;
+  will-change: transform;
+}
 
 /* ── Premium motion + texture utilities ───────────────────────────────── */
 @keyframes kynthai-gradient {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 220% 50%; }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 .animate-kynthai-gradient {
-  animation: kynthai-gradient 7s linear infinite;
+  animation: kynthai-gradient 10s ease-in-out infinite;
+  will-change: background-position;
 }
 
 /* Subtle grain overlay for premium feel */

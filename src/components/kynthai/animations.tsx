@@ -118,6 +118,7 @@ export function StaggerItem({
 
 /* ------------------------------------------------------------------ */
 /* Counter — animated number counting up when in view                  */
+/* Uses requestAnimationFrame interpolation for jitter-free counting    */
 /* ------------------------------------------------------------------ */
 export function Counter({
   to,
@@ -138,27 +139,35 @@ export function Counter({
 }) {
   const ref = React.useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true, margin: '-50px' })
-  const count = useMotionValue(from)
   const reduced = useReducedMotion()
-  // When reduced motion is preferred, jump directly to the target value
-  // and skip the spring-based animation entirely.
-  const effectiveDuration = reduced ? 0 : duration
-  const spring = useSpring(count, { duration: effectiveDuration * 1000, bounce: 0 })
-
-  React.useEffect(() => {
-    if (inView) {
-      count.set(to)
-    }
-  }, [inView, to, count])
 
   const [display, setDisplay] = React.useState(from.toFixed(decimals))
 
   React.useEffect(() => {
-    const unsub = spring.on('change', (v) => {
-      setDisplay(v.toFixed(decimals))
-    })
-    return () => unsub()
-  }, [spring, decimals])
+    if (!inView || reduced) {
+      setDisplay(to.toFixed(decimals))
+      return
+    }
+
+    const startTime = performance.now()
+    const diff = to - from
+    let rafId: number
+
+    function tick(now: number) {
+      const elapsed = (now - startTime) / 1000
+      const t = Math.min(elapsed / duration, 1)
+      // Smooth ease-out curve: 1 - (1-t)^3
+      const eased = 1 - Math.pow(1 - t, 3)
+      const current = from + diff * eased
+      setDisplay(current.toFixed(decimals))
+      if (t < 1) {
+        rafId = requestAnimationFrame(tick)
+      }
+    }
+
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [inView, to, from, duration, decimals, reduced])
 
   return (
     <span ref={ref} className={className}>
@@ -333,6 +342,7 @@ export { AnimatePresence, motion }
 
 /* ------------------------------------------------------------------ */
 /* Floating — subtle infinite float for hero elements                  */
+/* Smoother sine-wave easing, with willChange for GPU promotion        */
 /* ------------------------------------------------------------------ */
 export function Floating({
   children,
@@ -360,8 +370,53 @@ export function Floating({
         duration,
         repeat: Infinity,
         ease: 'easeInOut',
+        repeatType: 'mirror',
       }}
       className={className}
+      style={{ willChange: 'transform' }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* FloatBadge — badge that floats continuously with its own rhythm    */
+/* ------------------------------------------------------------------ */
+export function FloatBadge({
+  children,
+  className,
+  delay = 0,
+  amplitude = 5,
+  duration = 3.5,
+}: {
+  children: React.ReactNode
+  className?: string
+  delay?: number
+  amplitude?: number
+  duration?: number
+}) {
+  const reduced = useReducedMotion()
+
+  if (reduced) {
+    return <div className={className}>{children}</div>
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.9 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: [0, -amplitude, 0],
+      }}
+      transition={{
+        opacity: { delay, duration: 0.4, ease: 'easeOut' },
+        scale: { delay, duration: 0.4, ease: 'easeOut' },
+        y: { delay: delay + 0.5, duration, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' },
+      }}
+      className={className}
+      style={{ willChange: 'transform' }}
     >
       {children}
     </motion.div>

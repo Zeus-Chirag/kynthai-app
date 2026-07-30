@@ -24,22 +24,22 @@ import {
 import { cn } from '@/lib/utils';
 import { KynthaiIcon } from './logo';
 
-/* ── Entrance animation — fast, 2 groups ─────────────────────────────── */
+/* ── Entrance animation — container fades in, children stagger ─────── */
+/* Only the container entrance; children use their own staggered delays  */
 const containerEntrance = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
+/* Children stagger in after container is visible — no y overlap        */
 const sectionEntrance = (i: number) => ({
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    y: 0,
-    transition: { delay: 0.04 * i, duration: 0.3, ease: 'easeOut' as const },
+    transition: { delay: 0.35 + 0.06 * i, duration: 0.35, ease: 'easeOut' as const },
   },
 });
 
@@ -52,8 +52,9 @@ function RingPulse({ className }: { className: string }) {
       aria-hidden
       style={{
         background: 'radial-gradient(circle, rgba(16,185,129,0.55) 0%, transparent 70%)',
-        animation: 'phone-ring-pulse 4.5s ease-out infinite',
+        animation: 'phone-ring-pulse 5s ease-out infinite',
         willChange: 'transform, opacity',
+        backfaceVisibility: 'hidden',
       }}
     />
   );
@@ -205,8 +206,8 @@ export function PhoneMockup({
           >
             <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden>
               <div
-                className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                style={reduced ? {} : { animation: 'phone-sheen 4s linear infinite' }}
+                className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-phone-sheen"
+                aria-hidden
               />
             </div>
             <div className="flex items-center justify-between">
@@ -393,12 +394,21 @@ function FloatingBadge({
   return (
     <motion.div
       initial={{ opacity: 0, y: 10, scale: 0.9 }}
-      animate={{ opacity: 1, y: [0, -4, 0], scale: 1 }}
-      transition={{ delay, duration: 0.5, ease: 'easeOut' }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: [0, -5, 0],
+      }}
+      transition={{
+        opacity: { delay, duration: 0.4, ease: 'easeOut' },
+        scale: { delay, duration: 0.4, ease: 'easeOut' },
+        y: { delay: delay + 0.6, duration: 4, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' },
+      }}
       className={cn(
         'absolute z-20 flex items-center gap-2 rounded-2xl border border-neutral-200/80 bg-white/95 px-3 py-2 shadow-2xl shadow-emerald-900/20 backdrop-blur-xl',
         className,
       )}
+      style={{ willChange: 'transform' }}
     >
       <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-neutral-50">{icon}</div>
       <div>
