@@ -332,15 +332,16 @@ export function PhoneMockup({
       </div>
 
       {/* ── Floating notification badges ──────────────────────────────── */}
+      {/* On mobile: 2 badges with tight offsets; on tablet+ : 4 badges with wider offsets */}
       <FloatingBadge
-        className="-left-10 top-24 hidden md:flex"
+        className="-left-6 top-24 sm:-left-10 md:flex"
         delay={0.8}
         icon={<Heart className="h-3.5 w-3.5 text-rose-500" />}
         title="Mom's BP taken"
         sub="By you · 2 min ago"
       />
       <FloatingBadge
-        className="-right-10 top-44 hidden md:flex"
+        className="-right-6 top-44 sm:-right-10 md:flex"
         delay={1.0}
         icon={<Search className="h-3.5 w-3.5 text-emerald-600" />}
         title="Drug interaction"

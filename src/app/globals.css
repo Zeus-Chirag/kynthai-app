@@ -209,6 +209,15 @@
   will-change: background-position;
 }
 
+/* ── OTP/Input caret blink (moved from unused index.css) ─────────────────── */
+@keyframes caret-blink {
+  0%, 70%, 100% { opacity: 1; }
+  35% { opacity: 0; }
+}
+.animate-caret-blink {
+  animation: caret-blink 1.2s ease-in-out infinite;
+}
+
 /* Subtle grain overlay for premium feel */
 .grain::before {
   content: '';
