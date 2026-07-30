@@ -8,6 +8,7 @@ import { KynthaiBrand } from './logo'
 import { Menu, X, ArrowRight, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 
 /* ------------------------------------------------------------------ */
 /* LandingNav — scroll-aware navigation bar (client island)           */
@@ -96,7 +97,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
           <Button
             size="default"
             onClick={() => goToLogin('caretaker')}
-            className="h-10 gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-white shadow-md hover:from-emerald-600 hover:to-teal-700"
+            className="h-10 gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-white shadow-md hover:from-emerald-600 hover:to-teal-700 active:scale-[0.97] transition-transform duration-150"
           >
             Get Started
             <ArrowRight className="h-4 w-4" />
@@ -104,19 +105,35 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
         </div>
 
         <button
-          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border md:hidden transition-transform duration-200 active:scale-90"
           onClick={() => setOpen((o) => !o)}
           aria-label="Toggle menu"
           aria-expanded={open}
           aria-controls="mobile-menu"
         >
-          {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          <motion.span
+            key={open ? 'close' : 'menu'}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            exit={{ rotate: 90, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
+            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </motion.span>
         </button>
       </div>
 
-      {open && (
-        <div id="mobile-menu" className="border-t border-border bg-background md:hidden">
-          <div className="space-y-1 px-4 py-3">
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="mobile-menu"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden border-t border-border bg-background md:hidden"
+          >
+            <div className="space-y-1 px-4 py-3">
             {links.map((l) =>
               l.href ? (
                 <Link
@@ -140,17 +157,17 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
                 </button>
               )
             )}
-            <Link href="/login">
+            <Link href="/login" onClick={() => setOpen(false)}>
               <Button
                 className="mt-2 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
-                onClick={() => setOpen(false)}
               >
                 Get Started
               </Button>
             </Link>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   )
 }
