@@ -23,7 +23,7 @@ const PhoneMockup = dynamic(
     loading: () => (
       <div
         className={cn(
-          'relative mx-auto w-full max-w-[260px] sm:max-w-[300px]',
+          'relative mx-auto w-full max-w-[90vw] sm:max-w-[320px]',
         )}
       >
         {/* Phone silhouette — same border-radius + border as real mockup */}

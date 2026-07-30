@@ -14,8 +14,7 @@ import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-// In-memory SMS code store (in production, use Redis or DB)
-const smsCodes = new Map<string, { code: string; expiresAt: number }>();
+const SMS_CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
 
 // ── GET /api/users/verify — get current user's verification status ──────
 export async function GET(req: NextRequest) {
@@ -99,19 +98,20 @@ export async function PATCH(req: NextRequest) {
       }
 
       const code = generateSmsCode();
-      smsCodes.set(session.id, {
-        code,
-        expiresAt: Date.now() + 10 * 60 * 1000, // 10 min expiry
+      const expiresAt = new Date(Date.now() + SMS_CODE_EXPIRY_MS);
+
+      // Store code in database (persistent, survives restarts, horizontally scalable)
+      await db.user.update({
+        where: { id: session.id },
+        data: {
+          smsVerificationCode: code,
+          smsCodeExpiresAt: expiresAt,
+          phone,
+        },
       });
 
       // In production: send via Twilio/SES. For now, log to console.
       console.log(`[VERIFY] SMS code for ${session.id}: ${code}`);
-
-      // Update phone number if changed
-      await db.user.update({
-        where: { id: session.id },
-        data: { phone },
-      });
 
       await logAudit(session.id, 'user.verify.sms_sent', `phone=${phone}`);
       return jsonOk({ message: 'Verification code sent', phone });
@@ -119,22 +119,36 @@ export async function PATCH(req: NextRequest) {
 
     // ── Action: verify_sms ────────────────────────────────────────────
     if (action === 'verify_sms') {
-      const stored = smsCodes.get(session.id);
-      if (!stored) {
+      const user = await db.user.findUnique({
+        where: { id: session.id },
+        select: { smsVerificationCode: true, smsCodeExpiresAt: true },
+      });
+
+      if (!user?.smsVerificationCode) {
         return jsonError('No verification code found. Request a new one.', 400);
       }
-      if (Date.now() > stored.expiresAt) {
-        smsCodes.delete(session.id);
+
+      if (user.smsCodeExpiresAt && new Date() > user.smsCodeExpiresAt) {
+        // Clear expired code
+        await db.user.update({
+          where: { id: session.id },
+          data: { smsVerificationCode: null, smsCodeExpiresAt: null },
+        });
         return jsonError('Verification code expired. Request a new one.', 400);
       }
-      if (body.smsCode !== stored.code) {
+
+      if (body.smsCode !== user.smsVerificationCode) {
         return jsonError('Invalid verification code', 400);
       }
 
-      smsCodes.delete(session.id);
+      // Clear code and mark phone as verified
       await db.user.update({
         where: { id: session.id },
-        data: { phoneVerified: true },
+        data: {
+          smsVerificationCode: null,
+          smsCodeExpiresAt: null,
+          phoneVerified: true,
+        },
       });
 
       await logAudit(session.id, 'user.verify.sms_confirmed', '');

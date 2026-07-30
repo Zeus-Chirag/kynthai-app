@@ -72,7 +72,7 @@ export function PhoneMockup({
   if (reduced) {
     return (
       <div
-        className={cn('relative mx-auto w-full max-w-[270px] sm:max-w-[305px]', className)}
+        className={cn('relative mx-auto w-full max-w-[90vw] sm:max-w-[320px]', className)}
         aria-hidden={ariaHidden}
         style={{ opacity: 1 }}
       >
@@ -140,7 +140,7 @@ export function PhoneMockup({
       variants={containerEntrance}
       initial="hidden"
       animate="visible"
-      className={cn('relative mx-auto w-full max-w-[270px] sm:max-w-[305px]', className)}
+      className={cn('relative mx-auto w-full max-w-[90vw] sm:max-w-[320px]', className)}
       aria-hidden={ariaHidden}
     >
       {/* ── Layered glow background ─────────────────────────────────── */}
@@ -333,28 +333,28 @@ export function PhoneMockup({
 
       {/* ── Floating notification badges ──────────────────────────────── */}
       <FloatingBadge
-        className="-left-14 top-20 hidden md:flex"
+        className="-left-10 top-24 hidden md:flex"
         delay={0.8}
         icon={<Heart className="h-3.5 w-3.5 text-rose-500" />}
         title="Mom's BP taken"
         sub="By you · 2 min ago"
       />
       <FloatingBadge
-        className="-right-12 top-40 hidden md:flex"
+        className="-right-10 top-44 hidden md:flex"
         delay={1.0}
         icon={<Search className="h-3.5 w-3.5 text-emerald-600" />}
         title="Drug interaction"
         sub="Metformin — safe"
       />
       <FloatingBadge
-        className="-left-16 bottom-24 hidden lg:flex"
+        className="-left-12 bottom-28 hidden lg:flex"
         delay={1.2}
         icon={<Sparkles className="h-3.5 w-3.5 text-amber-500" />}
         title="AI insight ready"
         sub="Weekly report"
       />
       <FloatingBadge
-        className="-right-16 bottom-36 hidden lg:flex"
+        className="-right-12 bottom-36 hidden lg:flex"
         delay={1.4}
         icon={<ShieldCheck className="h-3.5 w-3.5 text-blue-600" />}
         title="Privacy-safe upload"

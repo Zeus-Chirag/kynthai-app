@@ -420,6 +420,8 @@ export async function requireSystemToken(req: NextRequest) {
       idDocumentUploaded: false,
       idDocumentVerified: false,
       verificationLevel: 'unverified',
+      smsVerificationCode: null,
+      smsCodeExpiresAt: null,
       verificationRejectedReason: null,
       idDocumentRef: null,
       deletedAt: null,

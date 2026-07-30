@@ -6,6 +6,8 @@
  * - Identity confirmation affidavits
  */
 
+import { randomInt } from 'node:crypto';
+
 export interface IdentityDocument {
   id: string;
   type: 'passport' | 'drivers_license' | 'state_id' | 'other';
@@ -41,11 +43,12 @@ export function computeVerificationLevel(status: {
 }
 
 /**
- * Generates a 6-digit SMS verification code.
+ * Generates a 6-digit SMS verification code using cryptographically secure random.
  * In production, this would be sent via Twilio or similar.
  */
 export function generateSmsCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  // Use crypto.randomInt for cryptographically secure generation
+  return String(randomInt(100000, 999999));
 }
 
 /**

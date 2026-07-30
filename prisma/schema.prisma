@@ -95,7 +95,9 @@ model User {
   idDocumentVerified         Boolean          @default(false)
   verificationLevel          String           @default("unverified")
   verificationRejectedReason String?
-  idDocumentRef              String?          // JSON reference to uploaded ID document
+  idDocumentRef              String?
+  smsVerificationCode        String?
+  smsCodeExpiresAt           DateTime?          // JSON reference to uploaded ID document
   dateOfBirth                DateTime? // age verification (must be 18+)
   dateOfBirth_enc            String?          @map("dateOfBirth_enc")
   allergies                  String? // JSON array of allergy strings (e.g. ["Penicillin", "Sulfa"])

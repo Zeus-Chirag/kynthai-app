@@ -113,8 +113,8 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         </div>
 
         {/* Right: phone mockup — visible on all screens */}
-        <div className="flex items-center justify-center mt-4 lg:mt-0">
-          <PhoneMockup />
+        <div className="flex w-full items-center justify-center mt-4 lg:mt-0">
+          <PhoneMockup className="w-full" />
         </div>
       </div>
     </section>

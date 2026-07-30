@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Smartphone,
   ShieldCheck,
@@ -33,6 +34,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp';
 import { VerificationBadge, getNextVerificationStep } from '@/components/kynthai/verification-badge';
 import { ID_DOCUMENT_TYPES } from '@/lib/patient-verify';
 import type { VerificationLevel } from '@/components/kynthai/verification-badge';
@@ -64,6 +70,22 @@ type Step = 'start' | 'phone' | 'identity' | 'id_upload' | 'complete';
 
 const stepOrder: Step[] = ['start', 'phone', 'identity', 'id_upload', 'complete'];
 
+/* ── Step transition variants ─────────────────────────────────────── */
+const stepVariants = {
+  initial: { opacity: 0, y: 12, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const } },
+  exit: { opacity: 0, y: -8, scale: 0.97, transition: { duration: 0.2, ease: 'easeIn' as const } },
+};
+
+/* ── Shake animation for error feedback ──────────────────────────── */
+const shakeVariants = {
+  shake: {
+    x: [0, -6, 6, -4, 4, -2, 2, 0],
+    transition: { duration: 0.4, ease: 'easeInOut' as const },
+  },
+  idle: { x: 0 },
+};
+
 export function PatientIdentityConfirmation({
   userId,
   userName,
@@ -80,6 +102,7 @@ export function PatientIdentityConfirmation({
     : 'start'
   );
   const [loading, setLoading] = React.useState(false);
+  const [shaking, setShaking] = React.useState(false);
 
   // Phone verification state
   const [phone, setPhone] = React.useState(currentPhone || '');
@@ -98,6 +121,9 @@ export function PatientIdentityConfirmation({
   const [selfieFile, setSelfieFile] = React.useState<File | null>(null);
   const [selfiePreview, setSelfiePreview] = React.useState<string | null>(null);
 
+  // Track step key for AnimatePresence
+  const [stepKey, setStepKey] = React.useState(0);
+
   // Countdown timer for SMS resend
   React.useEffect(() => {
     if (countdown <= 0) return;
@@ -107,6 +133,12 @@ export function PatientIdentityConfirmation({
 
   const goToStep = (step: Step) => {
     setCurrentStep(step);
+    setStepKey(k => k + 1);
+  };
+
+  const triggerShake = () => {
+    setShaking(true);
+    setTimeout(() => setShaking(false), 500);
   };
 
   const sendSmsCode = async () => {
@@ -138,6 +170,7 @@ export function PatientIdentityConfirmation({
   const verifySmsCode = async () => {
     if (!smsCode || smsCode.length !== 6) {
       toast({ title: 'Enter the 6-digit code', variant: 'destructive' });
+      triggerShake();
       return;
     }
     setLoading(true);
@@ -153,11 +186,44 @@ export function PatientIdentityConfirmation({
       }
       setPhoneVerified(true);
       toast({ title: 'Phone verified!' });
-      setTimeout(() => goToStep('identity'), 500);
+      setTimeout(() => goToStep('identity'), 600);
     } catch (err) {
       toast({ title: err instanceof Error ? err.message : 'Failed', variant: 'destructive' });
+      triggerShake();
+      setSmsCode('');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Auto-submit when 6 digits are entered
+  const handleOtpComplete = (value: string) => {
+    if (value.length === 6) {
+      setSmsCode(value);
+      // Auto-trigger verification
+      setLoading(true);
+      (async () => {
+        try {
+          const res = await fetch('/api/users/verify', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'verify_sms', smsCode: value }),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data?.error || 'Invalid code');
+          }
+          setPhoneVerified(true);
+          toast({ title: 'Phone verified!' });
+          setTimeout(() => goToStep('identity'), 600);
+        } catch (err) {
+          toast({ title: err instanceof Error ? err.message : 'Failed', variant: 'destructive' });
+          triggerShake();
+          setSmsCode('');
+        } finally {
+          setLoading(false);
+        }
+      })();
     }
   };
 
@@ -315,304 +381,338 @@ export function PatientIdentityConfirmation({
 
         <Separator />
 
-        {/* ── Step: Start ─────────────────────────────────────────────── */}
-        {currentStep === 'start' && (
-          <div className="space-y-4 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
-              <ShieldCheck className="h-8 w-8 text-emerald-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">Help us confirm you&apos;re a real person</h3>
-              <p className="mt-1 text-sm text-muted-foreground max-w-sm mx-auto">
-                Complete a few quick steps to unlock full access. Your data is encrypted and never shared.
-              </p>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-3 max-w-lg mx-auto">
-              {[
-                { icon: Smartphone, label: 'Verify Phone', sub: 'SMS code' },
-                { icon: Lock, label: 'Confirm Identity', sub: 'Legal declaration' },
-                { icon: IdCard, label: 'Upload ID', sub: 'Optional but recommended' },
-              ].map(item => (
-                <div key={item.label} className="flex flex-col items-center gap-1.5 rounded-xl border border-border/60 p-3">
-                  <item.icon className="h-5 w-5 text-emerald-600" />
-                  <span className="text-xs font-medium">{item.label}</span>
-                  <span className="text-[10px] text-muted-foreground">{item.sub}</span>
+        {/* ── Animated Step Content ──────────────────────────────── */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`step-${currentStep}-${stepKey}`}
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {/* ── Step: Start ──────────────────────────────────────── */}
+            {currentStep === 'start' && (
+              <div className="space-y-4 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
+                  <ShieldCheck className="h-8 w-8 text-emerald-600" />
                 </div>
-              ))}
-            </div>
-            <Button
-              onClick={() => goToStep('phone')}
-              className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/20"
-            >
-              Get Started
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        )}
-
-        {/* ── Step: Phone Verification ─────────────────────────────────── */}
-        {currentStep === 'phone' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Smartphone className="h-5 w-5 text-emerald-600" />
-              <h3 className="font-semibold">Verify Your Phone Number</h3>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              We&apos;ll send a 6-digit code to confirm you own this number.
-            </p>
-
-            {!smsSent ? (
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="verify-phone">Phone Number (E.164 format)</Label>
-                  <Input
-                    id="verify-phone"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    placeholder="+15551234567"
-                  />
-                </div>
-                <Button
-                  onClick={sendSmsCode}
-                  disabled={loading}
-                  className="w-full"
-                >
-                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  Send Verification Code
-                </Button>
-              </div>
-            ) : phoneVerified ? (
-              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Phone Verified!</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="sms-code">Enter 6-digit code</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="sms-code"
-                      value={smsCode}
-                      onChange={e => setSmsCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      placeholder="123456"
-                      maxLength={6}
-                      className="text-center text-lg font-mono tracking-widest"
-                    />
-                    <Button
-                      onClick={verifySmsCode}
-                      disabled={loading || smsCode.length !== 6}
-                    >
-                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify'}
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSmsSent(false)}
-                    className="text-xs"
-                  >
-                    Change phone number
-                  </Button>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    onClick={sendSmsCode}
-                    disabled={countdown > 0 || loading}
-                    className="text-xs"
-                  >
-                    {countdown > 0 ? `Resend in ${countdown}s` : 'Resend code'}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Step: Identity Confirmation ──────────────────────────────── */}
-        {currentStep === 'identity' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-emerald-600" />
-              <h3 className="font-semibold">Confirm Your Identity</h3>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              By checking the box below, you make a legal declaration confirming your identity.
-            </p>
-
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
-              <div className="flex items-start gap-2">
-                <FileText className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium">Identity Affidavit</p>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                    I, <strong>{userName || userEmail}</strong>, hereby confirm that I am a real person
-                    and that all information I have provided to Kynthai is true and accurate to the
-                    best of my knowledge. I understand that providing false information may result in
-                    permanent account suspension and forfeiture of all services.
+                  <h3 className="text-lg font-semibold">Help us confirm you&apos;re a real person</h3>
+                  <p className="mt-1 text-sm text-muted-foreground max-w-sm mx-auto">
+                    Complete a few quick steps to unlock full access. Your data is encrypted and never shared.
                   </p>
                 </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <Checkbox
-                  id="identity-affidavit"
-                  checked={identityChecked}
-                  onCheckedChange={v => setIdentityChecked(!!v)}
-                />
-                <label htmlFor="identity-affidavit" className="text-xs leading-snug cursor-pointer select-none">
-                  I confirm that I am a real person and that my identity details are accurate.
-                </label>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => goToStep('phone')}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-              <Button
-                onClick={confirmIdentity}
-                disabled={loading || !identityChecked}
-                className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/20"
-              >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Confirm & Verify
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step: ID Upload ──────────────────────────────────────────── */}
-        {currentStep === 'id_upload' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <IdCard className="h-5 w-5 text-emerald-600" />
-              <h3 className="font-semibold">Upload Government ID (Optional)</h3>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              For maximum trust level, upload a government-issued ID. <strong>Encrypted end-to-end.</strong>
-            </p>
-
-            <div className="space-y-1.5">
-              <Label>Document Type</Label>
-              <Select value={idType} onValueChange={setIdType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select document type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ID_DOCUMENT_TYPES.map(dt => (
-                    <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>
+                <div className="grid sm:grid-cols-3 gap-3 max-w-lg mx-auto">
+                  {[
+                    { icon: Smartphone, label: 'Verify Phone', sub: 'SMS code' },
+                    { icon: Lock, label: 'Confirm Identity', sub: 'Legal declaration' },
+                    { icon: IdCard, label: 'Upload ID', sub: 'Optional but recommended' },
+                  ].map(item => (
+                    <div key={item.label} className="flex flex-col items-center gap-1.5 rounded-xl border border-border/60 p-3">
+                      <item.icon className="h-5 w-5 text-emerald-600" />
+                      <span className="text-xs font-medium">{item.label}</span>
+                      <span className="text-[10px] text-muted-foreground">{item.sub}</span>
+                    </div>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-3">
-              {/* ID Document Upload */}
-              <div className="space-y-1.5">
-                <Label>ID Document (front)</Label>
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('id-file-input')?.click()}
-                  className={cn(
-                    'flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 transition-all',
-                    idFile
-                      ? 'border-emerald-500/50 bg-emerald-500/5'
-                      : 'border-border hover:border-emerald-500/40 hover:bg-emerald-500/5'
-                  )}
+                </div>
+                <Button
+                  onClick={() => goToStep('phone')}
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/20"
                 >
-                  {idPreview ? (
-                    <img src={idPreview} alt="ID preview" className="max-h-28 rounded-lg object-contain" />
-                  ) : (
-                    <>
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">Tap to upload</span>
-                      <span className="text-[10px] text-muted-foreground">JPG, PNG, or PDF</span>
-                    </>
-                  )}
-                </button>
-                <input
-                  id="id-file-input"
-                  type="file"
-                  accept="image/jpeg,image/png,application/pdf"
-                  className="hidden"
-                  onChange={handleIdFileChange}
-                />
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
-
-              {/* Selfie Upload */}
-              <div className="space-y-1.5">
-                <Label>Selfie / Profile Photo</Label>
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('selfie-file-input')?.click()}
-                  className={cn(
-                    'flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 transition-all',
-                    selfieFile
-                      ? 'border-emerald-500/50 bg-emerald-500/5'
-                      : 'border-border hover:border-emerald-500/40 hover:bg-emerald-500/5'
-                  )}
-                >
-                  {selfiePreview ? (
-                    <img src={selfiePreview} alt="Selfie preview" className="max-h-28 rounded-full object-cover aspect-square" />
-                  ) : (
-                    <>
-                      <Camera className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">Take a selfie</span>
-                      <span className="text-[10px] text-muted-foreground">JPG or PNG</span>
-                    </>
-                  )}
-                </button>
-                <input
-                  id="selfie-file-input"
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  className="hidden"
-                  onChange={handleSelfieChange}
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => onComplete('identity_confirmed')}>
-                Skip for now
-              </Button>
-              <Button
-                onClick={uploadIdDocument}
-                disabled={loading || !idFile || !idType}
-                className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/20"
-              >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                Upload for Review
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step: Complete ────────────────────────────────────────────── */}
-        {currentStep === 'complete' && (
-          <div className="space-y-4 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
-              <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">Identity Verified!</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Your documents have been submitted for review. You&apos;ll receive a confirmation
-                once the admin team has verified them.
-              </p>
-            </div>
-            <div className="flex justify-center">
-              <VerificationBadge level="pending_review" size="lg" showTooltip={true} />
-            </div>
-            {onDismiss && (
-              <Button onClick={onDismiss} variant="outline">
-                Done
-              </Button>
             )}
-          </div>
-        )}
+
+            {/* ── Step: Phone Verification ──────────────────────────── */}
+            {currentStep === 'phone' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="h-5 w-5 text-emerald-600" />
+                  <h3 className="font-semibold">Verify Your Phone Number</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  We&apos;ll send a 6-digit code to confirm you own this number.
+                </p>
+
+                {!smsSent ? (
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="verify-phone">Phone Number (E.164 format)</Label>
+                      <Input
+                        id="verify-phone"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        placeholder="+15551234567"
+                      />
+                    </div>
+                    <Button
+                      onClick={sendSmsCode}
+                      disabled={loading}
+                      className="w-full"
+                    >
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                      Send Verification Code
+                    </Button>
+                  </div>
+                ) : phoneVerified ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3"
+                  >
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Phone Verified!</p>
+                  </motion.div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label>Enter 6-digit code</Label>
+                      <motion.div
+                        variants={shakeVariants}
+                        animate={shaking ? 'shake' : 'idle'}
+                        className="flex justify-center"
+                      >
+                        <InputOTP
+                          maxLength={6}
+                          value={smsCode}
+                          onChange={setSmsCode}
+                          onComplete={handleOtpComplete}
+                          disabled={loading}
+                          containerClassName="gap-2 sm:gap-3"
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} className="h-12 w-10 sm:h-14 sm:w-12 text-lg sm:text-xl font-bold rounded-l-md border-l" />
+                            <InputOTPSlot index={1} className="h-12 w-10 sm:h-14 sm:w-12 text-lg sm:text-xl font-bold" />
+                            <InputOTPSlot index={2} className="h-12 w-10 sm:h-14 sm:w-12 text-lg sm:text-xl font-bold" />
+                          </InputOTPGroup>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={3} className="h-12 w-10 sm:h-14 sm:w-12 text-lg sm:text-xl font-bold" />
+                            <InputOTPSlot index={4} className="h-12 w-10 sm:h-14 sm:w-12 text-lg sm:text-xl font-bold" />
+                            <InputOTPSlot index={5} className="h-12 w-10 sm:h-14 sm:w-12 text-lg sm:text-xl font-bold rounded-r-md" />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </motion.div>
+                      {loading && (
+                        <div className="flex justify-center">
+                          <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex justify-between">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSmsSent(false)}
+                        className="text-xs"
+                      >
+                        Change phone number
+                      </Button>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={sendSmsCode}
+                        disabled={countdown > 0 || loading}
+                        className="text-xs"
+                      >
+                        {countdown > 0 ? `Resend in ${countdown}s` : 'Resend code'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Step: Identity Confirmation ───────────────────────── */}
+            {currentStep === 'identity' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-emerald-600" />
+                  <h3 className="font-semibold">Confirm Your Identity</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  By checking the box below, you make a legal declaration confirming your identity.
+                </p>
+
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <FileText className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">Identity Affidavit</p>
+                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                        I, <strong>{userName || userEmail}</strong>, hereby confirm that I am a real person
+                        and that all information I have provided to Kynthai is true and accurate to the
+                        best of my knowledge. I understand that providing false information may result in
+                        permanent account suspension and forfeiture of all services.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Checkbox
+                      id="identity-affidavit"
+                      checked={identityChecked}
+                      onCheckedChange={v => setIdentityChecked(!!v)}
+                    />
+                    <label htmlFor="identity-affidavit" className="text-xs leading-snug cursor-pointer select-none">
+                      I confirm that I am a real person and that my identity details are accurate.
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => goToStep('phone')}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                  </Button>
+                  <Button
+                    onClick={confirmIdentity}
+                    disabled={loading || !identityChecked}
+                    className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/20"
+                  >
+                    {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Confirm & Verify
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Step: ID Upload ───────────────────────────────────── */}
+            {currentStep === 'id_upload' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <IdCard className="h-5 w-5 text-emerald-600" />
+                  <h3 className="font-semibold">Upload Government ID (Optional)</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  For maximum trust level, upload a government-issued ID. <strong>Encrypted end-to-end.</strong>
+                </p>
+
+                <div className="space-y-1.5">
+                  <Label>Document Type</Label>
+                  <Select value={idType} onValueChange={setIdType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select document type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ID_DOCUMENT_TYPES.map(dt => (
+                        <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {/* ID Document Upload */}
+                  <div className="space-y-1.5">
+                    <Label>ID Document (front)</Label>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('id-file-input')?.click()}
+                      className={cn(
+                        'flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 transition-all',
+                        idFile
+                          ? 'border-emerald-500/50 bg-emerald-500/5'
+                          : 'border-border hover:border-emerald-500/40 hover:bg-emerald-500/5'
+                      )}
+                    >
+                      {idPreview ? (
+                        <img src={idPreview} alt="ID preview" className="max-h-28 rounded-lg object-contain" />
+                      ) : (
+                        <>
+                          <Upload className="h-8 w-8 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Tap to upload</span>
+                          <span className="text-[10px] text-muted-foreground">JPG, PNG, or PDF</span>
+                        </>
+                      )}
+                    </button>
+                    <input
+                      id="id-file-input"
+                      type="file"
+                      accept="image/jpeg,image/png,application/pdf"
+                      className="hidden"
+                      onChange={handleIdFileChange}
+                    />
+                  </div>
+
+                  {/* Selfie Upload */}
+                  <div className="space-y-1.5">
+                    <Label>Selfie / Profile Photo</Label>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('selfie-file-input')?.click()}
+                      className={cn(
+                        'flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 transition-all',
+                        selfieFile
+                          ? 'border-emerald-500/50 bg-emerald-500/5'
+                          : 'border-border hover:border-emerald-500/40 hover:bg-emerald-500/5'
+                      )}
+                    >
+                      {selfiePreview ? (
+                        <img src={selfiePreview} alt="Selfie preview" className="max-h-28 rounded-full object-cover aspect-square" />
+                      ) : (
+                        <>
+                          <Camera className="h-8 w-8 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Take a selfie</span>
+                          <span className="text-[10px] text-muted-foreground">JPG or PNG</span>
+                        </>
+                      )}
+                    </button>
+                    <input
+                      id="selfie-file-input"
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      className="hidden"
+                      onChange={handleSelfieChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => onComplete('identity_confirmed')}>
+                    Skip for now
+                  </Button>
+                  <Button
+                    onClick={uploadIdDocument}
+                    disabled={loading || !idFile || !idType}
+                    className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/20"
+                  >
+                    {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                    Upload for Review
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Step: Complete ─────────────────────────────────────── */}
+            {currentStep === 'complete' && (
+              <div className="space-y-4 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10"
+                >
+                  <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                </motion.div>
+                <div>
+                  <h3 className="text-lg font-semibold">Identity Verified!</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Your documents have been submitted for review. You&apos;ll receive a confirmation
+                    once the admin team has verified them.
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <VerificationBadge level="pending_review" size="lg" showTooltip={true} />
+                </div>
+                {onDismiss && (
+                  <Button onClick={onDismiss} variant="outline">
+                    Done
+                  </Button>
+                )}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         {/* Footer privacy note */}
         <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5">
