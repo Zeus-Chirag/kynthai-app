@@ -94,7 +94,7 @@ export async function assessLoginRisk(ctx: LoginContext): Promise<RiskAssessment
 
   // Factor 3: Geographic velocity (rapid login from far-away IPs)
   if (recentLogins.length >= 2) {
-    const lastLogin = recentLogins[0];
+    const lastLogin = recentLogins[0]!;
     if (lastLogin.ip && lastLogin.ip !== ctx.ip && lastLogin.ip !== 'unknown') {
       const timeSinceLastLogin = Date.now() - new Date(lastLogin.createdAt).getTime();
       // If less than 30 minutes between logins from different IPs

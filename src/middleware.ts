@@ -237,7 +237,7 @@ function isPortalPath(pathname: string): boolean {
 
 function expectedRoleForPortal(pathname: string): string | null {
   for (const p of Object.keys(PORTAL_ROLE_MAP)) {
-    if (pathname === p || pathname.startsWith(p + '/')) return PORTAL_ROLE_MAP[p];
+    if (pathname === p || pathname.startsWith(p + '/')) return PORTAL_ROLE_MAP[p] ?? null;
   }
   return null;
 }

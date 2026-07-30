@@ -242,6 +242,7 @@ export function useOnboarding(storageKey = 'kynthai-onboarding-dismissed') {
       const timer = setTimeout(() => setShow(true), 500);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [storageKey]);
 
   const complete = React.useCallback(() => {

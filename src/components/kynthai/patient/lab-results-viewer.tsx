@@ -158,7 +158,7 @@ export function LabResultsViewer({ isDemo }: { isDemo: boolean }) {
   return (
     <div className="space-y-3">
       {bookings.map((b, i) => {
-        const sc = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.pending;
+        const sc = (STATUS_CONFIG[b.status] ?? STATUS_CONFIG.pending)!;
         const StatusIcon = sc.icon;
         const isProcessing = b.status === 'processing';
 

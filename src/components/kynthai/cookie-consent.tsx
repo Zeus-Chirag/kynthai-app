@@ -124,9 +124,7 @@ export function CookieConsent() {
     if (stored && !stored.accepted) {
       denyNonEssentialCookies()
     }
-    if (stored) {
-      window.dispatchEvent(new CustomEvent('kynthai-consent-change', { detail: { accepted: stored.accepted } }))
-    }
+    return undefined;
   }, [pathname])
 
   function accept() {

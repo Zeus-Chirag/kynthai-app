@@ -76,9 +76,9 @@ export async function GET(
     // Format: iv:salt:authTag (all base64)
     const encryptionKey = document.encryptionKey || '';
     const [ivB64, saltB64, tagB64] = encryptionKey.split(':');
-    const iv = Buffer.from(ivB64, 'base64');
-    const salt = Buffer.from(saltB64, 'base64');
-    const authTag = Buffer.from(tagB64, 'base64');
+    const iv = Buffer.from(ivB64!, 'base64');
+    const salt = Buffer.from(saltB64!, 'base64');
+    const authTag = Buffer.from(tagB64!, 'base64');
 
     // Decrypt file
     const decryptedData = decryptFile(encryptedData, iv, salt, authTag);

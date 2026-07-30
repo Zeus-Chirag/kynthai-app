@@ -42,6 +42,7 @@ export function AchievementCelebration({ show, type, milestone, onDismiss }: Ach
       const t = setTimeout(onDismiss, 3000)
       return () => clearTimeout(t)
     }
+    return undefined
   }, [show, onDismiss])
 
   const messages = {

@@ -77,9 +77,9 @@ function encryptBuffer(buffer: Buffer): Buffer {
   if (parts.length !== 3) {
     throw new Error('Invalid encrypted format');
   }
-  const iv = Buffer.from(parts[0], 'base64');
-  const tag = Buffer.from(parts[1], 'base64');
-  const ct = Buffer.from(parts[2], 'base64');
+  const iv = Buffer.from(parts[0]!, 'base64');
+  const tag = Buffer.from(parts[1]!, 'base64');
+  const ct = Buffer.from(parts[2]!, 'base64');
   return Buffer.concat([iv, tag, ct]);
 }
 

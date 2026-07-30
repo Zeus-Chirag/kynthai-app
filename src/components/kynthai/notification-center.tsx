@@ -169,7 +169,7 @@ export function NotificationCenter({ userId, isDemo, onNavigate }: NotificationC
               <ScrollArea className="max-h-[400px]">
                 <div role="list" aria-label="Notifications" className="p-2 space-y-1">
                   {notifications.slice(0, 20).map((notif) => {
-                    const config = TYPE_CONFIG[notif.type] || TYPE_CONFIG.system;
+                    const config = (TYPE_CONFIG[notif.type] || TYPE_CONFIG.system)!;
                     const Icon = config.icon;
                     const bgClass = notif.read ? 'bg-transparent opacity-70' : 'bg-muted';
                     return (

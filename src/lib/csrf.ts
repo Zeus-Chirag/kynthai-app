@@ -40,15 +40,17 @@ export async function setCsrfCookie(): Promise<{ token: string }> {
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return { token: 'build-dummy-token' }
   }
-  const store = await cookies()
-  const existing = store.get(CSRF_COOKIE)?.value
+  const cookieStore = await cookies()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const store: any = cookieStore
+  const existing = store?.get(CSRF_COOKIE)?.value
   if (existing) return { token: existing }
 
   const token = await generateCsrfToken()
-  store.set(CSRF_COOKIE, token, {
-    httpOnly: false, // Must be readable by client JS
+  store?.set(CSRF_COOKIE, token, {
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax', // 'strict' breaks WebView / cross-origin flows
+    sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 30, // 30 days
   })
@@ -72,7 +74,7 @@ export async function checkCsrf(req: NextRequest): Promise<NextResponse | null> 
   // Using cookies() from next/headers fails in Edge middleware (proxy.ts).
   const cookieHeader = req.headers.get('cookie') ?? ''
   const cookieMatch = cookieHeader.match(new RegExp(`(?:^|;\\s*)${CSRF_COOKIE}=([^;]*)`))
-  const cookieToken = cookieMatch ? decodeURIComponent(cookieMatch[1]) : undefined
+  const cookieToken = cookieMatch ? decodeURIComponent(cookieMatch[1] ?? '') : undefined
 
   const headerToken = req.headers.get(CSRF_HEADER)
   // Both tokens must be present and match
@@ -96,7 +98,7 @@ export async function checkCsrf(req: NextRequest): Promise<NextResponse | null> 
 
   let diff = 0
   for (let i = 0; i < cookieBytes.length; i++) {
-    diff |= cookieBytes[i] ^ headerBytes[i]
+    diff |= (cookieBytes[i]!) ^ (headerBytes[i]!)
   }
   if (diff !== 0) {
     return NextResponse.json(

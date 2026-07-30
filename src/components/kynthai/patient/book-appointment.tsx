@@ -99,7 +99,7 @@ export function BookAppointment({ open, onOpenChange }: Props) {
         .replace(/\s?(AM|PM)/, '')
         .split(':')
         .map(Number);
-      const h = time.includes('PM') && hours !== 12 ? hours + 12 : time.includes('AM') && hours === 12 ? 0 : hours;
+      const h = time.includes('PM') && (hours ?? 0) !== 12 ? (hours ?? 0) + 12 : time.includes('AM') && (hours ?? 0) === 12 ? 0 : (hours ?? 0);
       const scheduledAt = new Date(`${date}T${String(h).padStart(2, '0')}:${String(minutes ?? 0).padStart(2, '0')}:00`).toISOString();
 
       const res = await fetch('/api/appointments', {

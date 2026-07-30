@@ -292,7 +292,11 @@ export function decryptDocument(
   encryptedData: Buffer,
   encryptionKey: string
 ): Buffer {
-  const [ivB64, saltB64, tagB64] = encryptionKey.split(':');
+  const parts = encryptionKey.split(':');
+  if (parts.length < 3) throw new Error('Invalid encryption key format');
+  const ivB64 = parts[0]!;
+  const saltB64 = parts[1]!;
+  const tagB64 = parts[2]!;
   const iv = Buffer.from(ivB64, 'base64');
   const salt = Buffer.from(saltB64, 'base64');
   const authTag = Buffer.from(tagB64, 'base64');

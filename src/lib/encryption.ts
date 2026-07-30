@@ -123,7 +123,11 @@ export function encryptString(text: string): string {
  * Decrypt a string
  */
 export function decryptString(encrypted: string): string {
-  const [ivB64, tagB64, dataB64] = encrypted.split(':');
+  const parts = encrypted.split(':');
+  if (parts.length < 3) throw new Error('Invalid encrypted format');
+  const ivB64 = parts[0]!;
+  const tagB64 = parts[1]!;
+  const dataB64 = parts[2]!;
   const iv = Buffer.from(ivB64, 'base64');
   const authTag = Buffer.from(tagB64, 'base64');
   const data = Buffer.from(dataB64, 'base64');
@@ -150,7 +154,11 @@ export function encryptWithKey(text: string, key: Buffer): string {
  * Decrypt a string with a specific key
  */
 export function decryptWithKey(encrypted: string, key: Buffer): string {
-  const [ivB64, tagB64, dataB64] = encrypted.split(':');
+  const parts = encrypted.split(':');
+  if (parts.length < 3) throw new Error('Invalid encrypted format');
+  const ivB64 = parts[0]!;
+  const tagB64 = parts[1]!;
+  const dataB64 = parts[2]!;
   const iv = Buffer.from(ivB64, 'base64');
   const authTag = Buffer.from(tagB64, 'base64');
   const data = Buffer.from(dataB64, 'base64');
@@ -186,9 +194,9 @@ export function decrypt(buffer: Buffer): string {
   const parts = buffer.toString('base64').split(':');
   if (parts.length !== 3) throw new Error('Invalid encrypted format');
   
-  const iv = Buffer.from(parts[0], 'base64');
-  const authTag = Buffer.from(parts[1], 'base64');
-  const encrypted = Buffer.from(parts[2], 'base64');
+  const iv = Buffer.from(parts[0]!, 'base64');
+  const authTag = Buffer.from(parts[1]!, 'base64');
+  const encrypted = Buffer.from(parts[2]!, 'base64');
   
   const decipher = createDecipheriv(ALGORITHM, getKey(), iv);
   decipher.setAuthTag(authTag);

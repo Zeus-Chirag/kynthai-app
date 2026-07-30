@@ -58,12 +58,16 @@ export async function verifySessionToken(signed: string): Promise<string | null>
   const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(userId));
   const expectedHmac = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
   // Constant-time comparison
-  const provided = new Uint8Array(providedHmac.match(/.{2}/g)!.map(b => parseInt(b, 16)));
-  const expected = new Uint8Array(expectedHmac.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+  const providedHmacParts: string[] = (providedHmac.match(/.{2}/g) ?? []) as unknown as string[];
+  if (providedHmacParts.length === 0) return null;
+  const expectedHmacParts: string[] = (expectedHmac.match(/.{2}/g) ?? []) as unknown as string[];
+  if (expectedHmacParts.length === 0) return null;
+  const provided = new Uint8Array(providedHmacParts.map(b => parseInt(b, 16)));
+  const expected = new Uint8Array(expectedHmacParts.map(b => parseInt(b, 16)));
   if (provided.length !== expected.length) return null;
   let diff = 0;
   for (let i = 0; i < provided.length; i++) {
-    diff |= provided[i] ^ expected[i];
+    diff |= (provided[i]!) ^ (expected[i]!);
   }
   if (diff !== 0) return null;
   return userId;
