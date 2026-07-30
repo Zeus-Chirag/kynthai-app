@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft, Lock, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,6 +13,7 @@ import { FadeIn } from '@/components/kynthai/animations'
 import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function ForgotPasswordPage() {
+  const router = useRouter()
   const { toast } = useToast()
   const [email, setEmail] = React.useState('')
   const [loading, setLoading] = React.useState(false)
@@ -48,7 +50,7 @@ export default function ForgotPasswordPage() {
             <Card className="border-border/60">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => history.back()} className="h-8 w-8">
+                  <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                   <h1 className="text-lg font-semibold">Forgot password?</h1>

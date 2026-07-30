@@ -520,7 +520,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
 
       {/* Bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">
-        <div className="mx-auto flex max-w-3xl items-stretch justify-around px-2 py-2">
+        <div className="mx-auto flex max-w-3xl items-stretch justify-around gap-1 overflow-x-auto px-2 py-2 scrollbar-none">
           {TABS.map(t => {
             const active = tab === t.id;
             const Icon = t.icon;

@@ -312,7 +312,7 @@ export function LoginPage({
             <p className="mt-3 text-muted-foreground">
               {active.label} portal — sign in or create an account to continue.
             </p>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:max-w-md">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:max-w-md">
               {visiblePortals.map(p => (
                 <button
                   key={p.id}
