@@ -110,17 +110,63 @@ vercel env pull .env.production
 
 ---
 
-## 7. Monthly Drill Checklist
+## 7. Disaster Recovery Drills
 
-- [ ] Verify Supabase PITR works (test restore to staging)
-- [ ] Test Vercel rollback to previous deployment
-- [ ] Confirm Stripe webhook replay works
-- [ ] Review audit logs for anomalies
+All DR drills use staging environment. Drills are **mandatory** on the schedule below.
+
+### Quarterly Drill Schedule
+
+| Quarter | Drill | Scenario | Success Criteria | Owner |
+|---------|-------|----------|-----------------|-------|
+| Q1 | Supabase PITR | Restore database to 1 hour ago | RTO < 30 min, data diff < 1% | Platform |
+| Q2 | Vercel rollback | Deploy broken version, roll back | RTO < 2 min, zero user-facing errors | Platform |
+| Q3 | Full data recovery | Simulate data corruption, restore from backup | All user accounts + 30 days of data recoverable | Platform |
+| Q4 | Stripe webhook replay | Drop webhook table, replay from Stripe | All payments reconciled within 1 hour | Backend |
+
+### Monthly Drill Checklist
+
+- [ ] [Month 1] Supabase PITR — restore staging to last known good
+  - Record RTO: _____ min
+  - Record data loss: _____ rows
+  - Sign-off: _____
+- [ ] [Month 2] Vercel rollback — promote previous deployment
+  - Record RTO: _____ sec
+  - Verify smoke tests pass on rolled-back version
+  - Sign-off: _____
+- [ ] [Month 3] Confirm Stripe webhook replay works
+  - Send test event via Stripe CLI
+  - Verify local `payments` table updated
+  - Sign-off: _____
+- [ ] [Month 4] Review audit logs for anomalies
+  - Export last 30 days of audit logs
+  - Verify no unauthorized access patterns
+  - Sign-off: _____
 - [ ] Update this runbook if architecture changes
+
+### Drill Failure Protocol
+
+If any drill fails:
+1. **File a P1 incident** — DR drill failure is production risk
+2. **Root cause analysis** — Why did the drill fail? Was it a process gap or tooling gap?
+3. **Remediation** — Fix the gap within 7 days
+4. **Re-drill** — Repeat the drill within 14 days
+5. **Document** — Update this runbook with findings
 
 ---
 
-## 8. Emergency Contacts
+## 8. RTO/RPO Compliance Tracking
+
+| System | Target RTO | Target RPO | Last Verified | Next Drill |
+|--------|-----------|-----------|---------------|------------|
+| Supabase (PITR) | < 30 min | < 5 min | Not yet | Q1 2027 |
+| Supabase (full dump) | < 2 hours | < 24 hours | Not yet | Q3 2027 |
+| Vercel (rollback) | < 2 min | 0 | Not yet | Q2 2027 |
+| Stripe (replay) | < 1 hour | 0 | Not yet | Q4 2027 |
+| Upstash Redis | < 10 min | < 24 hours | Not yet | Ad-hoc |
+
+---
+
+## 9. Emergency Contacts
 
 | Service | Support Channel | SLA |
 |---------|-----------------|-----|
