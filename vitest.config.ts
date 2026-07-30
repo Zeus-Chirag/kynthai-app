@@ -6,12 +6,15 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/.next/**'],
     environment: 'node',
     env: {
-      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost:5432/test',
-      ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || 'test-encryption-key-32chars-placeholder!',
-      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-anon-key',
-      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || 'test-service-key',
+      // Core connection — provide via CI env or local .env.test
+      DATABASE_URL: process.env.DATABASE_URL || '',
+      ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || '',
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
     },
+    // Fail loudly if DATABASE_URL is missing (prevents silent test passes)
+    setupFiles: process.env.DATABASE_URL ? [] : undefined,
   },
   resolve: {
     alias: {

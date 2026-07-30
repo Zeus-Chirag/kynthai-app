@@ -9,127 +9,106 @@
 
 import { Redis } from '@upstash/redis';
 
-// ── Types ──────────────────────────────────────────────────────────
+const MAX_PER_ROOM = 200;
+const ROOM_TTL = 60 * 60 * 2; // 2 hours
 
-export type WebRTCSignalMessage = {
-  id: string;
+interface SignalingMessage {
+  id?: string;
   appointmentId: string;
-  role: 'doctor' | 'patient' | 'unknown';
-  userId: string;
-  userName: string;
   type: string;
-  payload: Record<string, unknown>;
+  role?: string;
+  userId?: string;
+  userName?: string;
+  from?: string;
+  to?: string;
+  payload?: any;
+  timestamp?: number;
   createdAt: number;
-};
+}
 
-// ── Config ─────────────────────────────────────────────────────────
-
-const SIGNALING_PREFIX = 'kynthai:signal';
-const MAX_PER_ROOM = 500;
-const FALLBACK_PAGE_SIZE = 200;
-
-// ── Redis client (HMR-safe singleton) ─────────────────────────────
-
-let redisClient: Redis | null = null;
-
-export function getRedisClient(): Redis | null {
-  if (redisClient) return redisClient;
+function getRedis(): Redis | null {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
-  try {
-    redisClient = new Redis({ url, token });
-  } catch {
-    return null;
-  }
-  return redisClient;
+  return new Redis({ url, token });
 }
 
-// ── In-memory fallback (single-instance dev only) ──────────────────
-
-const memStore = new Map<string, WebRTCSignalMessage[]>();
-let memSeq = 0;
-
-function memPush(msg: Omit<WebRTCSignalMessage, 'id' | 'createdAt'>): WebRTCSignalMessage {
-  memSeq++;
-  const full: WebRTCSignalMessage = {
-    ...msg,
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${memSeq}`,
-    createdAt: Date.now(),
-  };
-  const list = memStore.get(msg.appointmentId) || [];
-  list.push(full);
-  if (list.length > MAX_PER_ROOM) {
-    list.splice(0, list.length - MAX_PER_ROOM);
-  }
-  memStore.set(msg.appointmentId, list);
-  return full;
-}
-
-function memList(appointmentId: string, afterId?: string): WebRTCSignalMessage[] {
-  const list = memStore.get(appointmentId) || [];
-  if (!afterId) return list.slice(-FALLBACK_PAGE_SIZE);
-  const idx = list.findIndex(m => m.id === afterId);
-  if (idx < 0) return [];
-  return list.slice(idx + 1);
-}
-
-// ── Public API ─────────────────────────────────────────────────────
-//
-// All methods return Promises so callers don't need to know whether
-// the store is backed by Redis or memory.
+const fallbackStore = new Map<string, SignalingMessage[]>();
 
 export const signalingStore = {
   /**
-   * Append a new signaling message to the room, capped at MAX_PER_ROOM.
+   * Store a signaling message in a room.
    */
-  async push(message: Omit<WebRTCSignalMessage, 'id' | 'createdAt'>): Promise<WebRTCSignalMessage> {
-    const redis = getRedisClient();
+  async push(message: SignalingMessage): Promise<void> {
+    const apptId = message.appointmentId;
+    if (!apptId) throw new Error('SignalingMessage must have appointmentId');
+
+    const redis = getRedis();
+    const key = `webrtc:room:${apptId}`;
+    const serialized = JSON.stringify({ ...message, createdAt: message.createdAt || Date.now() });
+
     if (redis) {
-      memSeq++;
-      const msg: WebRTCSignalMessage = {
-        ...message,
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${memSeq}`,
-        createdAt: Date.now(),
-      };
-      const key = `${SIGNALING_PREFIX}:${message.appointmentId}`;
-      await redis.lpush(key, JSON.stringify(msg));
+      await redis.lpush(key, serialized);
       await redis.ltrim(key, 0, MAX_PER_ROOM - 1);
-      // TTL: auto-expire empty rooms after 4 hours
-      await redis.expire(key, 60 * 60 * 4);
-      return msg;
+      await redis.expire(key, ROOM_TTL);
+    } else {
+      const arr = fallbackStore.get(key) || [];
+      arr.unshift({ ...message, createdAt: message.createdAt || Date.now() });
+      if (arr.length > MAX_PER_ROOM) arr.length = MAX_PER_ROOM;
+      fallbackStore.set(key, arr);
     }
-    return memPush(message);
   },
 
   /**
-   * Get signaling messages for a room.
-   * @param afterId — only return messages after this ID (polling cursor)
+   * Get all messages in a room (newest first).
+   * @param afterId Optional message type to filter after (for polling)
    */
-  async list(appointmentId: string, afterId?: string): Promise<WebRTCSignalMessage[]> {
-    const redis = getRedisClient();
-    const key = `${SIGNALING_PREFIX}:${appointmentId}`;
+  async list(appointmentId: string, afterId?: string): Promise<SignalingMessage[]> {
+    const redis = getRedis();
+    const key = `webrtc:room:${appointmentId}`;
 
     if (redis) {
-      const raw = await redis.lrange(key, 0, -1);
-      const all: WebRTCSignalMessage[] = raw.map(s => JSON.parse(s));
-      if (!afterId) return all.slice(-FALLBACK_PAGE_SIZE);
-      const idx = all.findIndex(m => m.id === afterId);
-      if (idx < 0) return [];
-      return all.slice(idx + 1);
+      const raw = await redis.lrange(key, 0, MAX_PER_ROOM - 1);
+      const messages = raw.map((r: string) => JSON.parse(r) as SignalingMessage);
+
+      if (afterId) {
+        const idx = messages.findIndex(m => m.id === afterId || m.type === afterId);
+        return idx >= 0 ? messages.slice(0, idx) : messages;
+      }
+      return messages;
     }
-    return memList(appointmentId, afterId);
+
+    const messages = fallbackStore.get(key) || [];
+    if (afterId) {
+      const idx = messages.findIndex(m => m.id === afterId || m.type === afterId);
+      return idx >= 0 ? messages.slice(0, idx) : messages;
+    }
+    return messages;
   },
 
   /**
-   * Remove all messages for a room (call ended / room closed).
+   * Clear all messages for a room.
    */
-  async clear(appointmentId: string): Promise<void> {
-    const redis = getRedisClient();
+  async removeRoom(appointmentId: string): Promise<void> {
+    const redis = getRedis();
+    const key = `webrtc:room:${appointmentId}`;
+
     if (redis) {
-      await redis.del(`${SIGNALING_PREFIX}:${appointmentId}`);
-      return;
+      await redis.del(key);
+    } else {
+      fallbackStore.delete(key);
     }
-    memStore.delete(appointmentId);
+  },
+
+  /**
+   * Get active room count (for monitoring).
+   */
+  async getActiveRoomCount(): Promise<number> {
+    const redis = getRedis();
+    if (redis) {
+      const keys = await redis.keys('webrtc:room:*');
+      return keys.length;
+    }
+    return fallbackStore.size;
   },
 };
