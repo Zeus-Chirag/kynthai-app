@@ -1,7 +1,12 @@
 import https from 'https'
 
-const SUPABASE_URL = 'szqzeemimmafkopwqqfp.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6cXplZW1pbW1hZmtvcHdxcWZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDEzMDc3OSwiZXhwIjoyMDk5NzA2Nzc5fQ.tpGh8dWCxutllyjkW10Cpek031Kd6qShEYNfUuNDcKY'
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('ERROR: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set as environment variables.')
+  process.exit(1)
+}
 
 function execSQL(sql) {
   return new Promise((resolve, reject) => {
