@@ -18,7 +18,9 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:prod": "prisma migrate deploy && node scripts/seed-production.js",
     "db:reset": "prisma migrate reset",
-    "load-test": "node load-test/test-api.js"
+    "load-test": "node load-test/test-api.js",
+    "sbom": "mkdir -p sbom && npm sbom --sbom-format=cyclonedx > sbom/cyclonedx.json 2>&1 || npm sbom > sbom/cyclonedx.json 2>&1",
+    "audit:ci": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.11.3",
