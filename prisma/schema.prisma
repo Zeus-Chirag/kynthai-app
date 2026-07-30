@@ -78,6 +78,15 @@ model User {
   isDemo                     Boolean          @default(false) // demo/seed account flag
   failedLoginAttempts        Int              @default(0)
   lockedUntil                DateTime?
+  // Patient identity verification fields
+  phoneVerified              Boolean          @default(false)
+  identityConfirmed          Boolean          @default(false)
+  identityConfirmedAt        DateTime?
+  idDocumentUploaded         Boolean          @default(false)
+  idDocumentVerified         Boolean          @default(false)
+  verificationLevel          String           @default("unverified")
+  verificationRejectedReason String?
+  idDocumentRef              String?          // JSON reference to uploaded ID document
   dateOfBirth                DateTime? // age verification (must be 18+)
   dateOfBirth_enc            String?          @map("dateOfBirth_enc")
   allergies                  String? // JSON array of allergy strings (e.g. ["Penicillin", "Sulfa"])

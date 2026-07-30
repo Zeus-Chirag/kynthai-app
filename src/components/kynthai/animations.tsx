@@ -147,14 +147,9 @@ export function Counter({
 
   React.useEffect(() => {
     if (inView) {
-      // Set directly (instant) when reduced motion — no interpolated animation
-      if (reduced) {
-        count.set(to)
-      } else {
-        count.set(to)
-      }
+      count.set(to)
     }
-  }, [inView, to, count, reduced])
+  }, [inView, to, count])
 
   const [display, setDisplay] = React.useState(from.toFixed(decimals))
 
@@ -271,6 +266,7 @@ export function TiltCard({
 
 /* ------------------------------------------------------------------ */
 /* AnimatedGradientText — shimmering gradient headline                 */
+/* Keyframes defined in src/app/globals.css                            */
 /* ------------------------------------------------------------------ */
 export function AnimatedGradientText({
   children,
@@ -285,25 +281,23 @@ export function AnimatedGradientText({
   via?: string
   to?: string
 }) {
+  const reduced = useReducedMotion()
+
   return (
     <span
       className={cn(
         'inline-block bg-clip-text text-transparent',
+        reduced ? '' : 'animate-kynthai-gradient',
         className
       )}
       style={{
-        backgroundImage: `linear-gradient(110deg, ${from}, ${via}, ${to}, ${via}, ${from})`,
-        backgroundSize: '220% 100%',
-        animation: 'kynthai-gradient 6s linear infinite',
+        backgroundImage: reduced
+          ? `linear-gradient(110deg, ${from}, ${to})`
+          : `linear-gradient(110deg, ${from}, ${via}, ${to}, ${via}, ${from})`,
+        backgroundSize: reduced ? '100%' : '220% 100%',
       }}
     >
       {children}
-      <style jsx>{`
-        @keyframes kynthai-gradient {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 220% 50%; }
-        }
-      `}</style>
     </span>
   )
 }
@@ -320,12 +314,14 @@ export function FadeIn({
   className?: string
   delay?: number
 }) {
+  const reduced = useReducedMotion()
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={reduced ? {} : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.4, delay, ease: 'easeOut' }}
+      exit={reduced ? {} : { opacity: 0, y: -8 }}
+      transition={{ duration: reduced ? 0 : 0.4, delay, ease: 'easeOut' }}
       className={className}
     >
       {children}

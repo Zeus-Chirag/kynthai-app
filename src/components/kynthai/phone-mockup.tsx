@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Bell,
   Heart,
@@ -53,6 +53,7 @@ function RingPulse({ className }: { className: string }) {
       style={{
         background: 'radial-gradient(circle, rgba(16,185,129,0.55) 0%, transparent 70%)',
         animation: 'phone-ring-pulse 4.5s ease-out infinite',
+        willChange: 'transform, opacity',
       }}
     />
   );
@@ -65,6 +66,73 @@ export function PhoneMockup({
   className?: string;
   ariaHidden?: boolean;
 }) {
+  const reduced = useReducedMotion();
+
+  if (reduced) {
+    return (
+      <div
+        className={cn('relative mx-auto w-full max-w-[270px] sm:max-w-[305px]', className)}
+        aria-hidden={ariaHidden}
+        style={{ opacity: 1 }}
+      >
+        {/* Static non-animated version for reduced motion */}
+        <div className="absolute -inset-10 -z-20 rounded-[5rem] opacity-75 blur-3xl" aria-hidden
+          style={{
+            background: 'radial-gradient(ellipse closest-side, rgba(16,185,129,0.6), rgba(13,148,136,0.28) 45%, transparent 70%)',
+          }}
+        />
+        <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[3px] shadow-2xl shadow-emerald-900/50 sm:p-[4px]">
+          <div className="overflow-hidden rounded-[2.85rem] bg-white dark:bg-neutral-900">
+            <div className="relative mx-auto mt-2 h-6 w-16 rounded-full bg-neutral-950" />
+            <div className="flex items-center justify-between px-5 pt-1.5 pb-0.5 text-[10px] font-semibold text-neutral-900 dark:text-neutral-100">
+              <span>9:41</span>
+              <div className="flex items-center gap-1">
+                <SignalMedium className="h-3 w-3" />
+                <Wifi className="h-3 w-3" />
+                <Battery className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 pt-2 pb-1">
+              <div className="flex items-center gap-2">
+                <KynthaiIcon size={22} />
+                <span className="text-sm font-bold text-neutral-900 dark:text-neutral-100">Kynthai</span>
+              </div>
+              <div className="relative">
+                <Bell className="h-4 w-4 text-neutral-600" />
+                <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-emerald-500" />
+              </div>
+            </div>
+            <div className="mx-3 mt-2 rounded-2xl p-3 text-white sm:mx-4 sm:p-4"
+              style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 55%, #065f46 100%)' }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
+                  <Sparkles className="h-3 w-3" /> Good morning, Aarav
+                </span>
+                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm">Plus</span>
+              </div>
+              <div className="mt-3 flex items-end justify-between gap-2">
+                <div className="flex-1 space-y-1.5">
+                  <div className="rounded-xl bg-white/12 px-2.5 py-1.5">
+                    <p className="text-[9px] text-emerald-100 uppercase tracking-wider">Today</p>
+                    <p className="text-sm font-bold leading-tight">3 of 4 doses taken</p>
+                  </div>
+                  <div className="rounded-xl bg-white/12 px-2.5 py-1.5">
+                    <p className="text-[9px] text-emerald-100 uppercase tracking-wider">Next due</p>
+                    <p className="text-sm font-bold leading-tight">Metformin 500mg</p>
+                    <p className="text-[10px] text-emerald-100/80">After breakfast · 10:30 AM</p>
+                  </div>
+                </div>
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+                  <Activity className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -122,7 +190,7 @@ export function PhoneMockup({
               <Bell className="h-4 w-4 text-neutral-600" />
               <span
                 className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,1)]"
-                style={{ animation: 'phone-pulse-bell 2s ease-in-out infinite 1.2s' }}
+                style={reduced ? {} : { animation: 'phone-pulse-bell 2s ease-in-out infinite 1.2s' }}
               />
             </div>
           </div>
@@ -138,7 +206,7 @@ export function PhoneMockup({
             <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden>
               <div
                 className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                style={{ animation: 'phone-sheen 4s linear infinite' }}
+                style={reduced ? {} : { animation: 'phone-sheen 4s linear infinite' }}
               />
             </div>
             <div className="flex items-center justify-between">
@@ -252,7 +320,7 @@ export function PhoneMockup({
             <NavIcon icon={<Pill className="h-4 w-4" />} />
             <div
               className="-mt-5 flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-800/40 ring-4 ring-white dark:ring-neutral-900"
-              style={{ animation: 'phone-tick 3.5s ease-in-out infinite' }}
+              style={reduced ? {} : { animation: 'phone-tick 3.5s ease-in-out infinite' }}
             >
               <Sparkles className="h-5 w-5" />
             </div>
