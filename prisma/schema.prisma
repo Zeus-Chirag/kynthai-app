@@ -952,3 +952,19 @@ model Feedback {
 
   @@map("feedback")
 }
+
+// ── Security Models ──────────────────────────────────────────────────
+
+model RevokedSession {
+  id         String   @id @default(cuid())
+  userId     String
+  sessionJti String   @unique // JWT ID (jti) of the revoked token — used for fast lookup
+  reason     String   @default("user_initiated") // "user_initiated" | "admin_revoke" | "password_change" | "suspicious_activity" | "logout_all"
+  revokedAt  DateTime @default(now())
+  expiresAt  DateTime // when the session would have naturally expired — cleaned up after
+
+  @@index([sessionJti])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("revoked_sessions")
+}

@@ -1,22 +1,64 @@
 // src/lib/encryption.ts
 // Encryption utilities for medical documents
 // Uses AES-256-GCM for authenticated encryption
+//
+// SECURITY: getKey() THROWS in production if ENCRYPTION_KEY is not set.
+// In development, a per-process random key is generated for convenience,
+// but this means encrypted data from dev sessions cannot be decrypted
+// after a server restart. NEVER use dev-generated keys for production data.
 
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto';
 
-// Get master key from environment (32 bytes = 256 bits)
-// Lazy initialization to avoid build-time errors when env vars are not set
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // 96 bits for GCM
 const SALT_LENGTH = 16;
-const TAG_LENGTH = 16;
 
 let _KEY: Buffer | null = null;
+
+/**
+ * Get the master encryption key.
+ *
+ * Resolution order:
+ *   1. ENCRYPTION_KEY (preferred, 64 hex chars = 32 bytes)
+ *   2. MASTER_ENCRYPTION_KEY (legacy alias)
+ *
+ * In production: throws if neither is set (fail-closed — do not encrypt with a
+ * weak or static key).
+ * In development: generates a per-process random key. Data encrypted with this
+ * key is lost on restart.
+ */
 function getKey(): Buffer {
-  if (!_KEY) {
-    const MASTER_KEY = process.env.ENCRYPTION_KEY || process.env.MASTER_ENCRYPTION_KEY || 'a'.repeat(32);
-    _KEY = Buffer.from(MASTER_KEY.slice(0, 32), 'utf-8');
+  if (_KEY) return _KEY;
+
+  const masterKey = process.env.ENCRYPTION_KEY || process.env.MASTER_ENCRYPTION_KEY;
+
+  if (!masterKey) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        '[encryption] CRITICAL: ENCRYPTION_KEY is not set. ' +
+        'PHI/PII data cannot be encrypted without a master key. ' +
+        'Set ENCRYPTION_KEY to a 64-character hex string (generate with: openssl rand -hex 32)'
+      );
+    }
+    // Development: per-process random key. DO NOT use for real data.
+    const devKey = randomBytes(32);
+    _KEY = devKey;
+    console.warn(
+      '[encryption] WARNING: No ENCRYPTION_KEY set. Using per-process random key. ' +
+      'Encrypted data will be lost on restart.'
+    );
+    return _KEY;
   }
+
+  const trimmed = masterKey.trim();
+  if (trimmed.length < 32) {
+    throw new Error(
+      `[encryption] ENCRYPTION_KEY must be at least 32 characters (got ${trimmed.length}). ` +
+      'Generate a strong key with: openssl rand -hex 32'
+    );
+  }
+
+  _KEY = Buffer.from(trimmed.slice(0, 32), 'utf-8');
   return _KEY;
 }
 
