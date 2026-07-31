@@ -19,6 +19,10 @@
     "db:migrate:prod": "prisma migrate deploy && node scripts/seed-production.js",
     "db:reset": "prisma migrate reset",
     "load-test": "node load-test/test-api.js",
+    "probe:viewport": "node viewport-probe.mjs",
+    "probe:viewport:strict": "PROBE_STRICT_TOUCH=1 node viewport-probe.mjs",
+    "probe:security": "node security-probe.mjs",
+    "probe": "node security-probe.mjs && node viewport-probe.mjs",
     "sbom": "mkdir -p sbom && npm sbom --sbom-format=cyclonedx > sbom/cyclonedx.json 2>&1 || npm sbom > sbom/cyclonedx.json 2>&1",
     "audit:ci": "npm audit --audit-level=high"
   },
