@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getZai, ZAI_MODEL, isAiAvailable } from '@/lib/zai';
+import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia';
 import { db } from '@/lib/db';
 import {
   requireAuth,
@@ -92,13 +92,13 @@ async function runAnalysis(medications: string[], allergies?: string | null) {
     return NextResponse.json({
       interactions: [],
       warning:
-        'AI interactions check requires ZENMUX_API_KEY. Consult your doctor for safe medication combinations.',
+        'AI interactions check requires NVIDIA_API_KEY. Consult your doctor for safe medication combinations.',
     });
-  const zai = await getZai();
+  const nvidia = await getNvidia();
 
   const completion = await withAiTimeout(
-    zai.chat.completions.create({
-      model: ZAI_MODEL,
+    nvidia.chat.completions.create({
+      model: NVIDIA_MODEL,
       messages: [
         {
           role: 'assistant',

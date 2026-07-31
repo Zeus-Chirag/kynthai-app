@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getZai, ZAI_MODEL, isAiAvailable } from '@/lib/zai'
+import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia'
 import { requireAuthWithCsrf, jsonError, jsonOk, readJson, checkAiTier } from '@/lib/api-helpers'
 import { sanitizeText } from '@/lib/security'
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout'
@@ -50,30 +50,15 @@ export async function POST(req: NextRequest) {
 
     const withSearch = body.withSearch !== false // default true
 
-    if (!isAiAvailable()) return jsonOk({ analysis: null, message: 'AI symptom analysis requires ZENMUX_API_KEY. For urgent symptoms, contact a healthcare provider immediately.' })
-    const zai = await getZai()
+    if (!isAiAvailable()) return jsonOk({ analysis: null, message: 'AI symptom analysis requires NVIDIA_API_KEY. For urgent symptoms, contact a healthcare provider immediately.' })
+    const nvidia = await getNvidia()
 
     // Optionally search the web for related context
     let searchResults: { name: string; url: string; snippet: string }[] = []
     if (withSearch) {
-      try {
-        const results = await withAiTimeout(
-          (zai as any).functions.invoke('web_search', {
-            query: `${symptoms} causes treatment when to see doctor`,
-            num: 5,
-          }),
-          AI_TIMEOUTS.SEARCH,
-        )
-        searchResults = (results as any[] || []).slice(0, 5).map(
-          (r: { name: string; url: string; snippet: string }) => ({
-            name: r.name,
-            url: r.url,
-            snippet: r.snippet,
-          })
-        )
-      } catch {
-        // search is optional
-      }
+      // NVIDIA NIM does not host OpenAI's server-side `web_search` function —
+      // web context is skipped with this provider (API-compatible no-op).
+      searchResults = []
     }
 
     const contextParts: string[] = []
@@ -91,8 +76,8 @@ export async function POST(req: NextRequest) {
     const context = contextParts.join('\n\n')
 
     const completion = await withAiTimeout(
-      zai.chat.completions.create({
-        model: ZAI_MODEL,
+      nvidia.chat.completions.create({
+        model: NVIDIA_MODEL,
         messages: [
           {
             role: 'assistant',

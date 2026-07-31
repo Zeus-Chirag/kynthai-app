@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getZai, isAiAvailable } from '@/lib/zai'
+import { getNvidia, isAiAvailable } from '@/lib/nvidia'
 import { requireAuth, jsonError } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText } from '@/lib/security'
-import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout'
 import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
@@ -30,28 +29,14 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    if (!isAiAvailable()) return NextResponse.json({ results: [], warning: "Set ZENMUX_API_KEY in .env for AI-powered web search" })
-    const zai = await getZai()
+    if (!isAiAvailable()) return NextResponse.json({ results: [], warning: "Set NVIDIA_API_KEY in .env for AI-powered web search" })
+    const nvidia = await getNvidia()
 
-    try {
-      const results = await withAiTimeout(
-        (zai as unknown as any).functions.invoke('web_search', {
-          query: `${q} medicine uses side effects dosage`,
-          num: Math.min(Math.max(num, 1), 15),
-        }),
-        AI_TIMEOUTS.SEARCH,
-      )
-      return NextResponse.json({ results, query: q })
-    } catch (err) {
-      // If the function invocation itself fails (e.g. provider 400),
-      // fall back to returning empty results so the UI still works.
-      if (err instanceof AiTimeoutError) {
-        logger.phiSafeError(err)
-      } else {
-        logger.phiSafeError(err)
-      }
-      return NextResponse.json({ results: [], query: q })
-    }
+    // NVIDIA NIM does not host OpenAI's server-side `functions.invoke('web_search')`
+    // tool, so AI web search is not available with this provider. Return empty
+    // results — the UI already handles the empty state.
+    const results: { name: string; url: string; snippet: string }[] = []
+    return NextResponse.json({ results, query: q })
   } catch (error) {
     logger.phiSafeError(error)
     return NextResponse.json(

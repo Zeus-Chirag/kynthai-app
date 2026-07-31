@@ -305,7 +305,7 @@ export function PrivacyPolicy() {
               <td className="py-2">US</td>
             </tr>
             <tr className="border-b border-border/60">
-              <td className="py-2 pr-4"><strong>OpenAI, LLC</strong> / ZenMux (or equivalent AI-inference provider)</td>
+              <td className="py-2 pr-4"><strong>NVIDIA Corporation</strong> / NVIDIA NIM (or equivalent AI-inference provider)</td>
               <td className="py-2 pr-4">AI inference (chat, symptom analysis, drug-interaction checking, medicine identification, prescription scanning)</td>
               <td className="py-2 pr-4">De-identified chat inputs and symptom text; output returned to Kynthai. Health data is not used to train vendor models.</td>
               <td className="py-2">US</td>

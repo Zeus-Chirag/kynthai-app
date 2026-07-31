@@ -27,7 +27,7 @@ Fill in `.env.production` with real production values:
 - [ ] `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from Upstash console
 - [ ] `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are LIVE keys
 - [ ] `SENTRY_DSN` points to the production Sentry project
-- [ ] `OPENAI_API_KEY`, `ZENMUX_API_KEY` for AI features
+- [ ] `NVIDIA_API_KEY` for AI features (NVIDIA NIM — OpenAI-compatible)
 - [ ] `SENDGRID_API_KEY` or `RESEND_API_KEY` for transactional email
 
 Generate secrets with:

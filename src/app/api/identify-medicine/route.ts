@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getZai, ZAI_MODEL, isAiAvailable } from '@/lib/zai'
+import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia'
 import { requireAuth, requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout'
@@ -75,12 +75,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!isAiAvailable()) return NextResponse.json({ identified: false, message: 'AI medicine identification requires ZENMUX_API_KEY. Try searching by name instead.' })
-    const zai = await getZai()
+    if (!isAiAvailable()) return NextResponse.json({ identified: false, message: 'AI medicine identification requires NVIDIA_API_KEY. Try searching by name instead.' })
+    const nvidia = await getNvidia()
 
     const aiResponse = await withAiTimeout(
-      zai.chat.completions.create({
-        model: ZAI_MODEL,
+      nvidia.chat.completions.create({
+        model: NVIDIA_MODEL,
         messages: [
           {
             role: 'user',

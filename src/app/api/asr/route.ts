@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getZai, ZAI_MODEL, isAiAvailable } from '@/lib/zai'
+import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia'
 import { requireAuth, requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout'
@@ -42,12 +42,12 @@ export async function POST(req: NextRequest) {
     // Strip data URI prefix if present
     const base64 = body.audio.replace(/^data:audio\/\w+;base64,/, '')
 
-    if (!isAiAvailable()) return jsonError('AI speech-to-text requires ZENMUX_API_KEY in .env', 503, 'AI_NOT_CONFIGURED')
-    const zai = await getZai()
+    if (!isAiAvailable()) return jsonError('AI speech-to-text requires NVIDIA_API_KEY in .env', 503, 'AI_NOT_CONFIGURED')
+    const nvidia = await getNvidia()
 
     const aiResponse = await withAiTimeout(
-      (zai.audio as any).transcribe({
-        model: ZAI_MODEL,
+      (nvidia.audio as any).transcribe({
+        model: NVIDIA_MODEL,
         file_base64: base64,
       }),
       AI_TIMEOUTS.MEDIA

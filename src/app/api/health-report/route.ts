@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getZai, ZAI_MODEL } from '@/lib/zai'
+import { getNvidia, NVIDIA_MODEL } from '@/lib/nvidia'
 import { db } from '@/lib/db'
 import { requireAuthWithCsrf, checkAiTier, jsonError } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
@@ -112,11 +112,11 @@ export async function POST(req: NextRequest) {
       recentHealthQuestions: chatMessages.slice(0, 5).map((m: any) => m.content),
     }
 
-    const zai = await getZai()
+    const nvidia = await getNvidia()
 
     const completion = await withAiTimeout(
-      zai.chat.completions.create({
-        model: ZAI_MODEL,
+      nvidia.chat.completions.create({
+        model: NVIDIA_MODEL,
         messages: [
           {
             role: 'assistant',

@@ -19,12 +19,12 @@ import { sanitizeText } from '@/lib/security';
 import { getCached, setCached } from '@/lib/ai-cache';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
 import { buildDeidentifiedContext } from '@/lib/phi-filter';
-import { getZai, ZAI_MODEL, isAiAvailable } from '@/lib/zai';
+import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
 import { logger } from '@/lib/logger';
 export const dynamic = 'force-dynamic';
 
-// sensitive health data BOUNDARY: Full patient context is appended here and sent to a third-party AI processor (ZenMux / stepfun).
+// sensitive health data BOUNDARY: Full patient context is appended here and sent to a third-party AI processor (NVIDIA NIM).
 // Consent verified before assembly; audit log emitted at outbound boundary.
 const SYSTEM_PROMPT = `You are Kynthai Assistant — a US-focused AI health information tool. You provide general informational content about medications, wellness, and US healthcare navigation. You do not provide medical advice, diagnosis, or treatment recommendations.
 
@@ -211,7 +211,7 @@ export async function POST(req: NextRequest) {
     // Check if AI provider is configured before attempting the call
     if (!isAiAvailable()) {
       const msg =
-        'AI chat is not available yet. Set ZENMUX_API_KEY in your .env file to enable it. For now, you can search the medicine database directly.';
+        'AI chat is not available yet. Set NVIDIA_API_KEY in your .env file to enable it. For now, you can search the medicine database directly.';
       try {
         await db.chatMessage.createMany({
           data: [
@@ -225,12 +225,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ response: msg, source: 'config-needed' });
     }
 
-    const zai = await getZai();
+    const nvidia = await getNvidia();
 
     // ── sensitive health data / AI BOUNDARY — AUDIT & DE-IDENTIFICATION ────────────────────────
     // Consent already verified at line 114 (checkConsent).
     // The patient context assembled below is transmitted to a third-party
-    // AI processor (ZenMux / stepfun) and leaves this infrastructure.
+    // AI processor (NVIDIA NIM) and leaves this infrastructure.
     // We use buildDeidentifiedContext() to strip PII before transmission.
     // Retention: included messages are persisted with 30-day TTL (messageExpiry).
     // ──────────────────────────────────────────────────────────────────────────
@@ -332,12 +332,12 @@ export async function POST(req: NextRequest) {
     ];
 
     // ── OUTBOUND AI CALL — sensitive health data TRANSMISSION BOUNDARY ─────────────────────────
-    // Transmitting patient context to third-party AI processor (ZenMux / stepfun).
+    // Transmitting patient context to third-party AI processor (NVIDIA NIM).
     // sensitive health data categories: allergies, age, medications, chronic conditions, healthJournal, chatHistory, alerts, familyHealth.
     // Consent verified at line 114. Raw sensitive health data values intentionally excluded from log.
     const outboundLogPayload = {
       userId: u.id,
-      model: ZAI_MODEL,
+      model: NVIDIA_MODEL,
       phcCategories: [
         'allergies',
         'age',
@@ -357,8 +357,8 @@ hasPatientContext: formattedContext.length > 0,
     // ──────────────────────────────────────────────────────────────────────────
 
     const completion = await withAiTimeout(
-      zai.chat.completions.create({
-        model: ZAI_MODEL,
+      nvidia.chat.completions.create({
+        model: NVIDIA_MODEL,
         messages: messages as never,
       }),
       AI_TIMEOUTS.DEFAULT

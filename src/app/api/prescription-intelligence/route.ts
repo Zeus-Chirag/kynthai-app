@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getZai, ZAI_MODEL, isAiAvailable } from '@/lib/zai'
+import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia'
 import { db } from '@/lib/db'
 import { requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
@@ -53,8 +53,8 @@ export async function POST(req: NextRequest) {
       ? `\n\nPATIENT CONTEXT:\n${patientContextParts.join('\n')}\n\nCheck for interactions between new prescriptions and current medications.`
       : ''
 
-    if (!isAiAvailable()) return NextResponse.json({ intelligence: null, message: 'AI prescription intelligence requires ZENMUX_API_KEY.' })
-    const zai = await getZai()
+    if (!isAiAvailable()) return NextResponse.json({ intelligence: null, message: 'AI prescription intelligence requires NVIDIA_API_KEY.' })
+    const nvidia = await getNvidia()
 
     const safeText = text ? sanitizeForAi(text, MAX_TEXT_LEN) : ''
     const userContent = imageData
@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
       : `Analyze this prescription text and extract all medication information:\n\n"${safeText}"${patientContext}`
 
     const completion = await withAiTimeout(
-      zai.chat.completions.create({
-        model: ZAI_MODEL,
+      nvidia.chat.completions.create({
+        model: NVIDIA_MODEL,
         messages: [
           {
             role: 'assistant',

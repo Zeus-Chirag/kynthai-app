@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getZai, ZAI_MODEL } from '@/lib/zai'
+import { getNvidia, NVIDIA_MODEL } from '@/lib/nvidia'
 import { requireAuth, requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText } from '@/lib/security'
@@ -44,11 +44,11 @@ export async function POST(req: NextRequest) {
     const text = sanitizeText(String(body.text ?? ''), MAX_TEXT_LEN)
     if (!text) return jsonError('text is required', 400, 'VALIDATION_ERROR')
 
-    const zai = await getZai()
+    const nvidia = await getNvidia()
 
     const completion = await withAiTimeout(
-      zai.chat.completions.create({
-        model: ZAI_MODEL,
+      nvidia.chat.completions.create({
+        model: NVIDIA_MODEL,
         messages: [
           { role: 'assistant', content: PROMPT },
           { role: 'user', content: `${text}${user.allergies ? `\n\nPatient allergies: ${user.allergies}` : ''}` },

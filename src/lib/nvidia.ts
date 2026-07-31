@@ -4,6 +4,8 @@ import { logger } from './logger'
 
 // Per-model cost per 1K tokens (USD)
 // Source: https://openai.com/pricing (as of 2026-07-30)
+// NVIDIA NIM-hosted models not listed here fall back to the DEFAULT rates below;
+// the estimator is best-effort observability only, not billing.
 const MODEL_COST_TABLE: Record<string, { input: number; output: number }> = {
   'gpt-4o': { input: 0.0025, output: 0.01 },
   'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
@@ -31,28 +33,38 @@ function estimateCost(model: string, promptTokens: number, completionTokens: num
 // ──────────────────────────────────────────────────────────────────────────────
 // sensitive health data / AI PROCESSOR BOUNDARY
 // ──────────────────────────────────────────────────────────────────────────────
-// This module is the gateway to OpenAI / ZenMux. All outbound chat requests
-// may include patient health context and leave our infrastructure. Audit
-// boundaries and sensitive health data-minimization checks are enforced in
-// the caller (chat route). Do not import or call from client-side code.
+// This module is the gateway to NVIDIA NIM (OpenAI-compatible endpoint at
+// https://integrate.api.nvidia.com/v1). All outbound chat requests may include
+// patient health context and leave our infrastructure. Audit boundaries and
+// sensitive health data-minimization checks are enforced in the caller (chat
+// route). Do not import or call from client-side code.
 
-export const ZAI_MODEL: string = process.env.ZAI_MODEL || 'gpt-4o-mini'
+// Verified live against the NVIDIA catalog (2026-07-31): model id `deepseek-ai/deepseek-v4-flash`.
+export const NVIDIA_MODEL: string = process.env.NVIDIA_MODEL || 'deepseek-ai/deepseek-v4-flash'
+
+const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
 
 export function isAiAvailable(): boolean {
-  return !!(process.env.ZAI_API_KEY || process.env.OPENAI_API_KEY)
+  return !!(process.env.NVIDIA_API_KEY || process.env.OPENAI_API_KEY)
 }
 
 /**
  * Get the AI client instance.
- * Uses ZenMux base URL if configured, otherwise defaults to OpenAI.
+ * Uses the NVIDIA NIM hosted endpoint when NVIDIA_API_KEY is configured
+ * (OpenAI-compatible), otherwise falls back to OpenAI directly.
  */
-export function getZai(): OpenAI {
-  const apiKey = process.env.ZAI_API_KEY || process.env.OPENAI_API_KEY
-  const baseURL = process.env.ZAI_BASE_URL || undefined
+export function getNvidia(): OpenAI {
+  const nvidiaKey = process.env.NVIDIA_API_KEY
+  const openaiKey = process.env.OPENAI_API_KEY
 
-  if (!apiKey) {
-    throw new Error('ZAI_API_KEY or OPENAI_API_KEY must be set for AI features')
+  if (!nvidiaKey && !openaiKey) {
+    throw new Error('NVIDIA_API_KEY (or OPENAI_API_KEY) must be set for AI features')
   }
+
+  const apiKey = nvidiaKey || openaiKey as string
+  const baseURL = nvidiaKey
+    ? process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL
+    : 'https://api.openai.com/v1'
 
   return new OpenAI({
     apiKey,
@@ -88,18 +100,18 @@ interface AIChatResult {
 
 /**
  * Send a chat completion to the configured AI provider.
- * Uses the OpenAI-compatible API (OpenAI or ZenMux/stepfun).
+ * Uses the OpenAI-compatible API (NVIDIA NIM / OpenAI).
  */
 export async function aiChat(
   messages: AIChatMessage[],
   options: AIChatOptions = {},
 ): Promise<AIChatResult> {
-  const zai = getZai()
-  const model = options.model || ZAI_MODEL
+  const nvidia = getNvidia()
+  const model = options.model || NVIDIA_MODEL
 
   return withOpenAICircuitBreaker(async () => {
     try {
-      const response = await zai.chat.completions.create(
+      const response = await nvidia.chat.completions.create(
         {
           model,
           messages: messages.map(m => ({
