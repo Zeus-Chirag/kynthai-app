@@ -98,12 +98,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const allowed = VALID_TRANSITIONS[appt.status] || [];
 
-  // Role enforcement
-  if (isPatient && !['cancelled'].includes(nextStatus)) {
-    // Patient can only cancel once doctor has accepted
-    if (appt.status === 'confirmed') {
-      // Patient cancel after doctor accepted → refund minus platform fee
-    }
+  // Role enforcement: patients may ONLY cancel their own appointments.
+  // Advancing status (pending→confirmed, confirmed→completed) is doctor-only
+  // — it gates payment capture and payout release. Allowing patients to
+  // confirm/complete would bypass escrow and payment entirely.
+  if (isPatient && nextStatus !== 'cancelled') {
+    return jsonError('Patients can only cancel appointments', 403);
   }
   if (!isDoctor && !isPatient && !isAdmin) {
     return jsonError('Forbidden', 403);

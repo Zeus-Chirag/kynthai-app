@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { logAudit } from '@/lib/auth';
 import { jsonError, jsonOk } from '@/lib/api-helpers';
 import { logger } from '@/lib/logger';
+import { tierFromClaim, amountMatchesTier, TierKey } from '@/lib/currency';
 import Stripe from 'stripe';
 
 export const dynamic = 'force-dynamic';
@@ -83,16 +84,41 @@ async function handlePaymentSucceeded(intent: Stripe.PaymentIntent) {
       },
     });
 
-    // Upgrade user tier on successful payment
-    const tier = intent.metadata.tier || 'plus';
-    const newTier = tier === 'family' ? 'family_pro' : 'plus';
+    // SECURITY: metadata is never the sole authority for granting a tier. The
+    // amount actually paid must match the claimed tier's published price.
+    const verifiedTier = verifiedTierFromIntent(intent);
+    if (!verifiedTier) {
+      logger.warn(
+        `Stripe PaymentIntent ${intent.id} amount does not match claimed tier — tier NOT granted`
+      );
+      await logAudit(
+        userId,
+        'payment.tier_mismatch',
+        `payment=${payment.id} amount=${intent.amount / 100} currency=${intent.currency}`
+      );
+      return;
+    }
+
     await db.user.update({
       where: { id: userId },
-      data: { subscriptionTier: newTier },
+      data: { subscriptionTier: verifiedTier },
     });
 
-    await logAudit(userId, 'payment.succeeded', `payment=${payment.id} amount=${intent.amount / 100}`);
+    await logAudit(userId, 'payment.succeeded', `payment=${payment.id} amount=${intent.amount / 100} tier=${verifiedTier}`);
   }
+}
+
+/**
+ * Resolve the canonical tier a PaymentIntent legitimately grants, verifying
+ * the charged amount against the published price for that tier + currency.
+ * Returns null when metadata is missing, unknown, or amount-mismatched.
+ */
+function verifiedTierFromIntent(intent: Stripe.PaymentIntent): TierKey | null {
+  const claimed = tierFromClaim(intent.metadata.tier);
+  if (!claimed) return null;
+  const amountDollars = intent.amount / 100;
+  const currency = (intent.currency || 'usd').toUpperCase();
+  return amountMatchesTier(amountDollars, currency, claimed) ? claimed : null;
 }
 
 async function handlePaymentFailed(intent: Stripe.PaymentIntent) {
@@ -117,16 +143,41 @@ async function handleSubscriptionUpdate(sub: Stripe.Subscription) {
   const userId = sub.metadata.userId;
   if (!userId) return;
 
-  const tier = sub.items.data[0]?.price?.metadata?.tier;
-  if (!tier) return;
+  // SECURITY: never grant a paid tier for a non-paying subscription state.
+  // past_due / unpaid immediately revoke the entitlement.
+  if (sub.status !== 'active' && sub.status !== 'trialing') {
+    if (sub.status === 'past_due' || sub.status === 'unpaid') {
+      await db.user.update({
+        where: { id: userId },
+        data: { subscriptionTier: 'free' },
+      });
+      await logAudit(userId, 'subscription.payment_failed', `status=${sub.status}`);
+    }
+    return;
+  }
 
-  const newTier = tier === 'family' ? 'family_pro' : 'plus';
+  // Verify the subscribed price's unit amount matches the claimed tier's price.
+  const price = sub.items.data[0]?.price;
+  const claimed = tierFromClaim(price?.metadata?.tier);
+  if (!claimed) return;
+
+  const unitAmountDollars = price?.unit_amount != null ? price.unit_amount / 100 : null;
+  if (
+    unitAmountDollars !== null &&
+    !amountMatchesTier(unitAmountDollars, (price?.currency || 'usd').toUpperCase(), claimed)
+  ) {
+    logger.warn(
+      `Stripe subscription ${sub.id} unit amount does not match tier ${claimed} — tier NOT granted`
+    );
+    return;
+  }
+
   await db.user.update({
     where: { id: userId },
-    data: { subscriptionTier: newTier },
+    data: { subscriptionTier: claimed },
   });
 
-  await logAudit(userId, 'subscription.updated', `tier=${newTier} status=${sub.status}`);
+  await logAudit(userId, 'subscription.updated', `tier=${claimed} status=${sub.status}`);
 }
 
 async function handleSubscriptionDeleted(sub: Stripe.Subscription) {

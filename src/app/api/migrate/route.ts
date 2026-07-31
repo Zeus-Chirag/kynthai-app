@@ -386,7 +386,9 @@ export async function POST(req: NextRequest) {
       results
     })
   } catch (error: any) {
+    // SECURITY: never echo internal error messages (table/column names, DSN
+    // fragments, driver internals) to unauthenticated callers — log only.
     logger.phiSafeError(error, 'migrate.POST')
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Migration failed' }, { status: 500 })
   }
 }

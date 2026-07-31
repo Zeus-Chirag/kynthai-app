@@ -4,6 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser, requireAuth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { checkCsrf } from '@/lib/csrf';
+import { rateLimit, sanitizeText } from '@/lib/security';
 import { encryptFile, generateFileId, sanitizeFilename } from '@/lib/encryption';
 import { uploadMedicalDocument } from '@/lib/storage';
 import { DocumentType, DocumentCategory, DocumentVisibility } from '@prisma/client';
@@ -22,6 +24,13 @@ const ALLOWED_TYPES = [
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: uploads are state-changing and store sensitive health data —
+    // enforce CSRF (double-submit token) + per-IP rate limiting before anything else.
+    const csrfErr = await checkCsrf(req);
+    if (csrfErr) return csrfErr;
+    const limited = rateLimit(req, 20, 60000);
+    if (limited) return limited;
+
     const user = await requireAuth();
 
     const formData = await req.formData();
@@ -32,7 +41,23 @@ export async function POST(req: NextRequest) {
     const description = formData.get('description') as string || '';
     const visibility = (formData.get('visibility') as unknown as DocumentVisibility) || 'PRIVATE';
     const familyId = formData.get('familyId') as string || null;
-    const sharedWith = formData.get('sharedWith') ? JSON.parse(formData.get('sharedWith') as string) : [];
+
+    // SECURITY: sharedWith is a JSON array of user IDs — validate strictly.
+    // Never trust client JSON blindly (malformed payloads would 500; oversized
+    // arrays would bloat the row).
+    let sharedWith: string[] = [];
+    const sharedWithRaw = formData.get('sharedWith');
+    if (sharedWithRaw) {
+      try {
+        const parsed = JSON.parse(sharedWithRaw as string);
+        if (!Array.isArray(parsed)) {
+          return NextResponse.json({ error: 'sharedWith must be an array' }, { status: 400 });
+        }
+        sharedWith = parsed.filter((x): x is string => typeof x === 'string').slice(0, 50);
+      } catch {
+        return NextResponse.json({ error: 'sharedWith must be valid JSON' }, { status: 400 });
+      }
+    }
 
     // Validate file
     if (!file) {
@@ -46,6 +71,40 @@ export async function POST(req: NextRequest) {
     }
     if (!type || !Object.values(DocumentType).includes(type)) {
       return NextResponse.json({ error: 'Invalid document type' }, { status: 400 });
+    }
+    if (!Object.values(DocumentCategory).includes(category)) {
+      return NextResponse.json({ error: 'Invalid document category' }, { status: 400 });
+    }
+    if (!Object.values(DocumentVisibility).includes(visibility)) {
+      return NextResponse.json({ error: 'Invalid visibility' }, { status: 400 });
+    }
+
+    // SECURITY: verify magic bytes match the declared MIME type to prevent
+    // content-type spoofing (e.g., an HTML/script file disguised as a PDF).
+    const head8 = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+    const head132 = new Uint8Array(await file.slice(0, 132).arrayBuffer());
+    const isPdf = head8[0] === 0x25 && head8[1] === 0x50 && head8[2] === 0x44 && head8[3] === 0x46;
+    const isJpeg = head8[0] === 0xff && head8[1] === 0xd8;
+    const isPng = head8[0] === 0x89 && head8[1] === 0x50 && head8[2] === 0x4e && head8[3] === 0x47;
+    const isTiff =
+      (head8[0] === 0x49 && head8[1] === 0x49 && head8[2] === 0x2a && head8[3] === 0x00) ||
+      (head8[0] === 0x4d && head8[1] === 0x4d && head8[2] === 0x00 && head8[3] === 0x2a);
+    const isDicom =
+      head132[128] === 0x44 && head132[129] === 0x49 && head132[130] === 0x43 && head132[131] === 0x4d;
+    const isZip = head8[0] === 0x50 && head8[1] === 0x4b && head8[2] === 0x03 && head8[3] === 0x04;
+    const mimeMatchesContent =
+      (file.type === 'application/pdf' && isPdf) ||
+      (file.type === 'image/jpeg' && isJpeg) ||
+      (file.type === 'image/png' && isPng) ||
+      (file.type === 'image/tiff' && isTiff) ||
+      (file.type === 'application/dicom' && isDicom) ||
+      (file.type === 'application/zip' && isZip) ||
+      file.type === 'text/plain'; // plain text has no reliable magic bytes
+    if (!mimeMatchesContent) {
+      return NextResponse.json(
+        { error: 'File content does not match the declared file type' },
+        { status: 400 }
+      );
     }
 
     // Verify family membership if familyId provided
@@ -98,7 +157,7 @@ export async function POST(req: NextRequest) {
         familyId,
         type,
         category,
-        title: title || file.name,
+        title: sanitizeText(title || file.name, 200) || file.name,
         description,
         mimeType: file.type,
         fileSize: file.size,

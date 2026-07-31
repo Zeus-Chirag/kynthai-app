@@ -69,3 +69,40 @@ export function detectCurrency(): Currency {
   // US-first deployment — always return USD regardless of locale
   return 'USD'
 }
+
+/**
+ * Subscribable tier keys. Client-facing claims use 'plus' | 'family';
+ * DB/webhook canonical keys are 'plus' | 'family_pro'.
+ */
+export type TierKey = 'plus' | 'family_pro'
+
+/**
+ * Map a client or webhook tier claim to the canonical DB tier key.
+ * Unknown claims return null (caller must reject).
+ */
+export function tierFromClaim(claim: string | undefined | null): TierKey | null {
+  if (claim === 'family' || claim === 'family_pro') return 'family_pro'
+  if (claim === 'plus') return 'plus'
+  return null
+}
+
+/**
+ * Server-side verification that a paid amount (in dollars) matches a tier's
+ * published monthly or yearly price for a currency. Tolerance guards float
+ * rounding (0.01). Used by the Stripe webhook so metadata can never be the
+ * sole authority for granting a tier.
+ */
+export function amountMatchesTier(
+  amountDollars: number,
+  currency: string,
+  tier: TierKey,
+  tolerance = 0.01
+): boolean {
+  const pricing = PRICING[currency.toUpperCase() as Currency]
+  if (!pricing) return false
+  const prices = pricing[tier]
+  return (
+    Math.abs(amountDollars - prices.monthly) <= tolerance ||
+    Math.abs(amountDollars - prices.yearly) <= tolerance
+  )
+}

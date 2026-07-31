@@ -234,6 +234,16 @@ export async function POST(req: NextRequest) {
     // We use buildDeidentifiedContext() to strip PII before transmission.
     // Retention: included messages are persisted with 30-day TTL (messageExpiry).
     // ──────────────────────────────────────────────────────────────────────────
+    // SECURITY: scope family data to families this user actually belongs to.
+    // Without this, any caretaker/family_pro user could read EVERY family's
+    // health alerts (cross-tenant data leak / IDOR).
+    const userFamilyIds = (
+      await db.familyMember.findMany({
+        where: { userId: u.id, inviteStatus: 'accepted' },
+        select: { familyId: true },
+      })
+    ).map((m) => m.familyId);
+
     // Fetch ALL patient context in ONE parallel round-trip
     const allCtxResults = await Promise.allSettled([
       // Medications
@@ -270,7 +280,7 @@ export async function POST(req: NextRequest) {
       // Family health alerts (caretaker/family_pro only)
       u.role === 'caretaker' || u.subscriptionTier === 'family_pro'
         ? db.familyHealthAlert.findMany({
-            where: { read: false },
+            where: { read: false, familyId: { in: userFamilyIds } },
             orderBy: { createdAt: 'desc' },
             take: 3,
             select: { type: true, title: true, message: true, severity: true },

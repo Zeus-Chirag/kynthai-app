@@ -9,7 +9,15 @@ import {
   readJson,
   requireAuth,
 } from '@/lib/api-helpers';
-import { generateSmsCode, isValidSmsCode } from '@/lib/patient-verify';
+import {
+  generateSmsCode,
+  isValidSmsCode,
+  hashSmsCode,
+  verifySmsCode,
+  encodeStoredSmsCode,
+  decodeStoredSmsCode,
+  SMS_MAX_ATTEMPTS,
+} from '@/lib/patient-verify';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -100,11 +108,12 @@ export async function PATCH(req: NextRequest) {
       const code = generateSmsCode();
       const expiresAt = new Date(Date.now() + SMS_CODE_EXPIRY_MS);
 
-      // Store code in database (persistent, survives restarts, horizontally scalable)
+      // SECURITY: store an HMAC digest of the code (never plaintext) plus a
+      // zeroed attempt counter. A DB leak no longer exposes usable codes.
       await db.user.update({
         where: { id: session.id },
         data: {
-          smsVerificationCode: code,
+          smsVerificationCode: encodeStoredSmsCode(hashSmsCode(code), 0),
           smsCodeExpiresAt: expiresAt,
           phone,
         },
@@ -137,7 +146,30 @@ export async function PATCH(req: NextRequest) {
         return jsonError('Verification code expired. Request a new one.', 400);
       }
 
-      if (body.smsCode !== user.smsVerificationCode) {
+      const stored = user.smsVerificationCode ?? '';
+      const { hash, attempts } = decodeStoredSmsCode(stored);
+
+      // SECURITY: cap failed attempts — a 6-digit code must not be brute-able
+      // within its 10-minute window. Past the cap, invalidate and force re-send.
+      if (attempts >= SMS_MAX_ATTEMPTS) {
+        await db.user.update({
+          where: { id: session.id },
+          data: { smsVerificationCode: null, smsCodeExpiresAt: null },
+        });
+        return jsonError('Too many failed attempts. Request a new code.', 429);
+      }
+
+      // Legacy tolerance: pre-hashing plaintext codes are still accepted once
+      // (then cleared). New codes always go through the constant-time path.
+      const legacyPlainMatch = stored === body.smsCode;
+      if (!legacyPlainMatch && !verifySmsCode(body.smsCode || '', hash)) {
+        // SECURITY: increment the attempt counter on failure, then reject.
+        await db.user.update({
+          where: { id: session.id },
+          data: {
+            smsVerificationCode: encodeStoredSmsCode(hash, attempts + 1),
+          },
+        });
         return jsonError('Invalid verification code', 400);
       }
 

@@ -269,7 +269,7 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
                 {isRoleSlide && (
                   <div className="mt-4 w-full space-y-2">
                     <p className="text-xs font-medium text-muted-foreground mb-2">I am a…</p>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {roles.map((r) => {
                         const Icon = r.icon
                         const selected = role === r.id

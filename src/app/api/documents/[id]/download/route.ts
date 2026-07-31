@@ -109,11 +109,17 @@ export async function GET(
     });
 
     // Return decrypted file
+    // SECURITY: sanitize the title before it reaches the Content-Disposition
+    // header — CR/LF/quote injection via a hostile document title could allow
+    // header splitting (response splitting / log injection).
+    const safeTitle = (document.title || 'document').replace(/[\r\n"\\]/g, '_').slice(0, 120);
     return new NextResponse(new Uint8Array(decryptedData), {
       headers: {
         'Content-Type': document.mimeType,
-        'Content-Disposition': `attachment; filename="${document.title}.${document.storagePath.split('.').pop()}"`,
+        'Content-Disposition': `attachment; filename="${safeTitle}.${document.storagePath.split('.').pop()}"`,
         'Content-Length': decryptedData.length.toString(),
+        'X-Content-Type-Options': 'nosniff',
+        'Cache-Control': 'no-store, private',
       },
     });
   } catch (error) {

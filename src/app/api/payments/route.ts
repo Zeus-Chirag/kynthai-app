@@ -11,7 +11,7 @@ import {
   audit,
 } from '@/lib/api-helpers';
 import { logger } from '@/lib/logger';
-import { PRICING } from '@/lib/currency';
+import { PRICING, tierFromClaim, Currency } from '@/lib/currency';
 export const dynamic = 'force-dynamic';
 
 // POST /api/payments
@@ -35,11 +35,21 @@ export async function POST(req: NextRequest) {
     if (!body.amount || Number(body.amount) <= 0) return jsonError('Valid amount is required', 400);
     if (Number(body.amount) > 1_000_000) return jsonError('Amount exceeds maximum allowed', 400);
 
-    // SECURITY: validate amount against server-side tier pricing — never trust client input.
-    const tierKey = u.subscriptionTier === 'family_pro' ? 'family_pro' : 'plus';
-    const expected = PRICING.USD[tierKey]?.monthly;
-    if (expected && Math.abs(Number(body.amount) - expected) > 0.01) {
-      return jsonError('Amount does not match your subscription tier', 400);
+    // SECURITY: validate amount against server-side tier pricing — never trust
+    // client input. The claimed tier comes from body.type; the amount must match
+    // that tier's published monthly OR yearly price, so a user can't pay the
+    // cheaper Plus price while claiming the Family tier.
+    const claimedTier = tierFromClaim(body.type);
+    const tierKey = claimedTier ?? (u.subscriptionTier === 'family_pro' ? 'family_pro' : 'plus');
+    const currency = (body.currency || 'USD') as Currency;
+    const pricing = PRICING[currency] ?? PRICING.USD;
+    const prices = pricing[tierKey];
+    if (
+      !prices ||
+      (Math.abs(Number(body.amount) - prices.monthly) > 0.01 &&
+        Math.abs(Number(body.amount) - prices.yearly) > 0.01)
+    ) {
+      return jsonError('Amount does not match the selected subscription tier', 400);
     }
 
     // SECURITY: provider is determined server-side only — never trust client input.
@@ -127,7 +137,9 @@ export async function POST(req: NextRequest) {
             metadata: {
               paymentId: payment.id,
               userId: u.id,
-              tier: body.type || 'subscription',
+              // SECURITY: tier is set server-side from the validated tier — never
+              // echoed verbatim from client input.
+              tier: tierKey,
             },
             description: sanitizeText(body.description, 300) || 'Kynthai.com subscription',
           },

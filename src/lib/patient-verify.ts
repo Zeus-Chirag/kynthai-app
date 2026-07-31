@@ -6,7 +6,7 @@
  * - Identity confirmation affidavits
  */
 
-import { randomInt } from 'node:crypto';
+import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 
 export interface IdentityDocument {
   id: string;
@@ -56,6 +56,73 @@ export function generateSmsCode(): string {
  */
 export function isValidSmsCode(code: string): boolean {
   return /^\d{6}$/.test(code);
+}
+
+/**
+ * Maximum failed verification attempts before a code is invalidated.
+ */
+export const SMS_MAX_ATTEMPTS = 5;
+
+/**
+ * Constant-time string comparison — mitigates timing side-channels when
+ * comparing secrets (OTP codes, tokens). Returns false immediately on
+ * length mismatch without leaking how many leading bytes matched.
+ */
+export function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
+}
+
+/**
+ * HMAC key for hashing SMS codes at rest. Falls back to SESSION_SECRET so
+ * environments without ENCRYPTION_KEY still fail closed (never plaintext).
+ */
+function smsHmacKey(): string {
+  const key = process.env.ENCRYPTION_KEY || process.env.SESSION_SECRET || '';
+  if (!key) {
+    throw new Error('ENCRYPTION_KEY or SESSION_SECRET must be set to store SMS codes');
+  }
+  return key;
+}
+
+/**
+ * HMAC-SHA256 of a 6-digit code. Codes are never stored or compared in
+ * plaintext; only this digest is persisted.
+ */
+export function hashSmsCode(code: string): string {
+  return createHmac('sha256', smsHmacKey()).update(code, 'utf8').digest('hex');
+}
+
+/**
+ * Verify a submitted code against a stored digest in constant time.
+ */
+export function verifySmsCode(code: string, storedHash: string): boolean {
+  if (!isValidSmsCode(code) || !storedHash) return false;
+  return constantTimeEqual(hashSmsCode(code), storedHash);
+}
+
+/**
+ * Persisted SMS record encoding: `<hmac-hex>:<attempts>`. Encoding the
+ * attempt counter inside the existing column avoids a schema migration while
+ * keeping the counter atomic with the code itself.
+ */
+export function encodeStoredSmsCode(hash: string, attempts: number): string {
+  return `${hash}:${Math.max(0, attempts)}`;
+}
+
+/**
+ * Decode a persisted SMS record. Legacy plaintext codes (pre-hashing) decode
+ * with attempts=0 and are handled gracefully by callers.
+ */
+export function decodeStoredSmsCode(stored: string): { hash: string; attempts: number } {
+  if (!stored) return { hash: '', attempts: 0 };
+  const idx = stored.lastIndexOf(':');
+  if (idx <= 0) return { hash: stored, attempts: 0 };
+  const attempts = Number.parseInt(stored.slice(idx + 1), 10);
+  return {
+    hash: stored.slice(0, idx),
+    attempts: Number.isFinite(attempts) ? attempts : 0,
+  };
 }
 
 /**
