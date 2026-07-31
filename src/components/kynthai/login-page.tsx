@@ -276,7 +276,7 @@ export function LoginPage({
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
+    <div className="relative min-h-dvh overflow-hidden bg-background">
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
         <div
           className="absolute -top-40 left-1/2 h-[40rem] sm:w-[40rem] w-full -translate-x-1/2 rounded-full opacity-40 blur-3xl"
@@ -286,7 +286,7 @@ export function LoginPage({
         />
       </div>
 
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-dvh max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <button
             onClick={() => router.push('/')}
@@ -456,8 +456,8 @@ export function LoginPage({
 
                 {/* ── COMPLIANCE: age-gate modal — prevents under-18 registration ─── */}
                 {ageGateOpen && !ageGateDismissed && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-                    <Card className="mx-4 max-w-sm w-full border-amber-500/30 shadow-xl">
+                  <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-background/80 p-4 backdrop-blur-sm sm:items-center">
+                    <Card className="my-auto w-full max-w-sm border-amber-500/30 shadow-xl">
                       <CardContent className="p-6 text-center space-y-4">
                         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
                           <ShieldCheck className="h-6 w-6 text-amber-600" />

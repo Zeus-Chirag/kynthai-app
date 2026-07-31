@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <ErrorBoundary>
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
         <div className="w-full max-w-sm">
           <div className="mb-6 flex justify-center">
             <KynthaiBrand iconSize={32} />
@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
             <Card className="border-border/60">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
+                  <Button variant="ghost" size="icon" onClick={() => router.push('/login')} className="h-8 w-8">
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                   <h1 className="text-lg font-semibold">Forgot password?</h1>

@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <ErrorBoundary>
-        <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
+        <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
           <div className="w-full max-w-sm">
             <div className="mb-6 flex justify-center">
               <KynthaiBrand iconSize={32} />
@@ -72,7 +72,7 @@ export default function ResetPasswordPage() {
 
   return (
     <ErrorBoundary>
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20 p-4">
         <div className="w-full max-w-sm">
           <div className="mb-6 flex justify-center">
             <KynthaiBrand iconSize={32} />

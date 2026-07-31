@@ -72,7 +72,7 @@ export function PhoneMockup({
   if (reduced) {
     return (
       <div
-        className={cn('relative mx-auto w-full max-w-[90vw] sm:max-w-[320px]', className)}
+        className={cn('relative mx-auto w-full max-w-[min(88%,300px)] sm:max-w-[320px]', className)}
         aria-hidden={ariaHidden}
         style={{ opacity: 1 }}
       >
@@ -140,7 +140,7 @@ export function PhoneMockup({
       variants={containerEntrance}
       initial="hidden"
       animate="visible"
-      className={cn('relative mx-auto w-full max-w-[90vw] sm:max-w-[320px]', className)}
+      className={cn('relative mx-auto w-full max-w-[min(88%,300px)] sm:max-w-[320px]', className)}
       aria-hidden={ariaHidden}
     >
       {/* ── Layered glow background ─────────────────────────────────── */}
@@ -334,14 +334,14 @@ export function PhoneMockup({
       {/* ── Floating notification badges ──────────────────────────────── */}
       {/* On mobile: 2 badges with tight offsets; on tablet+ : 4 badges with wider offsets */}
       <FloatingBadge
-        className="-left-6 top-24 sm:-left-10 md:flex"
+        className="-left-2 top-24 sm:-left-10 md:flex"
         delay={0.8}
         icon={<Heart className="h-3.5 w-3.5 text-rose-500" />}
         title="Mom's BP taken"
         sub="By you · 2 min ago"
       />
       <FloatingBadge
-        className="-right-6 top-44 sm:-right-10 md:flex"
+        className="-right-2 top-44 sm:-right-10 md:flex"
         delay={1.0}
         icon={<Search className="h-3.5 w-3.5 text-emerald-600" />}
         title="Drug interaction"

@@ -211,7 +211,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
               {profileOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-border/60 bg-background shadow-xl shadow-black/10 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-border/60 bg-background shadow-xl shadow-black/10 overflow-hidden">
                     <div className="px-4 py-3 border-b border-border/40">
                       <p className="text-sm font-semibold">{profile.labName}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{profile.city}</p>
@@ -239,7 +239,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
       </header>
 
       {/* tab bar */}
-      <div className="sticky top-[57px] z-20 border-b border-border/40 bg-background/70 backdrop-blur-md">
+      <div className="sticky top-16 z-20 border-b border-border/40 bg-background/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl gap-1 px-4 py-1.5">
           {tabs.map(t => {
             const Icon = t.icon

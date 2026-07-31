@@ -46,10 +46,10 @@ export function LandingFooter() {
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/20"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/20"
                   aria-label={s.label}
                 >
-                  <s.icon className="h-3.5 w-3.5" />
+                  <s.icon className="h-4 w-4" />
                 </a>
               ))}
             </div>

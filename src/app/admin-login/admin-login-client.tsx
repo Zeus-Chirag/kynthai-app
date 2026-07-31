@@ -78,7 +78,7 @@ export default function AdminLoginClient() {
   if (!mounted) return null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-background to-teal-50 dark:from-emerald-950/20 dark:via-background dark:to-teal-950/20 px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-emerald-50 via-background to-teal-50 dark:from-emerald-950/20 dark:via-background dark:to-teal-950/20 px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <KynthaiBrand iconSize={36} />

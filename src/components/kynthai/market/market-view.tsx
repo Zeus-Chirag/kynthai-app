@@ -220,7 +220,7 @@ function DoctorsTab() {
           />
         </div>
         <Select value={spec} onValueChange={setSpec}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-[min(160px,38vw)] shrink-0">
             <SelectValue placeholder="Specialty" />
           </SelectTrigger>
           <SelectContent>
