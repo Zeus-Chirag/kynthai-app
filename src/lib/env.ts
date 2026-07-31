@@ -28,7 +28,7 @@ const REQUIRED_IN_ALL = [
 ] as const
 
 const OPTIONAL_WITH_DEFAULTS: Record<string, string> = {
-  NVIDIA_MODEL: 'deepseek-ai/deepseek-v4-flash',
+  NVIDIA_MODEL: 'meta/llama-3.2-11b-vision-instruct',
   NVIDIA_BASE_URL: 'https://integrate.api.nvidia.com/v1',
   VIDEO_TOKEN_SECRET: '',
   SENTRY_DSN: '',

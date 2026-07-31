@@ -39,8 +39,9 @@ function estimateCost(model: string, promptTokens: number, completionTokens: num
 // sensitive health data-minimization checks are enforced in the caller (chat
 // route). Do not import or call from client-side code.
 
-// Verified live against the NVIDIA catalog (2026-07-31): model id `deepseek-ai/deepseek-v4-flash`.
-export const NVIDIA_MODEL: string = process.env.NVIDIA_MODEL || 'deepseek-ai/deepseek-v4-flash'
+// Verified live against the NVIDIA catalog (2026-07-31): model id `meta/llama-3.2-11b-vision-instruct`
+// (multimodal — text + image input; un-breaks medicine-ID and prescription-scan).
+export const NVIDIA_MODEL: string = process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
 
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
 

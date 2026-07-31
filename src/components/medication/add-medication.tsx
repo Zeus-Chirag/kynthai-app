@@ -150,12 +150,12 @@ export function AddMedication({ onAdded, onClose, familyMemberId }: AddMedicatio
             <Sparkles className="h-4 w-4" />
             AI Schedule Parser
             <Badge variant="secondary" className="ml-1 text-xs">
-              Voice + NLP
+              NLP
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">
-            Describe your prescription in plain English (or use voice) and let AI
-            fill the form for you.
+            Describe your prescription in plain English and let AI fill the form
+            for you.
           </p>
           <div className="flex gap-2">
             <Textarea
