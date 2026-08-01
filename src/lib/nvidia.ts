@@ -41,7 +41,22 @@ function estimateCost(model: string, promptTokens: number, completionTokens: num
 
 // Verified live against the NVIDIA catalog (2026-07-31): model id `meta/llama-3.2-11b-vision-instruct`
 // (multimodal — text + image input; un-breaks medicine-ID and prescription-scan).
-export const NVIDIA_MODEL: string = process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
+//
+// Provider-aware model resolution: getNvidia() points the OpenAI-compatible
+// client at api.openai.com when ONLY OPENAI_API_KEY is configured. Sending the
+// NVIDIA NIM model id in that case makes OpenAI 404 ("model does not exist"),
+// which surfaced as chat POST -> 500 "Failed to get AI response" in production.
+// Resolve the model to match the provider that is actually configured.
+function resolveModel(): string {
+  if (process.env.NVIDIA_API_KEY) {
+    return process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
+  }
+  if (process.env.OPENAI_API_KEY) {
+    return process.env.OPENAI_MODEL || 'gpt-4o-mini'
+  }
+  return process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
+}
+export const NVIDIA_MODEL: string = resolveModel()
 
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
 
