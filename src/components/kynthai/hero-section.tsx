@@ -26,8 +26,16 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
      * decorative overflow. The global `html, body { overflow-x: clip }` guard
      * in globals.css already guarantees zero horizontal scrolling at every
      * width, so letting decorative layers breathe introduces no scrollbar.
+     *
+     * `pl-safe pr-safe` LIVE HERE on the section (NOT on the grid): with
+     * `viewport-fit: cover` (layout.tsx) iOS lays out into the notch +
+     * home-indicator areas in landscape. The custom `.pl-safe`/`.pr-safe`
+     * utilities are defined later in the CSS cascade than Tailwind's `px-*`
+     * utilities, so putting them on the grid would OVERRIDE `px-4`/`sm:px-6`
+     * and zero the hero gutters (env() is 0 outside notched iOS). The section
+     * has no padding of its own, so they apply cleanly here.
      */
-    <section className="relative overflow-x-clip">
+    <section className="relative overflow-x-clip pl-safe pr-safe">
       {/* Multi-layer soft gradient orbs */}
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
         <div
@@ -50,10 +58,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         />
       </div>
 
-      {/* pl-safe/pr-safe: with `viewport-fit: cover` (layout.tsx) iOS lays out
-          into the notch + home-indicator areas — these keep the hero clear of
-          the rounded corners / home indicator on notched iPhones in landscape. */}
-      <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 pl-safe pr-safe sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-16">
+      <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-16">
         {/* Left: copy column */}
         <div>
           {/* Trust badge */}
@@ -108,7 +113,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
                 const el = document.getElementById('how-it-works');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="h-11 w-full rounded-full px-6 text-sm font-semibold sm:h-12 sm:px-7 sm:text-base"
+              className="h-11 w-full rounded-full px-6 text-sm font-semibold sm:h-12 sm:w-auto sm:px-7 sm:text-base"
             >
               See How It Works
             </Button>

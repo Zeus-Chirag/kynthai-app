@@ -62,7 +62,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
           <KynthaiBrand />
         </button>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
           {links.map((l) => (
             l.href ? (
               <Link
@@ -86,7 +86,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Button
             variant="ghost"
             size="sm"
@@ -106,7 +106,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
         </div>
 
         <button
-          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border md:hidden transition-transform duration-200 active:scale-90"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border lg:hidden transition-transform duration-200 active:scale-90"
           onClick={() => setOpen((o) => !o)}
           aria-label="Toggle menu"
           aria-expanded={open}
@@ -132,7 +132,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-border bg-background md:hidden"
+            className="overflow-hidden border-t border-border bg-background lg:hidden"
           >
             <div className="space-y-1 px-4 py-3">
             {links.map((l) =>
