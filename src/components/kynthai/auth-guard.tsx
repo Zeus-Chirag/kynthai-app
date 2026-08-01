@@ -12,7 +12,32 @@ interface AuthGuardProps {
   disableMountCheck?: boolean
 }
 
-const PUBLIC_PATHS = ['/', '/login', '/privacy', '/terms', '/cookies', '/accessibility', '/medical-disclaimer', '/pricing', '/checkout', '/grievance', '/refund-cancellation'] as string[]
+// Must mirror the public/passthrough sets in portal-client.tsx — any path
+// missing here gets the mount-time /api/auth/me check, and unauthenticated
+// visitors are bounced to /login (which is why /register, /forgot-password,
+// /ccpa, etc. appeared to "redirect to the landing/login page" after hydration).
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/register',
+  '/privacy',
+  '/terms',
+  '/cookies',
+  '/accessibility',
+  '/medical-disclaimer',
+  '/pricing',
+  '/checkout',
+  '/grievance',
+  '/refund-cancellation',
+  // Passthrough helper/legal pages — never auth-gated
+  '/forgot-password',
+  '/reset-password',
+  '/ccpa',
+  '/patient-rights',
+  '/privacy-practices',
+  '/feedback',
+  '/admin-login',
+] as string[]
 
 const isBrowser = () => typeof window !== 'undefined'
 

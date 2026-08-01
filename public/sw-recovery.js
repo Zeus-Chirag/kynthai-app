@@ -52,7 +52,7 @@
           '<div>' +
           '<h2 style="font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">App Update Available</h2>' +
           '<p style="color:#64748b;margin-bottom:1.5rem;max-width:360px;line-height:1.5">A new version was deployed while you were away. Please refresh to get the latest.</p>' +
-          '<button onclick=\\'localStorage.clear();sessionStorage.clear();location.reload()\\' ' +
+          '<button onclick="localStorage.clear();sessionStorage.clear();location.reload()" ' +
           'style="background:#059669;color:white;border:none;padding:0.75rem 2rem;border-radius:9999px;font-size:1rem;cursor:pointer;font-weight:600;box-shadow:0 4px 6px -1px rgba(5,150,105,0.3)">' +
           'Refresh Now</button>' +
           '</div></div>';
