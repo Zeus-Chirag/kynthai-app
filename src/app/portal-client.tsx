@@ -83,6 +83,20 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     '/medical-disclaimer',
     '/refund-cancellation',
   ]);
+  // Real server-rendered pages that must NEVER be swallowed by the client
+  // router's screen resolution (which would otherwise show the landing page).
+  const PASSTHROUGH_PATHS = new Set([
+    '/forgot-password',
+    '/reset-password',
+    '/ccpa',
+    '/grievance',
+    '/patient-rights',
+    '/privacy-practices',
+    '/feedback',
+    '/admin-login',
+  ]);
+  // Auth-protected real pages — need a signed-in user before rendering.
+  const PROTECTED_PATHS = new Set(['/settings', '/dashboard']);
   const PORTAL_PATHS = new Set(['/patient', '/doctor', '/lab', '/caretaker', '/family', '/admin']);
 
   // Use selectors to subscribe only to needed state — avoids re-renders on _hydrated changes
@@ -202,19 +216,86 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     }
   }, [user, onboardingComplete, completeOnboarding, pathname, router]);
 
-  // ─── Hydration guard ─────────────────────────────────────────────────────
-  // Public & portal routes render `children` immediately (they don't read
-  // store state that changes during server-side hydration).
+  // ─── Hydration guard & route resolution ─────────────────────────────────
+  // Public, passthrough, and portal routes render `children` immediately
+  // (they don't read store state that changes during server-side hydration).
   // For other routes (dynamic portal logic), wait for store hydration to
   // avoid "Rendered more hooks than during the previous render" errors.
   // Special case: landing page (/) renders via screen resolution logic below,
   // not via children, so don't block it on hydration.
-  const isPublicOrPortalPath = PUBLIC_PATHS.has(pathname) || PORTAL_PATHS.has(pathname);
+  const isPublicPath = PUBLIC_PATHS.has(pathname) || PASSTHROUGH_PATHS.has(pathname);
+  const isPortalPath = PORTAL_PATHS.has(pathname);
+  const isProtectedPath =
+    PROTECTED_PATHS.has(pathname) || pathname.startsWith('/family/members/');
   const isLandingPage = pathname === '/';
-  if (isPublicOrPortalPath) {
+  const isDemoMode =
+    process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+
+  // Public pages (marketing, legal, auth helpers) always render their real page.
+  if (isPublicPath) {
     return <ErrorBoundary>{children}</ErrorBoundary>;
   }
+  // Wait for hydration before auth-aware decisions (portals, onboarding, redirects).
   if (!isLandingPage && !hydrated) {
+    return <ErrorBoundary>{children}</ErrorBoundary>;
+  }
+
+  // ─── Onboarding gate — first sign-in ─────────────────────────────────────
+  // Authenticated users who haven't completed onboarding see the
+  // Welcome → role → consent flow before their portal, on any app route
+  // (including `/` and portal paths, which used to skip it entirely).
+  if (user && hydrated && !onboardingComplete && !isDemoMode) {
+    return (
+      <ErrorBoundary>
+        <Onboarding
+          onComplete={role => {
+            completeOnboarding(role);
+            setLoginPortal(role);
+            router.push('/');
+          }}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  // Portal routes: server pages with their own auth guards (requireSessionUser).
+  if (isPortalPath) {
+    return <ErrorBoundary>{children}</ErrorBoundary>;
+  }
+
+  // Protected real pages (settings / dashboard / family member detail):
+  // require a signed-in user before rendering.
+  if (isProtectedPath) {
+    if (!user) {
+      router.replace('/login');
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+        </div>
+      );
+    }
+    // /dashboard is a legacy empty stub — send signed-in users to their portal.
+    if (pathname === '/dashboard') {
+      const portalFromRole: Record<string, string> = {
+        caretaker: 'family',
+        family: 'caretaker',
+        patient: 'patient',
+        doctor: 'doctor',
+        lab: 'lab',
+        admin: 'admin',
+      };
+      router.replace('/' + (portalFromRole[user.role] ?? 'family'));
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+        </div>
+      );
+    }
+    return <ErrorBoundary>{children}</ErrorBoundary>;
+  }
+
+  // Unknown paths: render the server page (404), not the landing page.
+  if (!isLandingPage) {
     return <ErrorBoundary>{children}</ErrorBoundary>;
   }
 
@@ -279,33 +360,14 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // ── Onboarding ─────────────────────────────────────────────────────────
-  // In demo mode, skip onboarding entirely — auto-complete immediately
-  const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
-  // Only show onboarding for authenticated users on their first login,
-  // NOT for first-time visitors to the landing page (they should see the marketing site)
-  const isAuthenticatedVisitor = !!user;
-  if (!onboardingComplete && !isDemoMode && isAuthenticatedVisitor) {
-    return (
-      <ErrorBoundary>
-        <Onboarding
-          onComplete={role => {
-            completeOnboarding(role);
-            setLoginPortal(role);
-            router.push('/');
-          }}
-        />
-      </ErrorBoundary>
-    );
-  }
-
   // ── Landing (default) ────────────────────────────────────────────────────
   return (
     <ErrorBoundary>
       <LandingPage
         onGetStarted={(portal?: string) => {
           const safePortal = (portal ?? 'caretaker') as LoginPortal;
-          completeOnboarding(safePortal);
+          // Do NOT pre-complete onboarding here — the Welcome flow must show
+          // after the user registers and signs in for the first time.
           setLoginPortal(safePortal);
           // ROUTE: Direct to registration for new users, not login
           router.push('/register/');
