@@ -169,9 +169,12 @@ export const useAppStore = create<AppState>()(
         alarmEnabled: state.alarmEnabled,
         alarmMode: state.alarmMode,
       }),
-      version: 3,
+      version: 4,
       // Merge persisted state with safe defaults — never wipe existing data.
       // Only reset fields that are known to be stale from older versions.
+      // v4: reset onboardingComplete so returning sessions (whose flag was
+      // persisted as `true` by pre-routing-fix code that auto-completed
+      // onboarding) re-run the Welcome → role → consent flow once.
       migrate: (state: unknown) => {
         const prev = (state as Partial<AppState>) || {};
         return {
@@ -179,7 +182,8 @@ export const useAppStore = create<AppState>()(
           screen: 'landing' as AppScreen,
           loginPortal: (prev.loginPortal ?? 'caretaker') as LoginPortal,
           checkoutTier: 'plus' as 'plus' | 'family_pro',
-          onboardingComplete: prev.onboardingComplete ?? false,
+          onboardingComplete: false,
+          onboardingRole: 'patient',
           currency: 'USD' as Currency,
           language: 'en' as Locale,
         } as Partial<AppState>;
