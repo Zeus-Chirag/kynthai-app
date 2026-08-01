@@ -255,4 +255,25 @@ describe('rateLimitProduction (Redis path)', () => {
     expect(blocked?.headers.get('X-RateLimit-Remaining')).toBe('0');
     expect(blocked?.headers.get('Retry-After')).toBe('60');
   });
+
+  it('falls back to in-memory limiting (never 500s) when the Redis call throws', async () => {
+    // Stale/revoked Upstash credentials make limit() reject. An unhandled
+    // throw here took down EVERY requireAuth route in production
+    // (chat, medications, search-medicine) with an empty-body 500.
+    redisInstance.limit.mockRejectedValue(new Error('Upstash auth failed'));
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const r = req('/api/auth/me', '7.7.7.7');
+      // 1st request: Redis throws → in-memory fallback allows (under limit).
+      expect(await rateLimitProduction(r, 1, 60000)).toBeNull();
+      // 2nd request: same in-memory bucket now over limit → 429, not a 500.
+      const blocked = await rateLimitProduction(r, 1, 60000);
+      expect(blocked?.status).toBe(429);
+      expect(blocked?.headers.get('Retry-After')).toBe('60');
+    } finally {
+      errSpy.mockRestore();
+      // Restore allow behaviour for any subsequent tests in this describe.
+      redisInstance.limit.mockResolvedValue({ success: true, reset: Date.now() + 60_000 });
+    }
+  });
 });

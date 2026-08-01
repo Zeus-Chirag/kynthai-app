@@ -114,18 +114,28 @@ export async function rateLimitWithInfo(reqOrKey: NextRequest | string, limit = 
 export async function rateLimitProduction(req: NextRequest, limit = 100, windowMs = 60000): Promise<NextResponse | null> {
   const ip = getIp(req)
 
-  // Try Redis first
-  const limiter = getRedisLimiter()
-  if (limiter) {
-    const { success, reset } = await limiter.limit(ip)
-    if (!success) {
-      const retryAfter = Math.ceil((reset - Date.now()) / 1000)
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter), 'X-RateLimit-Limit': String(limit), 'X-RateLimit-Remaining': '0' } }
-      )
+  // Try Redis first — wrapped so a Redis outage, revoked/stale Upstash token,
+  // malformed URL (new Redis() throws synchronously), or network error can
+  // NEVER take down every authenticated route (requireAuth calls this first).
+  // On any failure we log and fall through to the in-memory limiter below.
+  try {
+    const limiter = getRedisLimiter()
+    if (limiter) {
+      const { success, reset } = await limiter.limit(ip)
+      if (!success) {
+        const retryAfter = Math.ceil((reset - Date.now()) / 1000)
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          { status: 429, headers: { 'Retry-After': String(retryAfter), 'X-RateLimit-Limit': String(limit), 'X-RateLimit-Remaining': '0' } }
+        )
+      }
+      return null
     }
-    return null
+  } catch (err) {
+    // Redis backend unavailable/misconfigured. Keep the API up with the
+    // in-memory limiter; the cached client is stateless, so a transient
+    // blip self-heals on the next request without re-construction.
+    console.error('[rate-limit] Redis backend error — using in-memory fallback', err)
   }
 
   // Fallback: in-memory limiter (dev AND production).
