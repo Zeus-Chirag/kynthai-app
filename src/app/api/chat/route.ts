@@ -424,12 +424,8 @@ hasPatientContext: formattedContext.length > 0,
   } catch (error) {
     // Security: never log raw medical context or AI errors — they may contain sensitive health data
     logger.phiSafeError(error, 'chat.POST');
-    // TEMP-DIAG: surface a truncated non-PHI error detail (class + message) to
-    // pinpoint the production failure. Will be removed after root cause is fixed.
-    const detail =
-      error instanceof Error ? `${error.name}: ${error.message}` : String(error);
     return NextResponse.json(
-      { error: 'Failed to get AI response', detail: detail.slice(0, 400) },
+      { error: 'Failed to get AI response' },
       { status: 500 }
     );
   }

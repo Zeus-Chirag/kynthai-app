@@ -60,8 +60,19 @@ export const NVIDIA_MODEL: string = resolveModel()
 
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
 
+// A real provider key is required for AI features. Treat obvious placeholder
+// values (e.g. the literal "sk-PLACE..._KEY" placeholder shipped in some env
+// setups) as NOT available so chat degrades gracefully to the medicine-DB /
+// config-needed path instead of calling the provider and 401/500ing.
+function isRealProviderKey(value: string | undefined): boolean {
+  if (!value) return false
+  if (value.length < 16) return false
+  // Placeholder / sample patterns: PLACE..., placeholder, your-api-key, xxx, changeme
+  return !/PLACE|placeholder|your[-_ ]api|xxxx|changeme|sample/i.test(value)
+}
+
 export function isAiAvailable(): boolean {
-  return !!(process.env.NVIDIA_API_KEY || process.env.OPENAI_API_KEY)
+  return isRealProviderKey(process.env.NVIDIA_API_KEY) || isRealProviderKey(process.env.OPENAI_API_KEY)
 }
 
 /**
