@@ -12,7 +12,22 @@ interface HeroSectionProps {
 
 export function HeroSection({ onGetStarted }: HeroSectionProps) {
   return (
-    <section className="relative overflow-hidden">
+    /*
+     * Responsive clipping note:
+     * `overflow-hidden` on this section used to clip EVERYTHING that extended
+     * past its box on BOTH axes — including the phone mockup's floating
+     * badges, glow, and ring pulses. On narrow screens (iPhones) that sliced
+     * the composition at the viewport edge (the "cropped phone" bug). On iPad
+     * Pro there was enough margin that nothing reached the clip boundary, so
+     * it only ever LOOKED broken on phones.
+     *
+     * `overflow-x-clip` keeps the horizontal bleed guard (the gradient orbs)
+     * while never creating a scroll container and never clipping vertical or
+     * decorative overflow. The global `html, body { overflow-x: clip }` guard
+     * in globals.css already guarantees zero horizontal scrolling at every
+     * width, so letting decorative layers breathe introduces no scrollbar.
+     */
+    <section className="relative overflow-x-clip">
       {/* Multi-layer soft gradient orbs */}
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
         <div
@@ -35,7 +50,10 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         />
       </div>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-16">
+      {/* pl-safe/pr-safe: with `viewport-fit: cover` (layout.tsx) iOS lays out
+          into the notch + home-indicator areas — these keep the hero clear of
+          the rounded corners / home indicator on notched iPhones in landscape. */}
+      <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 pl-safe pr-safe sm:px-6 lg:grid-cols-2 lg:gap-6 lg:px-8 lg:py-16">
         {/* Left: copy column */}
         <div>
           {/* Trust badge */}
@@ -112,9 +130,14 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           </div>
         </div>
 
-        {/* Right: phone mockup — visible on all screens */}
-        <div className="flex w-full items-center justify-center mt-4 lg:mt-0">
-          <PhoneMockup className="w-full" />
+        {/* Right: phone mockup — visible on all screens.
+            The wrapper is a full-width flex row that centers the mockup; the
+            mockup itself owns its width (fluid clamp) so it scales with the
+            column and can never overflow the viewport. `min-w-0` lets the flex
+            child shrink when the column is tight (foldables / very narrow
+            landscape) instead of forcing a min-content width. */}
+        <div className="mt-4 flex w-full min-w-0 items-center justify-center lg:mt-0">
+          <PhoneMockup />
         </div>
       </div>
     </section>

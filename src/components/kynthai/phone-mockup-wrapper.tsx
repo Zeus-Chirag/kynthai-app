@@ -14,7 +14,14 @@ import { cn } from '@/lib/utils'
  *
  * The placeholder is sized to match the real mockup's approximate height
  * so no layout shift (CLS) occurs when the animated component hydrates.
+ *
+ * IMPORTANT: keep `PHONE_SIZE` identical to the `PHONE_SIZE` constant in
+ * phone-mockup.tsx — both must resolve to the exact same box, otherwise
+ * the skeleton and the hydrated mockup will differ in size and cause CLS.
+ *   max-width: clamp(240px, min(80vw, 100%), 340px)
  */
+const PHONE_SIZE = 'relative mx-auto w-full max-w-[clamp(240px,min(80vw,100%),340px)]'
+
 const PhoneMockup = dynamic(
   () =>
     import('./phone-mockup').then((m) => m.PhoneMockup),
@@ -22,9 +29,7 @@ const PhoneMockup = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className={cn(
-          'relative mx-auto w-full max-w-[min(88%,300px)] sm:max-w-[320px]',
-        )}
+        className={cn(PHONE_SIZE)}
       >
         {/* Phone silhouette — same border-radius + border as real mockup */}
         <div

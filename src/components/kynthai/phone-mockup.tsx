@@ -45,6 +45,29 @@ const sectionEntrance = (i: number) => ({
 
 /** ── CSS keyframes are defined in src/app/globals.css ──────────────── */
 
+/**
+ * Fluid phone sizing (the responsive core).
+ *
+ * The old rule — `max-w-[min(88%,300px)] sm:max-w-[320px]` — was a rigid,
+ * fixed-cap system: a percentage-of-parent cap that fought the grid column
+ * at narrow widths and a hard 300/320px cap everywhere else. Combined with
+ * the hero section's `overflow-hidden`, the composition could be clipped at
+ * the viewport edge on small phones.
+ *
+ * The replacement is a single fluid clamp tied to the viewport:
+ *
+ *   max-width: clamp(240px, min(80vw, 100%), 340px)
+ *
+ *   • 320px phone  → 80vw = 256px  (fits the 288px content column)
+ *   • 375px phone  → 80vw = 300px  (comfortable, like the old cap)
+ *   • ≥425px       → capped at 340px (never oversized)
+ *   • desktop/4K   → 340px cap preserved (design intent next to copy)
+ *   • `min(80vw, 100%)` means the phone can NEVER exceed either the
+ *     viewport or its parent column — no overflow, no cropping, ever.
+ *   • Height is auto → aspect ratio is preserved by construction.
+ */
+const PHONE_SIZE = 'relative mx-auto w-full max-w-[clamp(240px,min(80vw,100%),340px)]';
+
 function RingPulse({ className }: { className: string }) {
   return (
     <span
@@ -72,12 +95,12 @@ export function PhoneMockup({
   if (reduced) {
     return (
       <div
-        className={cn('relative mx-auto w-full max-w-[min(88%,300px)] sm:max-w-[320px]', className)}
+        className={cn(PHONE_SIZE, className)}
         aria-hidden={ariaHidden}
         style={{ opacity: 1 }}
       >
         {/* Static non-animated version for reduced motion */}
-        <div className="absolute -inset-10 -z-20 rounded-[5rem] opacity-75 blur-3xl" aria-hidden
+        <div className="absolute -inset-8 -z-20 rounded-[5rem] opacity-75 blur-3xl sm:-inset-10" aria-hidden
           style={{
             background: 'radial-gradient(ellipse closest-side, rgba(16,185,129,0.6), rgba(13,148,136,0.28) 45%, transparent 70%)',
           }}
@@ -140,12 +163,12 @@ export function PhoneMockup({
       variants={containerEntrance}
       initial="hidden"
       animate="visible"
-      className={cn('relative mx-auto w-full max-w-[min(88%,300px)] sm:max-w-[320px]', className)}
+      className={cn(PHONE_SIZE, className)}
       aria-hidden={ariaHidden}
     >
       {/* ── Layered glow background ─────────────────────────────────── */}
       <div
-        className="absolute -inset-10 -z-20 rounded-[5rem] opacity-75 blur-3xl"
+        className="absolute -inset-8 -z-20 rounded-[5rem] opacity-75 blur-3xl sm:-inset-10"
         aria-hidden
         style={{
           background:
