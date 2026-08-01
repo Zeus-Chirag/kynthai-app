@@ -44,6 +44,26 @@ interface TierInfo {
   features: string[];
 }
 
+// ─── Safari-safe receipt ID ──────────────────────────────────────────────
+// crypto.randomUUID() is unavailable on Safari < 15.4 and in any
+// non-secure context — calling it crashes the render with
+// "crypto.randomUUID is not a function". Fall back to a timestamp +
+// Math.random based id so the checkout success screen always renders.
+function safeReceiptId(): string {
+  try {
+    const c = globalThis.crypto;
+    if (c && typeof c.randomUUID === 'function') {
+      return c.randomUUID().slice(0, 6).toUpperCase();
+    }
+  } catch {
+    /* fall through */
+  }
+  return (
+    Date.now().toString(36).toUpperCase().slice(-3) +
+    Math.random().toString(36).toUpperCase().slice(2, 5)
+  );
+}
+
 const TIER_INFO: Record<'plus' | 'family_pro', TierInfo> = {
   plus: {
     id: 'plus',
@@ -385,7 +405,7 @@ function SuccessView({
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Receipt</span>
             <span className="font-mono text-xs">
-              #SHY-{useMemo(() => crypto.randomUUID().slice(0, 6).toUpperCase(), [])}
+              #SHY-{useMemo(() => safeReceiptId(), [])}
             </span>
           </div>
         </CardContent>

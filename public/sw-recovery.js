@@ -1,16 +1,31 @@
 (function(){
   'use strict';
   // ─── iOS Safari Tab-Restore Recovery ──────────────────────────────
+  // Reload-loop guard: if the store keeps being wiped (e.g. the app keeps
+  // crashing on Safari), a naive `reload()` here can bounce the page
+  // forever. Only auto-recover a few times per session, then give up and
+  // render normally instead of reloading again.
+  var RECOVERY_ATTEMPTS_KEY = 'kynthai-recovery-attempts';
+  var MAX_RECOVERY_ATTEMPTS = 3;
   try {
     var bgTime = sessionStorage.getItem('kynthai-bg-timestamp');
     if (bgTime) {
       var elapsed = Date.now() - parseInt(bgTime, 10);
       if (elapsed > 300000) {
-        localStorage.removeItem('kynthai-store-v2');
-        sessionStorage.removeItem('kynthai-bg-timestamp');
-        sessionStorage.removeItem('kynthai-last-activity');
-        window.location.reload();
-        return;
+        var attempts = parseInt(sessionStorage.getItem(RECOVERY_ATTEMPTS_KEY) || '0', 10);
+        if (attempts >= MAX_RECOVERY_ATTEMPTS) {
+          // Give up on auto-recovery — clear the stale marker so the app
+          // can start fresh without another reload.
+          sessionStorage.removeItem('kynthai-bg-timestamp');
+          sessionStorage.removeItem('kynthai-last-activity');
+        } else {
+          sessionStorage.setItem(RECOVERY_ATTEMPTS_KEY, String(attempts + 1));
+          localStorage.removeItem('kynthai-store-v2');
+          sessionStorage.removeItem('kynthai-bg-timestamp');
+          sessionStorage.removeItem('kynthai-last-activity');
+          window.location.reload();
+          return;
+        }
       }
     }
   } catch(e) { /* ignore */ }
