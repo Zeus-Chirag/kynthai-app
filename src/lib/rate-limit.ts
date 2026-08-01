@@ -128,16 +128,14 @@ export async function rateLimitProduction(req: NextRequest, limit = 100, windowM
     return null
   }
 
-  // Production: fail closed — block if Redis is unavailable
+  // Fallback: in-memory limiter (dev AND production).
+  // Production historically fail-closed with a 503 when Upstash was unset,
+  // which took down EVERY authenticated route (requireAuth calls this).
+  // The in-memory bucket still rate-limits (per-instance), so we never brick
+  // the whole API when the Redis backend is unavailable/misconfigured.
   if (process.env.NODE_ENV === 'production') {
-    // SECURITY: do not leak infrastructure details in production logs
-    console.error('Rate limiting backend unavailable in production')
-    const res = NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 })
-    applyRateLimitSecurityHeaders(res, req)
-    return res
+    console.warn('Rate limiting backend unavailable in production — using in-memory fallback')
   }
-
-  // Dev fallback: in-memory
   const key = `${ip}:${req.nextUrl.pathname}`
   const now = Date.now()
   let bucket = buckets.get(key)
