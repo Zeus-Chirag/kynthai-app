@@ -19,7 +19,10 @@ import { sanitizeText } from '@/lib/security';
 import { getCached, setCached } from '@/lib/ai-cache';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
 import { buildDeidentifiedContext } from '@/lib/phi-filter';
+import { safeAIResponse } from '@/lib/ai-output-filter';
 import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia';
+import { needsRag, getSystemPromptWithRAG } from '@/lib/medical-rag';
+import { FEW_SHOT_EXAMPLES } from '@/lib/chat-system-prompt';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
 import { logger } from '@/lib/logger';
 export const dynamic = 'force-dynamic';
@@ -151,6 +154,9 @@ export async function POST(req: NextRequest) {
       );
     if (medInfo && !isPersonalQuestion) {
       const dbReply = formatMedicineInfo(medInfo);
+      // Defense-in-depth: strip residual PHI before persist/return (drug
+      // names/dosages are preserved by design — see ai-output-filter).
+      const safeDbReply = safeAIResponse(dbReply);
       try {
         await db.chatMessage.createMany({
           data: [
@@ -158,7 +164,7 @@ export async function POST(req: NextRequest) {
             {
               userId: u.id,
               role: 'assistant',
-              content: dbReply,
+              content: safeDbReply,
               source: 'medicine-db',
               expiresAt: messageExpiry(),
             },
@@ -168,7 +174,7 @@ export async function POST(req: NextRequest) {
         // SECURITY: log failure without sensitive health data — chat history loss is recoverable
         logger.phiSafeError(err, 'chat.persist.medicine-db');
       }
-      return NextResponse.json({ response: dbReply, source: 'medicine-db' });
+      return NextResponse.json({ response: safeDbReply, source: 'medicine-db' });
     }
 
     // ── DAILY CHAT LIMIT FOR FREE USERS ──────────────────────────────
@@ -325,8 +331,24 @@ export async function POST(req: NextRequest) {
         ? `\n\nPATIENT CONTEXT (always consider this when answering):\n${patientContextParts.join('\n')}`
         : '';
 
+    // ── TUNING: RAG knowledge injection + few-shot examples ──────────────
+    // Retrieve relevant medical knowledge (drug info, interactions, emergency
+    // protocols, guidelines) for this specific query and inject it into the
+    // system prompt so the base model answers with grounded, specific
+    // healthcare information. Skipped for simple greetings.
+    let systemContent = SYSTEM_PROMPT + formattedContext;
+    if (needsRag(message)) {
+      systemContent = getSystemPromptWithRAG(message, systemContent);
+    }
+    // Few-shot examples teach the expected depth, tone, and safety behavior.
+    const fewShotBlock = FEW_SHOT_EXAMPLES.map(
+      (ex) =>
+        `<example>\n<user_message>${ex.user}</user_message>\n<assistant_response>${ex.assistant}</assistant_response>\n</example>`
+    ).join('\n');
+    systemContent += `\n\n## Few-shot examples — match this depth, tone, and safety behavior\n${fewShotBlock}`;
+
     const messages: { role: string; content: string }[] = [
-      { role: 'system', content: SYSTEM_PROMPT + formattedContext },
+      { role: 'system', content: systemContent },
       ...history,
       { role: 'user', content: message },
     ];
@@ -368,9 +390,16 @@ hasPatientContext: formattedContext.length > 0,
       completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again.";
 
+    // ── OUTPUT SAFETY BOUNDARY ────────────────────────────────────────────────
+    // Strip residual PHI/PII (SSN, phone, email, DOB, address, zip) from the
+    // model reply before it is cached, persisted, or returned. Drug names,
+    // dosages, and frequencies are product content and are intentionally
+    // preserved (see src/lib/ai-output-filter.ts).
+    const safeReply = safeAIResponse(reply);
+
     // Cache the response for 24h (only for single-turn queries without history)
     if (history.length === 0) {
-      setCached('chat', message, reply);
+      setCached('chat', message, safeReply);
     }
 
     // Persist the exchange with TTL (best-effort, non-blocking)
@@ -381,7 +410,7 @@ hasPatientContext: formattedContext.length > 0,
           {
             userId: u.id,
             role: 'assistant',
-            content: reply,
+            content: safeReply,
             source: 'llm',
             expiresAt: messageExpiry(),
           },
@@ -391,7 +420,7 @@ hasPatientContext: formattedContext.length > 0,
       logger.phiSafeError(err, 'chat.persist.llm');
     }
 
-    return NextResponse.json({ response: reply, source: 'llm' });
+    return NextResponse.json({ response: safeReply, source: 'llm' });
   } catch (error) {
     // Security: never log raw medical context or AI errors — they may contain sensitive health data
     logger.phiSafeError(error, 'chat.POST');
