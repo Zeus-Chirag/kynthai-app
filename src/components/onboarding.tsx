@@ -61,7 +61,7 @@ const DEFAULT_STEPS: OnboardingStep[] = [
   {
     id: 'security',
     title: 'Your Data is Safe',
-    description: 'HIPAA-compliant encryption protects all health data. You control who sees what, and you can delete your data anytime.',
+    description: 'Strong encryption protects all health data. You control who sees what, and you can delete your data anytime.',
     icon: Shield,
     color: 'from-violet-500 to-purple-600',
   },

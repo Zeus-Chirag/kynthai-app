@@ -15,7 +15,7 @@ const RIGHTS = [
   {
     num: '2',
     title: 'Information About Your Rights',
-    text: 'You have the right to be informed of your rights and responsibilities as a platform user in a language you can understand. This statement and the Notice of Privacy Practices are available at kynthai.app/patient-rights and kynthai.app/privacy-practices.',
+    text: 'You have the right to be informed of your rights and responsibilities as a platform user in a language you can understand. This statement and our Privacy Practices are available at kynthai.app/patient-rights and kynthai.app/privacy-practices.',
   },
   {
     num: '3',
@@ -25,7 +25,7 @@ const RIGHTS = [
   {
     num: '4',
     title: 'Privacy and Confidentiality',
-    text: 'You have the right to privacy and confidentiality of your health information. sensitive health data will only be shared for TPO purposes or with your explicit written authorization.',
+    text: 'You have the right to privacy and confidentiality of your health information. Sensitive health data is only shared as described in our Privacy Policy or with your explicit consent.',
   },
   {
     num: '5',
@@ -40,17 +40,17 @@ const RIGHTS = [
   {
     num: '7',
     title: 'Right to an Accounting of Disclosures',
-    text: 'You have the right to request an accounting of disclosures of your sensitive health data made by Kynthai for the six years preceding your request. Submit to privacy@kynthai.app.',
+    text: 'You have the right to request information about how your sensitive health data has been shared, who it was shared with, and why. Submit requests to privacy@kynthai.app.',
   },
   {
     num: '8',
     title: 'Right to File a Complaint',
-    text: 'You have the right to file a complaint with Kynthai or with the U.S. Department of Health and Human Services Office for Civil Rights without retaliation. Contact privacy@kynthai.app or HHS OCR at hhs.gov/ocr/privacy.',
+    text: 'You have the right to file a complaint with Kynthai or with applicable regulators, including the Federal Trade Commission or your state attorney general, without retaliation. Contact privacy@kynthai.app or the FTC at ftc.gov/complaint.',
   },
   {
     num: '9',
     title: 'Right to Restrict Disclosures',
-    text: 'You have the right to request restrictions on uses and disclosures of your sensitive health data for TPO. Requests must be submitted in writing to privacy@kynthai.app.',
+    text: 'You have the right to request restrictions on how your sensitive health data is used and shared. Requests must be submitted in writing to privacy@kynthai.app.',
   },
   {
     num: '10',
@@ -104,7 +104,7 @@ export default function PatientRightsPage() {
             <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">
               privacy@kynthai.app
             </a>{' '}
-            · HHS OCR: hhs.gov/ocr/privacy · 1-800-368-1019
+            · FTC: ftc.gov/complaint · your state attorney general
           </p>
         </div>
       </LegalLayout>

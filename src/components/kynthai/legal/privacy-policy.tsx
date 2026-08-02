@@ -66,9 +66,11 @@ export function PrivacyPolicy() {
       <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
         <p className="text-sm">
           Kynthai is a health-management platform operated by{' '}
-          <strong>Kynthai Health Technologies</strong>. We comply with the{' '}
-          <strong>Health Insurance Portability and Accountability Act </strong>.
-          Health data is treated as Protected Health Information (sensitive health data) under US privacy law, with additional safeguards applied.
+          <strong>Kynthai Health Technologies</strong>.          Kynthai is not a HIPAA-covered entity or business associate and does
+          not claim HIPAA compliance. We follow applicable US federal and state
+          consumer privacy laws, including the FTC Health Breach Notification
+          Rule and state consumer health privacy laws, and we apply strong
+          safeguards to your sensitive health data.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
           <strong>Note:</strong> We regularly review this policy to keep it aligned with applicable rules.
@@ -88,47 +90,47 @@ export function PrivacyPolicy() {
       </ul>
 
 
-      <SectionTitle icon={Globe}>2. Permitted uses of sensitive health data under US privacy law (45 CFR § 164.502)</SectionTitle>
-      <p>We process Protected Health Information (sensitive health data) under the Health Insurance Portability and Accountability Act , the Health Information Technology for Economic and Clinical Health (HITECH) Act, and applicable US federal and state law as a Covered Entity or Business Associate, as applicable:</p>
+      <SectionTitle icon={Globe}>2. How we use sensitive health data</SectionTitle>
+      <p>Kynthai is not a HIPAA-covered entity or business associate. We process sensitive health data only for the purposes described below, based on your consent and the operation of the service:</p>
       <ul>
-        <li><strong>Authorization (45 CFR § 164.508):</strong> — free, specific, informed, and unambiguous consent for processing personal data. You may withdraw consent at any time via the in-app consent manager or by emailing <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a>.</li>
-        <li><strong>Treatment, Payment, Healthcare Operations – TPO (45 CFR § 164.506):</strong> — to deliver the Kynthai service you signed up for, including medication reminders, AI features, doctor consults, and lab orders.</li>
-        <li><strong>Legal obligation (45 CFR § 164.512):</strong> — to comply with US healthcare laws, federal and state tax laws, and medical record retention requirements.</li>
-        <li><strong>Vital interests (45 CFR § 164.512(b)):</strong> — to send emergency SOS alerts to caretakers and linked doctors when a user&apos;s health or safety is at risk.</li>
-        <li><strong>Legitimate interest (45 CFR § 164.502):</strong> — for security, fraud prevention, and product improvement, balanced against your rights as an individual whose sensitive health data is held by Kynthai.</li>
+        <li><strong>With your consent:</strong> — we process sensitive health data for the features you use, with free, specific, informed consent. You may withdraw consent at any time via the in-app consent manager or by emailing <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a>.</li>
+        <li><strong>To provide the service:</strong> — to deliver the Kynthai service you signed up for, including medication reminders, AI features, doctor consults, and lab orders.</li>
+        <li><strong>Legal obligations:</strong> — to comply with applicable US federal and state laws, including tax and record-retention requirements.</li>
+        <li><strong>Safety:</strong> — to send emergency SOS alerts to caretakers and linked doctors when your health or safety is at risk.</li>
+        <li><strong>Legitimate interests:</strong> — for security, fraud prevention, and product improvement, balanced against your privacy rights.</li>
       </ul>
-      <p>Because health data is classified as Protected Health Information (sensitive health data) under US privacy law, we obtain your explicit Privacy-compliant Authorization before using or disclosing sensitive health data for purposes beyond treatment, payment, and healthcare operations (TPO). Revocation does not affect uses or disclosures made in reliance on the earlier authorization prior to revocation.</p>
+      <p>For any use of sensitive health data beyond the purposes described above, we will ask for your explicit consent first. Withdrawing consent does not affect processing that was completed before the withdrawal.</p>
 
       <SectionTitle icon={ShieldCheck}>3. US privacy compliance</SectionTitle>
-      <p>Kynthai operates in the United States and is governed primarily by the Health Insurance Portability and Accountability Act (US privacy, 45 CFR Parts 160 & 164) and the Health Information Technology for Economic and Clinical Health (HITECH) Act, along with applicable US federal and state law. As a Covered Entity and/or Business Associate under US privacy law:</p>
+      <p>Kynthai operates in the United States and follows applicable US federal and state privacy laws for consumer health data. Kynthai is not a HIPAA-covered entity or business associate and does not claim HIPAA compliance. Our commitments:</p>
       <ul>
-        <li>We use and disclose your sensitive health data only for the purposes permitted or required by US privacy, with strict purpose limitation and the minimum-necessary standard.</li>
-        <li>We obtain your explicit written US privacy Authorization before using or disclosing sensitive health data for purposes beyond TPO. A Notice of Privacy Practices (NPP) is provided and acknowledged at account registration.</li>
-        <li>You have the right to access, correct, amend, and designate a personal representative for (appoint another individual to exercise your rights in the event of death or incapacity) your data.</li>
-        <li>In the event of a breach of unsecured sensitive health data, we will notify affected individuals without unreasonable delay and, where required by the HITECH Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR — in no case later than 60 calendar days from discovery.</li>
-        <li>Health data is processed as Protected Health Information (sensitive health data) under US privacy law, which imposes heightened security, privacy, and breach-notification safeguards.</li>
+        <li>We use and disclose your sensitive health data only for the purposes described in this policy, with strict purpose limitation and data minimization.</li>
+        <li>We obtain your explicit consent before using or disclosing sensitive health data for purposes beyond providing the service, and we summarize our privacy practices at account registration.</li>
+        <li>You have the right to access, correct, amend, and delete your data, and to designate an authorized individual to act on your behalf in the event of death or incapacity.</li>
+        <li>In the event of a breach of unsecured sensitive health data, we will notify affected individuals and, where required, the Federal Trade Commission (FTC) and applicable state regulators, without unreasonable delay — in no case later than 60 calendar days from discovery (consistent with the FTC Health Breach Notification Rule).</li>
+        <li>Health data is treated as sensitive consumer health data and is protected with strong security controls.</li>
         <li>A Privacy Officer (details in Section 18) handles privacy complaints. Complaints are acknowledged within 5 business days. Standard grievances are resolved within 30 days; complex investigations are extended in writing with stated resolution timelines.</li>
       </ul>
-      <p>For users in the United States, US privacy and the HITECH Act are the primary governing frameworks. California residents are additionally protected by the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). For users in other jurisdictions, Kynthai complies with applicable local data protection laws to the extent required.</p>
+      <p>For users in the United States, applicable federal and state consumer privacy laws govern our practices. California residents are additionally protected by the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). Washington, Nevada, and other states with consumer health privacy laws grant additional rights described in this policy. For users in other jurisdictions, Kynthai complies with applicable local data protection laws to the extent required.</p>
 
       <SectionTitle icon={ShieldCheck}>4. US privacy authorization & privacy practices</SectionTitle>
       <p>
-        At registration, you are presented with a Privacy-compliant Notice of Privacy Practices (NPP). For uses and disclosures of sensitive health data beyond treatment, payment, and healthcare operations (TPO), a written US privacy Authorization is required. AI features may require a separate optional data-use consent. You may revoke any authorization or consent at any time via your account settings or by emailing <strong>privacy@kynthai.app</strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to uses or disclosures made prior to revocation in reliance on the earlier authorization. Withdrawing AI consent disables AI features but retains your medication reminders and health records. Withdrawing TPO consent may require account deletion.
+        At registration, you are presented with our privacy practices and asked to consent to the processing of your data. For uses of sensitive health data beyond providing the service, we obtain your separate, specific consent. AI features may require a separate optional data-use consent. You may revoke any consent at any time via your account settings or by emailing <strong>privacy@kynthai.app</strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to processing that occurred before the revocation. Withdrawing AI consent disables AI features but retains your medication reminders and health records.
       </p>
 
 
-      <SectionTitle icon={UserCheck}>5. Your US privacy privacy rights — how to exercise</SectionTitle>
+      <SectionTitle icon={UserCheck}>5. Your privacy rights — how to exercise</SectionTitle>
       <p>
-        under US privacy law, the HITECH Act, and — for California residents — the CCPA/CPRA, you have the following rights:
+        Under applicable US federal and state privacy laws — including the FTC Health Breach Notification Rule, state consumer health privacy laws (e.g., Washington&apos;s My Health My Data Act), and — for California residents — the CCPA/CPRA, you have the following rights:
       </p>
       <ul>
-        <li><strong>Right of access (US privacy § 164.524):</strong> — Export all your data via Profile → Export Data (GET /api/user/data-export). You will receive a JSON file within 30 days (as permitted under 45 CFR § 164.524(c)).</li>
-        <li><strong>Right to amendment (US privacy § 164.526):</strong> — Request correction of inaccurate or incomplete sensitive health data via your profile settings or by emailing <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a>.</li>
-        <li><strong>Right to request restriction (US privacy § 164.522):</strong> — Request restrictions on certain uses and disclosures of your sensitive health data, subject to applicable limitations under US privacy law.</li>
+        <li><strong>Right of access:</strong> — Export all your data via Profile → Export Data (GET /api/user/data-export). You will receive a JSON file within 30 days.</li>
+        <li><strong>Right to correction:</strong> — Request correction of inaccurate or incomplete sensitive health data via your profile settings or by emailing <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a>.</li>
+        <li><strong>Right to request restrictions:</strong> — Request restrictions on how your sensitive health data is used and shared, subject to applicable limitations.</li>
         <li><strong>Right to delete account:</strong> — You may delete your account and all associated sensitive health data at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies.</li>
-        <li><strong>Privacy complaint (US privacy § 164.530):</strong> — File a complaint with our Privacy Officer at <strong>privacy@kynthai.app</strong>. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at <strong>hhs.gov/ocr/privacy</strong>.</li>
-        <li><strong>Escalation:</strong> — Appeal unresolved complaints to HHS OCR.</li>
-        <li><strong>Right to designate a personal representative (45 CFR § 164.502(g)):</strong> — Designate an authorized individual to act on your behalf in the event of death or incapacity. Email <strong>privacy@kynthai.app</strong> to set up.</li>
+        <li><strong>Privacy complaints:</strong> — File a complaint with our Privacy Officer at <strong>privacy@kynthai.app</strong>. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint with the Federal Trade Commission at <strong>ftc.gov/complaint</strong> or with your state attorney general.</li>
+        <li><strong>Escalation:</strong> — Unresolved complaints may be escalated to the FTC or your state attorney general.</li>
+        <li><strong>Right to designate an authorized representative:</strong> — Designate an authorized individual to act on your behalf in the event of death or incapacity. Email <strong>privacy@kynthai.app</strong> to set up.</li>
       </ul>
       <p>
         If you are a California resident, you have additional rights under the CCPA/CPRA, including the right to know, delete, and opt out of the sale of personal information. We do not sell your personal information. We will respond to valid requests within 30 days (extendable by 30 days for complex requests, with notice).
@@ -136,19 +138,19 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={Ban}>6. Your rights regarding health data</SectionTitle>
       <p>
-        Health data is classified as <strong>Protected Health Information (sensitive health data)</strong> under
-        US privacy law. The following safeguards apply:
+        Kynthai treats health data as <strong>sensitive consumer health data</strong> protected under
+        applicable US federal and state privacy law. The following safeguards apply:
       </p>
       <ul>
-        <li>sensitive health data is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
+        <li>Sensitive health data is used and disclosed only for the purposes described in this policy, or with your explicit consent for anything beyond those purposes.</li>
         <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (sensitive health data) at any time.</li>
         <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
-        <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
+        <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals and, where required, the FTC and applicable state regulators, without unreasonable delay — in no case later than 60 calendar days from discovery (consistent with the FTC Health Breach Notification Rule).</li>
       </ul>
       <p>
-        US users are primarily protected by US privacy and the HITECH Act. California residents have CCPA/CPRA rights. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required.
+        US users are protected by applicable US federal and state consumer privacy laws. California residents have CCPA/CPRA rights. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required.
       </p>
 
       {/* State privacy law section */}
@@ -170,7 +172,7 @@ export function PrivacyPolicy() {
       <ul>
         <li><strong>Active accounts:</strong> for the duration of your subscription or until you delete your account.</li>
         <li><strong>After account deletion:</strong> we erase personal data within 30 days, except where retention is required by law (tax retention under US federal law: 7 years for tax records).</li>
-        <li><strong>De-identified data:</strong> information stripped of all 18 US privacy identifiers per 45 CFR § 164.514 may be retained indefinitely as it no longer constitutes sensitive health data.</li>
+        <li><strong>De-identified data:</strong> information from which direct identifiers have been removed may be retained indefinitely, as it no longer constitutes personal or sensitive health data.</li>
         <li><strong>Backups:</strong> encrypted backups may contain deleted data for up to 90 days for disaster recovery, after which they are permanently purged.</li>
       </ul>
 
@@ -226,13 +228,13 @@ export function PrivacyPolicy() {
         conditions of participation, and state medical-board regulations.
       </p>
 
-      <SectionTitle icon={Globe}>9. Data storage & cross-border transfers (Privacy-compliant)</SectionTitle>
+      <SectionTitle icon={Globe}>9. Data storage & cross-border transfers</SectionTitle>
       <p>
-        <strong>Data storage (Privacy-compliant):</strong> sensitive health data of
-        US users is stored and processed on Privacy-compliant cloud infrastructure
-        with Business Associate Agreements (BAAs) in place with all subprocessors
+        <strong>Data storage:</strong> sensitive health data of
+        US users is stored and processed on secure cloud infrastructure
+        with data-processing agreements in place with all subprocessors
         that handle sensitive health data. Cross-border data transfers (where applicable) are
-        subject to appropriate safeguards (BAA provisions and Standard Contractual
+        subject to appropriate safeguards (data-protection terms and Standard Contractual
         Clauses) to ensure continued comprehensive protection of sensitive health data.
       </p>
       <p>
@@ -242,17 +244,17 @@ export function PrivacyPolicy() {
         protection clauses and encryption in transit and at rest.
       </p>
 
-      <SectionTitle icon={ShieldCheck}>10. Your rights (US — US privacy)</SectionTitle>
+      <SectionTitle icon={ShieldCheck}>10. Your rights (US)</SectionTitle>
       <p>
-        As an individual whose sensitive health data is held by Kynthai, you have the following rights under US privacy law, HITECH, and applicable US state law:
+        As a user whose sensitive health data is held by Kynthai, you have the following rights under applicable US federal and state law:
       </p>
       <ul>
-        <li><strong>Right of access (US privacy § 164.524):</strong> Request a copy of your sensitive health data. Use Profile → Export Data (GET /api/user/data-export). Delivery within 30 days as permitted under US privacy law.</li>
-        <li><strong>Right to amendment (US privacy § 164.526):</strong> Request correction of inaccurate or incomplete sensitive health data via your profile settings or email to privacy@kynthai.app.</li>
-        <li><strong>Right to request restriction (US privacy § 164.522):</strong> Request restrictions on certain uses and disclosures of your sensitive health data.</li>
+        <li><strong>Right of access:</strong> Request a copy of your sensitive health data. Use Profile → Export Data (GET /api/user/data-export). Delivery within 30 days.</li>
+        <li><strong>Right to correction:</strong> Request correction of inaccurate or incomplete sensitive health data via your profile settings or email to privacy@kynthai.app.</li>
+        <li><strong>Right to request restrictions:</strong> Request restrictions on how your sensitive health data is used and shared.</li>
         <li><strong>Right to delete account:</strong> You may delete your account and all associated sensitive health data at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies before permanent deletion.</li>
-        <li><strong>Privacy complaint (45 CFR § 164.530):</strong> File a complaint with our Privacy Officer at privacy@kynthai.app. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint directly with HHS OCR at hhs.gov/ocr/privacy.</li>
-        <li><strong>Escalation:</strong> Appeal unresolved complaints to the HHS Office for Civil Rights (OCR) at hhs.gov/ocr/privacy.</li>
+        <li><strong>Privacy complaints:</strong> File a complaint with our Privacy Officer at privacy@kynthai.app. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint with the Federal Trade Commission (ftc.gov/complaint) or your state attorney general.</li>
+        <li><strong>Escalation:</strong> Unresolved complaints may be escalated to the FTC or your state attorney general.</li>
       </ul>
       <p>
         If you are a California resident, you have additional rights under the CCPA/CPRA, including the right to know, delete, and opt out of the sale of personal information. We do not sell your personal information. California residents have rights under CCPA/CPRA (we do not sell personal info). Other jurisdictions: you may also have additional rights under applicable laws in your jurisdiction. We will respond to valid
@@ -262,19 +264,19 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={Ban}>11. Your rights regarding health data</SectionTitle>
       <p>
-        Health data is classified as <strong>Protected Health Information (sensitive health data)</strong> under
-        US privacy law. We apply heightened safeguards:
+        Kynthai treats health data as <strong>sensitive consumer health data</strong> protected under
+        applicable US federal and state privacy law. We apply heightened safeguards:
       </p>
       <ul>
-        <li>sensitive health data is used and disclosed in accordance with US privacy's TPO framework, or with your explicit Privacy-compliant written Authorization for purposes beyond TPO.</li>
+        <li>Sensitive health data is used and disclosed only for the purposes described in this policy, or with your explicit consent for anything beyond those purposes.</li>
         <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (sensitive health data) at any time.</li>
         <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
-        <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals without unreasonable delay and, where required by the HITECH Act Breach Notification Rule (45 CFR §§ 164.400–414), HHS OCR and applicable state regulators — in no case later than 60 calendar days from discovery.</li>
+        <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals and, where required, the FTC and applicable state regulators, without unreasonable delay — in no case later than 60 calendar days from discovery (consistent with the FTC Health Breach Notification Rule).</li>
       </ul>
       <p>
-        US users are primarily protected by US privacy and the HITECH Act. California residents are additionally protected by the CCPA/CPRA. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required. (Note: All regulatory references in this section reflect US/US privacy standards.)
+        US users are protected by applicable US federal and state consumer privacy laws. California residents are additionally protected by the CCPA/CPRA. Users in other jurisdictions retain rights under applicable local privacy laws to the extent required.
       </p>
 
 
@@ -378,14 +380,18 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={AlertTriangle}>15. Data breach notification</SectionTitle>
       <p>
-        In the event of a breach of unsecured Protected Health Information (sensitive health data),
-        Kynthai will act in accordance with the HITECH Act Breach Notification Rule
-        (45 CFR §§ 164.400–414):
+        Kynthai is a consumer health application, not a HIPAA covered entity or
+        business associate, so we are not subject to the HIPAA/HITECH breach
+        notification rules. We nevertheless take breach response seriously and,
+        as a provider of health-related personal data, we follow the Federal Trade
+        Commission&apos;s Health Breach Notification Rule (16 CFR Part 318) to the
+        extent it applies, along with any applicable state consumer health
+        privacy laws:
       </p>
       <ul>
-        <li><strong>Affected individuals (HITECH § 164.404):</strong> We will notify affected individuals without unreasonable delay. For breaches affecting 500+ individuals, HHS OCR and prominent media are notified without unreasonable delay. In all cases, notification is within 60 days of discovery.</li>
-        <li><strong>Affected individuals:</strong> All affected individuals whose unsecured sensitive health data was acquired in a breach will be notified without unreasonable delay and in no case later than 60 calendar days from discovery.</li>
-        <li><strong>Remediation & HHS notification:</strong> We will contain the breach, assess its scope, notify HHS OCR where required, and take reasonable steps to prevent recurrence. A post-incident review will be conducted within 30 days.</li>
+        <li><strong>Affected individuals:</strong> We will notify affected individuals without unreasonable delay, and in no case later than 60 calendar days from discovery, when their unsecured sensitive health data is acquired in a breach.</li>
+        <li><strong>FTC notification:</strong> Where required by the FTC Health Breach Notification Rule (16 CFR Part 318), we will notify the Federal Trade Commission, and prominent media where the breach affects 500 or more individuals.</li>
+        <li><strong>Remediation & review:</strong> We will contain the breach, assess its scope, take reasonable steps to prevent recurrence, and conduct a post-incident review within 30 days.</li>
       </ul>
 
 
@@ -839,8 +845,8 @@ export function TermsOfService() {
       <SectionTitle icon={FileText}>11. Privacy</SectionTitle>
       <p>
         Your use of Kynthai is also governed by our Privacy Policy, which
-        describes how we collect, use, and protect your data under the United States
-        Health Insurance Portability and Accountability Act  and the Health Information Technology for Economic and Clinical Health (HITECH) Act. The Privacy Policy
+        describes how we collect, use, and protect your data under applicable
+        US federal and state privacy laws. The Privacy Policy
         is incorporated into these Terms by reference.
       </p>
 

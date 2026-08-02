@@ -5,6 +5,13 @@
 **Officer:** Privacy/Technical Contact = privacy@kynthai.app  
 **Scope:** All Protected Health Information (PHI) stored in the PostgreSQL database and file storage.
 
+> **Disclaimer (2026-08-02):** Kynthai is **not** a HIPAA-covered entity or business
+> associate and does **not** claim HIPAA compliance. This document describes internal
+> security controls (field-level encryption, audit logging) only; references to "PHI"
+> below are a security-classification label for sensitive health data, not PHI as
+> defined by HIPAA. User-facing privacy copy must not cite HIPAA or claim
+> covered-entity status.
+
 ---
 
 ## 1. Encryption at Rest (AES-256-GCM)
