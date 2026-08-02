@@ -337,11 +337,11 @@ function WelcomeArt() {
       <circle cx="174" cy="110" r="4" fill="#10b981" />
       <rect x="106" y="124" width="68" height="6" rx="3" fill="#10b981" opacity="0.6" />
       <rect x="106" y="136" width="48" height="4" rx="2" fill="#94a3b8" opacity="0.6" />
-      <motion.g animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+      <motion.g animate={{ y: [0, -6, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}>
         <rect x="58" y="80" width="34" height="16" rx="8" fill="#10b981" transform="rotate(-15 75 88)" />
         <rect x="58" y="80" width="17" height="16" rx="8" fill="white" opacity="0.7" transform="rotate(-15 75 88)" />
       </motion.g>
-      <motion.g animate={{ y: [0, 6, 0] }} transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}>
+      <motion.g animate={{ y: [0, 6, 0] }} transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}>
         <rect x="190" y="120" width="34" height="16" rx="8" fill="#0d9488" transform="rotate(20 207 128)" />
         <rect x="190" y="120" width="17" height="16" rx="8" fill="white" opacity="0.7" transform="rotate(20 207 128)" />
       </motion.g>
@@ -393,7 +393,7 @@ function MedsArt() {
           {i === 0 && <circle cx="200" cy={100 + i * 22} r="6" fill="#10b981"><animate attributeName="opacity" values="1;0.3;1" dur="1.6s" repeatCount="indefinite" /></circle>}
         </motion.g>
       ))}
-      <motion.g animate={{ y: [0, -8, 0], rotate: [0, 8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+      <motion.g animate={{ y: [0, -8, 0], rotate: [0, 8, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}>
         <rect x="200" y="34" width="34" height="14" rx="7" fill="#10b981" transform="rotate(-12 217 41)" />
         <rect x="200" y="34" width="17" height="14" rx="7" fill="white" opacity="0.7" transform="rotate(-12 217 41)" />
       </motion.g>

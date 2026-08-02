@@ -1,6 +1,7 @@
 'use client'
 
 import { ThemeProvider } from '@/components/theme-provider'
+import { MotionConfig } from 'framer-motion'
 import { ServiceWorkerRegister } from '@/components/service-worker-register'
 import { AuthGuard } from '@/components/kynthai/auth-guard'
 import { Toaster } from '@/components/ui/toaster'
@@ -33,6 +34,10 @@ function DeferredAuthGuard() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
+    /* `reducedMotion="user"` makes every Framer Motion transform/layout
+       animation app-wide respect prefers-reduced-motion (opacity still
+       animates). Single source of truth for the motion a11y contract. */
+    <MotionConfig reducedMotion="user">
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <GlobalErrorCatcher />
       <ServiceWorkerRegister />
@@ -42,6 +47,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <TelemetryBootstrap />
       <Toaster />
     </ThemeProvider>
+    </MotionConfig>
   )
 }
 

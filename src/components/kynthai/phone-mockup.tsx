@@ -75,7 +75,7 @@ function RingPulse({ className }: { className: string }) {
       aria-hidden
       style={{
         background: 'radial-gradient(circle, rgba(16,185,129,0.55) 0%, transparent 70%)',
-        animation: 'phone-ring-pulse 5s ease-out infinite',
+        animation: 'phone-ring-pulse 3.6s ease-out infinite',
         willChange: 'transform, opacity',
         backfaceVisibility: 'hidden',
       }}
@@ -426,7 +426,7 @@ function FloatingBadge({
       transition={{
         opacity: { delay, duration: 0.4, ease: 'easeOut' },
         scale: { delay, duration: 0.4, ease: 'easeOut' },
-        y: { delay: delay + 0.6, duration: 4, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' },
+        y: { delay: delay + 0.6, duration: 2.8, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' },
       }}
       className={cn(
         'absolute z-20 flex items-center gap-2 rounded-2xl border border-neutral-200/80 bg-white/95 px-3 py-2 shadow-2xl shadow-emerald-900/20 backdrop-blur-xl',
