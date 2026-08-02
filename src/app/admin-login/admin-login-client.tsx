@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppStore } from '@/lib/store';
 import { KynthaiBrand } from '@/components/kynthai/logo';
-import { TurnstileWidget } from '@/components/kynthai/turnstile-widget';
+import { TurnstileWidget, type TurnstileWidgetHandle } from '@/components/kynthai/turnstile-widget';
 
 export default function AdminLoginClient() {
   const navRouter = useRouter();
@@ -22,6 +22,7 @@ export default function AdminLoginClient() {
   // ── SECURITY: Cloudflare Turnstile (active only when the site key is set) ──
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
   const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  const turnstileRef = React.useRef<TurnstileWidgetHandle>(null);
 
   React.useEffect(() => {
     setMounted(true);
@@ -60,11 +61,17 @@ export default function AdminLoginClient() {
       const data = await res.json();
 
       if (!res.ok) {
+        // Failed submit consumed the single-use CAPTCHA token — mint a fresh
+        // one so the next attempt doesn't replay a stale token (CAPTCHA_FAILED).
+        turnstileRef.current?.reset();
+        setCaptchaToken(null);
         setError(data.error || 'Invalid credentials');
         return;
       }
 
       if (data.role !== 'admin') {
+        turnstileRef.current?.reset();
+        setCaptchaToken(null);
         setError('This account does not have admin access.');
         return;
       }
@@ -79,6 +86,8 @@ export default function AdminLoginClient() {
 
       navRouter.replace('/admin');
     } catch {
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -141,6 +150,7 @@ export default function AdminLoginClient() {
           {turnstileSiteKey && (
             <div className="flex justify-center">
               <TurnstileWidget
+                ref={turnstileRef}
                 siteKey={turnstileSiteKey}
                 onToken={setCaptchaToken}
                 onExpire={() => setCaptchaToken(null)}

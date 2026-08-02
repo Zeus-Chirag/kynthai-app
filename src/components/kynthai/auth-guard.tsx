@@ -55,13 +55,23 @@ const PROTECTED_PATHS = ['/settings', '/dashboard']
 const PORTAL_PREFIXES = ['/patient', '/doctor', '/lab', '/caretaker', '/family', '/admin']
 
 /**
+ * Strip a single trailing slash (except the bare root "/") so '/terms/' and
+ * '/terms' classify identically. Keeps every path-based check consistent —
+ * otherwise a trailing-slash variant of a public path would be treated as
+ * "unknown" and could trigger the mount-time auth bounce to /login.
+ */
+function normalizePath(pathname: string): string {
+  return pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname
+}
+
+/**
  * True when `pathname` is a real app route (public, passthrough, protected,
  * or a portal subtree). Unknown paths are server-rendered 404 pages and must
  * never run the mount-time auth check — otherwise unauthenticated visitors
  * get bounced to /login instead of seeing the 404 page.
  */
 function isKnownAppPath(pathname: string): boolean {
-  const p = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname
+  const p = normalizePath(pathname)
   if (PUBLIC_PATHS.includes(p)) return true
   if (PASSTHROUGH_PATHS.includes(p)) return true
   if (PROTECTED_PATHS.includes(p)) return true
@@ -94,9 +104,12 @@ export function AuthGuard({ redirectTo = '/login', onUnauthorized, disableMountC
   // so the portal renders without requiring a separate login page visit.
   React.useEffect(() => {
     if (disableMountCheck) return
-    if (PUBLIC_PATHS.includes(pathname)) return
+    // Normalize once so trailing-slash variants classify the same as the
+    // canonical path (e.g. '/terms/' === '/terms').
+    const p = normalizePath(pathname)
+    if (PUBLIC_PATHS.includes(p)) return
     // Unknown paths render the server 404 — never auth-bounce them to /login.
-    if (!isKnownAppPath(pathname)) return
+    if (!isKnownAppPath(p)) return
     let mounted = true
 
     const runCheck = async () => {

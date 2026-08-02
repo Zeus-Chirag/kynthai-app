@@ -328,12 +328,13 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
         // ponytail: Next.js injects inline bootstrap/hydration scripts, so
         // 'unsafe-inline' is required or the app never hydrates (stuck on the
         // static landing hero). Kept for parity with the app's dev CSP.
-        "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+        // challenges.cloudflare.com: Cloudflare Turnstile script + iframe for CAPTCHA.
+        "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob: https: http:",
         "font-src 'self' data:",
         "connect-src 'self' https://api.stripe.com https://checkout.stripe.com https://*.upstash.com wss: stun: turn:",
-        "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://*.stripe.com",
+        "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://*.stripe.com https://challenges.cloudflare.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
@@ -343,12 +344,12 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
       ].join('; ')
     : [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob: http: https:",
         "font-src 'self' data:",
         "connect-src 'self' http: https: ws: wss: https://checkout.stripe.com https://*.upstash.com",
-        "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://*.stripe.com",
+        "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://*.stripe.com https://challenges.cloudflare.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",

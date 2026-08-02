@@ -39,7 +39,12 @@ const PhoneMockupAnimated = dynamic(
   () => import('./phone-mockup').then((m) => m.PhoneMockup),
   {
     ssr: false,
-    loading: () => null,
+    // Keep the SSR-identical skeleton mounted while the lazy Framer Motion
+    // chunk loads — `loading: () => null` would collapse the phone box to
+    // 0 height in the gap between skeleton unmount and chunk ready (CLS).
+    // Safe: this dynamic only renders client-side post-hydration (mounted
+    // gate), so its loading fallback never participates in SSR first paint.
+    loading: () => <PhoneMockupSkeleton />,
   },
 )
 

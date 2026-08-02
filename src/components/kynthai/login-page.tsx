@@ -30,7 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { KynthaiBrand } from './logo';
 import { FadeIn } from './animations';
-import { TurnstileWidget } from './turnstile-widget';
+import { TurnstileWidget, type TurnstileWidgetHandle } from './turnstile-widget';
 
 interface PortalConfig {
   id: LoginPortal;
@@ -127,6 +127,7 @@ export function LoginPage({
   // ── SECURITY: Cloudflare Turnstile (active only when the site key is set) ────
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
   const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  const turnstileRef = React.useRef<TurnstileWidgetHandle>(null);
   // ────────────────────────────────────────────────────────────────────────────
   const [pendingInvites, setPendingInvites] = React.useState<
     { id: string; invitedBy: string; relation: string }[]
@@ -222,6 +223,10 @@ export function LoginPage({
 
     setLoading(true);
     try {
+      // Turnstile tokens are single-use: track the token sent with each
+      // request so a consumed one is never replayed.
+      let effectiveCaptcha: string | undefined = captchaToken || undefined;
+
       if (mode === 'register') {
         await apiCall('/auth/register', {
           email,
@@ -233,12 +238,23 @@ export function LoginPage({
           consentAccepted: termsConsent,
           dataProcessingConsent: dataConsent,
           aiTrainingConsent,
-          captchaToken: captchaToken || undefined,
+          captchaToken: effectiveCaptcha,
         });
         toast({ title: 'Account created', description: 'Welcome to Kynthai!' });
+
+        // The register request consumed the CAPTCHA token server-side.
+        // Mint a fresh one for the auto-login below — replaying the same
+        // token fails with `timeout-or-duplicate` (CAPTCHA_FAILED).
+        if (turnstileSiteKey && turnstileRef.current) {
+          const fresh = await turnstileRef.current.mint().catch(() => null);
+          if (fresh) {
+            effectiveCaptcha = fresh;
+            setCaptchaToken(fresh);
+          }
+        }
       }
 
-      const data = await apiCall('/auth/login', { email, password, captchaToken: captchaToken || undefined });
+      const data = await apiCall('/auth/login', { email, password, captchaToken: effectiveCaptcha });
       const user: AuthUser = {
         id: data.id,
         email: data.email,
@@ -286,6 +302,11 @@ export function LoginPage({
         description: `You're signed in to the ${active.label} portal.`,
       });
     } catch (err) {
+      // A failed submit consumed the single-use CAPTCHA token — reset the
+      // widget so the next attempt mints a fresh one instead of replaying a
+      // stale token (which fails with CAPTCHA_FAILED).
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
       toast({
         title: mode === 'signin' ? 'Sign in failed' : 'Registration failed',
         description: err instanceof Error ? err.message : String(err),
@@ -688,6 +709,7 @@ export function LoginPage({
                   {turnstileSiteKey && (
                     <div className="flex justify-center">
                       <TurnstileWidget
+                        ref={turnstileRef}
                         siteKey={turnstileSiteKey}
                         onToken={setCaptchaToken}
                         onExpire={() => setCaptchaToken(null)}
