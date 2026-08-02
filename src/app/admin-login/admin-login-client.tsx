@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppStore } from '@/lib/store';
 import { KynthaiBrand } from '@/components/kynthai/logo';
+import { TurnstileWidget } from '@/components/kynthai/turnstile-widget';
 
 export default function AdminLoginClient() {
   const navRouter = useRouter();
@@ -18,6 +19,9 @@ export default function AdminLoginClient() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  // ── SECURITY: Cloudflare Turnstile (active only when the site key is set) ──
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
@@ -26,6 +30,12 @@ export default function AdminLoginClient() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    if (turnstileSiteKey && !captchaToken) {
+      setError('Please complete the human verification before signing in.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -44,7 +54,7 @@ export default function AdminLoginClient() {
           ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
         },
         credentials: 'include',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, captchaToken: captchaToken || undefined }),
       });
 
       const data = await res.json();
@@ -127,6 +137,16 @@ export default function AdminLoginClient() {
               </button>
             </div>
           </div>
+
+          {turnstileSiteKey && (
+            <div className="flex justify-center">
+              <TurnstileWidget
+                siteKey={turnstileSiteKey}
+                onToken={setCaptchaToken}
+                onExpire={() => setCaptchaToken(null)}
+              />
+            </div>
+          )}
 
           <Button
             type="submit"

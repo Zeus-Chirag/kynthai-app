@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { KynthaiBrand } from './logo';
 import { FadeIn } from './animations';
+import { TurnstileWidget } from './turnstile-widget';
 
 interface PortalConfig {
   id: LoginPortal;
@@ -123,6 +124,10 @@ export function LoginPage({
   const [emergencyContact1, setEmergencyContact1] = React.useState('');
   const [emergencyContact2, setEmergencyContact2] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
+  // ── SECURITY: Cloudflare Turnstile (active only when the site key is set) ────
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  // ────────────────────────────────────────────────────────────────────────────
   const [pendingInvites, setPendingInvites] = React.useState<
     { id: string; invitedBy: string; relation: string }[]
   >([]);
@@ -142,6 +147,12 @@ export function LoginPage({
       setAgeGateOpen(false);
     }
   }, [mode, ageGateDismissed]);
+
+  // Turnstile tokens are single-use — discard any minted token when the
+  // mode flips so a stale one can never be reused for the other flow.
+  React.useEffect(() => {
+    setCaptchaToken(null);
+  }, [mode]);
   // ───────────────────────────────────────────────────────────────────────────
 
   React.useEffect(() => {
@@ -200,6 +211,15 @@ export function LoginPage({
       return;
     }
 
+    if (turnstileSiteKey && !captchaToken) {
+      toast({
+        title: 'Security check required',
+        description: 'Please complete the human verification before continuing.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       if (mode === 'register') {
@@ -213,11 +233,12 @@ export function LoginPage({
           consentAccepted: termsConsent,
           dataProcessingConsent: dataConsent,
           aiTrainingConsent,
+          captchaToken: captchaToken || undefined,
         });
         toast({ title: 'Account created', description: 'Welcome to Kynthai!' });
       }
 
-      const data = await apiCall('/auth/login', { email, password });
+      const data = await apiCall('/auth/login', { email, password, captchaToken: captchaToken || undefined });
       const user: AuthUser = {
         id: data.id,
         email: data.email,
@@ -663,6 +684,16 @@ export function LoginPage({
                       </span>
                     </label>
                   </div>
+
+                  {turnstileSiteKey && (
+                    <div className="flex justify-center">
+                      <TurnstileWidget
+                        siteKey={turnstileSiteKey}
+                        onToken={setCaptchaToken}
+                        onExpire={() => setCaptchaToken(null)}
+                      />
+                    </div>
+                  )}
 
                   <Button
                     id="login-submit-btn"

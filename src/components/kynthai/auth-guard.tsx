@@ -39,6 +39,36 @@ const PUBLIC_PATHS = [
   '/admin-login',
 ] as string[]
 
+const PASSTHROUGH_PATHS = [
+  '/forgot-password',
+  '/reset-password',
+  '/ccpa',
+  '/grievance',
+  '/patient-rights',
+  '/privacy-practices',
+  '/feedback',
+  '/admin-login',
+]
+
+const PROTECTED_PATHS = ['/settings', '/dashboard']
+
+const PORTAL_PREFIXES = ['/patient', '/doctor', '/lab', '/caretaker', '/family', '/admin']
+
+/**
+ * True when `pathname` is a real app route (public, passthrough, protected,
+ * or a portal subtree). Unknown paths are server-rendered 404 pages and must
+ * never run the mount-time auth check — otherwise unauthenticated visitors
+ * get bounced to /login instead of seeing the 404 page.
+ */
+function isKnownAppPath(pathname: string): boolean {
+  const p = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname
+  if (PUBLIC_PATHS.includes(p)) return true
+  if (PASSTHROUGH_PATHS.includes(p)) return true
+  if (PROTECTED_PATHS.includes(p)) return true
+  if (p.startsWith('/family/members/')) return true
+  return PORTAL_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + '/'))
+}
+
 const isBrowser = () => typeof window !== 'undefined'
 
 export function AuthGuard({ redirectTo = '/login', onUnauthorized, disableMountCheck }: AuthGuardProps) {
@@ -65,6 +95,8 @@ export function AuthGuard({ redirectTo = '/login', onUnauthorized, disableMountC
   React.useEffect(() => {
     if (disableMountCheck) return
     if (PUBLIC_PATHS.includes(pathname)) return
+    // Unknown paths render the server 404 — never auth-bounce them to /login.
+    if (!isKnownAppPath(pathname)) return
     let mounted = true
 
     const runCheck = async () => {

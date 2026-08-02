@@ -41,7 +41,6 @@ export async function setCsrfCookie(): Promise<{ token: string }> {
     return { token: 'build-dummy-token' }
   }
   const cookieStore = await cookies()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const store: any = cookieStore
   const existing = store?.get(CSRF_COOKIE)?.value
   if (existing) return { token: existing }

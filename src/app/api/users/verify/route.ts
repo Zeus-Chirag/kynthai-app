@@ -19,6 +19,7 @@ import {
   SMS_MAX_ATTEMPTS,
 } from '@/lib/patient-verify';
 import { logger } from '@/lib/logger';
+import { sendSMSReal, isSMSEnabled } from '@/lib/integrations';
 
 export const dynamic = 'force-dynamic';
 
@@ -119,10 +120,34 @@ export async function PATCH(req: NextRequest) {
         },
       });
 
-      // In production: send via Twilio/SES. For now, log to console.
-      console.log(`[VERIFY] SMS code for ${session.id}: ${code}`);
-
-      await logAudit(session.id, 'user.verify.sms_sent', `phone=${phone}`);
+      // SECURITY: deliver the OTP over the real SMS channel when configured.
+      // Never log the plaintext code to stdout in production (OTP leakage).
+      if (isSMSEnabled()) {
+        const sms = await sendSMSReal({
+          to: phone,
+          body: `Your Kynthai verification code is ${code}. It expires in 10 minutes. Do not share it with anyone.`,
+        });
+        if (!sms.ok) {
+          logger.phiSafeError(
+            new Error(sms.error || 'SMS send failed'),
+            `users.verify.sms_send (${sms.provider})`
+          );
+          return jsonError('Failed to send verification code. Please try again.', 502, 'SMS_SEND_FAILED');
+        }
+        await logAudit(session.id, 'user.verify.sms_sent', `phone=${phone} provider=${sms.provider}`);
+      } else if (process.env.NODE_ENV !== 'production') {
+        // Dev/demo only — no SMS provider configured, surface the code for testing.
+        console.log(`[VERIFY][DEV] SMS code for ${session.id}: ${code}`);
+        await logAudit(session.id, 'user.verify.sms_sent', `phone=${phone} dev`);
+      } else {
+        // Production without a working SMS provider: fail loudly rather than
+        // telling the user a code was sent when none can be delivered.
+        return jsonError(
+          'SMS verification is temporarily unavailable. Please contact support.',
+          503,
+          'SMS_UNAVAILABLE'
+        );
+      }
       return jsonOk({ message: 'Verification code sent', phone });
     }
 
