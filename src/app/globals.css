@@ -297,15 +297,6 @@ body {
 }
 
 /* ── Premium motion + texture utilities ───────────────────────────────── */
-@keyframes kynthai-gradient {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.animate-kynthai-gradient {
-  animation: kynthai-gradient 6s ease-in-out infinite;
-  will-change: background-position;
-}
 
 /* ── OTP/Input caret blink (moved from the removed legacy index.css) ─────── */
 @keyframes caret-blink {
