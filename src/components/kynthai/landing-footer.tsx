@@ -103,7 +103,7 @@ export function LandingFooter() {
 
         <div className="mt-6 flex flex-col items-start justify-between gap-4 border-t border-border/60 pt-4 text-xs text-muted-foreground sm:flex-row sm:items-start">
           <div className="space-y-1 flex-1 min-w-0">
-            <p>© {new Date().getFullYear()} Kynthai™. All rights reserved.</p>
+            <p suppressHydrationWarning>© {new Date().getFullYear()} Kynthai™. All rights reserved.</p>
             <p className="text-[10px] leading-relaxed">
               Kynthai Health Technologies LLC · United States
             </p>

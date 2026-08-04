@@ -109,7 +109,7 @@ export function ConsultationPrep() {
                 <div>
                   <span className="text-muted-foreground">Visit Date:</span>{' '}
                   <span className="font-medium">
-                    {data.visitDate ? new Date(data.visitDate).toLocaleDateString() : 'Not scheduled'}
+                    {data.visitDate ? new Date(data.visitDate).toLocaleDateString('en-US') : 'Not scheduled'}
                   </span>
                 </div>
               </div>
@@ -173,7 +173,7 @@ export function ConsultationPrep() {
                     <div key={i} className="p-2 border rounded">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">
-                          {new Date(entry.date).toLocaleDateString()}
+                          {new Date(entry.date).toLocaleDateString('en-US')}
                         </span>
                         <Badge variant="outline">Severity: {entry.severity}/10</Badge>
                       </div>

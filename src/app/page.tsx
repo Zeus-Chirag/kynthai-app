@@ -1,8 +1,14 @@
 import { StructuredData } from '@/components/structured-data';
 
-// ISR: Revalidate landing page every 1 hour to reduce server load
-// while keeping content fresh for SEO crawlers
-export const revalidate = 3600;
+// Render the landing page on every request (no ISR caching).
+//
+// Previously this page used ISR (`revalidate = 3600`). On Vercel that left a
+// stale cache entry served indefinitely when background regeneration failed —
+// the live site served a 2-day-old empty-shell HTML while the deployed JS was
+// current, causing React hydration error #418 and "pages missing" symptoms.
+// force-dynamic matches the rest of the app (accessibility, admin, all API
+// routes) and keeps the landing HTML always fresh.
+export const dynamic = 'force-dynamic';
 
 interface RootPageProps {
   children: React.ReactNode;

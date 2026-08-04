@@ -52,7 +52,7 @@ import { cn } from '@/lib/utils';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useRouter } from 'next/navigation';
-import { getGreeting } from '@/lib/greeting'
+import { useGreeting } from '@/lib/greeting'
 import { AchievementCelebration } from '@/components/kynthai/achievement-celebration';
 import { useToast } from '@/hooks/use-toast';
 import { TodayView } from '@/components/medication/today-view';
@@ -390,6 +390,7 @@ function HomeTab({
   onCancelAppointment?: (id: string) => void;
   cancellingApptId?: string | null;
 }) {
+  const greeting = useGreeting();
   const [journalOpen, setJournalOpen] = React.useState(false);
   const [bookingOpen, setBookingOpen] = React.useState(false);
   const { toast } = useToast();
@@ -424,7 +425,7 @@ function HomeTab({
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold">
-              {getGreeting()}
+              {greeting}
               {!isDemo ? `, ${user.name?.split(' ')[0]}` : ''}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">

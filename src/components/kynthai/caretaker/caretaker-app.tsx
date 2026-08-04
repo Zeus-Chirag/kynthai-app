@@ -37,7 +37,7 @@ import { cn } from '@/lib/utils';
 import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
-import { getGreeting } from '@/lib/greeting';
+import { useGreeting } from '@/lib/greeting';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
 import { AiChat } from '@/components/medication/ai-chat';
@@ -228,6 +228,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
   const router = useRouter();
   const { toast } = useToast();
   const [tab, setTab] = React.useState<Tab>('family');
+  const greeting = useGreeting();
   const isDemo = !!user.isDemo;
   const [profileOpen, setProfileOpen] = React.useState(false);
 
@@ -406,7 +407,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
                 </AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-sm text-muted-foreground leading-tight">{getGreeting()}</p>
+                <p className="text-sm text-muted-foreground leading-tight">{greeting}</p>
                 <p className="text-base font-semibold leading-tight">{displayName}</p>
               </div>
             </button>

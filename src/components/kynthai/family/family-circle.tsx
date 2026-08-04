@@ -92,7 +92,7 @@ function formatLastTaken(iso: string | null): string {
   if (diffMin < 1) return 'Just now'
   if (diffMin < 60) return `${diffMin}m ago`
   if (diffMin < 1440) return `${Math.floor(diffMin / 60)}h ago`
-  return d.toLocaleDateString()
+  return d.toLocaleDateString('en-US')
 }
 
 function MemberCard({ member, index, onClick }: { member: PulseMember; index: number; onClick: () => void }) {

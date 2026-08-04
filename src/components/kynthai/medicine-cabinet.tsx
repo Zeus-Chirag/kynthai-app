@@ -149,7 +149,7 @@ export function MedicineCabinet() {
                   {item.expiryDate && (
                     <div className="flex items-center gap-1">
                       <AlertTriangle className="h-3 w-3" />
-                      <span>Expires: {new Date(item.expiryDate).toLocaleDateString()}</span>
+                      <span>Expires: {new Date(item.expiryDate).toLocaleDateString('en-US')}</span>
                     </div>
                   )}
                 </div>

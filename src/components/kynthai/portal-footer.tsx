@@ -97,7 +97,7 @@ export function PortalFooter() {
             <span className="font-medium text-foreground/70">Registered Office:</span>{' '}
             {REGISTERED_OFFICE}
           </p>
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p suppressHydrationWarning className="flex flex-wrap items-center gap-x-3 gap-y-1">
             © {new Date().getFullYear()} Kynthai™. All rights reserved.
             <span className="inline-flex items-center gap-1">
               Made with <HeartPulse className="h-3 w-3 text-emerald-600" /> for healthier families.

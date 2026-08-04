@@ -16,6 +16,7 @@ import {
   Flame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useGreeting } from '@/lib/greeting';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -39,12 +40,6 @@ interface DailyPrioritiesProps {
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function getGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -59,6 +54,7 @@ function timeAgo(iso: string): string {
 // ── Main Component ─────────────────────────────────────────────────
 
 export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesProps) {
+  const greeting = useGreeting();
   const [priorities, setPriorities] = React.useState<Priority[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [completedIds, setCompletedIds] = React.useState<Set<string>>(new Set());
@@ -214,7 +210,7 @@ export function DailyPriorities({ userId, isDemo, onNavigate }: DailyPrioritiesP
           <div className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-500/5 p-2.5">
             <Sparkles className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
             <p className="text-[11px] text-muted-foreground">
-              {getGreeting()}! {getAiTip(priorities)}
+              {greeting}! {getAiTip(priorities)}
             </p>
           </div>
         </CardContent>

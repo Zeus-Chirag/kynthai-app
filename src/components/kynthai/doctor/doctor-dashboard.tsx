@@ -39,7 +39,7 @@ import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { t, getLanguage, setLanguage, initLanguage } from '@/lib/i18n';
-import { getGreeting } from '@/lib/greeting';
+import { useGreeting } from '@/lib/greeting';
 import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
 import { PatientCare } from './patient-care';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
@@ -201,6 +201,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
   const isDemo = !!user.isDemo;
   const [lang, setLangState] = React.useState('en');
   const [profileOpen, setProfileOpen] = React.useState(false);
+  const greeting = useGreeting();
 
   const handleLogout = React.useCallback(() => {
     logout();
@@ -623,7 +624,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                 </AvatarFallback>
               </Avatar>
               <div className="text-left">
-                <p className="text-xs text-muted-foreground leading-tight">{getGreeting()}</p>
+                <p className="text-xs text-muted-foreground leading-tight">{greeting}</p>
                 <p className="text-sm font-semibold leading-tight">
                   Dr. {isDemo ? 'Guest' : (user.name?.split(' ').slice(-1)[0] ?? 'Doctor')}
                 </p>
@@ -794,7 +795,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                             {isPro ? t('pro') : t('free')}
                           </span>
                         </div>
-                        <p className="mt-1 text-xs opacity-90">
+                        <p suppressHydrationWarning className="mt-1 text-xs opacity-90">
                           {isPro
                             ? `Renews on ${renewsAt}`
                             : `${slotsUsed} / ${FREE_PATIENT_CAP} patient slots used`}
