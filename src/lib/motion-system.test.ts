@@ -58,13 +58,17 @@ describe('motion system guards', () => {
 
   it('no infinite Framer Motion transition runs longer than 4s', () => {
     const offenders: string[] = []
-    for (const file of walk('src/components/kynthai')) {
-      const src = read(file)
-      for (const block of transitionObjects(src)) {
-        if (!block.includes('repeat: Infinity')) continue
-        const durations = [...block.matchAll(/duration:\s*([\d.]+)/g)].map((m) => parseFloat(m[1] ?? ''))
-        for (const d of durations) {
-          if (d > 4) offenders.push(`${file}: duration ${d}s in ${block.slice(0, 60)}…`)
+    // Walk the ENTIRE component tree plus app pages, so a slow infinite loop
+    // added in any directory is caught — not just src/components/kynthai.
+    for (const root of ['src/components', 'src/app']) {
+      for (const file of walk(root)) {
+        const src = read(file)
+        for (const block of transitionObjects(src)) {
+          if (!block.includes('repeat: Infinity')) continue
+          const durations = [...block.matchAll(/duration:\s*([\d.]+)/g)].map((m) => parseFloat(m[1] ?? ''))
+          for (const d of durations) {
+            if (d > 4) offenders.push(`${file}: duration ${d}s in ${block.slice(0, 60)}…`)
+          }
         }
       }
     }

@@ -34,10 +34,13 @@ describe('hydration safety (React #418)', () => {
   it('greeting.ts exports useGreeting and never renders a clock-read value', () => {
     const src = read('src/lib/greeting.ts')
     expect(src).toMatch(/export function useGreeting\(/)
-    // Deterministic initial value for BOTH hydration passes…
-    expect(src).toMatch(/React\.useState\('Hello'\)/)
+    // Deterministic initial value for BOTH hydration passes.
+    // Plain-substring check: matches both `React.useState('Hello')` and a
+    // named `useState('Hello')` import, so a legitimate import refactor
+    // does not false-fail the guard.
+    expect(src).toContain("useState('Hello')")
     // …and the time-based greeting is only computed after mount.
-    expect(src).toMatch(/React\.useEffect\(/)
+    expect(src).toContain('useEffect(')
     expect(src).toMatch(/setGreeting\(getGreeting\(locale\)\)/)
   })
 
