@@ -120,7 +120,7 @@ export function LandingPricing({ onGetStarted }: { onGetStarted: () => void }) {
             <Button
               onClick={t.onClick}
               className={cn(
-                'mt-6 w-full',
+                'mt-6 min-h-11 w-full',
                 t.highlight ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white' : ''
               )}
               variant={t.highlight ? 'default' : 'outline'}
@@ -134,7 +134,7 @@ export function LandingPricing({ onGetStarted }: { onGetStarted: () => void }) {
       <div className="mt-8 text-center">
         <button
           onClick={() => router.push('/pricing')}
-          className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700"
+          className="inline-flex items-center gap-1 rounded-md px-1 -mx-1 py-2 -my-2 text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700"
         >
           See full pricing
           <ArrowRight className="h-3.5 w-3.5" />

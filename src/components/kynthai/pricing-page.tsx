@@ -220,7 +220,7 @@ export function PricingPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => router.push('/')}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-md p-2 -m-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Back</span>
@@ -393,7 +393,7 @@ export function PricingPage() {
                     {tier.id === 'free' && (
                       <Button
                         variant="outline"
-                        className="w-full"
+                        className="min-h-11 w-full"
                         onClick={() => router.push('/login')}
                       >
                         {tier.cta}
@@ -403,7 +403,7 @@ export function PricingPage() {
                       <Magnetic strength={0.2}>
                         <Button
                           className={cn(
-                            'w-full gap-2',
+                            'min-h-11 w-full gap-2',
                             tier.featured
                               ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25'
                               : ''
@@ -419,7 +419,7 @@ export function PricingPage() {
                     {tier.commissionOnly && !tier.enterprise && (
                       <Button
                         variant="outline"
-                        className="w-full"
+                        className="min-h-11 w-full"
                         onClick={() => router.push('/login')}
                       >
                         {tier.cta}

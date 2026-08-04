@@ -146,7 +146,7 @@ function UserTypeFeatures({ onGetStarted }: { onGetStarted: (portal?: string) =>
                   onGetStarted(f.portal);
                 }}
                 aria-label={`Enter ${f.title} portal`}
-                className="mt-auto w-full rounded-full font-medium"
+                className="mt-auto min-h-11 w-full rounded-full font-medium"
               >
                 Get Started
                 <ArrowRight className="ml-1 h-3.5 w-3.5" aria-hidden="true" />

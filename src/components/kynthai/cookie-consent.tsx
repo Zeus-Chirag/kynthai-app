@@ -176,7 +176,7 @@ export function CookieConsent() {
                     setVisible(false)
                     router.push('/privacy')
                   }}
-                  className="font-medium text-emerald-600 underline"
+                  className="rounded-md px-1 -mx-1 py-2 -my-2 font-medium text-emerald-600 underline"
                 >
                   Privacy Policy
                 </button>{' '}

@@ -129,15 +129,7 @@ export default function RootLayout({
         {/* ACCESSIBILITY: Skip link for keyboard/screen-reader users — FIXED */}
         <a
           href="#main-content"
-          className="absolute -top-10 -left-10 bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg z-[100] focus:top-4 focus:left-4 focus:outline-none"
-          style={{
-            position: 'absolute',
-            width: '1px',
-            height: '1px',
-            overflow: 'hidden',
-            clip: 'rect(0, 0, 0, 0)',
-            whiteSpace: 'nowrap',
-          }}
+          className="sr-only pointer-events-none focus:not-sr-only focus:pointer-events-auto focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-emerald-600 focus:px-4 focus:py-3 focus:text-white focus:shadow-lg focus:outline-none"
         >
           Skip to main content
         </a>

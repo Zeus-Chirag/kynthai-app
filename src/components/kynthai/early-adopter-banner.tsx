@@ -29,7 +29,7 @@ export function EarlyAdopterBanner({ onGetStarted }: EarlyAdopterBannerProps) {
           {/* Right: CTA */}
           <Button
             onClick={() => onGetStarted()}
-            className="shrink-0 bg-white text-emerald-700 hover:bg-emerald-50"
+            className="shrink-0 min-h-11 bg-white text-emerald-700 hover:bg-emerald-50"
             size="sm"
           >
             Get Started

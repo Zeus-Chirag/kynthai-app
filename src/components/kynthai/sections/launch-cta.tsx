@@ -29,7 +29,7 @@ export function LaunchCTA({ onPickPortal }: { onPickPortal: (portal: LoginPortal
         <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
           <Button
             onClick={() => onPickPortal('patient')}
-            className="h-12 flex-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-6 text-white shadow-lg shadow-emerald-600/20"
+            className="h-12 min-h-12 flex-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-6 text-white shadow-lg shadow-emerald-600/20"
           >
             Get Started Free
             <ArrowRight className="ml-1.5 h-4 w-4" />
@@ -37,7 +37,7 @@ export function LaunchCTA({ onPickPortal }: { onPickPortal: (portal: LoginPortal
           <Button
             variant="outline"
             onClick={() => onPickPortal('caretaker')}
-            className="h-12 flex-1 rounded-full border-border px-6"
+            className="h-12 min-h-12 flex-1 rounded-full border-border px-6"
           >
             Sign In
           </Button>

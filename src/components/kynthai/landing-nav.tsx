@@ -56,7 +56,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => goScreen('landing')}
-          className="flex items-center"
+          className="flex items-center py-2 -my-2"
           aria-label="Kynthai home"
         >
           <KynthaiBrand />
@@ -160,7 +160,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
             )}
             <Link href="/login" onClick={() => setOpen(false)}>
               <Button
-                className="mt-2 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                className="mt-2 h-11 min-h-11 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
               >
                 Get Started
               </Button>

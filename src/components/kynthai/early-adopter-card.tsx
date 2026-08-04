@@ -61,7 +61,7 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <span>Or $99.99/year</span>
           </div>
-          <Button onClick={() => handleSelect('individual')} className="w-full" variant="outline">
+          <Button onClick={() => handleSelect('individual')} className="min-h-11 w-full" variant="outline">
             Choose Individual
           </Button>
         </div>
@@ -83,7 +83,7 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <span>Or $199.99/year</span>
           </div>
-          <Button onClick={() => handleSelect('family')} className="w-full" variant="outline">
+          <Button onClick={() => handleSelect('family')} className="min-h-11 w-full" variant="outline">
             Choose Family
           </Button>
         </div>

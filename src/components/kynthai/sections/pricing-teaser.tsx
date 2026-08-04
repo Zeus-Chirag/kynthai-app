@@ -193,7 +193,7 @@ function PricingTeaser({
               <Button
                 onClick={t.onClick}
                 className={cn(
-                  'mt-6 w-full rounded-full font-medium',
+                  'mt-6 min-h-11 w-full rounded-full font-medium',
                   t.highlight
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/20'
                     : ''

@@ -41,7 +41,7 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
             <Button
               size="lg"
               onClick={onGetStarted}
-              className="h-11 w-full rounded-full bg-white px-6 text-sm text-emerald-700 shadow-lg hover:bg-emerald-50 sm:h-12 sm:w-auto sm:px-7 sm:text-base"
+              className="h-11 min-h-11 w-full rounded-full bg-white px-6 text-sm text-emerald-700 shadow-lg hover:bg-emerald-50 sm:h-12 sm:min-h-12 sm:w-auto sm:px-7 sm:text-base"
             >
               Get Started Free
               <ArrowRight className="h-4 w-4" />
@@ -50,7 +50,7 @@ export function LandingFinalCTA({ onGetStarted }: { onGetStarted: () => void }) 
               size="lg"
               variant="outline"
               onClick={() => router.push('/pricing')}
-              className="h-11 w-full rounded-full border-white/40 bg-white/10 px-5 text-sm text-white backdrop-blur hover:bg-white/20 hover:text-white sm:h-12 sm:w-auto sm:px-6 sm:text-base"
+              className="h-11 min-h-11 w-full rounded-full border-white/40 bg-white/10 px-5 text-sm text-white backdrop-blur hover:bg-white/20 hover:text-white sm:h-12 sm:min-h-12 sm:w-auto sm:px-6 sm:text-base"
             >
               View Pricing
             </Button>

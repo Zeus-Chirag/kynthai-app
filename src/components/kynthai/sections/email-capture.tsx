@@ -69,7 +69,7 @@ function EmailCapture({ onPickPortal }: { onPickPortal: (portal: LoginPortal) =>
 
         <p className="mt-4 text-xs text-muted-foreground">
           Already using Kynthai? You&apos;re on the waitlist —{' '}
-          <button onClick={() => onPickPortal('caretaker')} className="text-emerald-600 underline">
+          <button onClick={() => onPickPortal('caretaker')} className="rounded-md px-1 -mx-1 py-2 -my-2 text-emerald-600 underline">
             sign in
           </button>{' '}
           to manage your preferences.

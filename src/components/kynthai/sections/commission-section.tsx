@@ -46,7 +46,7 @@ export function Commission({ onPick }: { onPick: (p: LoginPortal) => void }) {
               You keep the majority of every earning — no hidden cuts.
             </p>
             <Button
-              className="mt-5 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+              className="mt-5 min-h-11 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
               onClick={() => onPick('doctor')}
             >
               Apply as a Doctor
@@ -75,7 +75,7 @@ export function Commission({ onPick }: { onPick: (p: LoginPortal) => void }) {
               You keep the majority of every earning — no hidden cuts.
             </p>
             <Button
-              className="mt-5 w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
+              className="mt-5 min-h-11 w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white"
               onClick={() => onPick('lab')}
             >
               Partner as a Lab

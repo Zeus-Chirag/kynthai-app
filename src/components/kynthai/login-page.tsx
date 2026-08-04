@@ -332,7 +332,7 @@ export function LoginPage({
         <div className="flex items-center justify-between">
           <button
             onClick={() => router.push('/')}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-md py-2 -my-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -340,7 +340,7 @@ export function LoginPage({
           <KynthaiBrand />
           <button
             onClick={() => router.push('/')}
-            className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
+            className="hidden py-2 -my-2 text-sm text-muted-foreground hover:text-foreground sm:inline"
           >
             Home
           </button>
@@ -456,7 +456,7 @@ export function LoginPage({
                   <button
                     onClick={() => setMode('signin')}
                     className={cn(
-                      'rounded-full px-4 py-1.5 text-sm font-medium transition-all',
+                      'rounded-full px-4 py-2 text-sm font-medium transition-all',
                       mode === 'signin'
                         ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow'
                         : 'text-muted-foreground hover:text-foreground'
@@ -471,7 +471,7 @@ export function LoginPage({
                       setAgeGateOpen(true);
                     }}
                     className={cn(
-                      'rounded-full px-4 py-1.5 text-sm font-medium transition-all',
+                      'rounded-full px-4 py-2 text-sm font-medium transition-all',
                       mode === 'register'
                         ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow'
                         : 'text-muted-foreground hover:text-foreground'
