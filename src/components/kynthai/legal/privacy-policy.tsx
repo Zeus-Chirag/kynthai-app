@@ -20,7 +20,7 @@ export function LegalLayout({ title, subtitle, updated, children }: { title: str
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <button onClick={() => window.history.length > 1 ? window.history.back() : router.push('/')} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <button onClick={() => window.history.length > 1 ? window.history.back() : router.push('/')} className="inline-flex items-center gap-2 rounded-md p-2 -m-2 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" />Back to Kynthai
           </button>
           <KynthaiBrand />

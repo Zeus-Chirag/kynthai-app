@@ -657,7 +657,7 @@ export function LoginPage({
                         <button
                           type="button"
                           onClick={() => router.push('/terms')}
-                          className="font-medium text-emerald-600 underline"
+                          className="rounded-md px-1 -mx-1 py-2 -my-2 font-medium text-emerald-600 underline"
                         >
                           Terms of Service
                         </button>{' '}
@@ -665,7 +665,7 @@ export function LoginPage({
                         <button
                           type="button"
                           onClick={() => router.push('/privacy')}
-                          className="font-medium text-emerald-600 underline"
+                          className="rounded-md px-1 -mx-1 py-2 -my-2 font-medium text-emerald-600 underline"
                         >
                           Privacy Policy
                         </button>
@@ -697,7 +697,7 @@ export function LoginPage({
                         <button
                           type="button"
                           onClick={() => router.push('/privacy')}
-                          className="font-medium text-emerald-600 underline"
+                          className="rounded-md px-1 -mx-1 py-2 -my-2 font-medium text-emerald-600 underline"
                         >
                           Privacy Policy
                         </button>{' '}
@@ -721,7 +721,7 @@ export function LoginPage({
                     id="login-submit-btn"
                     type="submit"
                     disabled={loading}
-                    className="w-full gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700"
+                    className="min-h-11 w-full gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700"
                   >
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                     {mode === 'signin' ? 'Sign In' : 'Create Account'}
