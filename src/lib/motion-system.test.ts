@@ -58,17 +58,18 @@ describe('motion system guards', () => {
 
   it('no infinite Framer Motion transition runs longer than 4s', () => {
     const offenders: string[] = []
-    // Walk the ENTIRE component tree plus app pages, so a slow infinite loop
-    // added in any directory is caught — not just src/components/kynthai.
-    for (const root of ['src/components', 'src/app']) {
-      for (const file of walk(root)) {
-        const src = read(file)
-        for (const block of transitionObjects(src)) {
-          if (!block.includes('repeat: Infinity')) continue
-          const durations = [...block.matchAll(/duration:\s*([\d.]+)/g)].map((m) => parseFloat(m[1] ?? ''))
-          for (const d of durations) {
-            if (d > 4) offenders.push(`${file}: duration ${d}s in ${block.slice(0, 60)}…`)
-          }
+    // Walk the ENTIRE src tree (components, ui, app pages, hooks, lib, …) so a
+    // slow infinite loop added in ANY directory is caught — not just
+    // src/components/kynthai. Test files are skipped: they carry no Framer
+    // Motion transitions and would only add self-referential noise.
+    for (const file of walk('src')) {
+      if (/\.(test|spec)\.(ts|tsx)$/.test(file)) continue
+      const src = read(file)
+      for (const block of transitionObjects(src)) {
+        if (!block.includes('repeat: Infinity')) continue
+        const durations = [...block.matchAll(/duration:\s*([\d.]+)/g)].map((m) => parseFloat(m[1] ?? ''))
+        for (const d of durations) {
+          if (d > 4) offenders.push(`${file}: duration ${d}s in ${block.slice(0, 60)}…`)
         }
       }
     }
