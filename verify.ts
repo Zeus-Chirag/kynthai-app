@@ -41,12 +41,14 @@ function read(path: string) {
 
 const loginPage = read('src/components/kynthai/login-page.tsx');
 
-check('login-page: has router.push after login(user)', () => {
-  // After `login(user);` there should be `router.push(` within the next 600 chars
-  const idx = loginPage.indexOf('login(user);');
-  if (idx < 0) return false;
-  const after = loginPage.slice(idx, idx + 600);
-  return after.includes('router.push(') && after.includes('target');
+check('login-page: navigates to target portal after login(user)', () => {
+  // `login(user)` must exist, and the page must route to the role portal via
+  // router.push(`/${targetScreen}`) (effect-driven, after the store updates).
+  if (!loginPage.includes('login(user);')) return false;
+  const navIdx = loginPage.indexOf('router.push(');
+  if (navIdx < 0) return false;
+  const nav = loginPage.slice(navIdx, navIdx + 120);
+  return nav.includes('targetScreen');
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -93,13 +95,14 @@ check('portal-loaders: family loads caretaker portal component', () => {
   return !!familyLoaderMatch;
 });
 
-check('portal-loaders: family loader uses caretaker app', () => {
-  // The family URL path should load CaretakerApp (family→caretaker alias)
+check('portal-loaders: family loads the dedicated family portal', () => {
+  // Family users get their own portal component; the caretaker DB role is
+  // mapped onto it via the roleMatches check in loadPortal().
   const familySection = portalLoaders.slice(
     portalLoaders.indexOf('family: () =>'),
     portalLoaders.indexOf('family: () =>') + 200
   );
-  return familySection.includes('CaretakerApp');
+  return familySection.includes('FamilyPortal');
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -165,7 +168,32 @@ check('no bare JSON.parse in API routes without safeJsonParse', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 8. TypeScript strict mode check — no `any` in critical components
+// 8b. No native alert()/confirm() dialogs in client components (use toasts)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function collectTsx(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...collectTsx(full));
+    else if (entry.name.endsWith('.tsx') && !entry.name.includes('.test.')) out.push(full);
+  }
+  return out;
+}
+
+check('no native alert()/confirm() dialogs in components', () => {
+  let violations = 0;
+  for (const file of collectTsx(join(ROOT, 'src/components'))) {
+    const lines = readFileSync(file, 'utf-8').split('\n');
+    for (const line of lines) {
+      if (/\balert\(/.test(line) || /\bwindow\.confirm\(/.test(line)) violations++;
+    }
+  }
+  return violations === 0;
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 9. TypeScript strict mode check — no `any` in critical components
 // ═══════════════════════════════════════════════════════════════════════════
 
 check('login-page: no bare `catch(e: any)` — uses unknown or no annotation', () => {

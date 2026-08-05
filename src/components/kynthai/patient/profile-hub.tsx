@@ -206,7 +206,11 @@ export function ProfileHub({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to export data.');
+      toast({
+        title: 'Export failed',
+        description: err instanceof Error ? err.message : 'Failed to export data.',
+        variant: 'destructive',
+      });
     }
   }
 
@@ -227,14 +231,25 @@ export function ProfileHub({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        alert(data.error || 'Failed to delete account.');
+        toast({
+          title: 'Deletion failed',
+          description: data.error || 'Failed to delete account.',
+          variant: 'destructive',
+        });
         return;
       }
 
-      alert('Your account and all data have been permanently deleted.');
+      toast({
+        title: 'Account deleted',
+        description: 'Your account and all data have been permanently deleted.',
+      });
       window.location.href = '/';
     } catch {
-      alert('Network error. Please try again.');
+      toast({
+        title: 'Network error',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setDeleting(false);
     }

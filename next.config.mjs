@@ -18,16 +18,12 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
 
   // Prevent OOM kills on Vercel free tier during static generation
-  // by reducing concurrency and memory pressure
+  // by reducing concurrency and memory pressure. cpus caps the number of
+  // page-data collection workers (defaults to host core count - 1).
   experimental: {
+    cpus: 2,
     // Tell Turbopack to reduce memory usage during build
     optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/*', 'recharts', 'date-fns', 'cmdk'],
-    // Prune large trace trees that cause NFT warnings
-    turbo: {
-      resolveAlias: {
-        // Avoid tracing the entire project
-      },
-    },
     // Optimize bundle size for server components
     optimizeServerReact: true,
   },
