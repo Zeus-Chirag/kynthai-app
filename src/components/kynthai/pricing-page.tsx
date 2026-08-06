@@ -534,7 +534,13 @@ export function PricingPage() {
                           : 'border-border/60'
                       )}
                     >
-                      <div className="text-2xl">{cfg.icon}</div>
+                      <div className="text-2xl">
+                        <span
+                          className={`inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${cfg.tint} text-lg font-bold text-white shadow`}
+                        >
+                          {cfg.icon}
+                        </span>
+                      </div>
                       <p className="mt-1 text-sm font-semibold">{name}</p>
                       <p className="text-[10px] text-muted-foreground">{cfg.min}+ orders</p>
                       <Separator className="my-2" />
@@ -571,7 +577,13 @@ export function PricingPage() {
                           : 'border-border/60'
                       )}
                     >
-                      <div className="text-2xl shrink-0">{cfg.icon}</div>
+                      <div className="shrink-0">
+                        <span
+                          className={`inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${cfg.tint} text-lg font-bold text-white shadow`}
+                        >
+                          {cfg.icon}
+                        </span>
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between gap-2">
                           <p className="text-sm font-semibold">{name}</p>
@@ -804,19 +816,18 @@ function EarningsCalculator() {
       </Card>
 
       {/* Refund & Cancellation policy link */}
-      <div className="mt-8 border-t border-border/60 pt-5">
-        <p className="text-center text-xs text-muted-foreground">
+      <div className="mt-8 border-t border-border/60 pt-5">              <p className="text-center text-[13px] text-muted-foreground">
           Questions about billing or cancellations? See our{' '}
           <a
             href="/refund-cancellation"
-            className="text-emerald-600 underline hover:text-emerald-700"
+            className="inline-block rounded-md px-1 -mx-1 py-2 -my-2 text-emerald-600 underline hover:text-emerald-700"
           >
             Refund &amp; Cancellation Policy
           </a>{' '}
           or email{' '}
           <a
             href="mailto:privacy@kynthai.app"
-            className="text-emerald-600 underline hover:text-emerald-700"
+            className="inline-block rounded-md px-1 -mx-1 py-2 -my-2 text-emerald-600 underline hover:text-emerald-700"
           >
             privacy@kynthai.app
           </a>

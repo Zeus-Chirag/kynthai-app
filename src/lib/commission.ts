@@ -39,7 +39,8 @@ export const LOYALTY_TIERS: Record<LoyaltyTier, TierConfig> = {
     next: 'Silver',
     feeDiscountPct: 0,
     tint: 'from-amber-600 to-amber-800',
-    icon: '🥉',
+    // WGL4 glyphs (not emoji): render identically on every platform.
+    icon: '●',
     blurb: 'Welcome aboard — base platform fee applies.',
   },
   Silver: {
@@ -47,7 +48,7 @@ export const LOYALTY_TIERS: Record<LoyaltyTier, TierConfig> = {
     next: 'Gold',
     feeDiscountPct: 1,
     tint: 'from-slate-400 to-slate-600',
-    icon: '🥈',
+    icon: '○',
     blurb: '50+ fulfilled orders — 1% fee discount unlocked.',
   },
   Gold: {
@@ -55,7 +56,7 @@ export const LOYALTY_TIERS: Record<LoyaltyTier, TierConfig> = {
     next: 'Platinum',
     feeDiscountPct: 2,
     tint: 'from-amber-400 to-amber-600',
-    icon: '🥇',
+    icon: '★',
     blurb: '150+ fulfilled orders — 2% fee discount unlocked.',
   },
   Platinum: {
@@ -63,7 +64,7 @@ export const LOYALTY_TIERS: Record<LoyaltyTier, TierConfig> = {
     next: null,
     feeDiscountPct: 3,
     tint: 'from-violet-400 via-fuchsia-400 to-emerald-400',
-    icon: '💎',
+    icon: '◆',
     blurb: '300+ fulfilled orders — top tier, 3% fee discount.',
   },
 }

@@ -955,6 +955,16 @@ model Feedback {
   @@map("feedback")
 }
 
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String? // landing | pricing | footer | other
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("newsletter_subscribers")
+}
+
 // ── Security Models ──────────────────────────────────────────────────
 
 model RevokedSession {

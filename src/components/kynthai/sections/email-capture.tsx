@@ -9,12 +9,31 @@ import type { LoginPortal } from '@/lib/store';
 function EmailCapture({ onPickPortal }: { onPickPortal: (portal: LoginPortal) => void }) {
   const [email, setEmail] = React.useState('');
   const [submitted, setSubmitted] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    // Newsletter signup — stores via localStorage until backend API is ready
-    setSubmitted(true);
+    const value = email.trim();
+    if (!value) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: value, source: 'landing' }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? 'Subscription failed');
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Subscription failed');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -59,12 +78,18 @@ function EmailCapture({ onPickPortal }: { onPickPortal: (portal: LoginPortal) =>
             />
             <Button
               type="submit"
+              disabled={submitting}
               className="h-12 shrink-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-6 text-white shadow-lg shadow-emerald-600/20"
             >
-              Subscribe
-              <ArrowRight className="ml-1.5 h-4 w-4" />
+              {submitting ? 'Subscribing…' : 'Subscribe'}
+              {!submitting && <ArrowRight className="ml-1.5 h-4 w-4" />}
             </Button>
           </form>
+        )}
+        {error && (
+          <p role="alert" className="mt-3 text-sm font-medium text-rose-600 dark:text-rose-400">
+            {error} — please try again.
+          </p>
         )}
 
         <p className="mt-4 text-xs text-muted-foreground">

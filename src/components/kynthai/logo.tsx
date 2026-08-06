@@ -22,6 +22,12 @@ export function KynthaiIcon({
   className?: string
   size?: number
 }) {
+  // Unique gradient IDs per instance — the icon renders multiple times per
+  // page (nav, footer, loading states), so static IDs would be invalid HTML.
+  const uid = React.useId().replace(/:/g, '')
+  const heartGrad = `kynthai-heart-grad-${uid}`
+  const pulseGrad = `kynthai-pulse-${uid}`
+
   return (
     <svg
       width={size}
@@ -34,12 +40,12 @@ export function KynthaiIcon({
       aria-label="Kynthai icon"
     >
       <defs>
-        <linearGradient id="kynthai-heart-grad" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+        <linearGradient id={heartGrad} x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
           <stop stopColor="#34d399" />
           <stop offset="0.5" stopColor="#10b981" />
           <stop offset="1" stopColor="#059669" />
         </linearGradient>
-        <linearGradient id="kynthai-pulse" x1="12" y1="24" x2="36" y2="24" gradientUnits="userSpaceOnUse">
+        <linearGradient id={pulseGrad} x1="12" y1="24" x2="36" y2="24" gradientUnits="userSpaceOnUse">
           <stop stopColor="#6ee7b7" />
           <stop offset="1" stopColor="#34d399" />
         </linearGradient>
@@ -48,13 +54,13 @@ export function KynthaiIcon({
       {/* Heart shape */}
       <path
         d="M24 38 C18 34, 8 28, 8 18 C8 12, 12 8, 17 8 C20 8, 22 10, 24 10 C26 10, 28 8, 31 8 C36 8, 40 12, 40 18 C40 28, 30 34, 24 38Z"
-        fill="url(#kynthai-heart-grad)"
+        fill={`url(#${heartGrad})`}
       />
 
       {/* Pulse line */}
       <path
         d="M12 24 L17 24 L19 18 L21 30 L24 14 L27 30 L29 18 L31 24 L36 24"
-        stroke="url(#kynthai-pulse)"
+        stroke={`url(#${pulseGrad})`}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

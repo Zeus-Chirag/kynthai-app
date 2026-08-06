@@ -85,10 +85,9 @@ function PricingTeaser({
   ];
 
   return (
-    <section
-      id="pricing-preview"
-      className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20"
-    >
+    /* NOTE: no id here — the parent landing-page section carries
+       id="pricing-preview" (the anchor target). Duplicate ids are invalid HTML. */
+    <section className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20">
       <div
         className="pointer-events-none absolute inset-0 -z-10 opacity-50"
         aria-hidden="true"

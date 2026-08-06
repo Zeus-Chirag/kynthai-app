@@ -539,13 +539,16 @@ export function LoginPage({
                     className={cn('space-y-3.5', mode === 'register' ? 'block' : 'hidden')}
                   >
                     <div className="space-y-1.5">
-                      <Label htmlFor="name">Full name</Label>
+                      <Label htmlFor="name">
+                        Full name <span className="text-rose-500">*</span>
+                      </Label>
                       <Input
                         id="name"
                         placeholder="Aarav Sharma"
                         value={name}
                         onChange={e => setName(e.target.value)}
                         autoComplete="name"
+                        required
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -571,11 +574,17 @@ export function LoginPage({
                         type="date"
                         value={dateOfBirth}
                         onChange={e => setDateOfBirth(e.target.value)}
+                        required
                       />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="emergency1">
-                        Emergency contact 1 <span className="text-rose-500">*</span>
+                        Emergency contact 1{' '}
+                        {active.id === 'patient' || active.id === 'caretaker' ? (
+                          <span className="text-rose-500">*</span>
+                        ) : (
+                          <span className="text-muted-foreground">(optional for this portal)</span>
+                        )}
                       </Label>
                       <Input
                         id="emergency1"
@@ -584,6 +593,7 @@ export function LoginPage({
                         value={emergencyContact1}
                         onChange={e => setEmergencyContact1(e.target.value)}
                         autoComplete="tel"
+                        required={active.id === 'patient' || active.id === 'caretaker'}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -600,7 +610,9 @@ export function LoginPage({
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">
+                      Email <span className="text-rose-500">*</span>
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -608,13 +620,27 @@ export function LoginPage({
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       autoComplete="email"
+                      required
                     />
                   </div>
 
                   {/* Confirm password field - removed as per schema update */}
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="password">Password</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">
+                        Password <span className="text-rose-500">*</span>
+                      </Label>
+                      {mode === 'signin' && (
+                        <button
+                          type="button"
+                          onClick={() => router.push('/forgot-password')}
+                          className="rounded-md px-1 -mx-1 py-2 -my-2 text-[13px] font-medium text-emerald-600 underline-offset-2 hover:text-emerald-700 hover:underline"
+                        >
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
                     <div className="relative">
                       <Input
                         id="password"
@@ -623,6 +649,8 @@ export function LoginPage({
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+                        required
+                        minLength={mode === 'register' ? 8 : undefined}
                       />
                       <button
                         type="button"
