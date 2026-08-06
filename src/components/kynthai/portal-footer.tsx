@@ -6,18 +6,19 @@ import Link from 'next/link';
 /* ------------------------------------------------------------------ */
 /* PortalFooter — minimal legal footer for all authenticated portals.  */
 /* Renders above the fixed bottom nav (pb-24 clears the nav height).  */
+/*                                                                     */
+/* Deliberately trimmed to the links that matter on authenticated      */
+/* screens: health-data privacy docs + ToS + CCPA rights link.         */
+/* The full legal set (Cookies, Refunds, Medical Disclaimer,           */
+/* Accessibility, Grievance) stays on the landing page footer, where   */
+/* unauthenticated visitors see it.                                    */
 /* ------------------------------------------------------------------ */
 const LEGAL_LINKS = [
   { label: 'Privacy', href: '/privacy' },
   { label: 'Privacy Practices', href: '/privacy-practices' },
   { label: 'Patient Rights', href: '/patient-rights' },
   { label: 'Terms', href: '/terms' },
-  { label: 'Cookies', href: '/cookies' },
   { label: 'Do Not Sell (CCPA)', href: '/ccpa' },
-  { label: 'Refunds', href: '/refund-cancellation' },
-  { label: 'Medical Disclaimer', href: '/medical-disclaimer' },
-  { label: 'Accessibility', href: '/accessibility' },
-  { label: 'Grievance', href: '/grievance' },
 ] as const;
 
 export function PortalFooter() {
