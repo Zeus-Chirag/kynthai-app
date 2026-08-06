@@ -20,21 +20,27 @@ const newsletterSchema = z.object({
  * deploy` refuses to run (P3005). Instead of coupling deploys to a
  * migration step, create the table lazily if it's missing. Idempotent:
  * `IF NOT EXISTS` makes this a no-op after the first successful run.
+ *
+ * NOTE: each statement runs SEPARATELY — the Supabase PgBouncer pooler
+ * rejects multi-statement raw queries.
  */
 async function ensureNewsletterTable(): Promise<boolean> {
+  const statements = [
+    `CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
+      "id" VARCHAR NOT NULL,
+      "email" VARCHAR NOT NULL,
+      "source" VARCHAR,
+      "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "newsletter_subscribers_email_key"
+      ON "newsletter_subscribers"("email")`,
+    `CREATE INDEX IF NOT EXISTS "newsletter_subscribers_created_at_idx"
+      ON "newsletter_subscribers"("created_at")`,
+  ];
   try {
-    await db.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
-        "id" VARCHAR NOT NULL,
-        "email" VARCHAR NOT NULL,
-        "source" VARCHAR,
-        "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE UNIQUE INDEX IF NOT EXISTS "newsletter_subscribers_email_key"
-        ON "newsletter_subscribers"("email");
-      CREATE INDEX IF NOT EXISTS "newsletter_subscribers_created_at_idx"
-        ON "newsletter_subscribers"("created_at");
-    `);
+    for (const statement of statements) {
+      await db.$executeRawUnsafe(statement);
+    }
     return true;
   } catch (error) {
     logger.phiSafeError(error, 'newsletter.ensureTable');
