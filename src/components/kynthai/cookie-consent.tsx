@@ -111,12 +111,19 @@ export function CookieConsent() {
   const router = useRouter()
   const [visible, setVisible] = React.useState(false)
 
+  // Suppress the banner while the first-run onboarding flow is on screen:
+  // a signed-in user who hasn't completed onboarding sees the Welcome/role
+  // flow instead of the portal, and the banner would obscure it.
+  const user = useAppStore((s) => s.user)
+  const onboardingComplete = useAppStore((s) => s.onboardingComplete)
+
   // Don't show the cookie banner on public utility pages — it would obscure
   // essential page content (login form, legal pages, pricing, etc.).
   React.useEffect(() => {
     const stored = getStoredConsent()
     const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
-    if (!stored && !isPublic) {
+    const inOnboarding = !!user && !onboardingComplete
+    if (!stored && !isPublic && !inOnboarding) {
       const timer = setTimeout(() => setVisible(true), 1500)
       return () => clearTimeout(timer)
     }

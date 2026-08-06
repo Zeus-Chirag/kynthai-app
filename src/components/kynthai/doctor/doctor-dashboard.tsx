@@ -41,6 +41,7 @@ import { useRouter } from 'next/navigation';
 import { t, getLanguage, setLanguage, initLanguage } from '@/lib/i18n';
 import { useGreeting } from '@/lib/greeting';
 import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
+import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { PatientCare } from './patient-care';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { cn } from '@/lib/utils';
@@ -616,7 +617,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
 
           {/* Doctor Profile - Secondary, Right Side */}
           <div className="flex items-center gap-1">
-            <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3">
+            <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3" aria-label="Profile">
               <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
                 <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-semibold">
                   {(isDemo ? 'G' : (user.name?.[0] ?? 'D')).toUpperCase()}
@@ -1450,6 +1451,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
           </>
         )}
       </main>
+
+      {/* Minimal legal footer */}
+      <PortalFooter />
 
       <div className="h-24" />
 

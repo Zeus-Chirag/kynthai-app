@@ -14,6 +14,7 @@ import {
   MapPin, Home,
 } from 'lucide-react'
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator'
+import { PortalFooter } from '@/components/kynthai/portal-footer'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 
@@ -195,6 +196,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
           <div className="flex items-center gap-1">
             <div className="relative" ref={profileRef}>
               <button onClick={() => setProfileOpen(o => !o)}
+                aria-label="Profile"
                 className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition-colors hover:bg-muted">
                 <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
                   <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-semibold">
@@ -411,6 +413,9 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
         </div>
       )}
     </main>
+
+    {/* Minimal legal footer */}
+    <PortalFooter />
   </div>
   )
 }

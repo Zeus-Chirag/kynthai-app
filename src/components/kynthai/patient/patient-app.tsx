@@ -62,6 +62,7 @@ import { CareHub } from '@/components/kynthai/caretaker/care-hub';
 import { NotificationCenter } from '@/components/kynthai/notification-center';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
+import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { ShareSheet } from '@/components/kynthai/share-sheet';
 import { FadeIn } from '@/components/kynthai/animations';
 import { LabResultsViewer } from '@/components/kynthai/patient/lab-results-viewer';
@@ -1018,12 +1019,17 @@ export function PatientApp({ user }: { user: AuthUser }) {
               isDemo={isDemo}
               onNavigate={(t: string) => setTab(t as Tab)}
             />
-            <button onClick={() => setProfileOpen(true)}>
+            <button
+              onClick={() => setProfileOpen(true)}
+              aria-label="Profile"
+              className="relative flex items-center gap-1.5 rounded-xl px-1.5 py-1 transition-colors hover:bg-accent"
+            >
               <Avatar className="h-9 w-9 ring-2 ring-emerald-500/20">
                 <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold">
                   {initial}
                 </AvatarFallback>
               </Avatar>
+              <span className="hidden sm:inline text-xs font-medium text-muted-foreground">Profile</span>
             </button>
           </div>
         </div>
@@ -1082,6 +1088,9 @@ export function PatientApp({ user }: { user: AuthUser }) {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Minimal legal footer */}
+      <PortalFooter />
 
       {/* Active video call overlay */}
       {joiningCallApptId && (

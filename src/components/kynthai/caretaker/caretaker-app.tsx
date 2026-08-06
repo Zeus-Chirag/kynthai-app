@@ -43,6 +43,7 @@ import { logger } from '@/lib/logger';
 import { AiChat } from '@/components/medication/ai-chat';
 import { CareHub as CaretakerCareHub } from './care-hub';
 import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
+import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { FamilyMemberSchedule } from './member-schedule';
 import { MedicationsList } from '@/components/medication/medications-list';
 import { FamilyCircle } from '@/components/kynthai/family/family-circle';
@@ -399,7 +400,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
 
           {/* Caretaker Profile - Secondary, Right Side */}
           <div className="flex items-center gap-1">
-            <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3">
+            <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3" aria-label="Profile">
               <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
                 <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-semibold">
                   {initial}
@@ -517,6 +518,9 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Minimal legal footer */}
+      <PortalFooter />
 
       {/* Bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">
