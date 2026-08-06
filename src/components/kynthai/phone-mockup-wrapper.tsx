@@ -27,9 +27,11 @@ import { cn } from '@/lib/utils'
  * IMPORTANT: keep `PHONE_SIZE` identical to the `PHONE_SIZE` constant in
  * phone-mockup.tsx — both must resolve to the exact same box, otherwise
  * the skeleton and the hydrated mockup will differ in size and cause CLS.
- *   max-width: clamp(240px, min(80vw, 100%), 340px)
+ * The phone is a fixed 340px design canvas; `.phone-canvas` zoom-scales it
+ * uniformly to fit its column (see .phone-scale-container in globals.css),
+ * so the composition is identical on every device.
  */
-const PHONE_SIZE = 'relative mx-auto w-full max-w-[clamp(240px,min(80vw,100%),340px)]'
+const PHONE_SIZE = 'phone-canvas relative mx-auto'
 
 /**
  * Lazy mockup — only ever mounted client-side (see PhoneMockup below),
@@ -55,11 +57,14 @@ export function PhoneMockup() {
     setMounted(true)
   }, [])
 
-  // First paint (server + client hydration): identical skeleton markup.
-  if (!mounted) return <PhoneMockupSkeleton />
-
-  // After hydration: swap in the animated mockup. Framer Motion loads lazily.
-  return <PhoneMockupAnimated />
+  // `.phone-scale-container` (globals.css) makes this an inline-size container
+  // so `.phone-canvas` can zoom-scale itself to fit the column. Both the
+  // skeleton and the animated mockup resolve 100cqw against it identically.
+  return (
+    <div className="phone-scale-container w-full">
+      {mounted ? <PhoneMockupAnimated /> : <PhoneMockupSkeleton />}
+    </div>
+  )
 }
 
 /* ------------------------------------------------------------------ */
@@ -71,7 +76,7 @@ function PhoneMockupSkeleton() {
       {/* Phone silhouette — same border-radius + border as real mockup */}
       <div
         className={cn(
-          'mx-auto overflow-hidden rounded-[3rem] border-[3px] border-emerald-300/30 bg-neutral-950 p-[3px] sm:p-[4px]',
+          'mx-auto overflow-hidden rounded-[3rem] border-[3px] border-emerald-300/30 bg-neutral-950 p-[4px]',
           'shadow-2xl shadow-emerald-900/30',
         )}
       >
@@ -96,7 +101,7 @@ function PhoneMockupSkeleton() {
             <div className="h-4 w-4 rounded bg-neutral-300 dark:bg-neutral-700" />
           </div>
           {/* Greeting card skeleton */}
-          <div className="mx-3 mt-2 rounded-2xl bg-emerald-200/60 p-4 dark:bg-emerald-900/30">
+          <div className="mx-4 mt-2 rounded-2xl bg-emerald-200/60 p-4 dark:bg-emerald-900/30">
             <div className="h-3 w-24 rounded bg-emerald-300/60 dark:bg-emerald-800/40" />
             <div className="mt-3 space-y-2">
               <div className="h-12 rounded-xl bg-white/30 dark:bg-white/10" />
@@ -104,7 +109,7 @@ function PhoneMockupSkeleton() {
             </div>
           </div>
           {/* Bottom skeleton */}
-          <div className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-3">
+          <div className="mx-4 mt-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-3">
             <div className="h-3 w-20 rounded bg-neutral-300 dark:bg-neutral-700" />
             <div className="mt-3 flex items-center gap-2">
               <div className="h-9 w-9 rounded-xl bg-neutral-300 dark:bg-neutral-700" />
@@ -116,7 +121,7 @@ function PhoneMockupSkeleton() {
             </div>
           </div>
           {/* More skeleton */}
-          <div className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-3">
+          <div className="mx-4 mt-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-3">
             <div className="h-3 w-16 rounded bg-neutral-300 dark:bg-neutral-700" />
             <div className="mt-2 flex items-center gap-2">
               <div className="h-4 w-4 rounded bg-neutral-300 dark:bg-neutral-700" />

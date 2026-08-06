@@ -21,6 +21,7 @@
     "load-test": "node load-test/test-api.js",
     "probe:viewport": "node viewport-probe.mjs",
     "probe:viewport:strict": "PROBE_STRICT_TOUCH=1 node viewport-probe.mjs",
+    "probe:phone": "node phone-scale-test.mjs",
     "probe:security": "node security-probe.mjs",
     "probe": "node security-probe.mjs && node viewport-probe.mjs",
     "sbom": "mkdir -p sbom && npm sbom --sbom-format=cyclonedx > sbom/cyclonedx.json 2>&1 || npm sbom > sbom/cyclonedx.json 2>&1",

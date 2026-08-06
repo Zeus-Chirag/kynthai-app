@@ -46,27 +46,24 @@ const sectionEntrance = (i: number) => ({
 /** ── CSS keyframes are defined in src/app/globals.css ──────────────── */
 
 /**
- * Fluid phone sizing (the responsive core).
+ * Fixed-canvas phone sizing (the responsive core).
  *
- * The old rule — `max-w-[min(88%,300px)] sm:max-w-[320px]` — was a rigid,
- * fixed-cap system: a percentage-of-parent cap that fought the grid column
- * at narrow widths and a hard 300/320px cap everywhere else. Combined with
- * the hero section's `overflow-hidden`, the composition could be clipped at
- * the viewport edge on small phones.
+ * The phone is designed at a constant 340px canvas and is uniformly
+ * zoom-scaled by `.phone-canvas` to fit its column (container-query zoom,
+ * see .phone-scale-container in globals.css). A fluid width would reflow
+ * the fixed-px content differently at every viewport — the "phone looks
+ * different on each device" bug. With a fixed canvas:
  *
- * The replacement is a single fluid clamp tied to the viewport:
+ *   • every device renders the IDENTICAL composition (padding, text,
+ *     card layout, badge offsets) — just uniformly scaled, never reflowed;
+ *   • zoom = min(1, columnWidth / 340px), so it never exceeds the column;
+ *   • no JS, no CLS: `.phone-canvas` is pure CSS on both the skeleton and
+ *     the hydrated mockup (identical box → zero layout shift).
  *
- *   max-width: clamp(240px, min(80vw, 100%), 340px)
- *
- *   • 320px phone  → 80vw = 256px  (fits the 288px content column)
- *   • 375px phone  → 80vw = 300px  (comfortable, like the old cap)
- *   • ≥425px       → capped at 340px (never oversized)
- *   • desktop/4K   → 340px cap preserved (design intent next to copy)
- *   • `min(80vw, 100%)` means the phone can NEVER exceed either the
- *     viewport or its parent column — no overflow, no cropping, ever.
- *   • Height is auto → aspect ratio is preserved by construction.
+ * All inner spacing below is viewport-independent on purpose: the canvas
+ * width never changes, so no `sm:`/`lg:` content variants are needed.
  */
-const PHONE_SIZE = 'relative mx-auto w-full max-w-[clamp(240px,min(80vw,100%),340px)]';
+const PHONE_SIZE = 'phone-canvas relative mx-auto';
 
 function RingPulse({ className }: { className: string }) {
   return (
@@ -105,7 +102,7 @@ export function PhoneMockup({
             background: 'radial-gradient(ellipse closest-side, rgba(16,185,129,0.6), rgba(13,148,136,0.28) 45%, transparent 70%)',
           }}
         />
-        <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[3px] shadow-2xl shadow-emerald-900/50 sm:p-[4px]">
+        <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[4px] shadow-2xl shadow-emerald-900/50">
           <div className="overflow-hidden rounded-[2.85rem] bg-white dark:bg-neutral-900">
             <div className="relative mx-auto mt-2 h-6 w-16 rounded-full bg-neutral-950" />
             <div className="flex items-center justify-between px-5 pt-1.5 pb-0.5 text-[10px] font-semibold text-neutral-900 dark:text-neutral-100">
@@ -126,7 +123,7 @@ export function PhoneMockup({
                 <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-emerald-500" />
               </div>
             </div>
-            <div className="mx-3 mt-2 rounded-2xl p-3 text-white sm:mx-4 sm:p-4"
+            <div className="mx-4 mt-2 rounded-2xl p-4 text-white"
               style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 55%, #065f46 100%)' }}
             >
               <div className="flex items-center justify-between">
@@ -179,7 +176,7 @@ export function PhoneMockup({
       <RingPulse className="left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2" />
 
       {/* ── Phone body ──────────────────────────────────────────────── */}
-      <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[3px] shadow-2xl shadow-emerald-900/50 sm:p-[4px]">
+      <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[4px] shadow-2xl shadow-emerald-900/50">
         <div
           className="pointer-events-none absolute inset-0 rounded-[3rem]"
           aria-hidden
@@ -224,7 +221,7 @@ export function PhoneMockup({
             variants={sectionEntrance(0)}
             initial="hidden"
             animate="visible"
-            className="relative mx-3 mt-2 overflow-hidden rounded-2xl p-3 text-white sm:mx-4 sm:p-4"
+            className="relative mx-4 mt-2 overflow-hidden rounded-2xl p-4 text-white"
             style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 55%, #065f46 100%)' }}
           >
             <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden>
@@ -262,7 +259,7 @@ export function PhoneMockup({
             variants={sectionEntrance(1)}
             initial="hidden"
             animate="visible"
-            className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-2.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 sm:mx-4 sm:p-3"
+            className="mx-4 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-700">Next reminder</span>
@@ -292,7 +289,7 @@ export function PhoneMockup({
             variants={sectionEntrance(2)}
             initial="hidden"
             animate="visible"
-            className="mx-3 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-2.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-800 sm:mx-4 sm:p-3"
+            className="mx-4 mt-2.5 rounded-2xl border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-700">Today</span>
@@ -322,7 +319,7 @@ export function PhoneMockup({
             variants={sectionEntrance(3)}
             initial="hidden"
             animate="visible"
-            className="mx-3 mt-2.5 rounded-2xl border border-amber-200/70 bg-amber-50 p-2.5 shadow-sm dark:border-amber-700/30 dark:bg-amber-900/10 sm:mx-4 sm:p-3"
+            className="mx-4 mt-2.5 rounded-2xl border border-amber-200/70 bg-amber-50 p-3 shadow-sm dark:border-amber-700/30 dark:bg-amber-900/10"
           >
             <div className="flex items-start gap-2">
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 shadow-sm">
@@ -339,7 +336,7 @@ export function PhoneMockup({
           </motion.div>
 
           {/* ── Bottom navigation ───────────────────────────────────── */}
-          <div className="mx-3 mb-2 mt-3 flex items-center justify-around rounded-2xl border border-neutral-200 bg-white/90 px-2 py-2 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-800/90 sm:mx-4 sm:px-4">
+          <div className="mx-4 mb-2 mt-3 flex items-center justify-around rounded-2xl border border-neutral-200 bg-white/90 px-4 py-2 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-800/90">
             <NavIcon icon={<Home className="h-4 w-4" />} active />
             <NavIcon icon={<Pill className="h-4 w-4" />} />
             <div

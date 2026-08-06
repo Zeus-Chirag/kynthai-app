@@ -296,6 +296,27 @@ body {
   will-change: transform;
 }
 
+/* ── Phone mockup — fixed-canvas uniform scaling ──────────────────────────
+ * PhoneMockup is designed at a constant 340px canvas. A fluid width would
+ * reflow content differently at every viewport (different padding, wrapped
+ * text, shifting proportions) — the "phone looks different on each device"
+ * bug. Instead the canvas is uniformly zoom-scaled to fit its column via a
+ * container query, so the composition is pixel-identical everywhere:
+ *   .phone-scale-container → the hosting column (container-type: inline-size)
+ *   .phone-canvas          → fixed 340px canvas; zoom = min(1, col/340)
+ * Graceful degradation: browsers without zoom/container-query support drop
+ * the zoom declaration and fall back to width:340px + max-width:100%.
+ * ------------------------------------------------------------------------ */
+.phone-scale-container {
+  container-type: inline-size;
+}
+.phone-canvas {
+  width: 340px;
+  max-width: 100%;
+  margin-inline: auto;
+  zoom: min(1, calc(100cqw / 340px));
+}
+
 /* ── Premium motion + texture utilities ───────────────────────────────── */
 
 /* ── OTP/Input caret blink (moved from the removed legacy index.css) ─────── */
