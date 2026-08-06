@@ -9,11 +9,14 @@ import Link from 'next/link';
 /* ------------------------------------------------------------------ */
 const LEGAL_LINKS = [
   { label: 'Privacy', href: '/privacy' },
+  { label: 'Privacy Practices', href: '/privacy-practices' },
+  { label: 'Patient Rights', href: '/patient-rights' },
   { label: 'Terms', href: '/terms' },
   { label: 'Cookies', href: '/cookies' },
   { label: 'Do Not Sell (CCPA)', href: '/ccpa' },
   { label: 'Refunds', href: '/refund-cancellation' },
   { label: 'Medical Disclaimer', href: '/medical-disclaimer' },
+  { label: 'Accessibility', href: '/accessibility' },
   { label: 'Grievance', href: '/grievance' },
 ] as const;
 
