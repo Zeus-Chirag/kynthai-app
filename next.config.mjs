@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Hide x-powered-by header for security
+  poweredByHeader: false,
+
   // Compress responses with gzip
   compress: true,
 

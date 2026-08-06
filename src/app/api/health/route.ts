@@ -23,17 +23,11 @@ export async function GET(req: NextRequest) {
   checks.env = process.env.NODE_ENV || 'unknown'
   checks.uptime = `${Math.floor(process.uptime())}s`
 
-  // Build metadata
-  const version = process.env.NEXT_PUBLIC_APP_VERSION || '0.2.0'
-  const commitSha = process.env.VERCEL_GIT_COMMIT_SHA || process.env.COMMIT_SHA || 'dev'
-
   const status = healthy ? 200 : 503
   const res = NextResponse.json({
     status: healthy ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    version,
-    commitSha,
     checks,
   }, { status })
 
