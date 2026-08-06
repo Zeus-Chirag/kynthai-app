@@ -13,7 +13,6 @@ import {
   CheckCircle, XCircle, CircleDashed, Loader2,
   MapPin, Home,
 } from 'lucide-react'
-import { PortalFooter } from '@/components/kynthai/portal-footer'
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
@@ -412,7 +411,6 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
         </div>
       )}
     </main>
-    <PortalFooter />
   </div>
   )
 }

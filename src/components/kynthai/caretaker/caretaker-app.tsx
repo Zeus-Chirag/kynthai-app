@@ -48,7 +48,6 @@ import { MedicationsList } from '@/components/medication/medications-list';
 import { FamilyCircle } from '@/components/kynthai/family/family-circle';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { useOfflineQueue } from '@/hooks/use-offline-queue';
-import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FadeIn } from '@/components/kynthai/animations';
 import type { PulseMember } from '@/components/kynthai/family/family-circle';
@@ -581,7 +580,6 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
           toast({ title: 'Family member added', description: `${m.name} (${m.relation})` });
         }}
       />
-      <PortalFooter />
     </div>
   );
 }

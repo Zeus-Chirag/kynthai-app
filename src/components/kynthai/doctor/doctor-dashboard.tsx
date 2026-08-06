@@ -45,7 +45,6 @@ import { PatientCare } from './patient-care';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FadeIn } from '@/components/kynthai/animations';
 import {
@@ -2059,7 +2058,6 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
           </DialogContent>
         </Dialog>
       )}
-      <PortalFooter />
       {joiningCallApptId && (
         <VideoCall
           roomName={joiningCallApptId}
