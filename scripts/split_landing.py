@@ -1,7 +1,8 @@
 """Extract landing-page components into section files. Run: python scripts/split_landing.py"""
 import re, os
 
-BASE = '/Users/c.k/Downloads/kynthai-restored-7000-us'
+# Repo root = parent of the scripts/ directory; runnable from any checkout.
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR = os.path.join(BASE, 'src/components/kynthai')
 SEC = os.path.join(DIR, 'sections')
 os.makedirs(SEC, exist_ok=True)

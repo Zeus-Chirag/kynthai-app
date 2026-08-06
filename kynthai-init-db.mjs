@@ -10,6 +10,12 @@
  */
 
 import { readFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+
+// Resolve the schema file relative to this script so the tool runs from
+// any checkout (previously a hardcoded /Users/... path from the author's machine).
+const SCHEMA_PATH = join(dirname(fileURLToPath(import.meta.url)), 'supabase-schema.sql')
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   || 'https://szqzeemimmafkopwqqfp.supabase.co'
@@ -21,7 +27,7 @@ if (!SUPABASE_KEY) {
 }
 
 // Read schema
-const schema = readFileSync('/Users/c.k/Downloads/kynthai-restored-7000-us/supabase-schema.sql', 'utf8')
+const schema = readFileSync(SCHEMA_PATH, 'utf8')
 
 // Split on semicolons (keeping statements together)
 const rawChunks = schema.split(';')
