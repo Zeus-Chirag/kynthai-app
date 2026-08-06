@@ -61,7 +61,7 @@ export function ProofStrip() {
               <item.icon className="h-5 w-5" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold leading-snug text-foreground">{item.label}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">{item.sub}</p>
+                <p className="mt-0.5 text-[13px] text-muted-foreground leading-relaxed">{item.sub}</p>
               </div>
             </div>
           ))}

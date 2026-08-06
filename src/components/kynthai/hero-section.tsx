@@ -120,7 +120,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           </div>
 
           {/* Trust pill-row */}
-          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium text-muted-foreground sm:mt-6 sm:gap-x-5 sm:text-xs">
+          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] font-medium text-muted-foreground sm:mt-6 sm:gap-x-5 sm:text-sm">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Privacy-first
             </span>

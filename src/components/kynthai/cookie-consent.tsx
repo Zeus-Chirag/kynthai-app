@@ -149,28 +149,25 @@ export function CookieConsent() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-6 animate-in slide-in-from-bottom-4 duration-300">
       <Card className="mx-auto max-w-3xl border-emerald-500/30 shadow-2xl">
-        <CardContent className="p-3 sm:p-5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-start gap-3">
             <div className="hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
               <Cookie className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="text-sm font-semibold">We use cookies</h3>
+                <h3 className="text-sm font-semibold leading-6">We use cookies</h3>
                 <button
                   onClick={reject}
-                  className="shrink-0 rounded-lg p-1 -mr-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                  className="shrink-0 -mr-2 -mt-2 flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
                   aria-label="Close"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                Kynthai uses essential cookies for authentication and local
-                storage for preferences. Essential cookies cannot be disabled
-                because they are required for the service to function. With
-                your consent, we also use analytics and marketing cookies to
-                improve your experience. See our{' '}
+                Essential cookies keep Kynthai working. With your consent we
+                use analytics cookies. See our{' '}
                 <button
                   onClick={() => {
                     setVisible(false)
@@ -180,29 +177,26 @@ export function CookieConsent() {
                 >
                   Privacy Policy
                 </button>{' '}
-                for details, including your CCPA/CPRA rights.
+                for your CCPA/CPRA rights.
               </p>
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:mt-3 sm:gap-2">
+              <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-center">
                 <Button
-                  size="sm"
                   onClick={accept}
-                  className="h-7 text-xs sm:h-8 sm:text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                  className="col-span-2 h-11 min-h-11 w-full text-xs sm:col-span-1 sm:text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
                 >
                   Accept all
                 </Button>
                 <Button
-                  size="sm"
                   variant="outline"
                   onClick={reject}
-                  className="h-7 text-xs sm:h-8 sm:text-sm"
+                  className="h-11 min-h-11 w-full text-xs sm:text-sm"
                 >
                   Essential only
                 </Button>
                 <Button
-                  size="sm"
                   variant="ghost"
                   onClick={manage}
-                  className="h-7 text-xs sm:h-8"
+                  className="h-11 min-h-11 w-full text-xs sm:text-sm"
                 >
                   Manage
                 </Button>

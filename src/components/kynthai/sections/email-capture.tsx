@@ -55,7 +55,7 @@ function EmailCapture({ onPickPortal }: { onPickPortal: (portal: LoginPortal) =>
               placeholder="Enter your email"
               required
               aria-label="Email address"
-              className="flex h-12 w-full rounded-full border border-border bg-background px-5 text-sm outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20"
+              className="flex h-12 w-full rounded-full border border-border bg-background px-5 text-base outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20"
             />
             <Button
               type="submit"

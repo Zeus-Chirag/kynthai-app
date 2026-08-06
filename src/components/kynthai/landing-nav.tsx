@@ -68,7 +68,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
               <Link
                 key={l.label}
                 href={l.href}
-                className="group relative rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="group relative flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {l.label}
                 <span className="absolute inset-x-3 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-transform duration-300 group-hover:scale-x-100" />
@@ -77,7 +77,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
               <button
                 key={l.label}
                 onClick={l.onClick}
-                className="group relative rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="group relative flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {l.label}
                 <span className="absolute inset-x-3 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-transform duration-300 group-hover:scale-x-100" />
