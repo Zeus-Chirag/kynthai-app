@@ -4,6 +4,7 @@ import React from 'react';
 import { Check, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { apiFetch } from '@/lib/client-fetch';
 import type { LoginPortal } from '@/lib/store';
 
 function EmailCapture({ onPickPortal }: { onPickPortal: (portal: LoginPortal) => void }) {
@@ -19,7 +20,7 @@ function EmailCapture({ onPickPortal }: { onPickPortal: (portal: LoginPortal) =>
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch('/api/newsletter', {
+      const res = await apiFetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: value, source: 'landing' }),

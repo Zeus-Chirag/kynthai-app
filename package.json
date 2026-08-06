@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "unset DATABASE_URL && next dev -p 3000",
-    "build": "npx prisma generate && NODE_ENV=production next build",
+    "build": "if [ -n \"$DATABASE_URL\" ]; then npx prisma migrate deploy; fi && npx prisma generate && NODE_ENV=production next build",
     "start": "NODE_ENV=production next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

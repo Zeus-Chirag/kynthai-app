@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { apiFetch } from '@/lib/client-fetch';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquareText, X, Sparkles, Bug, Lightbulb, Send } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -54,7 +55,7 @@ export function FeedbackWidget() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/feedback', {
+      const res = await apiFetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

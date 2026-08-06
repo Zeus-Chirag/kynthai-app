@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { apiFetch } from '@/lib/client-fetch';
 
 export function FeedbackClient() {
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,7 @@ export function FeedbackClient() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/feedback', {
+      const res = await apiFetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
