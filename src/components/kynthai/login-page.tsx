@@ -332,7 +332,7 @@ export function LoginPage({
         <div className="flex items-center justify-between">
           <button
             onClick={() => router.push('/')}
-            className="inline-flex items-center gap-2 rounded-md py-2 -my-2 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-md py-2 -my-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -340,7 +340,7 @@ export function LoginPage({
           <KynthaiBrand />
           <button
             onClick={() => router.push('/')}
-            className="hidden py-2 -my-2 text-sm text-muted-foreground hover:text-foreground sm:inline"
+            className="hidden min-h-11 min-w-11 py-2 -my-2 text-sm text-muted-foreground hover:text-foreground sm:inline"
           >
             Home
           </button>
@@ -456,7 +456,7 @@ export function LoginPage({
                   <button
                     onClick={() => setMode('signin')}
                     className={cn(
-                      'rounded-full px-4 py-2 text-sm font-medium transition-all',
+                      'min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-all',
                       mode === 'signin'
                         ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow'
                         : 'text-muted-foreground hover:text-foreground'
@@ -471,7 +471,7 @@ export function LoginPage({
                       setAgeGateOpen(true);
                     }}
                     className={cn(
-                      'rounded-full px-4 py-2 text-sm font-medium transition-all',
+                      'min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-all',
                       mode === 'register'
                         ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow'
                         : 'text-muted-foreground hover:text-foreground'
@@ -635,7 +635,7 @@ export function LoginPage({
                         <button
                           type="button"
                           onClick={() => router.push('/forgot-password')}
-                          className="rounded-md px-1 -mx-1 py-2 -my-2 text-[13px] font-medium text-emerald-600 underline-offset-2 hover:text-emerald-700 hover:underline"
+                          className="min-h-11 min-w-11 rounded-md px-1 -mx-1 py-2 -my-2 text-[13px] font-medium text-emerald-600 underline-offset-2 hover:text-emerald-700 hover:underline"
                         >
                           Forgot password?
                         </button>

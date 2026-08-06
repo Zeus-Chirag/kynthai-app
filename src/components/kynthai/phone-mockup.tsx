@@ -297,7 +297,7 @@ export function PhoneMockup({
                 <p className="truncate text-[11px] font-medium text-neutral-700">After breakfast · 1 tablet</p>
               </div>
               <button
-                className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-[11px] font-bold text-white shadow-md shadow-emerald-700/30 active:scale-95 transition-transform"
+                className="min-h-11 min-w-11 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-[11px] font-bold text-white shadow-md shadow-emerald-700/30 active:scale-95 transition-transform"
                 type="button"
               >
                 Take
@@ -411,7 +411,7 @@ function NavIcon({ icon, active }: { icon: React.ReactNode; active?: boolean }) 
     <button
       type="button"
       className={cn(
-        'flex h-7 w-7 items-center justify-center rounded-xl transition-colors active:scale-90',
+        'flex h-11 w-11 items-center justify-center rounded-xl transition-colors active:scale-90',
         active ? 'bg-emerald-50 text-emerald-700' : 'text-neutral-400'
       )}
     >

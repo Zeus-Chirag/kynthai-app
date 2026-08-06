@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
             <Card className="border-border/60">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => router.push('/login')} className="h-8 w-8">
+                  <Button variant="ghost" size="icon" onClick={() => router.push('/login')} className="h-11 w-11">
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                   <h1 className="text-lg font-semibold">Forgot password?</h1>
@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
                         required
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button type="submit" className="min-h-11 w-full" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
                       Send reset link
                     </Button>

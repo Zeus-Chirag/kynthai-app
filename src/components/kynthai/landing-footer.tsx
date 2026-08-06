@@ -33,7 +33,7 @@ export function LandingFooter() {
             </div>
             <a
               href="mailto:privacy@kynthai.app"
-              className="mt-3 inline-flex items-center gap-1.5 py-2 -my-2 text-xs font-medium text-emerald-600 transition-colors hover:text-emerald-700"
+              className="mt-3 inline-flex min-h-11 min-w-11 items-center gap-1.5 py-2 -my-2 text-xs font-medium text-emerald-600 transition-colors hover:text-emerald-700"
             >
               <Mail className="h-3.5 w-3.5" />
               privacy@kynthai.app

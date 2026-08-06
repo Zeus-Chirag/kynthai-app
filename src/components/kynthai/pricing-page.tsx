@@ -220,7 +220,7 @@ export function PricingPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => router.push('/')}
-            className="inline-flex items-center gap-2 rounded-md p-2 -m-2 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-md p-2 -m-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Back</span>
@@ -230,7 +230,7 @@ export function PricingPage() {
             <Button
               size="sm"
               onClick={() => router.push('/login')}
-              className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+              className="min-h-11 bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
             >
               Sign in
             </Button>
