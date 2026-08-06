@@ -17,6 +17,8 @@ import {
   Share2,
   Crown,
   CalendarDays,
+  LogOut,
+  Settings,
   TrendingUp,
   Droplets,
   Thermometer,
@@ -61,7 +63,7 @@ import { AiChat } from '@/components/medication/ai-chat';
 import { CareHub } from '@/components/kynthai/caretaker/care-hub';
 import { NotificationCenter } from '@/components/kynthai/notification-center';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
-import { PortalFooter } from '@/components/kynthai/portal-footer';
+
 import { ShareSheet } from '@/components/kynthai/share-sheet';
 import { FadeIn } from '@/components/kynthai/animations';
 import { LabResultsViewer } from '@/components/kynthai/patient/lab-results-viewer';
@@ -631,7 +633,7 @@ function HomeTab({
 
       <BookAppointment open={bookingOpen} onOpenChange={setBookingOpen} />
 
-      <PortalFooter />
+
     </div>
   );
 }
@@ -643,7 +645,7 @@ function MedsTab({ userId, isDemo }: { userId: string; isDemo: boolean }) {
       <h2 className="text-xl font-bold">My Medications</h2>
       <TodayView />
       <MedicationsList userId={userId} isDemo={isDemo} />
-      <PortalFooter />
+
     </div>
   );
 }
@@ -655,7 +657,7 @@ function MarketTab() {
       <h2 className="text-xl font-bold">Find Care</h2>
       <p className="text-sm text-muted-foreground">Browse verified doctors and book appointments</p>
       <MarketView />
-      <PortalFooter />
+
     </div>
   );
 }
@@ -667,7 +669,7 @@ function LabTab({ isDemo }: { isDemo: boolean }) {
       <h2 className="text-xl font-bold">Lab Results</h2>
       <p className="text-sm text-muted-foreground">View and download your lab test results</p>
       <LabResultsViewer isDemo={isDemo} />
-      <PortalFooter />
+
     </div>
   );
 }
@@ -689,7 +691,7 @@ function AiTab() {
         Ask about symptoms, meds, or general health. Triage only — not a diagnosis.
       </p>
       <AiChat />
-      <PortalFooter />
+
     </div>
   );
 }
@@ -754,7 +756,7 @@ function JournalTab() {
         onOpenChange={setOpen}
         onSave={() => toast({ title: 'Entry saved' })}
       />
-      <PortalFooter />
+
     </div>
   );
 }
@@ -1105,6 +1107,48 @@ export function PatientApp({ user }: { user: AuthUser }) {
           shareText={`${user.name}'s health summary — 7 day streak, 92% adherence`}
         />
       )}
+
+      {/* Profile sheet */}
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Profile</DialogTitle>
+            <DialogDescription>
+              Manage your account and preferences.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 ring-2 ring-emerald-500/20">
+                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xl font-bold">
+                  {initial}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-lg font-semibold">{user.name}</p>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <p className="text-xs text-muted-foreground">{user.subscriptionTier} plan</p>
+              </div>
+            </div>
+            <div className="border-t pt-4 space-y-2">
+              <button
+                onClick={() => { setProfileOpen(false); router.push('/settings'); }}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-left text-sm font-medium hover:bg-accent"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-lg p-2 text-left text-sm font-medium text-rose-600 hover:bg-rose-500/10"
+              >
+                <LogOut className="h-4 w-4" />
+                Log out
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Cancel appointment confirmation dialog */}
       <Dialog open={!!cancelConfirmId} onOpenChange={(open) => { if (!open) setCancelConfirmId(null); }}>
