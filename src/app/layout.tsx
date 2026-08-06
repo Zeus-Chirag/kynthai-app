@@ -117,7 +117,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://livekit.kynthai.app" />
         {/* Stripe publishable key for frontend payment components */}
-        {process.env.NEXT_PUBLIC_STRIPE_PK && (
+        {process.env.NEXT_PUBLIC_STRIPE_PK &&
+          !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(process.env.NEXT_PUBLIC_STRIPE_PK) && (
           <meta name="stripe-pk" content={process.env.NEXT_PUBLIC_STRIPE_PK} />
         )}
       </head>

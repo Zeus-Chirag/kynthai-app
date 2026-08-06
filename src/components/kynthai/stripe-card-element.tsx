@@ -10,8 +10,14 @@ import { cn } from '@/lib/utils';
 function getStripeKey(): string | undefined {
   if (typeof window === 'undefined') return undefined;
   const el = document.querySelector('meta[name="stripe-pk"]');
-  if (el) return el.getAttribute('content') ?? undefined;
-  return process.env.NEXT_PUBLIC_STRIPE_PK ?? undefined;
+  if (el) {
+    const v = el.getAttribute('content') ?? '';
+    // Never initialize Stripe with a placeholder value.
+    if (v && !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(v)) return v;
+  }
+  const envKey = process.env.NEXT_PUBLIC_STRIPE_PK;
+  if (envKey && !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(envKey)) return envKey;
+  return undefined;
 }
 
 interface StripeConfirmFormProps {
