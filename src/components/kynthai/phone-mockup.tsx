@@ -97,13 +97,22 @@ export function PhoneMockup({
         style={{ opacity: 1 }}
       >
         {/* Static non-animated version for reduced motion */}
-        <div className="absolute -inset-8 -z-20 rounded-[5rem] opacity-75 blur-3xl sm:-inset-10" aria-hidden
-          style={{
-            background: 'radial-gradient(ellipse closest-side, rgba(16,185,129,0.6), rgba(13,148,136,0.28) 45%, transparent 70%)',
-          }}
-        />
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-[3rem]"
+          aria-hidden
+        >
+          <div
+            className="absolute inset-0 rounded-[3rem] opacity-75 blur-3xl"
+            style={{
+              background: 'radial-gradient(ellipse closest-side, rgba(16,185,129,0.6), rgba(13,148,136,0.28) 45%, transparent 70%)',
+            }}
+          />
+        </div>
         <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[4px] shadow-2xl shadow-emerald-900/50">
-          <div className="overflow-hidden rounded-[2.85rem] bg-white dark:bg-neutral-900">
+          {/* Screen: NO overflow-hidden — height follows content, so the
+              content can never be cut on any device. The rounded frame is
+              kept (background clips itself to the radius). */}
+          <div className="rounded-[2.85rem] bg-white dark:bg-neutral-900">
             <div className="relative mx-auto mt-2 h-6 w-16 rounded-full bg-neutral-950" />
             <div className="flex items-center justify-between px-5 pt-1.5 pb-0.5 text-[10px] font-semibold text-neutral-900 dark:text-neutral-100">
               <span>9:41</span>
@@ -163,17 +172,26 @@ export function PhoneMockup({
       className={cn(PHONE_SIZE, className)}
       aria-hidden={ariaHidden}
     >
-      {/* ── Layered glow background ─────────────────────────────────── */}
+      {/* ── Decorative glow layer — bounded to the phone frame ────────
+       * An absolute inset-0 overflow-hidden box matching the phone frame:
+       * the halo + ring pulses live INSIDE it, so they can never bleed
+       * past the phone silhouette — there is nothing for an ancestor (or
+       * the viewport edge) to clip differently per device. Same footprint
+       * everywhere → identical rendering on every screen. */}
       <div
-        className="absolute -inset-8 -z-20 rounded-[5rem] opacity-75 blur-3xl sm:-inset-10"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-[3rem]"
         aria-hidden
-        style={{
-          background:
-            'radial-gradient(ellipse closest-side, rgba(16,185,129,0.6), rgba(13,148,136,0.28) 45%, transparent 70%)',
-        }}
-      />
-      <RingPulse className="-inset-4 h-[110%] w-[110%]" />
-      <RingPulse className="left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2" />
+      >
+        <div
+          className="absolute inset-0 rounded-[3rem] opacity-75 blur-3xl"
+          style={{
+            background:
+              'radial-gradient(ellipse closest-side, rgba(16,185,129,0.6), rgba(13,148,136,0.28) 45%, transparent 70%)',
+          }}
+        />
+        <RingPulse className="-inset-4 h-[110%] w-[110%]" />
+        <RingPulse className="left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2" />
+      </div>
 
       {/* ── Phone body ──────────────────────────────────────────────── */}
       <div className="relative rounded-[3rem] border-[3px] border-emerald-300/60 bg-neutral-950 p-[4px] shadow-2xl shadow-emerald-900/50">
@@ -185,7 +203,10 @@ export function PhoneMockup({
           }}
         />
 
-        <div className="overflow-hidden rounded-[2.85rem] bg-white dark:bg-neutral-900">
+        {/* Screen: NO overflow-hidden — height follows content, so the
+            content can never be cut on any device. The rounded frame is
+            kept (background clips itself to the radius). */}
+        <div className="rounded-[2.85rem] bg-white dark:bg-neutral-900">
           {/* Dynamic Island */}
           <div className="relative mx-auto mt-2 h-6 w-16 rounded-full bg-neutral-950" />
 

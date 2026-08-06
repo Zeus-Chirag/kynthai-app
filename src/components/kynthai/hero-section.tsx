@@ -13,19 +13,21 @@ interface HeroSectionProps {
 export function HeroSection({ onGetStarted }: HeroSectionProps) {
   return (
     /*
-     * Responsive clipping note:
-     * `overflow-hidden` on this section used to clip EVERYTHING that extended
-     * past its box on BOTH axes — including the phone mockup's floating
-     * badges, glow, and ring pulses. On narrow screens (iPhones) that sliced
-     * the composition at the viewport edge (the "cropped phone" bug). On iPad
-     * Pro there was enough margin that nothing reached the clip boundary, so
-     * it only ever LOOKED broken on phones.
+     * Clipping strategy — never clip the phone mockup:
      *
-     * `overflow-x-clip` keeps the horizontal bleed guard (the gradient orbs)
-     * while never creating a scroll container and never clipping vertical or
-     * decorative overflow. The global `html, body { overflow-x: clip }` guard
-     * in globals.css already guarantees zero horizontal scrolling at every
-     * width, so letting decorative layers breathe introduces no scrollbar.
+     * The old `overflow-x-clip` here was fragile: per the CSS spec, when one
+     * axis is `clip` the other computes to `clip` too — so the hero silently
+     * clipped the phone mockup vertically on devices where its content
+     * rendered a few px taller (Safari font fallbacks, larger accessibility
+     * text, etc.). That's the "phone cut off after the first card" bug.
+     *
+     * Now the hero sets NO overflow at all. The gradient orbs live in an
+     * `absolute inset-0 -z-10 overflow-hidden` backdrop layer, so they are
+     * bounded to the hero box and can never cause horizontal overflow. The
+     * global `html, body { overflow-x: clip }` guard in globals.css also
+     * guarantees zero horizontal scrolling at every width. The phone mockup
+     * therefore renders in the natural flow: it can never be clipped — worst
+     * case it grows.
      *
      * `pl-safe pr-safe` LIVE HERE on the section (NOT on the grid): with
      * `viewport-fit: cover` (layout.tsx) iOS lays out into the notch +
@@ -35,9 +37,9 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
      * and zero the hero gutters (env() is 0 outside notched iOS). The section
      * has no padding of its own, so they apply cleanly here.
      */
-    <section className="relative overflow-x-clip pl-safe pr-safe">
-      {/* Multi-layer soft gradient orbs */}
-      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+    <section className="relative pl-safe pr-safe">
+      {/* Multi-layer soft gradient orbs — clipped by this backdrop layer only */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
         <div
           className="absolute -top-48 left-1/2 h-[44rem] w-[44rem] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{

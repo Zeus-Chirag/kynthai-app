@@ -296,23 +296,22 @@ body {
   will-change: transform;
 }
 
-/* ── Phone mockup — fixed-canvas uniform scaling ──────────────────────────
- * PhoneMockup is designed at a constant 340px canvas. A fluid width would
- * reflow content differently at every viewport (different padding, wrapped
- * text, shifting proportions) — the "phone looks different on each device"
- * bug. Instead the canvas is uniformly zoom-scaled to fit its column via a
- * container query, so the composition is pixel-identical everywhere:
+/* ── Phone mockup — fluid, engine-proof scaling ────────────────────────────
+ * PhoneMockup is designed at a constant 340px canvas. The canvas is
+ * uniformly zoom-scaled to fit its column via a container query, so the
+ * composition is pixel-identical on every device:
  *   .phone-scale-container → the hosting column (container-type: inline-size)
- *   .phone-canvas          → fixed 340px canvas; zoom = min(1, col/340)
- * Graceful degradation: browsers without zoom/container-query support drop
- * the zoom declaration and fall back to width:340px + max-width:100%.
+ *   .phone-canvas          → 340px design canvas; zoom = min(1, col/340)
+ * Graceful degradation: browsers without `zoom` support (Safari < 17.4)
+ * drop the zoom declaration and fall back to width:min(340px, 100%) — the
+ * phone simply reflows to the column instead of scaling, and because no
+ * ancestor clips it (see hero-section), it can never be cut off.
  * ------------------------------------------------------------------------ */
 .phone-scale-container {
   container-type: inline-size;
 }
 .phone-canvas {
-  width: 340px;
-  max-width: 100%;
+  width: min(340px, 100%);
   margin-inline: auto;
   zoom: min(1, calc(100cqw / 340px));
 }

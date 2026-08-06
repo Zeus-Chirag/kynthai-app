@@ -80,7 +80,9 @@ function PhoneMockupSkeleton() {
           'shadow-2xl shadow-emerald-900/30',
         )}
       >
-        <div className="overflow-hidden rounded-[2.85rem] bg-neutral-200 dark:bg-neutral-800">
+        {/* Screen: NO overflow-hidden (must match the animated mockup) —
+            height follows content so the skeleton can never clip either. */}
+        <div className="rounded-[2.85rem] bg-neutral-200 dark:bg-neutral-800">
           {/* Dynamic island skeleton */}
           <div className="mx-auto mt-2 h-6 w-16 rounded-full bg-neutral-300 dark:bg-neutral-700" />
           {/* Status bar skeleton */}
