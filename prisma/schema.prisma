@@ -959,7 +959,10 @@ model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   source    String? // landing | pricing | footer | other
-  createdAt DateTime @default(now())
+  // @map so Prisma queries the snake_case column created by the migration
+  // and the self-healing DDL (they use created_at). Without it Prisma
+  // queries "createdAt" and a raw-created table fails with P2022.
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([createdAt])
   @@map("newsletter_subscribers")

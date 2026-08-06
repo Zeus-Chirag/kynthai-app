@@ -48,13 +48,17 @@ async function ensureNewsletterTable(): Promise<boolean> {
   }
 }
 
-/** True when a Prisma error is a missing-table (P2021) or undefined-column failure. */
-function isMissingTableError(error: unknown): boolean {
+/**
+ * True when a Prisma error means the table is missing (P2021) or a column
+ * is missing (P2022) — i.e. the storage layer may need the idempotent heal.
+ */
+function needsTableHeal(error: unknown): boolean {
   return (
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    (error as { code?: string }).code === 'P2021'
+    ((error as { code?: string }).code === 'P2021' ||
+      (error as { code?: string }).code === 'P2022')
   );
 }
 
@@ -87,9 +91,10 @@ export async function POST(req: NextRequest) {
     try {
       await upsert();
     } catch (error) {
-      // First signup on a fresh prod DB: table may not exist yet. Create it
-      // idempotently and retry once. Any other error propagates.
-      if (!isMissingTableError(error)) throw error;
+      // First signup on a fresh or partially-created DB: the table (or a
+      // column) may not exist yet. Heal idempotently and retry once. Any
+      // other error propagates.
+      if (!needsTableHeal(error)) throw error;
       const created = await ensureNewsletterTable();
       if (!created) {
         return jsonError('Subscription storage unavailable', 503, 'STORAGE_UNAVAILABLE');
@@ -100,11 +105,6 @@ export async function POST(req: NextRequest) {
     return jsonOk({ message: 'Subscribed successfully' });
   } catch (error) {
     logger.phiSafeError(error, 'newsletter.POST');
-    const err = error as { code?: string };
-    const message = error instanceof Error ? error.message : String(error);
-    // TEMP DEBUG: surface error for diagnosis — remove after fix
-    return jsonError('Internal server error', 500, 'INTERNAL_ERROR', {
-      debug: { code: err.code ?? null, message },
-    });
+    return jsonError('Internal server error', 500, 'INTERNAL_ERROR');
   }
 }
