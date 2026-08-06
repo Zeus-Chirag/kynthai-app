@@ -20,44 +20,75 @@ export interface AuthUser {
 export async function getAuthUser(): Promise<AuthUser | null> {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
+
+    // ── 1. Try Supabase auth first ──────────────────────────────────────
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() {
+              return cookieStore.getAll();
+            },
+            setAll(cookiesToSet) {
+              try {
+                cookiesToSet.forEach(({ name, value, options }) =>
+                  cookieStore.set(name, value, options)
+                );
+              } catch {
+                // Server component context
+              }
+            },
           },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Server component context
-            }
-          },
-        },
+        }
+      );
+
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (!error && user) {
+        // Get user profile for role
+        const { data: profile } = await supabaseAdmin()
+          .from('users')
+          .select('id, email, role, name')
+          .eq('id', user.id)
+          .single();
+
+        const p = profile as any;
+        if (p) {
+          return {
+            id: p.id,
+            email: p.email,
+            role: p.role,
+            name: p.name || undefined,
+          };
+        }
       }
-    );
+    } catch {
+      // Supabase unavailable — fall through to local session
+    }
 
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error || !user) return null;
+    // ── 2. Fallback: local HMAC session cookie ──────────────────────────
+    const { verifySessionToken } = await import('./session-signing');
+    const localSessionCookie = cookieStore.get('kynthai-session');
+    if (localSessionCookie?.value) {
+      const userId = await verifySessionToken(localSessionCookie.value);
+      if (userId) {
+        const user = await db.user.findUnique({
+          where: { id: userId },
+          select: { id: true, email: true, role: true, name: true },
+        });
+        if (user) {
+          return {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            name: user.name || undefined,
+          };
+        }
+      }
+    }
 
-    // Get user profile for role
-    const { data: profile } = await supabaseAdmin()
-      .from('users')
-      .select('id, email, role, name')
-      .eq('id', user.id)
-      .single();
-
-    const p = profile as any;
-    return p ? {
-      id: p.id,
-      email: p.email,
-      role: p.role,
-      name: p.name || undefined,
-    } : null;
+    return null;
   } catch {
     return null;
   }
