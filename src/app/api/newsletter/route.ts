@@ -100,6 +100,11 @@ export async function POST(req: NextRequest) {
     return jsonOk({ message: 'Subscribed successfully' });
   } catch (error) {
     logger.phiSafeError(error, 'newsletter.POST');
-    return jsonError('Internal server error', 500, 'INTERNAL_ERROR');
+    const err = error as { code?: string };
+    const message = error instanceof Error ? error.message : String(error);
+    // TEMP DEBUG: surface error for diagnosis — remove after fix
+    return jsonError('Internal server error', 500, 'INTERNAL_ERROR', {
+      debug: { code: err.code ?? null, message },
+    });
   }
 }
