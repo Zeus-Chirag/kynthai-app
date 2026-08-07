@@ -679,11 +679,14 @@ function AiTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">AI Assistant</h2>
+        {/* ponytail: backend is NVIDIA NIM (see src/app/api/chat/route.ts —
+            getNvidia / NVIDIA_MODEL). Don't claim a specific vendor in the UI
+            because the provider may change; show the assistant's own name. */}
         <Badge
           variant="secondary"
           className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
         >
-          Claude
+          Kynthai AI
         </Badge>
       </div>
       <p className="text-xs text-muted-foreground">

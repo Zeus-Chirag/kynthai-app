@@ -62,6 +62,68 @@ ${med.storage}
 ⚠️ **This is general information from our medicine database, not medical advice. Always consult a qualified healthcare professional.**`;
 }
 
+// ponytail: lightweight health-vs-off-topic classifier for demo mode so
+// health questions that miss the medicine DB get a real triage answer
+// instead of dead-ending on a sign-up pitch. Conservative — only fires
+// for clear health/medication/symptom keywords.
+const HEALTH_KEYWORDS = [
+  'medicine', 'medication', 'med', 'pill', 'pills', 'tablet', 'capsule', 'dose', 'dosage',
+  'side effect', 'reaction', 'allergy', 'allergic',
+  'pain', 'ache', 'fever', 'nausea', 'vomit', 'dizzy', 'dizziness', 'headache', 'migraine',
+  'blood pressure', 'sugar', 'diabetes', 'cholesterol', 'thyroid', 'asthma', 'heart',
+  'pregnancy', 'breastfeed', 'sleep', 'insomnia', 'anxiety', 'depression',
+  'symptom', 'rash', 'swelling', 'swollen', 'infection', 'antibiotic', 'vitamin', 'supplement',
+  'food interaction', 'alcohol', 'missed dose', 'forgot', 'overdose', 'first aid',
+  'doctor', 'pharmacist', 'clinic', 'hospital', 'er ', 'urgent care', '911', 'emergency',
+];
+function isHealthQuestion(text: string): boolean {
+  const t = text.toLowerCase();
+  return HEALTH_KEYWORDS.some(k => t.includes(k));
+}
+
+// ponytail: build a safe, conservative triage-style reply for demo
+// health questions that don't match a medicine in the DB. Mirrors the
+// safety framing of the few-shot examples: no diagnosis, clear when to
+// seek care, always defer to a professional.
+function buildLocalTriageReply(question: string): string {
+  const q = question.toLowerCase();
+  const isRedFlag =
+    q.includes('chest pain') || q.includes('can\'t breathe') || q.includes('cant breathe') ||
+    q.includes('difficulty breathing') || q.includes('stroke') || q.includes('severe bleeding') ||
+    q.includes('worst headache') || q.includes('unconscious') || q.includes('suicid');
+  if (isRedFlag) {
+    return `## This sounds like it could be an emergency
+
+Based on what you're describing, I'd recommend getting help right away rather than waiting.
+
+**Please call 911 or go to your nearest emergency room.** If you can, have someone stay with you while help is on the way.
+
+I can't assess emergencies over chat, and a clinician can evaluate you in person much faster than any app.
+
+---
+⚠️ **This is general information, not a diagnosis. If you think you might be having a medical emergency, call 911 immediately.**`;
+  }
+  return `## Here's a general approach to that
+
+I don't have detailed information about that specific topic in my demo medicine database, so I can't give you a tailored answer here.
+
+In general, for non-urgent symptoms or questions:
+
+- **Track what's happening** — when it started, how often, what makes it better or worse
+- **Try safe self-care first** — rest, hydration, avoiding known triggers
+- **Know when to escalate** — call your doctor if it lasts more than a few days, gets worse, or comes with fever, severe pain, breathing trouble, or anything that feels "wrong"
+- **Ask a pharmacist** — they're often the fastest, free answer for medication questions
+- **Bring this question to your next appointment** — your doctor knows your full history
+
+A few questions that would help me give you a better answer:
+- Is this about a specific medication, symptom, or condition?
+- How long has it been going on?
+- Anything that makes it better or worse?
+
+---
+⚠️ **This is general information, not medical advice. For personal medical decisions, please talk to a qualified healthcare professional.**`;
+}
+
 const SUGGESTIONS = [
   'What are common side effects of Metformin?',
   'How do I remember to take my pills on time?',
@@ -195,6 +257,15 @@ export function AiChat() {
       const medInfo = getMedicineFromDb(content);
       if (medInfo) {
         const reply = formatMedicineInfoLocal(medInfo);
+        setMessages([
+          ...nextMessages,
+          { id: `a-${Date.now()}`, role: 'assistant', content: reply },
+        ]);
+      } else if (isHealthQuestion(content)) {
+        // ponytail: demo health questions that miss the medicine DB get a
+        // local triage-style answer so the demo actually demonstrates the
+        // assistant's capability instead of dead-ending on a sign-up pitch.
+        const reply = buildLocalTriageReply(content);
         setMessages([
           ...nextMessages,
           { id: `a-${Date.now()}`, role: 'assistant', content: reply },
