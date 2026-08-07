@@ -11,6 +11,8 @@ import {
   AlertCircle,
   ChevronRight,
   TestTubeDiagonal,
+  Share2,
+  UserPlus,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,6 +72,10 @@ export function LabResultsViewer({ isDemo }: { isDemo: boolean }) {
   const [bookings, setBookings] = React.useState<LabBooking[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [downloading, setDownloading] = React.useState<string | null>(null);
+  const [sharing, setSharing] = React.useState<string | null>(null);
+  const [shareModalOpen, setShareModalOpen] = React.useState<string | null>(null);
+  const [selectedDoctors, setSelectedDoctors] = React.useState<string[]>([]);
+  const [shareMessage, setShareMessage] = React.useState('');
   const [expandedResults, setExpandedResults] = React.useState<LabResults | null>(null);
 
   const load = React.useCallback(async () => {
@@ -121,6 +127,26 @@ export function LabResultsViewer({ isDemo }: { isDemo: boolean }) {
       });
     } finally {
       setDownloading(null);
+    }
+  };
+
+  const handleShare = async (bookingId: string) => {
+    setSharing(bookingId);
+    try {
+      const res = await fetch(`/api/lab-bookings/${bookingId}/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}), // will share with all linked doctors by default
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to share');
+      }
+      toast({ title: 'Shared successfully', description: 'Your doctor(s) have been notified.' });
+    } catch (err: unknown) {
+      toast({ title: 'Share failed', description: err instanceof Error ? err.message : 'Unknown error', variant: 'destructive' });
+    } finally {
+      setSharing(null);
     }
   };
 
@@ -202,23 +228,40 @@ export function LabResultsViewer({ isDemo }: { isDemo: boolean }) {
                 </div>
 
                 {b.status === 'completed' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-1.5"
-                    onClick={() => handleDownload(b.id)}
-                    disabled={downloading === b.id}
-                  >
-                    {downloading === b.id ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading…
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-3.5 w-3.5" /> Download Results
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-1.5"
+                      onClick={() => handleDownload(b.id)}
+                      disabled={downloading === b.id}
+                    >
+                      {downloading === b.id ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading…
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-3.5 w-3.5" /> Download Results
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => handleShare(b.id)}
+                      disabled={sharing === b.id}
+                    >
+                      {sharing === b.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <>
+                          <Share2 className="h-3.5 w-3.5" /> Share
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>

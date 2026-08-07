@@ -272,6 +272,8 @@ model LabBooking {
   resultsNote      String?
   resultsNote_enc  String?    @map("resultsNote_enc")
   resultUploadedAt DateTime?
+  shareToken       String?    @unique
+  shareExpiresAt   DateTime?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 
