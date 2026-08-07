@@ -172,6 +172,51 @@ export function LoginPage({
     }
   }, [user, router]);
 
+  // ponytail: demo auto-login. When the user lands on /login with demo
+  // mode on and no real session, do a REAL sign-in (CSRF + login API)
+  // and redirect to the demo portal. This makes the demo behave like a
+  // real user from the very first page load. Same flow as portal-client:
+  // pick a demo account (default patient; #doctor/#caretaker/etc. via
+  // URL hash), real sign-in, hard reload to pick up the session.
+  React.useEffect(() => {
+    if (process.env.NEXT_PUBLIC_ENABLE_DEMO !== 'true') return;
+    if (user) return;
+    if (loading) return;
+    const demoAccounts: Array<{ email: string; role: 'patient' | 'doctor' | 'caretaker' | 'lab' | 'admin' }> = [
+      { email: 'patient@kynthai.app',   role: 'patient'   },
+      { email: 'doctor@kynthai.app',    role: 'doctor'    },
+      { email: 'caretaker@kynthai.app', role: 'caretaker' },
+      { email: 'lab@kynthai.app',       role: 'lab'       },
+      { email: 'admin@kynthai.app',     role: 'admin'     },
+    ];
+    const pick = (() => {
+      if (typeof window !== 'undefined') {
+        const fromHash = (window.location.hash || '').replace('#', '').toLowerCase();
+        const found = demoAccounts.find(a => a.role === fromHash);
+        if (found) return found as typeof demoAccounts[number];
+      }
+      return demoAccounts[0]!;
+    })();
+    setLoading(true);
+    (async () => {
+      try {
+        const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
+        const { token: csrf } = await csrfRes.json();
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ email: pick.email, password: 'Demo@2024' }),
+        });
+        if (res.ok) {
+          window.location.replace(`/${pick.role}`);
+          return;
+        }
+      } catch { /* fall through */ }
+      setLoading(false);
+    })();
+  }, []);
+
   const portalEmpathy: Record<LoginPortal, string> = {
     caretaker: 'Keep the whole family on track with shared reminders.',
     patient: 'Your personal health companion, always on.',
