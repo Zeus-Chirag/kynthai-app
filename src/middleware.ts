@@ -132,6 +132,21 @@ function maskPathIds(pathname: string): string {
   return pathname.replace(/\/[a-f0-9]{8,}-[a-f0-9-]+/g, '/[id]');
 }
 
+// ── System-token API paths (cron / external schedulers) ───────────────────
+// These endpoints self-authenticate via requireSystemToken (Bearer CRON_SECRET),
+// so the proxy must NOT double-submit-CSRF them (cron can't hold a browser
+// cookie) and must NOT require a session. They are still gated by the system
+// token inside the route handler — in production requireSystemToken refuses
+// any call whose bearer doesn't match CRON_SECRET.
+const SYSTEM_API_PATHS = new Set([
+  '/api/reminders/schedule',
+  '/api/chat/cleanup',
+]);
+
+function isSystemApi(pathname: string): boolean {
+  return SYSTEM_API_PATHS.has(pathname);
+}
+
 // ── Public API Paths (logging bypass + rate-limit exemption) ─────────────────
 // Merged from legacy middleware.ts and updated proxy.ts.
 // Also includes /api/v1/ variants for API versioning.
@@ -552,7 +567,7 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
   // Enforce double-submit CSRF token on all state-changing requests.
   // Public auth endpoints are included — the client fetches /api/auth/csrf
   // before submitting credentials.
-  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && isApi) {
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && isApi && !isSystemApi(pathname)) {
     const csrfError = await checkCsrf(req);
     if (csrfError) {
       applyHeaders(csrfError, pathname, requestId);
@@ -564,7 +579,7 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
   if (requiresAuth(pathname)) {
     const sessionUser = supabaseUser;
 
-    if (!sessionUser && !isPublicApi(pathname)) {
+    if (!sessionUser && !isPublicApi(pathname) && !isSystemApi(pathname)) {
       applyHeaders(res, pathname, requestId);
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
