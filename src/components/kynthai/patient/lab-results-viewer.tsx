@@ -12,7 +12,6 @@ import {
   ChevronRight,
   TestTubeDiagonal,
   Share2,
-  UserPlus,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -73,9 +72,6 @@ export function LabResultsViewer({ isDemo }: { isDemo: boolean }) {
   const [loading, setLoading] = React.useState(true);
   const [downloading, setDownloading] = React.useState<string | null>(null);
   const [sharing, setSharing] = React.useState<string | null>(null);
-  const [shareModalOpen, setShareModalOpen] = React.useState<string | null>(null);
-  const [selectedDoctors, setSelectedDoctors] = React.useState<string[]>([]);
-  const [shareMessage, setShareMessage] = React.useState('');
   const [expandedResults, setExpandedResults] = React.useState<LabResults | null>(null);
 
   const load = React.useCallback(async () => {
