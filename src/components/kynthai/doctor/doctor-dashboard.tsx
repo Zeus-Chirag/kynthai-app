@@ -282,8 +282,6 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
   const [view, setView] = React.useState<
     'overview' | 'appointments' | 'patients' | 'prescriptions'
   >('overview');
-  const [prescribeOpen, setPrescribeOpen] = React.useState(false);
-  const [prescribePatientEmail, setPrescribePatientEmail] = React.useState('');
   const [notesOpen, setNotesOpen] = React.useState(false);
   const [notesPatientId, setNotesPatientId] = React.useState('');
   const [notesContent, setNotesContent] = React.useState('');
@@ -1417,10 +1415,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                           size="sm"
                           variant="outline"
                           className="h-7 text-xs"
-                          onClick={() => {
-                            setPrescribePatientEmail('');
-                            setPrescribeOpen(true);
-                          }}
+                          onClick={() => setView('patients')}
                         >
                           <Pill className="h-3 w-3" />
                           {t('prescribe_again')}
@@ -1540,44 +1535,6 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
         onShowPrivacy={() => router.push('/privacy')}
         onSwitchPortal={() => router.push('/login')}
       />
-
-      {/* Quick prescribe dialog (from Prescriptions tab "Prescribe again") */}
-      {prescribeOpen && (
-        <Dialog open={prescribeOpen} onOpenChange={setPrescribeOpen}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{t('quick_prescribe')}</DialogTitle>
-              <DialogDescription>{t('quick_prescribe_desc')}</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3 py-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="quick-email">{t('patient_email')}</Label>
-                <Input
-                  id="quick-email"
-                  type="email"
-                  value={prescribePatientEmail}
-                  onChange={e => setPrescribePatientEmail(e.target.value)}
-                  placeholder="patient@example.com"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setPrescribeOpen(false)}>
-                {t('cancel')}
-              </Button>
-              <Button
-                onClick={() => {
-                  setPrescribeOpen(false);
-                  setView('patients');
-                }}
-                className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
-              >
-                {t('open_patient_care')}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
 
       {/* Notes dialog */}
       {notesOpen && (

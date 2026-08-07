@@ -33,6 +33,10 @@ import {
   type SendResult,
 } from './integrations'
 
+// ponytail: email bodies need absolute links (mail clients can't navigate
+// relative paths); falls back to the production origin for local/dev.
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'
+
 // ---------------------------------------------------------------------------
 // Types + pricing
 // ---------------------------------------------------------------------------
@@ -319,7 +323,7 @@ export async function sendFollowUp(
   const target = { ...(await loadUserTarget(userId)), ...overrides }
   return sendNotification(target, {
     title: `📅 Follow-up with Dr. ${doctorName}`,
-    body: `Your follow-up appointment is scheduled for ${scheduledAt}. Tap to join the video call.`,
+    body: `Your follow-up appointment is scheduled for ${scheduledAt}. Tap to join the video call: ${APP_URL}/patient`,
     type: 'follow_up',
     data: { doctorName, scheduledAt, appointmentId: appointmentId || '' },
   })
