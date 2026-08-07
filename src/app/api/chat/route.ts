@@ -378,6 +378,80 @@ hasPatientContext: formattedContext.length > 0,
     // Timeout boundary: wrapped by withAiTimeout(AI_TIMEOUTS.DEFAULT) below.
     // ──────────────────────────────────────────────────────────────────────────
 
+    // ponytail: when the client requests text/event-stream, stream the LLM
+    // reply chunk-by-chunk so it appears as the model is "typing" — the
+    // single biggest "feels like a real person" improvement. Streaming
+    // applies only to the LLM path (medicine-DB replies are instant and
+    // streaming a static template adds nothing).
+    const wantsStream = req.headers.get('accept')?.includes('text/event-stream');
+    const startStream = Date.now();
+
+    if (wantsStream) {
+      // ── STREAMING LLM PATH ──────────────────────────────────────────────
+      let accumulated = '';
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          const send = (event: string, data: unknown) => {
+            controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+          };
+          try {
+            const completion = (await withAiTimeout(
+              nvidia.chat.completions.create({
+                model: NVIDIA_MODEL,
+                messages: messages as never,
+                stream: true,
+              } as never),
+              AI_TIMEOUTS.DEFAULT,
+            )) as unknown as AsyncIterable<{ choices?: Array<{ delta?: { content?: string } }> }>;
+
+            for await (const chunk of completion) {
+              const delta = chunk.choices?.[0]?.delta?.content;
+              if (delta) {
+                accumulated += delta;
+                send('delta', { text: delta });
+              }
+            }
+
+            // Output safety on the full accumulated text (so we don't run
+            // the PHI/PII filter on every partial chunk).
+            const safeReply = safeAIResponse(accumulated) || "I'm sorry, I couldn't generate a response. Please try again.";
+
+            // Cache + persist (same as non-streaming path)
+            if (history.length === 0) {
+              setCached('chat', message, safeReply);
+            }
+            try {
+              await db.chatMessage.createMany({
+                data: [
+                  { userId: u.id, role: 'user', content: message, expiresAt: messageExpiry() },
+                  { userId: u.id, role: 'assistant', content: safeReply, source: 'llm', expiresAt: messageExpiry() },
+                ],
+              });
+            } catch (err) {
+              logger.phiSafeError(err, 'chat.persist.llm.stream');
+            }
+
+            send('done', { response: safeReply, source: 'llm', elapsedMs: Date.now() - startStream });
+            controller.close();
+          } catch (err) {
+            logger.phiSafeError(err, 'chat.stream');
+            send('error', { message: 'Failed to get AI response' });
+            controller.close();
+          }
+        },
+      });
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-store, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+      });
+    }
+
+    // ── NON-STREAMING LLM PATH (existing behavior) ─────────────────────────
     const completion = await withAiTimeout(
       nvidia.chat.completions.create({
         model: NVIDIA_MODEL,

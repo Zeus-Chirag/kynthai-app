@@ -285,11 +285,19 @@ export function AiChat() {
       return;
     }
 
-    // ── Real user: call the API ──
+    // ── Real user: call the API (prefer streaming for the "feels human" effect) ──
+    const assistantId = `a-${Date.now()}`;
+    const placeholderAssistant: ChatMsg = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+    };
+    setMessages([...nextMessages, placeholderAssistant]);
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
         body: JSON.stringify({
           message: content,
           history: messages
@@ -298,16 +306,72 @@ export function AiChat() {
         }),
       });
       if (!res.ok) throw new Error('Chat failed');
-      const data = await res.json();
-      setMessages([
-        ...nextMessages,
-        {
-          id: `a-${Date.now()}`,
-          role: 'assistant',
-          content: data.response,
-        },
-      ]);
+
+      const contentType = res.headers.get('content-type') || '';
+
+      // ── Streaming (text/event-stream) — append chunks as they arrive ──
+      if (contentType.includes('text/event-stream') && res.body) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let assembled = '';
+
+        const appendChunk = (text: string) => {
+          assembled += text;
+          setMessages(prev =>
+            prev.map(m => (m.id === assistantId ? { ...m, content: assembled } : m))
+          );
+        };
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          // SSE events are separated by blank lines; events have `event:` and `data:` lines.
+          let idx: number;
+          while ((idx = buffer.indexOf('\n\n')) !== -1) {
+            const rawEvent = buffer.slice(0, idx);
+            buffer = buffer.slice(idx + 2);
+            const eventLines = rawEvent.split('\n');
+            let eventName = 'message';
+            const dataLines: string[] = [];
+            for (const line of eventLines) {
+              if (line.startsWith('event:')) eventName = line.slice(6).trim();
+              else if (line.startsWith('data:')) dataLines.push(line.slice(5).trim());
+            }
+            const dataStr = dataLines.join('\n');
+            if (!dataStr) continue;
+            let parsed: { text?: string; response?: string; message?: string } = {};
+            try {
+              parsed = JSON.parse(dataStr);
+            } catch {
+              // ignore malformed chunk
+              continue;
+            }
+            if (eventName === 'delta' && typeof parsed.text === 'string') {
+              appendChunk(parsed.text);
+            } else if (eventName === 'done') {
+              // Final safe response — replace assembled content with the server-sanitized full text
+              if (typeof parsed.response === 'string') {
+                setMessages(prev =>
+                  prev.map(m => (m.id === assistantId ? { ...m, content: parsed.response! } : m))
+                );
+              }
+            } else if (eventName === 'error') {
+              throw new Error(parsed.message || 'Stream error');
+            }
+          }
+        }
+      } else {
+        // ── Non-streaming (JSON) — used for medicine-DB fast path and fallbacks ──
+        const data = await res.json();
+        setMessages(prev =>
+          prev.map(m => (m.id === assistantId ? { ...m, content: data.response } : m))
+        );
+      }
     } catch (e) {
+      // Roll back the empty placeholder so the user sees the error, not a blank bubble
+      setMessages(prev => prev.filter(m => m.id !== assistantId));
       toast({
         title: 'Failed to get response',
         description: e instanceof Error ? e.message : 'Unknown error',
