@@ -196,6 +196,11 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       window.location.replace('/');
       return;
     }
+    // ponytail: opt-in demo mode. When NEXT_PUBLIC_ENABLE_DEMO=true the
+    // app auto-creates a demo user in the store so portals render without
+    // real Supabase auth. Previously this was gated on NODE_ENV !== 'production'
+    // which made the demo silently dead in prod — dropping the env guard so
+    // setting the flag in Vercel actually does something.
     if (process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && !user && !onboardingComplete) {
       // Auto-set demo user in store (client-side only, no backend session required)
       store.login({

@@ -8,20 +8,26 @@ import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 
 export default function CaretakerClient() {
   const router = useRouter()
-  const { user, setLoginPortal } = useAppStore()
+  const { user, setLoginPortal, login: storeLogin } = useAppStore()
   const { node } = loadPortal("caretaker", user)
 
   useEffect(() => {
     if (!user) {
       setLoginPortal('caretaker')
-      router.replace('/login')
+      fetch('/api/auth/me', { credentials: 'include' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.user) storeLogin(data.user)
+          else router.replace('/login')
+        })
+        .catch(() => router.replace('/login'))
     }
-  }, [user, router, setLoginPortal])
+  }, [user, router, setLoginPortal, storeLogin])
 
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-sm text-muted-foreground">Redirecting...</div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
       </div>
     )
   }

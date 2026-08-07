@@ -9,15 +9,28 @@ import { ConsentGate } from '@/components/kynthai/consent-gate'
 
 export default function PatientClient() {
   const router = useRouter()
-  const { user, setLoginPortal } = useAppStore()
+  const { user, setLoginPortal, login: storeLogin } = useAppStore()
   const { node } = loadPortal("patient", user)
 
   useEffect(() => {
     if (!user) {
       setLoginPortal('patient')
-      router.replace('/login')
+      // ponytail: attempt to recover a real Supabase session before
+      // redirecting to /login — handles the case where the store is
+      // empty (hard reload, cleared localStorage) but a session cookie
+      // still exists. Falls back to /login if nothing recovers.
+      fetch('/api/auth/me', { credentials: 'include' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.user) {
+            storeLogin(data.user)
+          } else {
+            router.replace('/login')
+          }
+        })
+        .catch(() => router.replace('/login'))
     }
-  }, [user, router, setLoginPortal])
+  }, [user, router, setLoginPortal, storeLogin])
 
   // ── Consent Gate: block medical data if required consents are missing ──────
   if (user?.role === 'patient') {
@@ -38,7 +51,7 @@ export default function PatientClient() {
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-sm text-muted-foreground">Redirecting...</div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
       </div>
     )
   }
