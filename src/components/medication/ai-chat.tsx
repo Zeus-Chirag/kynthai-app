@@ -93,7 +93,68 @@ function wantsPersonalisedAdvice(text: string): boolean {
   if (/\b(interact|interaction|safe|safety|with my|together with|combine|combination)\b/.test(t)) return true;
   // Symptom / side-effect-experience framing
   if (/\b(i feel|i have|my symptom|experiencing|side effect i|am i having)\b/.test(t)) return true;
+  // Follow-up / context-dependent questions — these depend on the prior turn
+  // and the fast path can't honour context. Catch "what about X", "and Y",
+  // "does that add…", "how about…", "what if…", "combined with…", etc.
+  if (/^\s*(what about|and |how about|does that|is that|what if|and if|combined|plus|along with|on top|additionally|furthermore|with that|on top of|as well|too[?.])\b/.test(t)) return true;
+  if (/\b(add (to|on)|in addition|on top of that|along with that|as well as)\b/.test(t)) return true;
+  // Comparative / risk-adding framing
+  if (/\b(extra risk|more risk|additional risk|combined risk|together risk)\b/.test(t)) return true;
   return false;
+}
+
+// Build personalised initial-suggestion chips from the patient's actual
+// medication list. The goal: the first thing a patient sees is a question
+// that matters for THEIR regimen, not a generic "what is metformin used
+// for". Falls back to the generic SUGGESTIONS if no meds are available.
+function buildPersonalisedSuggestions(medNames: string[]): string[] {
+  const lower = medNames.map(n => n.toLowerCase());
+  const has = (substr: string) => lower.some(n => n.includes(substr));
+  const out: string[] = [];
+
+  // Anticoagulants / antiplatelets — bleeding-risk awareness is the #1
+  // patient-education priority. The chip should match the actual med.
+  if (has('apixaban') || has('rivaroxaban') || has('dabigatran') || has('warfarin')) {
+    out.push('What bleeding signs should I watch for with my blood thinner?');
+  }
+  if (has('aspirin') && (has('apixaban') || has('rivaroxaban') || has('warfarin') || has('clopidogrel'))) {
+    out.push('Can I take ibuprofen for a headache with my current medications?');
+  } else if (has('aspirin')) {
+    out.push("What are aspirin’s most important side effects to watch for?");
+  }
+  // Diabetes
+  if (has('metformin')) {
+    out.push('What is the best time of day to take Metformin, and should I take it with food?');
+  }
+  if (has('insulin')) {
+    out.push('What blood sugar level should make me call my doctor?');
+  }
+  // Cardiovascular
+  if (has('atorvastatin') || has('simvastatin') || has('rosuvastatin')) {
+    out.push('Why is my statin taken at bedtime, and what should I avoid while on it?');
+  }
+  if (has('losartan') || has('lisinopril') || has('amlodipine') || has('metoprolol')) {
+    out.push('What blood pressure reading should make me call my doctor today?');
+  }
+  // Mental health
+  if (has('sertraline') || has('fluoxetine') || has('escitalopram') || has('venlafaxine')) {
+    out.push('What should I do if I miss a dose of my antidepressant?');
+  }
+  // Thyroid
+  if (has('levothyroxine')) {
+    out.push('When should I take levothyroxine — and what should I avoid around it?');
+  }
+  // GI
+  if (has('omeprazole') || has('pantoprazole')) {
+    out.push('How long is it safe to stay on a PPI, and how do I taper off?');
+  }
+  // General additions to round out to 4
+  if (out.length < 4) out.push('Are there any interactions between my current medications?');
+  if (out.length < 4) out.push('When should I call my doctor vs. wait it out?');
+  if (out.length < 4) out.push('What side effects should I watch for with my current medications?');
+
+  // De-dupe and cap at 4
+  return Array.from(new Set(out)).slice(0, 4);
 }
 
 // ponytail: build a safe, conservative triage-style reply for demo
@@ -174,6 +235,7 @@ export function AiChat() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const [showQuickReplies, setShowQuickReplies] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>(SUGGESTIONS);
   const { toast } = useToast();
   const { user } = useAppStore();
   const isDemo = !!user?.isDemo;
@@ -216,7 +278,16 @@ export function AiChat() {
     // so we just fetch it like any signed-in user would.
     setLoadingInitial(true);
     setLoadError(false);
-    loadMessages()
+    // Also fetch the patient's active medications in parallel so the
+    // initial suggestion chips are personalised to their actual regimen
+    // (e.g. a patient on apixaban gets a "bleeding signs" chip, a patient
+    // on metformin gets a "best time to take" chip). Falls back to the
+    // generic suggestions if the fetch fails or returns empty.
+    Promise.all([loadMessages(), fetch('/api/medications', { credentials: 'include' }).then(r => r.ok ? r.json() : null).catch(() => null)])
+      .then(([_msgs, medsRes]) => {
+        const meds: { name: string }[] = medsRes?.medications ?? [];
+        if (meds.length) setSuggestions(buildPersonalisedSuggestions(meds.map(m => m.name)));
+      })
       .catch(() => {
         setLoadError(true);
         setMessages([
@@ -490,7 +561,7 @@ export function AiChat() {
         {/* Initial suggestions (before first message) */}
         {messages.length <= 1 && (
           <div className="flex flex-wrap gap-2 py-3">
-            {SUGGESTIONS.map(s => (
+            {suggestions.map(s => (
               <Button
                 key={s}
                 size="sm"
