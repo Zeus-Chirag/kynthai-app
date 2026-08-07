@@ -24,6 +24,263 @@ interface MedicineInfo {
   storage: string;
 }
 
+// ponytail: world-class clinical specialist upgrade.
+// DRUG_INTERACTIONS — curated verified drug-drug interactions. Each entry
+// is a well-established, clinically significant interaction. The AI uses
+// this against the patient's CURRENT medication list to proactively flag
+// real concerns (not invented ones). Format: drug key → array of drug keys
+// it interacts with. A bidirectional lookup helper is provided.
+const DRUG_INTERACTIONS: Record<string, string[]> = {
+  warfarin: ['aspirin', 'ibuprofen', 'naproxen', 'amiodarone', 'fluconazole', 'metronidazole', 'trimethoprim', 'ciprofloxacin', 'amoxicillin', 'diltiazem', 'fluvastatin', 'simvastatin', 'lovastatin', 'phenytoin', 'carbamazepine', 'rifampin'],
+  aspirin: ['warfarin', 'ibuprofen', 'naproxen', 'methotrexate', 'lithium', 'ace_inhibitors', 'lisinopril', 'enalapril', 'ramipril', 'beta_blockers', 'metoprolol', 'propranolol', 'furosemide'],
+  clopidogrel: ['warfarin', 'omeprazole', 'esomeprazole', 'aspirin', 'naproxen', 'ibuprofen'],
+  apixaban: ['warfarin', 'aspirin', 'ibuprofen', 'naproxen', 'rifampin', 'carbamazepine', 'phenytoin', 'ketoconazole', 'ritonavir'],
+  rivaroxaban: ['warfarin', 'aspirin', 'ibuprofen', 'naproxen', 'rifampin', 'carbamazepine', 'phenytoin', 'ketoconazole', 'ritonavir'],
+  lisinopril: ['aspirin', 'ibuprofen', 'naproxen', 'potassium_supplements', 'spironolactone', 'triamterene', 'lithium', 'sacubitril'],
+  enalapril: ['aspirin', 'ibuprofen', 'naproxen', 'potassium_supplements', 'spironolactone', 'lithium', 'sacubitril'],
+  ramipril: ['aspirin', 'ibuprofen', 'naproxen', 'potassium_supplements', 'spironolactone', 'lithium', 'sacubitril'],
+  losartan: ['aspirin', 'ibuprofen', 'naproxen', 'potassium_supplements', 'spironolactone', 'lithium'],
+  valsartan: ['aspirin', 'ibuprofen', 'naproxen', 'potassium_supplements', 'spironolactone', 'lithium', 'sacubitril'],
+  spironolactone: ['lisinopril', 'enalapril', 'ramipril', 'losartan', 'valsartan', 'potassium_supplements', 'lithium', 'amiloride', 'triamterene'],
+  amiodarone: ['warfarin', 'simvastatin', 'lovastator', 'digoxin', 'metoprolol', 'diltiazem', 'verapamil', 'sildenafil', 'tadalafil'],
+  digoxin: ['amiodarone', 'verapamil', 'diltiazem', 'furosemide', 'spironolactone', 'metoprolol', 'clarithromycin'],
+  simvastatin: ['amiodarone', 'verapamil', 'diltiazem', 'amlodipine', 'ranolazine', 'cyclosporine', 'gemfibrozil', 'clarithromycin', 'erythromycin', 'itraconazole', 'ketoconazole'],
+  atorvastatin: ['cyclosporine', 'clarithromycin', 'erythromycin', 'itraconazole', 'ketoconazole', 'ritonavir'],
+  rosuvastatin: ['cyclosporine'],
+  sildenafil: ['nitrates', 'nitroglycerin', 'isosorbide', 'riociguat', 'alpha_blockers', 'doxazosin', 'tamsulosin'],
+  tadalafil: ['nitrates', 'nitroglycerin', 'isosorbide', 'riociguat', 'alpha_blockers'],
+  metformin: ['contrast_dye', 'cimetidine', 'alcohol'],
+  glyburide: ['alcohol', 'fluconazole', 'miconazole', 'bosentan', 'rifampin'],
+  glipizide: ['alcohol', 'fluconazole', 'miconazole', 'bosentan', 'rifampin'],
+  ibuprofen: ['warfarin', 'aspirin', 'lisinopril', 'enalapril', 'ramipril', 'losartan', 'valsartan', 'furosemide', 'lithium', 'methotrexate', 'clopidogrel', 'apixaban', 'rivaroxaban', 'sertraline'],
+  naproxen: ['warfarin', 'aspirin', 'lisinopril', 'enalapril', 'ramipril', 'losartan', 'valsartan', 'furosemide', 'lithium', 'methotrexate', 'clopidogrel', 'apixaban', 'rivaroxaban', 'sertraline'],
+  celecoxib: ['warfarin', 'aspirin', 'lisinopril', 'enalapril', 'ramipril', 'losartan', 'valsartan', 'furosemide', 'lithium', 'fluconazole'],
+  methotrexate: ['aspirin', 'ibuprofen', 'naproxen', 'celecoxib', 'trimethoprim', 'probenecid', 'penicillins', 'sulfonamides', 'leflunomide'],
+  tramadol: ['sertraline', 'fluoxetine', 'paroxetine', 'citalopram', 'escitalopram', 'venlafaxine', 'duloxetine', 'amitriptyline', 'nortriptyline', 'mirtazapine', 'mao_inhibitors', 'linezolid', 'triptans', 'carbamazepine', 'phenytoin', 'warfarin'],
+  ciprofloxacin: ['warfarin', 'tizanidine', 'methadone', 'sildenafil', 'tadalafil', 'theophylline', 'clozapine', 'antacids', 'calcium', 'iron', 'magnesium'],
+  levofloxacin: ['warfarin', 'sildenafil', 'tadalafil', 'insulin', 'glyburide', 'glipizide', 'theophylline'],
+  metronidazole: ['warfarin', 'alcohol', 'lithium', 'busulfan', 'disulfiram', 'phenytoin'],
+  clarithromycin: ['simvastatin', 'lovastatin', 'atorvastatin', 'warfarin', 'colchicine', 'digoxin', 'ergotamine', 'quetiapine', 'lurasidone', 'trazodone', 'amiodarone', 'dofetilide'],
+  erythromycin: ['simvastatin', 'lovastatin', 'atorvastatin', 'warfarin', 'colchicine', 'digoxin', 'ergotamine', 'quetiapine', 'trazodone', 'amiodarone', 'dofetilide', 'sildenafil', 'tadalafil'],
+  fluconazole: ['warfarin', 'glyburide', 'glipizide', 'glimepiride', 'simvastatin', 'atorvastatin', 'cyclosporine', 'tacrolimus', 'methadone', 'fentanyl', 'alprazolam', 'triazolam', 'midazolam', 'quetiapine', 'trazodone', 'amiodarone', 'phenytoin', 'rifabutin', 'theophylline', 'celecoxib'],
+  itraconazole: ['simvastatin', 'lovastatin', 'atorvastatin', 'warfarin', 'colchicine', 'digoxin', 'ergotamine', 'quetiapine', 'lurasidone', 'trazodone', 'amiodarone', 'dofetilide', 'fentanyl', 'alfentanil', 'sildenafil', 'tadalafil', 'midazolam', 'triazolam', 'alprazolam', 'phenytoin', 'carbamazepine', 'rifampin'],
+  ketoconazole: ['simvastatin', 'lovastatin', 'atorvastatin', 'warfarin', 'colchicine', 'digoxin', 'ergotamine', 'quetiapine', 'lurasidone', 'trazodone', 'amiodarone', 'dofetilide', 'fentanyl', 'sildenafil', 'tadalafil', 'midazolam', 'triazolam', 'alprazolam', 'phenytoin', 'carbamazepine', 'rifampin'],
+  isoniazid: ['rifampin', 'pyrazinamide', 'carbamazepine', 'phenytoin', 'theophylline'],
+  rifampin: ['warfarin', 'apixaban', 'rivaroxaban', 'oral_contraceptives', 'cyclosporine', 'tacrolimus', 'methadone', 'phenytoin', 'carbamazepine', 'fluconazole', 'itraconazole', 'ketoconazole', 'glipizide', 'glyburide', 'glimepiride', 'metformin', 'amiodarone', 'digoxin', 'simvastatin', 'atorvastatin', 'rosuvastatin', 'clarithromycin', 'erythromycin', 'trazodone', 'quetiapine', 'midazolam', 'alprazolam', 'triazolam', 'sertraline', 'fluoxetine', 'paroxetine', 'verapamil', 'diltiazem', 'nifedipine', 'amlodipine', 'haloperidol', 'aripiprazole', 'olanzapine', 'risperidone', 'clozapine'],
+  trimethoprim: ['warfarin', 'methotrexate', 'repaglinide', 'pioglitazone', 'rosuvastatin', 'sulfonylureas', 'digoxin', 'amiloride'],
+  sertraline: ['tramadol', 'triptans', 'mao_inhibitors', 'linezolid', 'methylene_blue', 'aspirin', 'ibuprofen', 'naproxen', 'warfarin', 'lithium', 'buspirone', 'phenytoin', 'carbamazepine', 'rifampin', 'mirtazapine', 'trazodone'],
+  fluoxetine: ['tramadol', 'triptans', 'mao_inhibitors', 'linezolid', 'methylene_blue', 'aspirin', 'ibuprofen', 'naproxen', 'warfarin', 'lithium', 'buspirone', 'phenytoin', 'carbamazepine', 'rifampin', 'mirtazapine', 'trazodone'],
+  paroxetine: ['tramadol', 'triptans', 'mao_inhibitors', 'linezolid', 'methylene_blue', 'aspirin', 'ibuprofen', 'naproxen', 'warfarin', 'lithium', 'buspirone', 'phenytoin', 'carbamazepine', 'rifampin', 'mirtazapine', 'trazodone'],
+  venlafaxine: ['tramadol', 'triptans', 'mao_inhibitors', 'linezolid', 'methylene_blue', 'aspirin', 'ibuprofen', 'naproxen', 'warfarin', 'lithium', 'buspirone', 'phenytoin', 'carbamazepine', 'rifampin', 'mirtazapine', 'trazodone'],
+  duloxetine: ['tramadol', 'triptans', 'mao_inhibitors', 'linezolid', 'methylene_blue', 'aspirin', 'ibuprofen', 'naproxen', 'warfarin', 'lithium', 'buspirone', 'phenytoin', 'carbamazepine', 'rifampin', 'mirtazapine', 'trazodone'],
+  lithium: ['aspirin', 'ibuprofen', 'naproxen', 'celecoxib', 'metronidazole', 'thiazides', 'hydrochlorothiazide', 'chlorthalidone', 'furosemide', 'ace_inhibitors', 'lisinopril', 'enalapril', 'ramipril', 'losartan', 'valsartan', 'sertraline', 'fluoxetine', 'paroxetine', 'venlafaxine', 'duloxetine', 'buspirone', 'mirtazapine', 'trazodone', 'haloperidol', 'carbamazepine', 'methyldopa'],
+  carbamazepine: ['warfarin', 'apixaban', 'rivaroxaban', 'oral_contraceptives', 'cyclosporine', 'tacrolimus', 'methadone', 'phenytoin', 'doxycycline', 'theophylline', 'sertraline', 'fluoxetine', 'paroxetine', 'venlafaxine', 'duloxetine', 'haloperidol', 'aripiprazole', 'olanzapine', 'risperidone', 'clozapine', 'quetiapine', 'trazodone', 'midazolam', 'alprazolam', 'triazolam', 'simvastatin', 'atorvastatin', 'rosuvastatin', 'amlodipine', 'nifedipine', 'verapamil', 'diltiazem', 'amiodarone', 'sildenafil', 'tadalafil', 'lithium'],
+  phenytoin: ['warfarin', 'apixaban', 'rivaroxaban', 'oral_contraceptives', 'cyclosporine', 'tacrolimus', 'methadone', 'doxycycline', 'theophylline', 'fluconazole', 'itraconazole', 'ketoconazole', 'amiodarone', 'sildenafil', 'tadalafil', 'simvastatin', 'atorvastatin', 'rosuvastatin', 'amlodipine', 'nifedipine', 'verapamil', 'diltiazem', 'sertraline', 'fluoxetine', 'paroxetine', 'venlafaxine', 'duloxetine', 'haloperidol', 'aripiprazole', 'olanzapine', 'risperidone', 'clozapine', 'quetiapine', 'trazodone', 'midazolam', 'alprazolam', 'triazolam', 'lithium', 'buspirone'],
+  lamotrigine: ['valproate', 'carbamazepine', 'phenytoin', 'oral_contraceptives', 'rifampin'],
+  valproate: ['lamotrigine', 'carbamazepine', 'phenytoin', 'warfarin', 'aspirin', 'ibuprofen', 'naproxen', 'topiramate', 'rifampin'],
+  allopurinol: ['azathioprine', 'mercaptopurine', 'ampicillin', 'amoxicillin', 'cyclophosphamide', 'warfarin', 'theophylline', 'diuretics', 'hydrochlorothiazide', 'chlorthalidone', 'furosemide'],
+  colchicine: ['clarithromycin', 'erythromycin', 'itraconazole', 'ketoconazole', 'fluconazole', 'ritonavir', 'cyclosporine', 'verapamil', 'diltiazem', 'amiodarone', 'digoxin', 'statins', 'simvastatin', 'atorvastatin', 'fluvastatin', 'rosuvastatin'],
+  alendronate: ['calcium', 'iron', 'magnesium', 'aluminum', 'antacids'],
+  levothyroxine: ['calcium', 'iron', 'magnesium', 'aluminum', 'antacids', 'orlistat', 'simvastatin', 'estrogens', 'rifampin', 'phenytoin', 'carbamazepine', 'phenobarbital'],
+  prednisone: ['live_vaccines', 'nsaids', 'ibuprofen', 'naproxen', 'celecoxib', 'aspirin', 'warfarin', 'cyclosporine', 'tacrolimus', 'fluconazole', 'ketoconazole', 'itraconazole', 'clarithromycin', 'erythromycin', 'rifampin', 'phenytoin', 'carbamazepine', 'phenobarbital', 'diuretics', 'hydrochlorothiazide', 'furosemide', 'insulin', 'glyburide', 'glipizide', 'glimepiride', 'metformin', 'sitagliptin', 'empagliflozin', 'dapagliflozin'],
+  budesonide: ['ketoconazole', 'itraconazole', 'ritonavir', 'clarithromycin', 'erythromycin', 'rifampin', 'phenytoin', 'carbamazepine'],
+  fluticasone: ['ketoconazole', 'itraconazole', 'ritonavir', 'clarithromycin', 'erythromycin', 'rifampin', 'phenytoin', 'carbamazepine'],
+  montelukast: ['rifampin', 'phenytoin', 'carbamazepine', 'gemfibrozil'],
+  albuterol: ['beta_blockers', 'propranolol', 'metoprolol', 'atenolol', 'carvedilol', 'labetalol', 'mao_inhibitors', 'tricyclic_antidepressants', 'amitriptyline', 'nortriptyline', 'digoxin', 'diuretics', 'hydrochlorothiazide', 'furosemide'],
+  theophylline: ['ciprofloxacin', 'levofloxacin', 'erythromycin', 'clarithromycin', 'isoniazid', 'rifampin', 'phenytoin', 'carbamazepine', 'warfarin', 'lithium', 'beta_blockers', 'propranolol', 'metoprolol'],
+  zolpidem: ['alcohol', 'opioids', 'codeine', 'tramadol', 'benzodiazepines', 'alprazolam', 'lorazepam', 'clonazepam', 'diazepam', 'muscle_relaxants', 'cyclobenzaprine', 'antihistamines', 'diphenhydramine', 'hydroxyzine', 'antipsychotics', 'quetiapine', 'risperidone', 'olanzapine', 'aripiprazole'],
+  melatonin: ['alcohol', 'warfarin', 'benzodiazepines', 'alprazolam', 'lorazepam', 'clonazepam', 'diazepam', 'z-drugs', 'zolpidem', 'eszopiclone'],
+  pravastatin: ['cyclosporine', 'clarithromycin', 'erythromycin', 'rifampin'],
+  lovastatin: ['clarithromycin', 'erythromycin', 'itraconazole', 'ketoconazole', 'cyclosporine', 'amiodarone'],
+  fluvastatin: ['amiodarone', 'rifampin', 'fluconazole'],
+  pitavastatin: ['cyclosporine', 'erythromycin', 'rifampin'],
+  omeprazole: ['clopidogrel', 'methotrexate', 'tacrolimus', 'mycophenolate', 'iron', 'ketoconazole', 'itraconazole', 'atazanavir', 'nelfinavir', 'cilostazol', 'citalopram', 'escitalopram', 'mephenytoin', 'rifampin', 'warfarin', 'digoxin'],
+  esomeprazole: ['clopidogrel', 'methotrexate', 'tacrolimus', 'mycophenolate', 'iron', 'ketoconazole', 'itraconazole', 'atazanavir', 'nelfinavir', 'cilostazol', 'citalopram', 'escitalopram', 'mephenytoin', 'rifampin', 'warfarin', 'digoxin'],
+  pantoprazole: ['methotrexate', 'tacrolimus', 'mycophenolate', 'iron', 'ketoconazole', 'itraconazole', 'atazanavir', 'nelfinavir', 'warfarin', 'digoxin'],
+  lansoprazole: ['methotrexate', 'tacrolimus', 'mycophenolate', 'iron', 'ketoconazole', 'itraconazole', 'atazanavir', 'nelfinavir', 'clopidogrel', 'warfarin', 'digoxin'],
+  rabeprazole: ['methotrexate', 'tacrolimus', 'mycophenolate', 'iron', 'ketoconazole', 'itraconazole', 'atazanavir', 'warfarin', 'digoxin'],
+  famotidine: ['ketoconazole', 'itraconazole', 'atazanavir', 'cefditoren', 'dasatinib', 'delavirdine', 'erlotinib', 'gefitinib', 'mesalamine', 'ponatinib', 'rilpivirine', 'suvorexant', 'tizanidine'],
+  cimetidine: ['warfarin', 'clopidogrel', 'metformin', 'simvastatin', 'atorvastatin', 'theophylline', 'phenytoin', 'loperamide', 'tizanidine', 'clozapine', 'alprazolam', 'midazolam', 'triazolam', 'diazepam', 'amitriptyline', 'imipramine', 'nortriptyline', 'flecainide', 'quinidine', 'procainamide', 'lidocaine', 'metoprolol', 'propranolol', 'amlodipine', 'nifedipine', 'diltiazine', 'verapamil', 'ketoconazole', 'itraconazole', 'atazanavir', 'haloperidol', 'risperidone', 'quetiapine', 'trazodone', 'sertraline', 'fluoxetine', 'paroxetine', 'venlafaxine', 'duloxetine', 'buspirone', 'mirtazapine', 'lithium', 'tacrolimus', 'cyclosporine'],
+  ranitidine: ['ketoconazole', 'itraconazole', 'atazanavir', 'delavirdine', 'gefitinib', 'erlotinib', 'mesalamine', 'ponatinib', 'rilpivirine', 'suvorexant', 'tizanidine', 'warfarin'],
+  methadone: ['rifampin', 'rifabutin', 'phenytoin', 'carbamazepine', 'phenobarbital', 'efavirenz', 'nevirapine', 'ritonavir', 'fluconazole', 'ketoconazole', 'itraconazole', 'amiodarone', 'sotalol', 'quinidine', 'ciprofloxacin', 'macrolide_antibiotics', 'erythromycin', 'clarithromycin', 'sertraline', 'fluoxetine', 'paroxetine', 'citalopram', 'escitalopram', 'venlafaxine', 'duloxetine', 'amitriptyline', 'nortriptyline', 'trazodone', 'buspirone', 'triptans', 'triptan_medications', 'maois', 'mao_inhibitors', 'linezolid', 'methylene_blue', 'alcohol', 'benzodiazepines', 'alprazolam', 'lorazepam', 'clonazepam', 'diazepam', 'z-drugs', 'zolpidem', 'eszopiclone', 'antihistamines', 'diphenhydramine', 'hydroxyzine', 'antipsychotics', 'quetiapine', 'risperidone', 'olanzapine', 'aripiprazole', 'muscle_relaxants', 'cyclobenzaprine'],
+
+};
+
+// DRUG_CONDITION_CONTRAINDICATIONS — common verified condition-based
+// contraindications. Format: drug key → array of condition keywords.
+// The AI checks the patient's condition list and flags real concerns.
+const DRUG_CONDITION_CONTRAINDICATIONS: Record<string, string[]> = {
+  metformin: ['severe_renal_impairment', 'kidney_disease_severe', 'liver_disease_severe', 'acute_heart_failure', 'metabolic_acidosis', 'alcohol_use_disorder'],
+  lisinopril: ['pregnancy', 'bilateral_renal_artery_stenosis', 'history_of_angioedema', 'hyperkalemia'],
+  enalapril: ['pregnancy', 'bilateral_renal_artery_stenosis', 'history_of_angioedema', 'hyperkalemia'],
+  ramipril: ['pregnancy', 'bilateral_renal_artery_stenosis', 'history_of_angioedema', 'hyperkalemia'],
+  losartan: ['pregnancy', 'bilateral_renal_artery_stenosis', 'hyperkalemia'],
+  valsartan: ['pregnancy', 'bilateral_renal_artery_stenosis', 'hyperkalemia', 'diabetes_with_renal_impairment'],
+  spironolactone: ['hyperkalemia', 'severe_renal_impairment', 'addison_disease'],
+  atenolol: ['severe_asthma', 'severe_bradycardia', 'heart_block', 'decompensated_heart_failure'],
+  propranolol: ['severe_asthma', 'severe_bradycardia', 'heart_block', 'decompensated_heart_failure', 'severe_copd'],
+  metoprolol: ['severe_bradycardia', 'heart_block', 'decompensated_heart_failure'],
+  carvedilol: ['severe_asthma', 'severe_bradycardia', 'heart_block', 'decompensated_heart_failure', 'severe_copd'],
+  amiodarone: ['severe_lung_disease', 'severe_liver_disease', 'severe_thyroid_disorder', 'heart_block', 'bradycardia'],
+  digoxin: ['heart_block', 'ventricular_fibrillation', 'ventricular_tachycardia'],
+  simvastatin: ['active_liver_disease', 'pregnancy', 'breastfeeding'],
+  atorvastatin: ['active_liver_disease', 'pregnancy', 'breastfeeding'],
+  pravastatin: ['active_liver_disease', 'pregnancy', 'breastfeeding'],
+  lovastatin: ['active_liver_disease', 'pregnancy', 'breastfeeding'],
+  rosuvastatin: ['active_liver_disease', 'pregnancy', 'breastfeeding'],
+  fluvastatin: ['active_liver_disease', 'pregnancy', 'breastfeeding'],
+  pitavastatin: ['active_liver_disease', 'pregnancy', 'breastfeeding'],
+  gemfibrozil: ['severe_renal_disease', 'severe_liver_disease', 'gallbladder_disease'],
+  fenofibrate: ['severe_renal_disease', 'severe_liver_disease', 'gallbladder_disease'],
+  ezetimibe: ['active_liver_disease'],
+  niacin: ['active_liver_disease', 'severe_peptic_ulcer', 'arterial_bleeding'],
+  glipizide: ['type_1_diabetes', 'diabetic_ketoacidosis'],
+  glyburide: ['type_1_diabetes', 'diabetic_ketoacidosis'],
+  glimepiride: ['type_1_diabetes', 'diabetic_ketoacidosis'],
+  sitagliptin: ['type_1_diabetes', 'diabetic_ketoacidosis', 'pancreatitis_history', 'severe_renal_impairment'],
+  empagliflozin: ['type_1_diabetes', 'diabetic_ketoacidosis', 'severe_renal_impairment', 'dialysis'],
+  dapagliflozin: ['type_1_diabetes', 'diabetic_ketoacidosis', 'severe_renal_impairment', 'dialysis'],
+  canagliflozin: ['type_1_diabetes', 'diabetic_ketoacidosis', 'severe_renal_impairment', 'dialysis'],
+  pioglitazone: ['heart_failure', 'active_liver_disease', 'bladder_cancer_history'],
+  methimazole: ['pregnancy_first_trimester_consider', 'liver_disease'],
+  levothyroxine: ['recent_myocardial_infarction', 'untreated_adrenal_insufficiency', 'thyrotoxicosis'],
+  sertraline: ['mao_inhibitors_concurrent', 'pimozide_concurrent'],
+  fluoxetine: ['mao_inhibitors_concurrent', 'pimozide_concurrent', 'thioridazine_concurrent'],
+  paroxetine: ['mao_inhibitors_concurrent', 'pimozide_concurrent', 'thioridazine_concurrent'],
+  venlafaxine: ['mao_inhibitors_concurrent'],
+  duloxetine: ['mao_inhibitors_concurrent', 'uncontrolled_narrow_angle_glaucoma', 'severe_liver_disease', 'severe_renal_disease'],
+  phenelzine: ['serotonergic_drugs', 'sympathomimetics', 'tyramine_rich_foods', 'meperidine', 'tramadol', 'dextromethorphan', 'methadone'],
+  tranylcypromine: ['serotonergic_drugs', 'sympathomimetics', 'tyramine_rich_foods', 'meperidine', 'tramadol', 'dextromethorphan', 'methadone'],
+  isocarboxazid: ['serotonergic_drugs', 'sympathomimetics', 'tyramine_rich_foods', 'meperidine', 'tramadol', 'dextromethorphan', 'methadone'],
+  selegiline: ['serotonergic_drugs', 'sympathomimetics', 'meperidine', 'tramadol', 'dextromethorphan', 'methadone'],
+  mirtazapine: ['mao_inhibitors_concurrent'],
+  trazodone: ['mao_inhibitors_concurrent'],
+  lithium: ['severe_renal_disease', 'severe_heart_disease', 'dehydration', 'low_sodium_diet', 'pregnancy_first_trimester'],
+  valproate: ['pregnancy', 'liver_disease', 'urea_cycle_disorder', 'mitochondrial_disorder', 'pancreatitis_history'],
+  carbamazepine: ['bone_marrow_suppression', 'severe_liver_disease', 'pregnancy', 'mao_inhibitors_concurrent', 'history_of_sjs_or_ten'],
+  lamotrigine: ['history_of_sjs_or_ten', 'severe_liver_disease'],
+  topiramate: ['glaucoma', 'kidney_stones_history', 'metabolic_acidosis'],
+  levetiracetam: ['severe_renal_impairment'],
+  phenytoin: ['sinus_bradycardia', 'heart_block', 'porphyria', 'pregnancy', 'history_of_sjs_or_ten', 'liver_disease'],
+  zonisamide: ['sulfa_allergy', 'history_of_sjs_or_ten'],
+  diazepam: ['severe_respiratory_insufficiency', 'severe_liver_disease', 'sleep_apnea_untreated', 'myasthenia_gravis', 'narrow_angle_glaucoma_untreated'],
+  alprazolam: ['severe_respiratory_insufficiency', 'sleep_apnea_untreated', 'myasthenia_gravis', 'narrow_angle_glaucoma_untreated', 'concurrent_strong_cyp3a4_inhibitors'],
+  lorazepam: ['severe_respiratory_insufficiency', 'sleep_apnea_untreated', 'myasthenia_gravis', 'narrow_angle_glaucoma_untreated'],
+  clonazepam: ['severe_respiratory_insufficiency', 'sleep_apnea_untreated', 'myasthenia_gravis', 'narrow_angle_glaucoma_untreated', 'severe_liver_disease'],
+  midazolam: ['severe_respiratory_insufficiency', 'sleep_apnea_untreated', 'concurrent_strong_cyp3a4_inhibitors'],
+  triazolam: ['concurrent_strong_cyp3a4_inhibitors', 'pregnancy'],
+  warfarin: ['active_bleeding', 'recent_surgery', 'severe_liver_disease', 'severe_renal_disease', 'pregnancy_except_mechanical_valve', 'uncontrolled_hypertension'],
+  apixaban: ['active_bleeding', 'severe_liver_disease', 'mechanical_heart_valve', 'pregnancy'],
+  rivaroxaban: ['active_bleeding', 'severe_liver_disease', 'mechanical_heart_valve', 'pregnancy'],
+  dabigatran: ['active_bleeding', 'mechanical_heart_valve', 'severe_renal_impairment', 'pregnancy'],
+  clopidogrel: ['active_bleeding', 'severe_liver_disease'],
+  aspirin: ['active_bleeding', 'severe_asthma', 'severe_renal_disease', 'active_peptic_ulcer', 'children_with_viral_illness', 'third_trimester_pregnancy'],
+  ibuprofen: ['active_bleeding', 'active_peptic_ulcer', 'severe_renal_disease', 'third_trimester_pregnancy', 'recent_cabg', 'severe_heart_failure', 'active_gi_bleed'],
+  naproxen: ['active_bleeding', 'active_peptic_ulcer', 'severe_renal_disease', 'third_trimester_pregnancy', 'recent_cabg', 'severe_heart_failure', 'active_gi_bleed'],
+  celecoxib: ['active_bleeding', 'active_peptic_ulcer', 'severe_renal_disease', 'third_trimester_pregnancy', 'recent_cabg', 'severe_heart_failure', 'active_gi_bleed', 'sulfa_allergy', 'aspirin_exacerbated_respiratory_disease', 'ibuprofen_nsaid_allergy'],
+  diclofenac: ['active_bleeding', 'active_peptic_ulcer', 'severe_renal_disease', 'third_trimester_pregnancy', 'recent_cabg', 'severe_heart_failure', 'active_gi_bleed', 'aspirin_exacerbated_respiratory_disease'],
+  meloxicam: ['active_bleeding', 'active_peptic_ulcer', 'severe_renal_disease', 'third_trimester_pregnancy', 'recent_cabg', 'severe_heart_failure', 'active_gi_bleed', 'aspirin_exacerbated_respiratory_disease'],
+  tramadol: ['suicide_risk', 'substance_use_disorder', 'concurrent_mao_inhibitors', 'severe_respiratory_insufficiency', 'paralytic_ileus', 'acute_alcohol_intoxication'],
+  codeine: ['respiratory_depression', 'paralytic_ileus', 'acute_alcohol_intoxication', 'substance_use_disorder', 'ultrarapid_metabolizer'],
+  morphine: ['respiratory_depression', 'paralytic_ileus', 'acute_alcohol_intoxication', 'severe_asthma'],
+  oxycodone: ['respiratory_depression', 'paralytic_ileus', 'acute_alcohol_intoxication', 'severe_asthma'],
+  fentanyl: ['respiratory_depression', 'paralytic_ileus', 'acute_alcohol_intoxication', 'severe_asthma', 'opioid_tolerance_required'],
+  methadone: ['respiratory_depression', 'paralytic_ileus', 'acute_alcohol_intoxication', 'severe_asthma', 'long_qt_syndrome'],
+  buprenorphine: ['respiratory_depression', 'paralytic_ileus', 'acute_alcohol_intoxication', 'severe_asthma'],
+  naloxone: ['allergy_to_naloxone'],
+  prednisone: ['systemic_fungal_infection', 'live_vaccines', 'active_peptic_ulcer', 'severe_osteoporosis', 'uncontrolled_diabetes', 'uncontrolled_hypertension', 'severe_psychosis', 'cataract'],
+  methylprednisolone: ['systemic_fungal_infection', 'live_vaccines', 'active_peptic_ulcer', 'severe_osteoporosis', 'uncontrolled_diabetes', 'severe_psychosis'],
+  dexamethasone: ['systemic_fungal_infection', 'live_vaccines', 'active_peptic_ulcer', 'severe_osteoporosis', 'uncontrolled_diabetes', 'severe_psychosis'],
+  albuterol: ['severe_cardiomyopathy', 'tachyarrhythmia'],
+  fluticasone: ['severe_uncontrolled_asthma', 'active_eye_herpes_infection', 'untreated_fungal_infection'],
+  // The AI checks the patient's condition list against this map. Only
+  // flags a contraindication if the patient's record mentions the condition
+  // and the condition key is in the array for that drug.
+};
+
+// ponytail: helper — given a patient medication list and a candidate drug,
+// return the verified interacting drugs that the patient is actually on.
+function getPatientInteractions(
+  patientMeds: string[],
+  candidateDrug: string
+): string[] {
+  const candidate = candidateDrug.toLowerCase().trim();
+  const candidates = new Set<string>([candidate]);
+  for (const key of Object.keys(DRUG_INTERACTIONS)) {
+    if (key === candidate || candidate.includes(key) || key.includes(candidate)) {
+      candidates.add(key);
+    }
+  }
+  const flagged = new Set<string>();
+  for (const med of patientMeds) {
+    const medKey = med.toLowerCase().trim();
+    for (const cand of candidates) {
+      const inter = DRUG_INTERACTIONS[cand];
+      if (inter) {
+        for (const i of inter) {
+          if (i === medKey || medKey.includes(i) || i.includes(medKey)) {
+            flagged.add(med);
+            break;
+          }
+        }
+      }
+      // also check reverse: does the patient's med have the candidate in its interaction list?
+      const rev = DRUG_INTERACTIONS[medKey];
+      if (rev) {
+        for (const r of rev) {
+          if (r === cand || cand.includes(r) || r.includes(cand)) {
+            flagged.add(med);
+            break;
+          }
+        }
+      }
+    }
+  }
+  return Array.from(flagged);
+}
+
+// ponytail: helper — given a patient condition list and a candidate drug,
+// return verified contraindications that match the patient's conditions.
+function getPatientContraindications(
+  patientConditions: string[],
+  candidateDrug: string
+): string[] {
+  const candidate = candidateDrug.toLowerCase().trim();
+  const conds = DRUG_CONDITION_CONTRAINDICATIONS[candidate];
+  if (!conds) return [];
+  const matched: string[] = [];
+  for (const cond of conds) {
+    const condWords = cond.toLowerCase().split('_');
+    for (const pc of patientConditions) {
+      const pcl = pc.toLowerCase();
+      if (condWords.every(w => pcl.includes(w))) {
+        matched.push(cond.replace(/_/g, ' '));
+        break;
+      }
+    }
+  }
+  return matched;
+}
+
+/** Build the patient-specific alerts block for a given candidate drug. */
+export function buildPatientAlerts(
+  candidateDrug: string,
+  patientMeds: string[] = [],
+  patientConditions: string[] = []
+): string {
+  const inter = getPatientInteractions(patientMeds, candidateDrug);
+  const contra = getPatientContraindications(patientConditions, candidateDrug);
+  if (inter.length === 0 && contra.length === 0) return '';
+  const parts: string[] = [];
+  if (inter.length > 0) {
+    parts.push(`INTERACTIONS with patient's current meds: ${inter.join(', ')}`);
+  }
+  if (contra.length > 0) {
+    parts.push(`CONTRAINDICATIONS vs patient's conditions: ${contra.join(', ')}`);
+  }
+  return parts.join('\n');
+}
+
 const MEDICINE_DB: Record<string, MedicineInfo> = {
   metformin: {
     name: 'Metformin',

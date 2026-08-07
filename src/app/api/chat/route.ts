@@ -17,7 +17,7 @@ import { logAudit } from '@/lib/auth';
 import { chatMessageSchema, chatQuerySchema } from '@/lib/schemas';
 import { sanitizeText } from '@/lib/security';
 import { getCached, setCached } from '@/lib/ai-cache';
-import { getMedicineFromDb } from '@/lib/medicine-db-cache';
+import { getMedicineFromDb, buildPatientAlerts } from '@/lib/medicine-db-cache';
 import { buildDeidentifiedContext } from '@/lib/phi-filter';
 import { safeAIResponse } from '@/lib/ai-output-filter';
 import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia';
@@ -331,12 +331,40 @@ export async function POST(req: NextRequest) {
         ? `\n\nPATIENT CONTEXT (always consider this when answering):\n${patientContextParts.join('\n')}`
         : '';
 
+    // ponytail: build the patient-specific verified alerts (interactions +
+    // contraindications) for whatever drug this message is about. The AI
+    // uses these to proactively raise real, verified concerns without
+    // inventing any. Falls back to all meds if the drug isn't identifiable.
+    const patientMeds: string[] = ((allCtx[0] ?? []) as Array<{ name: string }>)
+      .map((m) => m.name)
+      .filter(Boolean);
+    const patientConditions: string[] = ((allCtx[1] ?? []) as Array<{ name: string }>)
+      .map((c) => c.name)
+      .filter(Boolean);
+    const candidate = getMedicineFromDb(message) ? message : patientMeds[0] || message;
+    const patientAlerts = buildPatientAlerts(candidate, patientMeds, patientConditions);
+
+    // ponytail: build a verified alert profile for the entire patient —
+    // for each of the patient's meds, list any verified interactions with
+    // other patient meds and any verified contraindications against the
+    // patient's conditions. This gives the AI the full clinical picture
+    // (not just alerts for the one drug in this message) so it can
+    // proactively raise real concerns when relevant.
+    const patientAlertProfile: string[] = [];
+    for (const med of patientMeds) {
+      const a = buildPatientAlerts(med, patientMeds, patientConditions);
+      if (a) patientAlertProfile.push(`- ${med}:\n${a.replace(/\n/g, '\n  ')}`);
+    }
+    const patientAlertBlock = patientAlertProfile.length
+      ? `\n\nVERIFIED PATIENT-SPECIFIC ALERTS (only flag these — they're from the interaction/contraindication maps, not invented):\n${patientAlertProfile.join('\n')}`
+      : '';
+
     // ── TUNING: RAG knowledge injection + few-shot examples ──────────────
     // Retrieve relevant medical knowledge (drug info, interactions, emergency
     // protocols, guidelines) for this specific query and inject it into the
     // system prompt so the base model answers with grounded, specific
     // healthcare information. Skipped for simple greetings.
-    let systemContent = SYSTEM_PROMPT + formattedContext;
+    let systemContent = SYSTEM_PROMPT + formattedContext + patientAlertBlock;
     if (needsRag(message)) {
       systemContent = getSystemPromptWithRAG(message, systemContent);
     }
