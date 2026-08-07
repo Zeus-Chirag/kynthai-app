@@ -18,8 +18,10 @@ if [[ ! -f "$BACKUP_FILE" ]]; then
   exit 1
 fi
 
-# Load environment
-source .env 2>/dev/null || source .env.production 2>/dev/null || true
+# Load environment if present (guard with existence checks — bash 3.2 exits on
+# a failing `source` under `set -e`, even with `|| true`)
+if [ -f ./.env ]; then source ./.env; fi
+if [ -z "${DATABASE_URL:-}" ] && [ -f ./.env.production ]; then source ./.env.production; fi
 
 if [[ -z "${DATABASE_URL:-}" ]]; then
   echo "ERROR: DATABASE_URL not set."

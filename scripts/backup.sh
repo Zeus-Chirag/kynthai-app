@@ -15,8 +15,9 @@ RETENTION_DAYS=30
 TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
 FILENAME="kynthai_backup_${TIMESTAMP}.sql.gz"
 
-# Load environment
-source .env 2>/dev/null || true
+# Load environment if present (bash 3.2 kills the shell on a failing `source`
+# under `set -e`, so guard with an explicit existence check — do not use `|| true`)
+if [ -f ./.env ]; then source ./.env; fi
 
 if [[ -z "${DATABASE_URL:-}" ]]; then
   echo "ERROR: DATABASE_URL not set. Export it or create a .env file."
@@ -52,6 +53,11 @@ if [[ -n "${GPG_KEY:-}" ]]; then
 fi
 
 # Optional: S3 upload
+# Accepts the project convention (BACKUP_S3_BUCKET / AWS_S3_BUCKET) plus the
+# legacy S3_BUCKET name. Region falls back to AWS_REGION, then us-east-1.
+S3_BUCKET="${BACKUP_S3_BUCKET:-${AWS_S3_BUCKET:-${S3_BUCKET:-}}}"
+AWS_DEFAULT_REGION="${AWS_REGION:-us-east-1}"
+export AWS_DEFAULT_REGION
 if [[ -n "${S3_BUCKET:-}" ]]; then
   echo "[backup] Uploading to s3://${S3_BUCKET}/backups/..."
   aws s3 cp "${BACKUP_DIR}/${FILENAME}" "s3://${S3_BUCKET}/backups/${FILENAME}" --storage-class STANDARD_IA
