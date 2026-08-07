@@ -215,6 +215,14 @@ export function LoginPage({
           body: JSON.stringify({ email: pick.email, password: 'Demo@2024' }),
         });
         if (res.ok) {
+          // Demo accounts are pre-seeded, pre-consented "returning users"
+          // (isDemo=false in DB, data + consent already present) — so mark
+          // onboarding complete client-side. Without this, a fresh visitor
+          // to the demo hits the 60-second first-run onboarding with a role
+          // picker (trap: user.role always wins over the picked role) and
+          // re-asks for consent that's already stored in the DB. This keeps
+          // the demo to the promised "explore instantly, no sign-up needed".
+          useAppStore.getState().completeOnboarding(pick.role);
           window.location.replace(`/${pick.role}`);
           return;
         }
