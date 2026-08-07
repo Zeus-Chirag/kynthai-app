@@ -861,6 +861,18 @@ const MEDICINE_DB: Record<string, MedicineInfo> = {
     pregnancySafety: 'Category D — DO NOT use in pregnancy. Discontinue if pregnancy detected.',
     storage: 'Store at room temperature.',
   },
+  lisinopril: {
+    name: 'Lisinopril',
+    genericName: 'Lisinopril',
+    category: 'ACE Inhibitor',
+    commonUses: ['High blood pressure', 'Heart failure', 'Post-heart attack recovery', 'Diabetic kidney protection'],
+    dosage: 'Start 10 mg once daily; maintenance 20–40 mg once daily (max 80 mg/day). Heart failure: start 5 mg, titrate to 20–35 mg.',
+    sideEffects: ['Dry cough (common — 5–20% of patients)', 'Dizziness', 'Headache', 'Fatigue', 'Stomach upset', 'Rare: Angioedema (swelling of face/airway — emergency)', 'Hyperkalemia (rare)'],
+    foodInteractions: ['Can take with or without food', 'Avoid potassium supplements and salt substitutes (hyperkalemia risk)', 'Avoid NSAIDs (reduced efficacy, kidney risk)', 'Limit alcohol'],
+    timing: 'Same time each day, morning preferred.',
+    pregnancySafety: 'Category D — DO NOT use during pregnancy. Associated with fetal toxicity. Discontinue ASAP if pregnancy detected.',
+    storage: 'Store at room temperature. Protect from moisture.',
+  },
   ramipril: {
     name: 'Ramipril',
     genericName: 'Ramipril',
