@@ -23,11 +23,20 @@ globalForRate.__rateBuckets = buckets
 let redisLimiter: Ratelimit | null = null
 const redisPrefix = 'kynthai:ratelimit'
 
+// Reject placeholder / sample config (mirrors nvidia.ts isRealProviderKey)
+// so a template value falls back to in-memory instead of failing Redis
+// calls on every request.
+function isRealUpstashConfig(url: string | undefined, token: string | undefined): boolean {
+  if (!url || !token) return false
+  if (url.length < 16 || token.length < 16) return false
+  return !/PLACEHOLDER|placeholder|xxx|changeme|sample/i.test(url + token)
+}
+
 function getRedisLimiter(): Ratelimit | null {
   if (redisLimiter) return redisLimiter
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
-  if (!url || !token) return null
+  if (!isRealUpstashConfig(url, token)) return null
   const redis = new Redis({ url, token })
   redisLimiter = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(100, '1 m'), analytics: true, prefix: redisPrefix })
   return redisLimiter
