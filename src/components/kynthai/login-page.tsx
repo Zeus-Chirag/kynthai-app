@@ -172,16 +172,25 @@ export function LoginPage({
     }
   }, [user, router]);
 
-  // ponytail: demo auto-login. When the user lands on /login with demo
-  // mode on and no real session, do a REAL sign-in (CSRF + login API)
-  // and redirect to the demo portal. This makes the demo behave like a
-  // real user from the very first page load. Same flow as portal-client:
-  // pick a demo account (default patient; #doctor/#caretaker/etc. via
-  // URL hash), real sign-in, hard reload to pick up the session.
+  // Demo login is EXPLICIT, never automatic. It only fires when the URL
+  // explicitly requests it — `?demo=1` or a role hash like `#patient`
+  // / `#doctor` / `#caretaker` / `#lab` / `#admin` — or when the user
+  // clicks the "Try the demo" button (which navigates to ?demo=1).
+  // Previously this fired for EVERY unauthenticated visitor to /login,
+  // silently signing real users into the demo patient account and
+  // redirecting them to /patient — breaking the real sign-in journey
+  // (the middleware gate is NODE_ENV-aware, but this effect wasn't).
   React.useEffect(() => {
     if (process.env.NEXT_PUBLIC_ENABLE_DEMO !== 'true') return;
     if (user) return;
     if (loading) return;
+    if (typeof window === 'undefined') return;
+    // Explicit opt-in gate — no URL marker, no auto-login.
+    const qs = new URLSearchParams(window.location.search);
+    const wantsDemo = qs.get('demo') === '1';
+    const hashRole = (window.location.hash || '').replace('#', '').toLowerCase();
+    const DEMO_ROLES = ['patient', 'doctor', 'caretaker', 'lab', 'admin'];
+    if (!wantsDemo && !DEMO_ROLES.includes(hashRole)) return;
     const demoAccounts: Array<{ email: string; role: 'patient' | 'doctor' | 'caretaker' | 'lab' | 'admin' }> = [
       { email: 'patient@kynthai.app',   role: 'patient'   },
       { email: 'doctor@kynthai.app',    role: 'doctor'    },
@@ -190,11 +199,8 @@ export function LoginPage({
       { email: 'admin@kynthai.app',     role: 'admin'     },
     ];
     const pick = (() => {
-      if (typeof window !== 'undefined') {
-        const fromHash = (window.location.hash || '').replace('#', '').toLowerCase();
-        const found = demoAccounts.find(a => a.role === fromHash);
-        if (found) return found as typeof demoAccounts[number];
-      }
+      const found = demoAccounts.find(a => a.role === hashRole);
+      if (found) return found as typeof demoAccounts[number];
       return demoAccounts[0]!;
     })();
     setLoading(true);
@@ -525,6 +531,24 @@ export function LoginPage({
                     Create Account
                   </button>
                 </div>
+
+                {process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
+                  <div className="mb-5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Full navigation (not router.push) so the page remounts
+                        // and the demo auto-login effect re-evaluates the URL.
+                        const hash = loginPortal !== 'patient' ? `#${loginPortal}` : '';
+                        window.location.assign(`/login?demo=1${hash}`);
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Try the demo — explore instantly, no sign-up needed
+                    </button>
+                  </div>
+                )}
 
                 <div className="mb-5 flex items-center gap-3">
                   <div
