@@ -19,7 +19,7 @@ import { sanitizeText } from '@/lib/security';
 import { getCached, setCached } from '@/lib/ai-cache';
 import { getMedicineFromDb, buildPatientAlerts } from '@/lib/medicine-db-cache';
 import { buildDeidentifiedContext } from '@/lib/phi-filter';
-import { safeAIResponse } from '@/lib/ai-output-filter';
+import { safeAIResponse, normalizeMarkdownSpacing, enforceNsaidSafetyForAnticoagulatedPatients } from '@/lib/ai-output-filter';
 import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia';
 import { needsRag, getSystemPromptWithRAG } from '@/lib/medical-rag';
 import { FEW_SHOT_EXAMPLES } from '@/lib/chat-system-prompt';
@@ -144,6 +144,8 @@ export async function POST(req: NextRequest) {
 
     // ── COST OPTIMIZATION 1: Pre-computed medicine DB (saves $0 per query) ──
     // Only use medicine DB for factual questions, NOT personal experiences/advice
+    // OR context-dependent follow-ups that depend on the prior turn (the static
+    // DB card can't honour conversation context, so those must go to the LLM).
     const medInfo = getMedicineFromDb(message);
     const isPersonalQuestion =
       /\b(my|I|me|myself|mine|should I|can I|why did|how do|what happens if|what should)\b/i.test(
@@ -151,12 +153,19 @@ export async function POST(req: NextRequest) {
       ) ||
       /\b(side effect|reaction|allergic|swollen|nausea|dizzy|pain|feel|experiencing|started taking|on my)\b/i.test(
         message
+      ) ||
+      // Follow-up / context-dependent — depends on prior turn, must go to LLM
+      /^\s*(what about|and |how about|does that|is that|what if|and if|combined|plus|along with|on top|additionally|furthermore|with that|on top of|as well)\b/i.test(
+        message
+      ) ||
+      /\b(add (to|on)|in addition|on top of that|along with that|as well as|extra risk|more risk|additional risk|combined risk|together risk)\b/i.test(
+        message
       );
     if (medInfo && !isPersonalQuestion) {
       const dbReply = formatMedicineInfo(medInfo);
       // Defense-in-depth: strip residual PHI before persist/return (drug
       // names/dosages are preserved by design — see ai-output-filter).
-      const safeDbReply = safeAIResponse(dbReply);
+      const safeDbReply = normalizeMarkdownSpacing(safeAIResponse(dbReply));
       try {
         await db.chatMessage.createMany({
           data: [
@@ -445,22 +454,34 @@ hasPatientContext: formattedContext.length > 0,
             // the PHI/PII filter on every partial chunk).
             const safeReply = safeAIResponse(accumulated) || "I'm sorry, I couldn't generate a response. Please try again.";
 
+            // Post-process: deterministic heading-spacing fix + NSAID safety
+            // net for patients on anticoagulants/antiplatelets. Applied
+            // BEFORE persist so the stored message and the `done` payload
+            // both contain the corrected version. The streamed `delta`
+            // chunks already went out (they reflect the raw LLM), but the
+            // client replaces the assembled text with `done.response`, so
+            // the user sees the corrected final text.
+            const { text: finalReply } = enforceNsaidSafetyForAnticoagulatedPatients(
+              normalizeMarkdownSpacing(safeReply),
+              patientMeds
+            );
+
             // Cache + persist (same as non-streaming path)
             if (history.length === 0) {
-              setCached('chat', message, safeReply);
+              setCached('chat', message, finalReply);
             }
             try {
               await db.chatMessage.createMany({
                 data: [
                   { userId: u.id, role: 'user', content: message, expiresAt: messageExpiry() },
-                  { userId: u.id, role: 'assistant', content: safeReply, source: 'llm', expiresAt: messageExpiry() },
+                  { userId: u.id, role: 'assistant', content: finalReply, source: 'llm', expiresAt: messageExpiry() },
                 ],
               });
             } catch (err) {
               logger.phiSafeError(err, 'chat.persist.llm.stream');
             }
 
-            send('done', { response: safeReply, source: 'llm', elapsedMs: Date.now() - startStream });
+            send('done', { response: finalReply, source: 'llm', elapsedMs: Date.now() - startStream });
             controller.close();
           } catch (err) {
             logger.phiSafeError(err, 'chat.stream');
@@ -498,10 +519,18 @@ hasPatientContext: formattedContext.length > 0,
     // dosages, and frequencies are product content and are intentionally
     // preserved (see src/lib/ai-output-filter.ts).
     const safeReply = safeAIResponse(reply);
+    // Post-process: deterministic heading-spacing fix + NSAID safety
+    // enforcement for users on anticoagulants/antiplatelets. The flattening
+    // in the previous edit left us with a single `safeReply` that needs
+    // to be corrected before we cache/persist it.
+    const { text: finalReply } = enforceNsaidSafetyForAnticoagulatedPatients(
+      normalizeMarkdownSpacing(safeReply),
+      patientMeds
+    );
 
     // Cache the response for 24h (only for single-turn queries without history)
     if (history.length === 0) {
-      setCached('chat', message, safeReply);
+      setCached('chat', message, finalReply);
     }
 
     // Persist the exchange with TTL (best-effort, non-blocking)

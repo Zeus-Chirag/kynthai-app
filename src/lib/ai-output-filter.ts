@@ -122,3 +122,72 @@ export function createStreamingRedactor() {
     },
   };
 }
+
+// ───────────────────────────────────────────────────────────────────────
+// Response post-processors — deterministic safety/quality fixes that
+// don't depend on LLM compliance. Applied AFTER safeAIResponse and
+// BEFORE persistence/return so the user sees the corrected version
+// (and the streaming `done` event delivers the corrected final text).
+// ───────────────────────────────────────────────────────────────────────
+
+/**
+ * Normalize markdown heading spacing.
+ *
+ * LLMs frequently emit `## HeadingBody text` with no blank line between
+ * the heading and the body, which collapses the heading into a paragraph
+ * in most renderers. This pass inserts a blank line after any markdown
+ * heading that isn't already followed by one. Deterministic; safe.
+ */
+export function normalizeMarkdownSpacing(text: string): string {
+  if (!text) return text;
+  // Match a heading line (## or ###) that is NOT followed by a blank line.
+  // The lookahead (?!\n\n) asserts "not followed by two newlines".
+  return text.replace(
+    /(^|\n)(#{1,6}\s+[^\n]+)(?!\n\n)(?=\S)/g,
+    (_m, lead: string, heading: string) => `${lead}${heading}\n`
+  );
+}
+
+/** Patient is on an anticoagulant/antiplatelet if any of their med names
+ * contains one of these substrings (case-insensitive). */
+function isOnAnticoagulantOrAntiplatelet(patientMeds: string[]): boolean {
+  const m = patientMeds.join(' ').toLowerCase();
+  // Anticoagulants: DOACs + warfarin + heparin/LMWH
+  if (/\b(apixaban|rivaroxaban|dabigatran|edoxaban|warfarin|heparin|enoxaparin)\b/.test(m)) return true;
+  // Antiplatelets
+  if (/\b(aspirin|clopidogrel|prasugrel|ticagrelor|dipyridamole)\b/.test(m)) return true;
+  return false;
+}
+
+/** Common OTC NSAID names to detect in the AI response. */
+const NSAID_NAMES_RE = /\b(ibuprofen|advil|motrin|naproxen|aleve|diclofenac|voltaren|celecoxib|celebrex|meloxicam|mobic|indomethacin|indocin|ketorolac|toradol|piroxicam|feldene|aspirin[ ,])\b/gi;
+
+/**
+ * NSAID-safety enforcement for patients on anticoagulants/antiplatelets.
+ *
+ * The system prompt tells the LLM not to recommend NSAIDs to these
+ * patients, but LLMs still occasionally do (e.g. recommending ibuprofen
+ * for a headache to a patient on apixaban + aspirin — a real triple
+ * bleeding risk). This pass is a deterministic safety net: if the
+ * patient is on an anticoagulant or antiplatelet and the response
+ * recommends an NSAID, we append a clear safety correction naming
+ * acetaminophen (Tylenol) as the safer alternative.
+ *
+ * Returns { text, flagged } so callers can log when the safety net
+ * actually fired (useful for monitoring how often the LLM drifts).
+ */
+export function enforceNsaidSafetyForAnticoagulatedPatients(
+  text: string,
+  patientMeds: string[]
+): { text: string; flagged: boolean } {
+  if (!text) return { text, flagged: false };
+  if (!isOnAnticoagulantOrAntiplatelet(patientMeds)) return { text, flagged: false };
+  // Only run if the response actually mentions/recommends an NSAID.
+  // Reset the regex's lastIndex (it's /g).
+  NSAID_NAMES_RE.lastIndex = 0;
+  if (!NSAID_NAMES_RE.test(text)) return { text, flagged: false };
+
+  const correction =
+    "\n\n> **Safety check:** Because you're on a blood-thinning medication, avoid ibuprofen, naproxen, and other NSAIDs for pain relief — they sharply increase bleeding risk when combined with your anticoagulant/antiplatelet. **Acetaminophen (Tylenol)** is the safer OTC option; follow the label dose and ask your pharmacist if you're unsure.";
+  return { text: text + correction, flagged: true };
+}
