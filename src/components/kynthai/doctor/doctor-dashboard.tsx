@@ -88,9 +88,27 @@ interface Appointment {
   time: string;
   date: string;
   type: 'video' | 'in-person';
-  status: 'pending' | 'upcoming' | 'completed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'rescheduled' | 'completed' | 'cancelled' | 'no_show';
   fee: number;
 }
+
+// ponytail: dashboard API returns raw scheduledAt ISO strings; format once here instead of per-render.
+const formatApptTime = (v: unknown): string => {
+  const s = v ? String(v) : '';
+  if (!s || !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s)) return s; // already a display string
+  return new Date(s).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+};
+const formatApptDate = (v: unknown): string => {
+  const s = v ? String(v) : '';
+  if (!s || !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s)) return s || 'Today';
+  const d = new Date(s);
+  const start = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((start(d) - start(new Date())) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  if (diff === -1) return 'Yesterday';
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+};
 
 interface Prescription {
   id: string;
@@ -110,7 +128,7 @@ const APPOINTMENTS: Appointment[] = [
     time: '10:30 AM',
     date: 'Today',
     type: 'video',
-    status: 'upcoming',
+    status: 'confirmed',
     fee: 75,
   },
   {
@@ -119,7 +137,7 @@ const APPOINTMENTS: Appointment[] = [
     time: '12:00 PM',
     date: 'Today',
     type: 'video',
-    status: 'upcoming',
+    status: 'confirmed',
     fee: 75,
   },
   {
@@ -385,10 +403,10 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
             patientName: String(
               (rec.patient as Record<string, string>)?.name ?? rec.patientName ?? 'Patient'
             ),
-            time: String(rec.time ?? rec.scheduledAt ?? ''),
-            date: String(rec.date ?? 'Today'),
+            time: formatApptTime(rec.time ?? rec.scheduledAt),
+            date: formatApptDate(rec.date ?? rec.scheduledAt),
             type: (rec.type ?? 'video') as 'video' | 'in-person',
-            status: (rec.status ?? 'upcoming') as 'pending' | 'upcoming' | 'completed' | 'cancelled',
+            status: (rec.status ?? 'confirmed') as Appointment['status'],
             fee: Number(rec.fee ?? rec.price ?? 0),
           };
         }
@@ -441,7 +459,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
       const patients = apiPatients;
       const prescriptions = apiPrescriptions;
       const completed = appointments.filter(a => a.status === 'completed').length;
-      const upcoming = appointments.filter(a => a.status === 'upcoming').length;
+      const upcoming = appointments.filter(
+        a => a.status === 'pending' || a.status === 'confirmed' || a.status === 'rescheduled'
+      ).length;
       const grossEarnings = appointments
         .filter(a => a.status === 'completed')
         .reduce((s, a) => s + a.fee, 0);
@@ -561,7 +581,9 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
     : APPOINTMENTS.filter(a => a.status === 'completed').length;
   const upcoming = isRealData
     ? (dashboardData?.stats?.upcoming ?? 0)
-    : APPOINTMENTS.filter(a => a.status === 'upcoming').length;
+    : APPOINTMENTS.filter(
+        a => a.status === 'pending' || a.status === 'confirmed' || a.status === 'rescheduled'
+      ).length;
   const grossEarnings = isRealData
     ? (dashboardData?.stats?.grossEarnings ?? 0)
     : APPOINTMENTS.filter(a => a.status === 'completed').reduce((s, a) => s + a.fee, 0);
@@ -1183,7 +1205,10 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                       .map(a => (
                         <Card
                           key={a.id}
-                          className={cn(a.status === 'upcoming' && 'ring-1 ring-emerald-500/20')}
+                          className={cn(
+                            (a.status === 'confirmed' || a.status === 'rescheduled') &&
+                              'ring-1 ring-emerald-500/20'
+                          )}
                         >
                           <CardContent className="p-3 flex items-center gap-3">
                             <span
@@ -1216,7 +1241,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                                   'text-[10px]',
                                   a.status === 'pending' &&
                                     'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-                                  a.status === 'upcoming' &&
+                                  (a.status === 'confirmed' || a.status === 'rescheduled') &&
                                     'bg-blue-500/10 text-blue-600 dark:text-blue-400',
                                   a.status === 'completed' &&
                                     'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
@@ -1257,7 +1282,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                               </Button>
                             </div>
                           )}
-                          {a.status === 'upcoming' && (
+                          {(a.status === 'confirmed' || a.status === 'rescheduled') && (
                             <div className="px-3 pb-3 flex gap-2">
                               <Button
                                 size="sm"
