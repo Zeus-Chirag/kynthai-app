@@ -923,6 +923,36 @@ export function PatientApp({ user }: { user: AuthUser }) {
   const [cancellingApptId, setCancellingApptId] = React.useState<string | null>(null);
   const [cancelConfirmId, setCancelConfirmId] = React.useState<string | null>(null);
 
+  // Missed-dose escalation: when a real patient opens their dashboard,
+  // surface overdue reminders (self-nudge) and alert linked caretakers.
+  // Fire-and-forget — the API marks reminders escalated so this runs once
+  // per overdue dose, never repeatedly for the same reminder.
+  React.useEffect(() => {
+    if (user?.isDemo) return;
+    let cancelled = false;
+    fetch('/api/auth/csrf', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((d) =>
+        fetch('/api/reminders/escalate', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': d.token },
+          body: JSON.stringify({}),
+        }),
+      )
+      .then((r) => {
+        if (!cancelled && r.ok) {
+          // no-op: results are logged server-side
+        }
+      })
+      .catch(() => {
+        /* best-effort — escalation is never critical-path */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.isDemo]);
+
   const handleCancelAppointment = React.useCallback(
     async (appointmentId: string) => {
       setCancelConfirmId(null);

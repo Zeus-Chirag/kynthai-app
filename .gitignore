@@ -126,3 +126,6 @@ test-results/
 # Vercel env-var seed (secrets stay local)
 scripts/.vercel-env.local.json
 *.local.json
+
+# local env seed — never commit secrets
+scripts/.vercel-env-local.json
