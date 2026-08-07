@@ -81,6 +81,21 @@ function isHealthQuestion(text: string): boolean {
   return HEALTH_KEYWORDS.some(k => t.includes(k));
 }
 
+// Personalised / safety / interaction / symptom questions MUST go to the
+// LLM (which has the patient's record + interaction map + contraindication
+// map), not the static DB fast path. General drug-info lookups can use
+// the fast path safely.
+function wantsPersonalisedAdvice(text: string): boolean {
+  const t = text.toLowerCase();
+  // First-person / "my meds" framing
+  if (/\b(i|my|me|i'm|im)\b/.test(t) && /\b(take|taking|prescribed|on)\b/.test(t)) return true;
+  // Interaction / safety framing
+  if (/\b(interact|interaction|safe|safety|with my|together with|combine|combination)\b/.test(t)) return true;
+  // Symptom / side-effect-experience framing
+  if (/\b(i feel|i have|my symptom|experiencing|side effect i|am i having)\b/.test(t)) return true;
+  return false;
+}
+
 // ponytail: build a safe, conservative triage-style reply for demo
 // health questions that don't match a medicine in the DB. Mirrors the
 // safety framing of the few-shot examples: no diagnosis, clear when to
@@ -196,20 +211,9 @@ export function AiChat() {
   }, [hasMore, loadingMore, oldestCursor]);
 
   useEffect(() => {
-    // Demo mode: skip API call, show welcome immediately
-    if (isDemo) {
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          content:
-            "Hi! I'm **Kynthai**, your AI health & medication assistant. I'm here to help you understand your medicines, manage side effects, and feel confident about your health.\n\n**How can I help you today?** Try asking about:\n• Any medicine you're taking\n• Side effects you're experiencing\n• Food or drink interactions\n• When to take your medications",
-        },
-      ]);
-      return;
-    }
-
-    // Real user: load paginated history from API
+    // Load paginated history from the real API. The account has a real session
+    // and the server is the source of truth for the welcome / first message,
+    // so we just fetch it like any signed-in user would.
     setLoadingInitial(true);
     setLoadError(false);
     loadMessages()
@@ -219,12 +223,13 @@ export function AiChat() {
           {
             id: 'welcome',
             role: 'assistant',
-            content: "Hi! I'm **Kynthai**, your AI medication assistant. How can I help you today?",
+            content:
+              "Hi! I'm **Kynthai**, your health & medication assistant. I'm here to help you understand your medicines, manage your health, and feel confident about your care.\n\nHow can I help you today?",
           },
         ]);
       })
       .finally(() => setLoadingInitial(false));
-  }, [isDemo]);
+  }, []);
 
   // Show quick replies after first assistant message
   useEffect(() => {
@@ -252,35 +257,20 @@ export function AiChat() {
     setInput('');
     setSending(true);
 
-    // ── Demo mode: answer from medicine DB locally ($0 API cost) ──
-    if (isDemo) {
-      const medInfo = getMedicineFromDb(content);
-      if (medInfo) {
-        const reply = formatMedicineInfoLocal(medInfo);
-        setMessages([
-          ...nextMessages,
-          { id: `a-${Date.now()}`, role: 'assistant', content: reply },
-        ]);
-      } else if (isHealthQuestion(content)) {
-        // ponytail: demo health questions that miss the medicine DB get a
-        // local triage-style answer so the demo actually demonstrates the
-        // assistant's capability instead of dead-ending on a sign-up pitch.
-        const reply = buildLocalTriageReply(content);
-        setMessages([
-          ...nextMessages,
-          { id: `a-${Date.now()}`, role: 'assistant', content: reply },
-        ]);
-      } else {
-        setMessages([
-          ...nextMessages,
-          {
-            id: `a-${Date.now()}`,
-            role: 'assistant',
-            content:
-              'I\'m Kynthai, your **health & medication** assistant. I\'m here to help you understand your medicines, manage your health, and feel confident about your care.\n\n**In this demo, I can help with 20+ common medicines** including Metformin, Atorvastatin, Amoxicillin, Omeprazole, Losartan, Aspirin, Levothyroxine, and more.\n\nTry asking me things like:\n• "What is Metformin used for?"\n• "What are the side effects of Atorvastatin?"\n• "Can I take Aspirin with food?"\n\nFor full capabilities — symptom analysis, drug interactions, and personalized health advice — create your free account. Your health journey starts here. 💚',
-          },
-        ]);
-      }
+    // ── Fast path: if the question is a direct lookup of a medicine in our
+    //    verified 122-drug database and isn't asking for personal/safety
+    //    advice, serve the verified entry instantly ($0, no LLM latency,
+    //    guaranteed accurate — no hallucination). Personal / interaction /
+    //    symptom / complex questions fall through to the real LLM which has
+    //    the same DB + interaction map + contraindication map + the
+    //    patient's actual record.
+    const fastPathMatch = getMedicineFromDb(content);
+    if (fastPathMatch && !wantsPersonalisedAdvice(content)) {
+      const reply = formatMedicineInfoLocal(fastPathMatch);
+      setMessages([
+        ...nextMessages,
+        { id: `a-${Date.now()}`, role: 'assistant', content: reply },
+      ]);
       setSending(false);
       return;
     }

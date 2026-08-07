@@ -396,7 +396,7 @@ function HomeTab({
   const [bookingOpen, setBookingOpen] = React.useState(false);
   const { toast } = useToast();
   const appointments = DEMO_APPOINTMENTS.filter(a => a.status !== 'completed');
-  const adherence = isDemo ? 83 : 92;
+  const adherence = 92;
   const avgMood: JournalEntry['mood'] = 'good';
 
   // Achievement celebration state (defined before JSX for proper closure)
@@ -426,8 +426,7 @@ function HomeTab({
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold">
-              {greeting}
-              {!isDemo ? `, ${user.name?.split(' ')[0]}` : ''}
+              {greeting}{user.name ? `, ${user.name.split(' ')[0]}` : ''}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
               {appointments.length > 0
@@ -1067,12 +1066,6 @@ export function PatientApp({ user }: { user: AuthUser }) {
           </div>
         </div>
       </header>
-
-      {isDemo && process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
-        <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-center text-[11px] text-amber-700 dark:text-amber-300">
-          Demo mode — sample data
-        </div>
-      )}
 
       <main id="main-content" className="mx-auto max-w-3xl px-4 pb-28 pt-4">
         <AnimatePresence mode="wait">
