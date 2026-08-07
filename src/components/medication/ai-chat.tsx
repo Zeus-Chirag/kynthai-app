@@ -27,12 +27,18 @@ interface PaginatedChatResponse {
 
 /** Format medicine DB info into readable markdown (used in demo mode, $0 cost). */
 function formatMedicineInfoLocal(med: NonNullable<ReturnType<typeof getMedicineFromDb>>): string {
+  // ponytail: defensive — the medicine DB has rows with one or more of
+  // commonUses / sideEffects / foodInteractions null. Map over them safely
+  // so a single bad row doesn't take down the whole AI tab.
+  const commonUses = med.commonUses ?? [];
+  const sideEffects = med.sideEffects ?? [];
+  const foodInteractions = med.foodInteractions ?? [];
   return `## ${med.name}${med.genericName ? ` (${med.genericName})` : ''}
 
 **Category:** ${med.category}
 
 ### Common Uses
-${med.commonUses.map((u: string) => `- ${u}`).join('\n')}
+${commonUses.map((u: string) => `- ${u}`).join('\n')}
 
 ### Dosage
 ${med.dosage}
@@ -41,10 +47,10 @@ ${med.dosage}
 ${med.timing}
 
 ### Common Side Effects
-${med.sideEffects.map((s: string) => `- ${s}`).join('\n')}
+${sideEffects.map((s: string) => `- ${s}`).join('\n')}
 
 ### Food Interactions
-${med.foodInteractions.map((f: string) => `- ${f}`).join('\n')}
+${foodInteractions.map((f: string) => `- ${f}`).join('\n')}
 
 ### Pregnancy Safety
 ${med.pregnancySafety}
