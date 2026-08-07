@@ -212,8 +212,12 @@ export async function POST(req: NextRequest) {
   } catch { /* ignore */ }
 
   // Deliver prescription invite by email only.
+  // ponytail: inviteLink stays relative for the doctor's copy-link UI (it
+  // prefixes window.location.origin), but the email must get an absolute URL
+  // or the link is not clickable from mail clients.
+  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'}${inviteLink}`
   try {
-    await sendInvite(patient.id, u.name ?? 'Doctor', inviteLink, cleanedMeds.length, {
+    await sendInvite(patient.id, u.name ?? 'Doctor', inviteUrl, cleanedMeds.length, {
       email: patient.email,
       phone: null,
     })
