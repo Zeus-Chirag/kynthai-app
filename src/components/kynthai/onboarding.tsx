@@ -60,9 +60,18 @@ const CONSENT_INDEX = SLIDES.length
 
 const ROLE_SLIDE_INDEX = 3; // which slide has role picker (0-indexed)
 
-export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'caretaker' | 'doctor' | 'lab') => void }) {
+export function Onboarding({
+  onComplete,
+  initialRole,
+}: {
+  onComplete: (role: 'patient' | 'caretaker' | 'doctor' | 'lab' | 'admin') => void
+  // Role fixed at signup (stored in DB). When present, the role slide becomes
+  // a locked confirmation — the picker choice is ignored by routing anyway,
+  // which silently misled users who picked a different portal.
+  initialRole?: 'patient' | 'caretaker' | 'doctor' | 'lab' | 'admin'
+}) {
   const [index, setIndex] = React.useState(0)
-  const [role, setRole] = React.useState<'patient' | 'caretaker' | 'doctor' | 'lab' | null>(null)
+  const [role, setRole] = React.useState<'patient' | 'caretaker' | 'doctor' | 'lab' | 'admin' | null>(initialRole ?? null)
   // COMPLIANCE: consent flags gated by explicit user action before completion.
   const [termsAccepted, setTermsAccepted] = React.useState(false)
   const [dataProcessingAccepted, setDataProcessingAccepted] = React.useState(false)
@@ -227,8 +236,14 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
                     return <Icon className="h-5 w-5" />
                   })()}
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{slide.title}</h1>
-                <p className="mt-2 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">{slide.body}</p>
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                  {isRoleSlide && initialRole ? 'Your portal role' : slide.title}
+                </h1>
+                <p className="mt-2 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">
+                  {isRoleSlide && initialRole
+                    ? 'Your portal is already set based on the role you chose when signing up.'
+                    : slide.body}
+                </p>
 
                 {/* AI limits content - only on AI limits slide */}
                 {isAiLimitsSlide && (
@@ -268,23 +283,53 @@ export function Onboarding({ onComplete }: { onComplete: (role: 'patient' | 'car
 
                 {isRoleSlide && (
                   <div className="mt-4 w-full space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">I am a…</p>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {roles.map((r) => {
-                        const Icon = r.icon
-                        const selected = role === r.id
-                        return (
-                          <button key={r.id} onClick={() => setRole(r.id)}
-                            className={cn('flex flex-col items-center gap-2 rounded-2xl border-2 p-3 transition-all',
-                              selected ? 'border-emerald-500 bg-emerald-500/10 shadow-md' : 'border-border/60 bg-card/60 hover:border-emerald-500/30')}>
-                            <span className={cn('flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white', r.tint)}>
-                              <Icon className="h-5 w-5" /></span>
-                            <span className="text-xs font-semibold">{r.label}</span>
-                            <span className="text-[10px] text-muted-foreground">{r.desc}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
+                    {initialRole ? (
+                      <div className="space-y-2">
+                        {(() => {
+                          const meta = roles.find((r) => r.id === initialRole)
+                            ?? (initialRole === 'admin'
+                              ? { label: 'Admin', desc: 'Platform management', icon: ShieldCheck, tint: 'from-emerald-600 to-teal-700' }
+                              : { label: 'Patient', desc: 'Personal health assistant', icon: UserCircle, tint: 'from-emerald-500 to-teal-600' })
+                          const MetaIcon = meta.icon
+                          return (
+                            <div className="flex items-center gap-3 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 p-4 shadow-md">
+                              <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white', meta.tint)}>
+                                <MetaIcon className="h-5 w-5" />
+                              </span>
+                              <div className="flex-1 text-left">
+                                <p className="text-[11px] font-medium text-muted-foreground">Your account is registered as</p>
+                                <p className="text-sm font-bold">{meta.label}</p>
+                                <p className="text-[11px] text-muted-foreground">{meta.desc}</p>
+                              </div>
+                              <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-500" />
+                            </div>
+                          )
+                        })()}
+                        <p className="px-2 text-center text-[11px] text-muted-foreground">
+                          This is locked to the role you signed up with. Contact support to change it.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground mb-2">I am a…</p>
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                          {roles.map((r) => {
+                            const Icon = r.icon
+                            const selected = role === r.id
+                            return (
+                              <button key={r.id} onClick={() => setRole(r.id)}
+                                className={cn('flex flex-col items-center gap-2 rounded-2xl border-2 p-3 transition-all',
+                                  selected ? 'border-emerald-500 bg-emerald-500/10 shadow-md' : 'border-border/60 bg-card/60 hover:border-emerald-500/30')}>
+                                <span className={cn('flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white', r.tint)}>
+                                  <Icon className="h-5 w-5" /></span>
+                                <span className="text-xs font-semibold">{r.label}</span>
+                                <span className="text-[10px] text-muted-foreground">{r.desc}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </motion.div>

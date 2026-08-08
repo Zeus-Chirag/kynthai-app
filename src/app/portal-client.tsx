@@ -297,6 +297,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     return (
       <ErrorBoundary>
         <Onboarding
+          initialRole={user.role}
           onComplete={role => {
             completeOnboarding(role);
             setLoginPortal(role);
