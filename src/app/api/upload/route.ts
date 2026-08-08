@@ -7,6 +7,7 @@ import { jsonError, jsonOk, requireAuth } from '@/lib/api-helpers';
 import { writeFile, mkdir, chmod } from 'fs/promises';
 import { join } from 'path';
 import { encrypt as encryptPayload } from '@/lib/encryption'; // ENCRYPTION-AT-REST
+import { scanBuffer } from '@/lib/antivirus';
 export const dynamic = 'force-dynamic';
 
 /**
@@ -118,6 +119,16 @@ export async function POST(req: NextRequest) {
     return jsonError('File too large. Max 5 MB.', 400);
   }
 
+  // SECURITY: malware scan (ClamAV) — read the full raw bytes and scan them
+  // BEFORE encrypting/storing. If ClamAV is unavailable (e.g. serverless) the
+  // scan degrades gracefully unless KYNTHAI_REQUIRE_AV=1.
+  const fullBuffer = Buffer.from(await file.arrayBuffer());
+  const verdict = await scanBuffer(fullBuffer, file.name);
+  if (verdict.engine === 'clamav' && verdict.infected) {
+    await logAudit(session.id, 'upload.rejected_malware', { resourceType: 'upload', details: verdict.details });
+    return jsonError('This file was flagged as potentially malicious and was not uploaded.', 400, 'MALWARE_DETECTED');
+  }
+
   // Ensure user directory exists in the ENCRYPTED private store.
   // This directory is OUTSIDE the `public/` tree — never served as static assets.
   await mkdir(getUserDir(session.id), { recursive: true });
@@ -131,8 +142,7 @@ export async function POST(req: NextRequest) {
   const filepath = join(getUserDir(session.id), filename);
 
   // Read raw bytes, then ENCRYPT BEFORE writing to disk.
-  const arrayBuffer = await file.arrayBuffer();
-  const rawBuffer = Buffer.from(arrayBuffer);
+  const rawBuffer = fullBuffer; // already read for the malware scan above
   const encryptedBuffer = encryptBuffer(rawBuffer); // ENCRYPTION-AT-REST applied here
   await writeFile(filepath, encryptedBuffer);
 
