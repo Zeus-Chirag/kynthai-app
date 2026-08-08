@@ -132,3 +132,7 @@ scripts/.vercel-env-local.json
 
 # Reticle runtime session logs (dev artifacts)
 .reticle/sessions/
+
+# Reticle runtime session/ambient artifacts
+.reticle/ambient.json
+.reticle/sessions/
