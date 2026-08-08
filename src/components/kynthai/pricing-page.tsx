@@ -299,7 +299,7 @@ export function PricingPage() {
         </div>
       </section>
 
-      {/* GST note */}
+      {/* Tax note */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-center text-xs text-muted-foreground">
           Prices are shown in US dollars. Sales tax (where applicable) is charged at checkout. Doctor consultation

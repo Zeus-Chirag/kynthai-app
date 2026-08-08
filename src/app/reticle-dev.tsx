@@ -11,7 +11,10 @@ import { useEffect } from 'react';
 export function ReticleDev() {
   useEffect(() => {
     if (process.env.NODE_ENV !== 'development') return;
-    void import('@reticlehq/react').then(({ reticle, SESSION_AUTO, registerStore }) =>
+    void import('@reticlehq/react').then(({ reticle, SESSION_AUTO, install, registerStore }) => {
+      // Install the React adapter (component identify/readState + render meter) and
+      // register the zustand store so the Reticle agent can drive + inspect the app.
+      install();
       Promise.all([
         import('@/lib/store').then(m => m.useAppStore).catch(() => null),
       ]).then(([useAppStore]) => {
@@ -24,8 +27,8 @@ export function ReticleDev() {
           session: SESSION_AUTO,
           token: process.env.NEXT_PUBLIC_RETICLE_TOKEN,
         });
-      }),
-    );
+      });
+    });
   }, []);
   return null;
 }
