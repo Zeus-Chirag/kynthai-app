@@ -215,25 +215,24 @@ export function LoginPage({
           body: JSON.stringify({ email: pick.email, password: 'Demo@2024' }),
         });
         if (res.ok) {
-          // Mirror the real sign-in handler (submit → /auth/login → login(user)):
-          // keep the client store in sync with the server session cookie. The
-          // portal clients (admin-client, patient-client, doctor-client, …) gate
-          // on the STORE user and redirect to /login when it's null — on a fresh
-          // browser the demo login only set the cookie, so /admin (and every
-          // other portal) bounced straight back to /login. Persisted via zustand
-          // persist, so it survives the hard reload below.
-          const data = await res.json();
-          const demoUser: AuthUser = {
-            id: data.id,
-            email: data.email,
-            name: data.name,
-            role: data.role,
-            phone: data.phone,
-            subscriptionTier: data.subscriptionTier,
-            isDemo: data.isDemo,
-            isUserMinor: Boolean((data as { isUserMinor?: boolean }).isUserMinor),
-          };
-          useAppStore.getState().login(demoUser);
+          // Mirror the real sign-in handler (submit → /auth/login → login(user))
+          // AND the portal clients' session recovery (patient-client fetches
+          // /api/auth/me when the store is empty): source the store user from
+          // /me, which returns the FULL profile including consent flags. The
+          // /auth/login response omits consent flags, so storing it directly
+          // trips the patient portal's ConsentGate on a fresh browser.
+          // The portal clients (admin-client, patient-client, …) gate on the
+          // STORE user — with it set, the hard reload below renders their
+          // portal instead of bouncing to /login (the pre-fix behavior on any
+          // browser without a persisted store user). Persisted via zustand
+          // persist, so it survives the reload.
+          try {
+            const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+            if (meRes.ok) {
+              const me = await meRes.json();
+              if (me?.user) useAppStore.getState().login(me.user);
+            }
+          } catch { /* portal clients self-recover via /me on their own */ }
           // Demo accounts are pre-seeded, pre-consented "returning users"
           // (isDemo=false in DB, data + consent already present) — so mark
           // onboarding complete client-side. Without this, a fresh visitor
