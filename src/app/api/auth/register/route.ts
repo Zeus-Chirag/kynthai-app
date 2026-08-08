@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 import { logAudit } from '@/lib/auth';
 import {
   sanitizeText,
@@ -23,6 +22,7 @@ import { logger } from '@/lib/logger';
 import { syncSupabaseUser } from '@/lib/supabase/sync';
 import { verifyTurnstileToken, isCaptchaConfigured } from '@/lib/captcha';
 import { checkEnrollmentGate } from '@/lib/fraud-guard';
+import { createSafeServerClient } from '@/lib/supabase/get-server-client';
 export const dynamic = 'force-dynamic';
 
 const WEAK_PASSWORDS = new Set([
@@ -123,23 +123,22 @@ export async function POST(req: NextRequest) {
 
     // ── Supabase Auth: sign up ──────────────────────────────────────────
     let responseCookies: { name: string; value: string; options?: Record<string, unknown> }[] = [];
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return req.cookies.getAll();
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              req.cookies.set({ name, value, ...options });
-              responseCookies.push({ name, value, options });
-            });
-          },
-        },
-      }
-    );
+    const supabase = createSafeServerClient({
+      getAll: () => req.cookies.getAll(),
+      setAll: cookiesToSet => {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          req.cookies.set({ name, value, ...options });
+          responseCookies.push({ name, value, options });
+        });
+      },
+    });
+    if (!supabase) {
+      return jsonError(
+        'Authentication is not configured on the server. Please try again later.',
+        503,
+        'AUTH_NOT_CONFIGURED'
+      );
+    }
 
     const role = body.role || 'patient';
     let { data: authData, error: authError } = await supabase.auth.signUp({

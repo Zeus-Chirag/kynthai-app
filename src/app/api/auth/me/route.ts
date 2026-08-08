@@ -1,28 +1,24 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 import { logAudit } from '@/lib/auth';
-import { applyStandardHeaders, jsonOk } from '@/lib/api-helpers';
+import { applyStandardHeaders, jsonOk, jsonError } from '@/lib/api-helpers';
 import { getSupabaseProfile } from '@/lib/supabase/sync';
 import { verifySessionToken } from '@/lib/session-signing';
+import { createSafeServerClient } from '@/lib/supabase/get-server-client';
 import { db } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   // ── 1. Try Supabase auth first ──────────────────────────────────────────
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
-        },
-        setAll() {},
-      },
-    }
-  );
-
-  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+  const supabase = createSafeServerClient({
+    getAll: () => req.cookies.getAll(),
+    setAll: () => {},
+  });
+  // Missing Supabase env (e.g. local dev without keys) is NOT fatal: fall
+  // straight through to the local HMAC session path below instead of throwing
+  // an uncaught 500.
+  const supabaseUser = supabase
+    ? (await supabase.auth.getUser()).data.user
+    : null;
 
   if (supabaseUser) {
     const profile = await getSupabaseProfile(supabaseUser);
