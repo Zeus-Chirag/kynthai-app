@@ -7,6 +7,7 @@ import { encrypt, decryptValue } from '@/lib/encryption';
 import { checkCsrf } from '@/lib/csrf';
 import { jsonError, jsonOk, readJson, audit, parseJsonCol, requireAuth } from '@/lib/api-helpers';
 import { verifyNpi } from '@/lib/npi-verify';
+import { validateDocuments } from '@/lib/document-validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -160,6 +161,13 @@ export async function POST(req: NextRequest) {
   }
 
   const docs = body.documents ?? {};
+
+  // Fraud prevention: strictly validate uploaded documents (type allowlist +
+  // magic-byte check + size cap) — same standards as /api/upload. Rejects
+  // arbitrary base64 blobs that used to be stored unvalidated.
+  const docCheck = validateDocuments(docs);
+  if (!docCheck.ok) return jsonError(docCheck.error, 400);
+
   const docsJson = JSON.stringify(
     Object.entries(docs)
       .filter(([, v]) => !!v)
@@ -167,6 +175,28 @@ export async function POST(req: NextRequest) {
   );
 
   const existing = await db.doctorProfile.findUnique({ where: { userId: session.id } });
+
+  // Fraud prevention: a hard-blocked user cannot submit a provider application.
+  if (session.verificationLevel === 'blocked') {
+    return jsonError('This account is not eligible to apply.', 403, 'ACCOUNT_BLOCKED');
+  }
+
+  // Provider fraud: refuse a license number already held by another approved
+  // doctor (prevents cloned/duplicate provider identities).
+  if (licenseNumber) {
+    const dupLicense = await db.doctorProfile.findFirst({
+      where: {
+        licenseNumber,
+        verificationStatus: 'approved',
+        userId: { not: session.id },
+      },
+      select: { id: true },
+    });
+    if (dupLicense) {
+      await logAudit(session.id, 'doctor.profile.duplicate_license', `license=${licenseNumber}`, 'security');
+      return jsonError('This license number is already registered to another doctor.', 409, 'LICENSE_IN_USE');
+    }
+  }
 
   const payload = {
     specialization,

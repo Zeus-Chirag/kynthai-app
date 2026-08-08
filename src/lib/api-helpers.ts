@@ -301,8 +301,8 @@ export async function requireAuth(
     identityConfirmedAt: null,
     idDocumentUploaded: false,
     idDocumentVerified: false,
-    verificationLevel: 'unverified',
-    verificationRejectedReason: null,
+    verificationLevel: profile.verificationLevel ?? 'unverified',
+    verificationRejectedReason: profile.verificationRejectedReason ?? null,
     idDocumentRef: null,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -312,6 +312,14 @@ export async function requireAuth(
   // US privacy enforcement: block any unconsented user from accessing sensitive health data endpoints.
   const consentErr = checkConsent(user, req);
   if (consentErr) return { response: consentErr, user: null };
+
+  // Fraud prevention: a hard-blocked user is denied app-wide (any API call).
+  if (user.verificationLevel === 'blocked') {
+    return {
+      response: jsonError('This account has been blocked for security reasons.', 403, 'ACCOUNT_BLOCKED'),
+      user: null,
+    };
+  }
 
   return { response: null, user };
 }

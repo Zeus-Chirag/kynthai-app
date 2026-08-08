@@ -108,6 +108,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
   const [labApps, setLabApps] = React.useState<LabApp[] | null>(null);
   const [refunds, setRefunds] = React.useState<RefundRow[] | null>(null);
   const [fraudFlags, setFraudFlags] = React.useState<FraudFlag[] | null>(null);
+  const [blockedUsers, setBlockedUsers] = React.useState<BlockedUser[] | null>(null);
   const [tabError, setTabError] = React.useState<string | null>(null);
   const [refetchTick, setRefetchTick] = React.useState(0);
 
@@ -157,6 +158,9 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || 'Failed to load fraud flags');
           if (!cancelled) setFraudFlags(data?.flags ?? []);
+          const blockedRes = await fetch('/api/admin/blocked', { credentials: 'include', cache: 'no-store' });
+          const blockedData = await blockedRes.json().catch(() => ([]));
+          if (blockedRes.ok && !cancelled) setBlockedUsers(Array.isArray(blockedData) ? blockedData : []);
         } else if (tab === 'refunds') {
           const res = await fetch('/api/refunds', { credentials: 'include', cache: 'no-store' });
           const data = await res.json().catch(() => ({}));
@@ -431,6 +435,34 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
               flags={fraudFlags ?? []}
               loading={fraudFlags === null}
               error={tabError && tab === 'fraud' ? tabError : null}
+              blocked={blockedUsers}
+              blockedLoading={blockedUsers === null}
+              onBlock={async (email, reason) => {
+                // Resolve the email to a userId via the overview's user list is
+                // not available here; block by looking up the user server-side.
+                const res = await apiFetch('/api/admin/blocked', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId: email, reason }),
+                });
+                if (!res.ok) {
+                  const j = await res.json().catch(() => ({}));
+                  throw new Error(j.error || 'Block failed');
+                }
+                setRefetchTick(t => t + 1);
+              }}
+              onUnblock={async userId => {
+                const res = await apiFetch('/api/admin/blocked', {
+                  method: 'DELETE',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId }),
+                });
+                if (!res.ok) {
+                  const j = await res.json().catch(() => ({}));
+                  throw new Error(j.error || 'Unblock failed');
+                }
+                setRefetchTick(t => t + 1);
+              }}
             />
           </TabsContent>
         </Tabs>
@@ -883,20 +915,97 @@ function FraudTab({
   flags,
   loading,
   error,
+  blocked,
+  blockedLoading,
+  onBlock,
+  onUnblock,
 }: {
   flags: FraudFlag[];
   loading?: boolean;
   error?: string | null;
+  blocked?: BlockedUser[] | null;
+  blockedLoading?: boolean;
+  onBlock?: (email: string, reason: string) => Promise<void>;
+  onUnblock?: (userId: string) => Promise<void>;
 }) {
+  const { toast } = useToast();
+  const [email, setEmail] = React.useState('');
+  const [reason, setReason] = React.useState('');
+  const [actingId, setActingId] = React.useState<string | null>(null);
+
+  const doBlock = async () => {
+    if (!email.trim()) {
+      toast({ title: 'Email required', description: 'Enter the account email to block.', variant: 'destructive' });
+      return;
+    }
+    setActingId('__new__');
+    try {
+      await onBlock?.(email.trim(), reason.trim() || 'Blocked by admin');
+      toast({ title: 'Account blocked', description: `${email.trim()} can no longer sign in.` });
+      setEmail('');
+      setReason('');
+    } catch (e) {
+      toast({ title: 'Block failed', description: e instanceof Error ? e.message : 'Try again', variant: 'destructive' });
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const doUnblock = async (id: string) => {
+    setActingId(id);
+    try {
+      await onUnblock?.(id);
+      toast({ title: 'Account unblocked', description: 'The user can sign in again.' });
+    } catch (e) {
+      toast({ title: 'Unblock failed', description: e instanceof Error ? e.message : 'Try again', variant: 'destructive' });
+    } finally {
+      setActingId(null);
+    }
+  };
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-base font-semibold">Fraud flags</h2>
+        <h2 className="text-base font-semibold">Fraud &amp; access control</h2>
         <p className="text-xs text-muted-foreground">
           Automated checks: duplicate licenses, same-phone accounts, commission
-          farming, zero-value bookings, missing consent, multi-bookings.
+          farming, zero-value bookings, missing consent, multi-bookings. Blocked
+          accounts are denied sign-in and all API access app-wide.
         </p>
       </div>
+
+      {/* Block by email */}
+      <Card className="border-rose-500/20">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4 text-rose-500" />
+            <h3 className="text-sm font-semibold">Block an account</h3>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="person@example.com"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-500/40"
+            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={reason}
+                onChange={e => setReason(e.target.value)}
+                placeholder="Reason (optional)"
+                className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-500/40"
+              />
+              <Button size="sm" variant="destructive" onClick={doBlock} disabled={actingId !== null}>
+                {actingId === '__new__' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Block'}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Fraud flags */}
       {loading ? (
         <LoadingCard />
       ) : error ? (
@@ -953,6 +1062,59 @@ function FraudTab({
           ))}
         </div>
       )}
+
+      {/* Blocked accounts */}
+      <div>
+        <h3 className="text-sm font-semibold flex items-center gap-2">
+          <ShieldAlert className="h-4 w-4 text-rose-500" />
+          Blocked accounts
+        </h3>
+        <p className="text-xs text-muted-foreground mb-2">
+          These accounts are denied sign-in and all API access until unblocked.
+        </p>
+        {blockedLoading ? (
+          <LoadingCard />
+        ) : !blocked || blocked.length === 0 ? (
+          <Card>
+            <CardContent className="p-6 text-center text-muted-foreground">
+              <ShieldAlert className="h-8 w-8 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">No blocked accounts.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-2">
+            {blocked.map(b => (
+              <Card key={b.id}>
+                <CardContent className="p-3 flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                    <ShieldAlert className="h-4 w-4" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-sm">{b.name || '—'}</p>
+                      <Badge variant="outline" className="text-[10px]">
+                        {b.role}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{b.email}</p>
+                    {b.verificationRejectedReason && (
+                      <p className="text-[11px] text-rose-500/80 truncate">{b.verificationRejectedReason}</p>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={actingId === b.id}
+                    onClick={() => doUnblock(b.id)}
+                  >
+                    {actingId === b.id ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Unblock'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1179,6 +1341,18 @@ interface FraudFlag {
   issue: string;
   severity: 'high' | 'medium' | 'low';
   time: string;
+}
+
+interface BlockedUser {
+  id: string;
+  name: string | null;
+  email: string;
+  role: string;
+  phone: string | null;
+  verificationRejectedReason: string | null;
+  isDemo: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const REFUND_REASONS: Record<string, string> = {

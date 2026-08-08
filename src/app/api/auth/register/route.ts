@@ -22,6 +22,7 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { syncSupabaseUser } from '@/lib/supabase/sync';
 import { verifyTurnstileToken, isCaptchaConfigured } from '@/lib/captcha';
+import { checkEnrollmentGate } from '@/lib/fraud-guard';
 export const dynamic = 'force-dynamic';
 
 const WEAK_PASSWORDS = new Set([
@@ -97,6 +98,20 @@ export async function POST(req: NextRequest) {
       return jsonError('This password is too common — choose a stronger one', 400);
     }
     if (!name) return jsonError('Name is required', 400, 'VALIDATION_ERROR');
+
+    // ── Fraud prevention gate ─────────────────────────────────────────
+    // Reject new accounts that match known fraud signals (blocked identity,
+    // reused phone, disposable email) BEFORE creating any Supabase account.
+    const gate = await checkEnrollmentGate({ email, phone });
+    if (!gate.allowed) {
+      await logAudit('system', 'auth.register.blocked', `email=${email} code=${gate.code}`, 'security');
+      // Generic message — never reveal WHY (prevents signal probing).
+      return jsonError(
+        'Registration is not available for this account. Contact support if you believe this is a mistake.',
+        403,
+        gate.code
+      );
+    }
 
     // Seed demo users
     if (process.env.ENABLE_DEMO === 'true') {

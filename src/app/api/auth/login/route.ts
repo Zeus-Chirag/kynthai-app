@@ -16,6 +16,7 @@ import {
 import { loginSchema } from '@/lib/schemas';
 import { isIpBlocked, logSecurityEvent } from '@/lib/security-audit';
 import { checkAccountLockout, recordFailedAttempt, resetLockout } from '@/lib/login-lockout';
+import { isUserBlocked } from '@/lib/fraud-guard';
 import { getSupabaseProfile } from '@/lib/supabase/sync';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
@@ -144,6 +145,17 @@ export async function POST(req: NextRequest) {
         await recordFailedAttempt(email, ip);
         return jsonError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
       }
+    }
+
+    // ── Fraud prevention: hard-blocked account ────────────────────────
+    // A user marked verificationLevel='blocked' by an admin may not sign in.
+    if (isUserBlocked(user)) {
+      await logAudit(user.id, 'auth.login.blocked', `email=${user.email}`, 'security');
+      return jsonError(
+        'This account has been blocked for security reasons. Contact support@kynthai.app.',
+        423,
+        'ACCOUNT_BLOCKED'
+      );
     }
 
     // Reset lockout on successful login
