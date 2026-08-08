@@ -42,6 +42,7 @@ import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useAppStore, type AuthUser } from '@/lib/store';
+import { apiFetch } from '@/lib/client-fetch';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
@@ -55,7 +56,7 @@ import {
   PAYOUT_POLICY,
 } from '@/lib/commission';
 
-type AdminTab = 'revenue' | 'doctors' | 'labs' | 'retention' | 'fraud';
+type AdminTab = 'revenue' | 'doctors' | 'labs' | 'retention' | 'fraud' | 'refunds';
 
 interface DoctorApp {
   id: string;
@@ -82,84 +83,6 @@ interface LabApp {
   submittedAt: string;
   documents: { name: string; type: string }[];
 }
-
-const DOCTOR_APPS: DoctorApp[] = [
-  {
-    id: 'da1',
-    name: 'Dr. Sarah Johnson',
-    email: 'sarah.johnson@example.com',
-    specialization: 'Family Medicine',
-    licenseNumber: 'USMD-12345',
-    city: 'Austin, TX',
-    experience: 12,
-    fee: 150,
-    status: 'pending',
-    submittedAt: '2 hours ago',
-    documents: [
-      { name: 'Medical_License.pdf', type: 'PDF' },
-      { name: 'Degree.jpg', type: 'JPG' },
-      { name: 'Govt_ID.pdf', type: 'PDF' },
-      { name: 'Photo.jpg', type: 'JPG' },
-    ],
-  },
-  {
-    id: 'da2',
-    name: 'Dr. Michael Chen',
-    email: 'michael.chen@example.com',
-    specialization: 'Internal Medicine',
-    licenseNumber: 'USMD-98765',
-    city: 'Chicago, IL',
-    experience: 18,
-    fee: 200,
-    status: 'pending',
-    submittedAt: '5 hours ago',
-    documents: [
-      { name: 'Medical_License.pdf', type: 'PDF' },
-      { name: 'Degree.pdf', type: 'PDF' },
-    ],
-  },
-  {
-    id: 'da3',
-    name: 'Dr. Emily Rodriguez',
-    email: 'emily.rodriguez@example.com',
-    specialization: 'Dermatology',
-    licenseNumber: 'USMD-55443',
-    city: 'San Francisco, CA',
-    experience: 9,
-    fee: 175,
-    status: 'approved',
-    submittedAt: '2 days ago',
-    documents: [{ name: 'License.pdf', type: 'PDF' }],
-  },
-];
-
-const LAB_APPS: LabApp[] = [
-  {
-    id: 'la1',
-    labName: 'HealthStreet Labs',
-    email: 'labs@healthstreet.example.com',
-    licenseNumber: 'CLIA-1111',
-    city: 'Austin, TX',
-    testCount: 24,
-    status: 'pending',
-    submittedAt: '1 hour ago',
-    documents: [
-      { name: 'CLIA_Certificate.pdf', type: 'PDF' },
-      { name: 'Business_Insurance.pdf', type: 'PDF' },
-    ],
-  },
-  {
-    id: 'la2',
-    labName: 'National Diagnostic Network',
-    email: 'ops@ndn.example.com',
-    licenseNumber: 'CLIA-2222',
-    city: 'Dallas, TX',
-    testCount: 48,
-    status: 'approved',
-    submittedAt: '3 days ago',
-    documents: [{ name: 'License.pdf', type: 'PDF' }],
-  },
-];
 
 const CHURN_RISKS: {
   id: string;
@@ -195,40 +118,6 @@ const CHURN_RISKS: {
   },
 ];
 
-const FRAUD_FLAGS: {
-  id: string;
-  entity: string;
-  type: string;
-  issue: string;
-  severity: 'high' | 'medium' | 'low';
-  time: string;
-}[] = [
-  {
-    id: 'f1',
-    entity: 'Dr. Imran',
-    type: 'Doctor',
-    issue: 'License number not found in registry',
-    severity: 'high',
-    time: '3h ago',
-  },
-  {
-    id: 'f2',
-    entity: 'QuickLab',
-    type: 'Lab',
-    issue: 'Duplicate CLIA certificate',
-    severity: 'high',
-    time: '6h ago',
-  },
-  {
-    id: 'f3',
-    entity: 'Patient X',
-    type: 'Patient',
-    issue: 'Multiple accounts (same phone)',
-    severity: 'medium',
-    time: '1d ago',
-  },
-];
-
 /* ------------------ Owner-level revenue model (demo data) ------------------ */
 // In production these numbers come from aggregations over Payment + Appointment
 // + LabBooking + MedicineOrder rows. The shape below mirrors what the owner
@@ -243,6 +132,8 @@ interface PartnerRevenueRow {
   tier: LoyaltyTier;
 }
 
+// Owner-level revenue model — DEMO data (no real aggregations yet).
+// The other tabs (doctors, labs, refunds, fraud) load live from the real APIs.
 const PARTNER_REVENUE: PartnerRevenueRow[] = [
   {
     id: 'pr1',
@@ -312,11 +203,55 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
   const [reviewApp, setReviewApp] = React.useState<DoctorApp | LabApp | null>(null);
   const [reviewType, setReviewType] = React.useState<'doctor' | 'lab' | null>(null);
 
-  const pendingDoctors = DOCTOR_APPS.filter(d => d.status === 'pending').length;
-  const pendingLabs = LAB_APPS.filter(l => l.status === 'pending').length;
-  const activeDoctors = DOCTOR_APPS.filter(d => d.status === 'approved').length;
+  // Live data, fetched per tab from the real admin APIs (null = not loaded).
+  const [doctorApps, setDoctorApps] = React.useState<DoctorApp[] | null>(null);
+  const [labApps, setLabApps] = React.useState<LabApp[] | null>(null);
+  const [refunds, setRefunds] = React.useState<RefundRow[] | null>(null);
+  const [fraudFlags, setFraudFlags] = React.useState<FraudFlag[] | null>(null);
+  const [tabError, setTabError] = React.useState<string | null>(null);
+  const [refetchTick, setRefetchTick] = React.useState(0);
+
+  // Fetch real data whenever a live tab opens (and re-fetch after an action).
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setTabError(null);
+      try {
+        if (tab === 'doctors') {
+          const res = await fetch('/api/admin/doctors', { credentials: 'include', cache: 'no-store' });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Failed to load doctors');
+          if (!cancelled) setDoctorApps((data ?? []).map(toDoctorApp));
+        } else if (tab === 'labs') {
+          const res = await fetch('/api/admin/labs', { credentials: 'include', cache: 'no-store' });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Failed to load labs');
+          if (!cancelled) setLabApps((data ?? []).map(toLabApp));
+        } else if (tab === 'fraud') {
+          const res = await fetch('/api/admin/fraud', { credentials: 'include', cache: 'no-store' });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Failed to load fraud flags');
+          if (!cancelled) setFraudFlags(data?.flags ?? []);
+        } else if (tab === 'refunds') {
+          const res = await fetch('/api/refunds', { credentials: 'include', cache: 'no-store' });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Failed to load refunds');
+          if (!cancelled) setRefunds(data ?? []);
+        }
+      } catch (e) {
+        if (!cancelled) setTabError(e instanceof Error ? e.message : 'Failed to load');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, refetchTick]);
+
+  const pendingDoctors = doctorApps?.filter(d => d.status === 'pending').length ?? 0;
+  const pendingLabs = labApps?.filter(l => l.status === 'pending').length ?? 0;
+  const activeDoctors = doctorApps?.filter(d => d.status === 'approved').length ?? 0;
   const churnCount = CHURN_RISKS.length;
-  const fraudCount = FRAUD_FLAGS.length;
+  const fraudCount = fraudFlags?.length ?? 0;
 
   // ---- Owner-level revenue aggregations ----
   const doctorCommission = PARTNER_REVENUE.filter(p => p.type === 'Doctor').reduce(
@@ -342,7 +277,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
     <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl pt-safe">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <KynthaiBrand iconSize={24} />
             <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
@@ -387,14 +322,15 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
         </div>
       </header>
 
-      {/* Demo banner */}
+      {/* Demo banner — revenue & retention are sample data; the other tabs are live */}
       {isDemo && process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-center text-[11px] text-amber-700 dark:text-amber-300">
-          Demo mode — sample data, changes won&apos;t be saved
+          Demo mode — revenue &amp; retention show sample data. Applications, fraud
+          &amp; refunds act on live data.
         </div>
       )}
 
-      <main id="main-content" className="mx-auto max-w-5xl px-4 pb-12 pt-4 space-y-5">
+      <main id="main-content" className="mx-auto max-w-6xl px-4 pb-12 pt-4 space-y-5">
         {/* Stats — owner view: revenue first */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
@@ -415,7 +351,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
             icon={<Microscope className="h-4 w-4" />}
             label="Labs pending"
             value={pendingLabs}
-            sub={`${LAB_APPS.length} total`}
+            sub={`${labApps?.length ?? 0} total`}
             tint="amber"
           />
           <StatCard
@@ -428,8 +364,8 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
         </div>
 
         <Tabs value={tab} onValueChange={v => setTab(v as AdminTab)} className="w-full">
-          {/* Mobile: 2-col grid so labels stay readable; sm+: 5-col strip */}
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto p-1 gap-1">
+          {/* Mobile: 2-col grid so labels stay readable; sm+: 6-col strip */}
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto p-1 gap-1">
             <TabsTrigger value="revenue" className="py-1.5 text-xs col-span-3 sm:col-span-1">
               <Wallet className="h-3.5 w-3.5" />
               Revenue
@@ -441,6 +377,10 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
             <TabsTrigger value="labs" className="py-1.5 text-xs">
               <Microscope className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Labs</span>
+            </TabsTrigger>
+            <TabsTrigger value="refunds" className="py-1.5 text-xs">
+              <Receipt className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Refunds</span>
             </TabsTrigger>
             <TabsTrigger value="retention" className="py-1.5 text-xs">
               <Users className="h-3.5 w-3.5" />
@@ -466,42 +406,63 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           </TabsContent>
 
           <TabsContent value="doctors" className="mt-4">
-            <ApplicationsTab
-              title="Doctor applications"
-              apps={DOCTOR_APPS.map(d => ({
-                id: d.id,
-                name: d.name,
-                subtitle: d.specialization,
-                meta: `${d.city} · ${d.experience}y exp · $${d.fee}`,
-                license: d.licenseNumber,
-                status: d.status,
-                submittedAt: d.submittedAt,
-                documents: d.documents,
-              }))}
-              onReview={id => {
-                const app = DOCTOR_APPS.find(d => d.id === id);
-                if (app) openReview(app, 'doctor');
-              }}
-            />
+            {tabError && tab === 'doctors' ? (
+              <ErrorCard message={tabError} />
+            ) : doctorApps === null ? (
+              <LoadingCard />
+            ) : (
+              <ApplicationsTab
+                title="Doctor applications"
+                apps={doctorApps.map(d => ({
+                  id: d.id,
+                  name: d.name,
+                  subtitle: d.specialization,
+                  meta: `${d.city} · ${d.experience}y exp · $${d.fee}`,
+                  license: d.licenseNumber,
+                  status: d.status,
+                  submittedAt: d.submittedAt,
+                  documents: d.documents,
+                }))}
+                onReview={id => {
+                  const app = doctorApps.find(d => d.id === id);
+                  if (app) openReview(app, 'doctor');
+                }}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="labs" className="mt-4">
-            <ApplicationsTab
-              title="Lab applications"
-              apps={LAB_APPS.map(l => ({
-                id: l.id,
-                name: l.labName,
-                subtitle: `${l.testCount} tests`,
-                meta: `${l.city} · NABL: ${l.licenseNumber}`,
-                license: l.licenseNumber,
-                status: l.status,
-                submittedAt: l.submittedAt,
-                documents: l.documents,
-              }))}
-              onReview={id => {
-                const app = LAB_APPS.find(l => l.id === id);
-                if (app) openReview(app, 'lab');
-              }}
+            {tabError && tab === 'labs' ? (
+              <ErrorCard message={tabError} />
+            ) : labApps === null ? (
+              <LoadingCard />
+            ) : (
+              <ApplicationsTab
+                title="Lab applications"
+                apps={labApps.map(l => ({
+                  id: l.id,
+                  name: l.labName,
+                  subtitle: `${l.testCount} tests`,
+                  meta: `${l.city} · NABL: ${l.licenseNumber}`,
+                  license: l.licenseNumber,
+                  status: l.status,
+                  submittedAt: l.submittedAt,
+                  documents: l.documents,
+                }))}
+                onReview={id => {
+                  const app = labApps.find(l => l.id === id);
+                  if (app) openReview(app, 'lab');
+                }}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="refunds" className="mt-4">
+            <RefundsTab
+              refunds={refunds}
+              loading={refunds === null}
+              error={tabError && tab === 'refunds' ? tabError : null}
+              onDone={() => setRefetchTick(t => t + 1)}
             />
           </TabsContent>
 
@@ -510,7 +471,11 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           </TabsContent>
 
           <TabsContent value="fraud" className="mt-4">
-            <FraudTab flags={FRAUD_FLAGS} />
+            <FraudTab
+              flags={fraudFlags ?? []}
+              loading={fraudFlags === null}
+              error={tabError && tab === 'fraud' ? tabError : null}
+            />
           </TabsContent>
         </Tabs>
       </main>
@@ -522,6 +487,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           setReviewApp(null);
           setReviewType(null);
         }}
+        onDone={() => setRefetchTick(t => t + 1)}
       />
     </div>
   );
@@ -915,23 +881,27 @@ function RetentionTab({
 
 function FraudTab({
   flags,
+  loading,
+  error,
 }: {
-  flags: {
-    id: string;
-    entity: string;
-    type: string;
-    issue: string;
-    severity: 'high' | 'medium' | 'low';
-    time: string;
-  }[];
+  flags: FraudFlag[];
+  loading?: boolean;
+  error?: string | null;
 }) {
   return (
     <div className="space-y-3">
       <div>
         <h2 className="text-base font-semibold">Fraud flags</h2>
-        <p className="text-xs text-muted-foreground">Automated flags requiring manual review.</p>
+        <p className="text-xs text-muted-foreground">
+          Automated checks: duplicate licenses, same-phone accounts, commission
+          farming, zero-value bookings, missing consent, multi-bookings.
+        </p>
       </div>
-      {flags.length === 0 ? (
+      {loading ? (
+        <LoadingCard />
+      ) : error ? (
+        <ErrorCard message={error} />
+      ) : flags.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground">
             <CheckCircle2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
@@ -993,10 +963,12 @@ function ReviewDialog({
   app,
   type,
   onClose,
+  onDone,
 }: {
   app: DoctorApp | LabApp | null;
   type: 'doctor' | 'lab' | null;
   onClose: () => void;
+  onDone: () => void;
 }) {
   const { toast } = useToast();
   const [reason, setReason] = React.useState('');
@@ -1015,7 +987,8 @@ function ReviewDialog({
   const displayName = docApp?.name ?? labApp?.labName ?? 'Applicant';
   const documents = app.documents;
 
-  const act = (action: 'approve' | 'reject') => {
+  // Real action against the admin API (previously a fake setTimeout+toast).
+  const act = async (action: 'approve' | 'reject') => {
     if (action === 'reject' && !reason.trim()) {
       toast({
         title: 'Reason required',
@@ -1025,8 +998,19 @@ function ReviewDialog({
       return;
     }
     setActing(action);
-    setTimeout(() => {
-      setActing(null);
+    try {
+      const endpoint = isDoctor ? '/api/admin/doctors' : '/api/admin/labs';
+      const res = await apiFetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: app.id,
+          action,
+          reason: reason.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Action failed');
       toast({
         title: action === 'approve' ? 'Application approved' : 'Application rejected',
         description:
@@ -1035,7 +1019,15 @@ function ReviewDialog({
             : `${displayName} has been notified with your reason.`,
       });
       onClose();
-    }, 800);
+      onDone();
+    } catch (e) {
+      toast({
+        title: e instanceof Error ? e.message : 'Action failed',
+        variant: 'destructive',
+      });
+    } finally {
+      setActing(null);
+    }
   };
 
   return (
@@ -1161,6 +1153,372 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium text-right">{value}</span>
     </div>
+  );
+}
+
+/* ------------------------------- Refunds tab ------------------------------ */
+
+interface RefundRow {
+  id: string;
+  userId: string;
+  paymentId: string;
+  appointmentId: string | null;
+  amount: number;
+  reason: string | null;
+  status: string;
+  notes: string | null;
+  processedAt: string | null;
+  createdAt: string;
+  user?: { name: string | null; email: string | null } | null;
+}
+
+interface FraudFlag {
+  id: string;
+  entity: string;
+  type: string;
+  issue: string;
+  severity: 'high' | 'medium' | 'low';
+  time: string;
+}
+
+const REFUND_REASONS: Record<string, string> = {
+  doctor_no_show: 'Doctor no-show',
+  lab_no_show: 'Lab no-show',
+  patient_cancel: 'Patient cancellation',
+  technical_issue: 'Technical issue',
+  complaint: 'Complaint',
+  admin_override: 'Admin override',
+};
+
+const REFUND_STATUS: Record<string, { label: string; cls: string }> = {
+  pending: { label: 'Pending review', cls: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
+  processing: { label: 'Processing', cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+  completed: { label: 'Refunded', cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+  failed: { label: 'Failed', cls: 'bg-rose-500/10 text-rose-600 dark:text-rose-400' },
+  rejected: { label: 'Rejected', cls: 'bg-rose-500/10 text-rose-600 dark:text-rose-400' },
+};
+
+const REFUND_REVIEW_MS = 7 * 24 * 60 * 60 * 1000; // matches the 7-business-day promise
+
+function isRefundOverdue(r: RefundRow) {
+  return r.status === 'pending' && Date.now() - new Date(r.createdAt).getTime() > REFUND_REVIEW_MS;
+}
+
+function timeAgo(iso: string): string {
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Map the /api/admin/doctors + /api/admin/labs rows to the dashboard's shapes.
+function toDoctorApp(x: any): DoctorApp {
+  const status =
+    x.verificationStatus === 'approved'
+      ? 'approved'
+      : x.verificationStatus === 'rejected'
+        ? 'rejected'
+        : 'pending';
+  return {
+    id: x.id,
+    name: x.name ?? 'Unknown doctor',
+    email: x.email ?? '',
+    specialization: x.specialization ?? '',
+    licenseNumber: x.licenseNumber ?? '',
+    city: x.city ?? '',
+    experience: x.experience ?? 0,
+    fee: x.consultationFee ?? 0,
+    status,
+    submittedAt: x.submittedAt ? timeAgo(x.submittedAt) : 'unknown',
+    documents: x.documents ?? [],
+  };
+}
+
+function toLabApp(x: any): LabApp {
+  const status =
+    x.verificationStatus === 'approved'
+      ? 'approved'
+      : x.verificationStatus === 'rejected'
+        ? 'rejected'
+        : 'pending';
+  return {
+    id: x.id,
+    labName: x.labName ?? 'Unknown lab',
+    email: x.email ?? '',
+    licenseNumber: x.licenseNumber ?? '',
+    city: x.city ?? '',
+    testCount: (x.testsOffered ?? []).length,
+    status,
+    submittedAt: x.submittedAt ? timeAgo(x.submittedAt) : 'unknown',
+    documents: x.documents ?? [],
+  };
+}
+
+function RefundsTab({
+  refunds,
+  loading,
+  error,
+  onDone,
+}: {
+  refunds: RefundRow[] | null;
+  loading: boolean;
+  error?: string | null;
+  onDone: () => void;
+}) {
+  const [reviewing, setReviewing] = React.useState<RefundRow | null>(null);
+  const pending = refunds?.filter(r => r.status === 'pending').length ?? 0;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold flex items-center gap-2">
+            <Receipt className="h-4 w-4 text-emerald-600" />
+            Refund requests
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Review patient refunds. Approving processes the refund immediately
+            (payment reversed, partner commission clawed back).
+          </p>
+        </div>
+        {!loading && !error && refunds && (
+          <Badge
+            variant="secondary"
+            className="shrink-0 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          >
+            {pending} pending
+          </Badge>
+        )}
+      </div>
+
+      {loading ? (
+        <LoadingCard />
+      ) : error ? (
+        <ErrorCard message={error} />
+      ) : !refunds || refunds.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center text-muted-foreground">
+            <CheckCircle2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
+            <p>No refund requests yet.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {refunds.map(r => {
+            const st = REFUND_STATUS[r.status] ?? { label: r.status, cls: 'bg-muted text-muted-foreground' };
+            return (
+              <Card key={r.id} className={cn(isRefundOverdue(r) && 'ring-1 ring-amber-500/40')}>
+                <CardContent className="p-3">
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-11 w-11 shrink-0">
+                      <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                        {(r.user?.name ?? 'P')[0] ?? 'P'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-sm">{r.user?.name ?? 'Patient'}</h3>
+                        <Badge variant="secondary" className={cn('text-[10px] capitalize', st.cls)}>
+                          {st.label}
+                        </Badge>
+                        {isRefundOverdue(r) && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400"
+                          >
+                            overdue
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {REFUND_REASONS[r.reason ?? ''] ?? r.reason ?? 'Refund'} · $
+                        {(r.amount / 100).toFixed(2)}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2 text-[11px] text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        Submitted {timeAgo(r.createdAt)}
+                        {r.user?.email ? <span>· {r.user.email}</span> : null}
+                      </div>
+                      {r.notes ? (
+                        <p className="text-[11px] text-muted-foreground mt-1.5 line-clamp-2">{r.notes}</p>
+                      ) : null}
+                    </div>
+                    {r.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        onClick={() => setReviewing(r)}
+                        className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+                      >
+                        Review
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      <RefundReviewDialog
+        refund={reviewing}
+        onClose={() => setReviewing(null)}
+        onDone={() => {
+          setReviewing(null);
+          onDone();
+        }}
+      />
+    </div>
+  );
+}
+
+function RefundReviewDialog({
+  refund,
+  onClose,
+  onDone,
+}: {
+  refund: RefundRow | null;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const { toast } = useToast();
+  const [note, setNote] = React.useState('');
+  const [acting, setActing] = React.useState<'approve' | 'reject' | null>(null);
+
+  React.useEffect(() => {
+    setNote('');
+    setActing(null);
+  }, [refund]);
+
+  if (!refund) return null;
+
+  const act = async (action: 'approve' | 'reject') => {
+    setActing(action);
+    try {
+      const res = await apiFetch(`/api/refunds/${refund.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, reviewNote: note.trim() || undefined }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Action failed');
+      toast({
+        title: action === 'approve' ? 'Refund approved' : 'Refund rejected',
+        description:
+          action === 'approve'
+            ? `$${(refund.amount / 100).toFixed(2)} is being refunded to the patient.`
+            : 'The patient has been notified.',
+      });
+      onDone();
+    } catch (e) {
+      toast({ title: e instanceof Error ? e.message : 'Action failed', variant: 'destructive' });
+    } finally {
+      setActing(null);
+    }
+  };
+
+  return (
+    <Dialog open={!!refund} onOpenChange={o => !o && onClose()}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto custom-scroll">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Receipt className="h-4 w-4 text-amber-600" />
+            Review refund
+          </DialogTitle>
+          <DialogDescription>
+            {refund.user?.name ?? 'Patient'} · ${(refund.amount / 100).toFixed(2)} · submitted{' '}
+            {timeAgo(refund.createdAt)}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3 py-2">
+          <Card className="bg-muted/40">
+            <CardContent className="p-3 space-y-1.5 text-xs">
+              <Row
+                label="Reason"
+                value={REFUND_REASONS[refund.reason ?? ''] ?? refund.reason ?? '—'}
+              />
+              <Row label="Status" value={REFUND_STATUS[refund.status]?.label ?? refund.status} />
+              <Row label="Amount" value={`$${(refund.amount / 100).toFixed(2)}`} />
+              <Row label="Patient" value={refund.user?.email ?? refund.userId} />
+              {refund.notes ? <Row label="Note" value={refund.notes} /> : null}
+            </CardContent>
+          </Card>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="review-note" className="text-xs">
+              Note (sent to the patient; optional for approval)
+            </Label>
+            <Textarea
+              id="review-note"
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              placeholder="e.g. Verified with the call recording; refunding the consultation fee."
+              rows={3}
+            />
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Approving reverses the payment immediately and claws back the partner
+            commission. This action is audit-logged.
+          </p>
+        </div>
+
+        <DialogFooter className="gap-2">
+          <Button
+            variant="outline"
+            onClick={() => act('reject')}
+            disabled={!!acting}
+            className="border-destructive/30 text-destructive hover:bg-destructive/10"
+          >
+            {acting === 'reject' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <XCircle className="h-4 w-4" />
+            )}
+            Reject
+          </Button>
+          <Button
+            onClick={() => act('approve')}
+            disabled={!!acting}
+            className="bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+          >
+            {acting === 'approve' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
+            Approve & refund
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function LoadingCard() {
+  return (
+    <Card>
+      <CardContent className="p-8 text-center text-muted-foreground flex items-center justify-center gap-2">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Loading…
+      </CardContent>
+    </Card>
+  );
+}
+
+function ErrorCard({ message }: { message: string }) {
+  return (
+    <Card>
+      <CardContent className="p-8 text-center text-rose-600 dark:text-rose-400 text-sm">
+        <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-60" />
+        {message}
+      </CardContent>
+    </Card>
   );
 }
 

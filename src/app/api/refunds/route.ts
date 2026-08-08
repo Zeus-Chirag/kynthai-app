@@ -173,24 +173,25 @@ export async function GET(req: NextRequest) {
       where.appointmentId = { in: appts.map((a: any) => a.id) };
     }
   } else if (u.role === 'lab') {
-    const lab = await db.labProfile.findUnique({ where: { userId: u.id }, select: { id: true } });
-    if (lab) {
-      const bookings = await db.labBooking.findMany({
-        where: { labId: lab.id },
-        select: { id: true },
-      });
-      where.labBookingId = { in: bookings.map((b: any) => b.id) };
-    }
+    // ponytail: lab-booking refunds are not supported yet (Refund has no
+    // labBookingId column in the DB), so labs see an empty list. When lab
+    // refunds ship, add the column + migration and filter on labBookingId.
+    where.appointmentId = { in: [] };
   }
 
   if (statusFilter) where.status = statusFilter;
   if (overdue === 'true') {
+    // ponytail: 'overdue' = still pending past the 7-business-day review
+    // window. Computed from createdAt because the Refund table has no
+    // reviewDeadline column; the deadline promise is sent to patients at
+    // request time (createdAt + 7 days), so this stays consistent with it.
     where.status = 'pending';
-    where.reviewDeadline = { lt: new Date() };
+    where.createdAt = { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) };
   }
 
   const refunds = await db.refund.findMany({
     where,
+    include: { user: { select: { name: true, email: true } } },
     orderBy: { createdAt: 'desc' },
     take: 50,
   });

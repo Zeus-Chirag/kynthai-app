@@ -36,9 +36,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!action) return jsonError('action required (approve or reject)', 400);
 
     const updateData: Record<string, unknown> = {
-      reviewedAt: new Date(),
-      reviewedBy: u.id,
-      reason: body.reviewNote || refund.reason,
+      processedAt: new Date(),
+      // Decision trail: admin id is also captured by logAudit below.
+      notes: body.reviewNote || refund.notes,
     };
 
     if (action === 'approve') {
