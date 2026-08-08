@@ -7,8 +7,6 @@ import {
   AlertTriangle,
   TrendingDown,
   ShieldAlert,
-  Sun,
-  Moon,
   CheckCircle2,
   XCircle,
   FileText,
@@ -38,7 +36,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { KynthaiBrand } from '@/components/kynthai/logo';
 import { useAppStore, type AuthUser } from '@/lib/store';
@@ -96,7 +93,6 @@ interface PartnerRevenueRow {
 }
 
 export function AdminDashboard({ user }: { user: AuthUser }) {
-  const { theme, setTheme } = useTheme();
   const { logout } = useAppStore();
   const router = useRouter();
   const [tab, setTab] = React.useState<AdminTab>('overview');
@@ -233,15 +229,6 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
               <ShieldAlert className="h-3 w-3" />
               Super admin
             </Badge>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              title="Toggle theme"
-              aria-label="Toggle dark mode"
-            >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
             <Button
               size="sm"
               variant="ghost"
