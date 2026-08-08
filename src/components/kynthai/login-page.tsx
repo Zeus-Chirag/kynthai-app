@@ -229,6 +229,16 @@ export function LoginPage({
     const hashRole = (window.location.hash || '').replace('#', '').toLowerCase();
     const DEMO_ROLES = ['patient', 'doctor', 'caretaker', 'lab', 'admin'];
     if (!wantsDemo && !DEMO_ROLES.includes(hashRole)) return;
+
+    // CONSUME the demo marker immediately: once we've decided to auto-login
+    // from `?demo=1` / `#role`, strip it from the URL so a LATER visit to
+    // /login (e.g. the user logs out of the admin demo and returns here) is a
+    // clean form — otherwise the stale marker silently re-triggers the demo
+    // and looks like "touching Patient opens the demo" / "logout needs twice".
+    try {
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch { /* history may be unavailable; ignore */ }
+
     const demoAccounts: Array<{ email: string; role: 'patient' | 'doctor' | 'caretaker' | 'lab' | 'admin' }> = [
       { email: 'patient@kynthai.app',   role: 'patient'   },
       { email: 'doctor@kynthai.app',    role: 'doctor'    },
