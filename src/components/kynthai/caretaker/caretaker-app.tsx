@@ -1181,7 +1181,7 @@ function AddMemberDialog({
               id="fm-name"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="e.g. Aarav Sharma"
+              placeholder="e.g. Emily Carter"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">

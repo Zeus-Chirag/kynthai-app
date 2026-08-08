@@ -302,7 +302,7 @@ export function PricingPage() {
       {/* GST note */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="text-center text-xs text-muted-foreground">
-          Prices are shown in your selected currency. GST included at checkout. Doctor consultation
+          Prices are shown in US dollars. Sales tax (where applicable) is charged at checkout. Doctor consultation
           fees are charged separately by the doctor.
         </p>
       </div>
@@ -833,7 +833,7 @@ function EarningsCalculator() {
           </a>
           .
           <br />
-          Registered Office: 1600 Pennsylvania Avenue NW, Suite 500, Washington, DC 20500, United
+          Registered Office: 16192 Coastal Highway, Lewes, DE 19958, United
           States.
         </p>
       </div>

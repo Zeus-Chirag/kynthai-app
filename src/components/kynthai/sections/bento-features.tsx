@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const AI_FEATURE_COUNT = 11;
+const AI_FEATURE_COUNT = 10;
 
 /* ------------------------------------------------------------------ */
 /* SmallFeature — reusable card for individual bento items              */

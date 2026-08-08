@@ -94,8 +94,18 @@ async function apiCall(path: string, body: Record<string, unknown>) {
     credentials: 'include',
     body: JSON.stringify(body),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Request failed');
+  // Parse the body defensively: a 5xx may return empty or non-JSON, which
+  // would otherwise throw and surface a confusing "Unexpected end of JSON"
+  // error to the user instead of the real failure.
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    const reason =
+      (data && typeof data === 'object' && (data as { error?: string }).error) ||
+      (res.status >= 500
+        ? 'Something went wrong on our side. Please try again in a moment.'
+        : 'Request failed. Please try again.');
+    throw new Error(reason);
+  }
   return data;
 }
 
@@ -667,7 +677,7 @@ export function LoginPage({
                       </Label>
                       <Input
                         id="name"
-                        placeholder="Aarav Sharma"
+                        placeholder="Sarah Johnson"
                         value={name}
                         onChange={e => setName(e.target.value)}
                         autoComplete="name"

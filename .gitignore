@@ -129,3 +129,6 @@ scripts/.vercel-env.local.json
 
 # local env seed — never commit secrets
 scripts/.vercel-env-local.json
+
+# Reticle runtime session logs (dev artifacts)
+.reticle/sessions/

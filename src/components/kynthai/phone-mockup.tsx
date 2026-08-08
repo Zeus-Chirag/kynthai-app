@@ -137,7 +137,7 @@ export function PhoneMockup({
             >
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
-                  <Sparkles className="h-3 w-3" /> Good morning, Aarav
+                  <Sparkles className="h-3 w-3" /> Good morning, Emily
                 </span>
                 <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm">Plus</span>
               </div>
@@ -253,7 +253,7 @@ export function PhoneMockup({
             </div>
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
-                <Sparkles className="h-3 w-3" /> Good morning, Aarav
+                <Sparkles className="h-3 w-3" /> Good morning, Emily
               </span>
               <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm">Plus</span>
             </div>

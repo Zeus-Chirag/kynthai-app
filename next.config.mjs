@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import reticleNext from '@reticlehq/next';
+
 const nextConfig = {
   // Hide x-powered-by header for security
   poweredByHeader: false,
@@ -90,4 +92,6 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// Reticle (dev-only runtime verification): wraps next config for source
+// mapping (file:line evidence). No-op in production builds.
+export default reticleNext.withReticle(nextConfig);
