@@ -172,19 +172,19 @@ export function DrugInteractions({ familyMemberId }: { familyMemberId?: string }
           </Card>
 
           {/* Interactions */}
-          {result.interactions.length > 0 ? (
+          {(result.interactions ?? []).length > 0 ? (
             <div>
               <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
-                Detected interactions ({result.interactions.length})
+                Detected interactions ({(result.interactions ?? []).length})
               </h3>
               <div className="space-y-2">
-                {result.interactions.map((int, i) => (
+                {(result.interactions ?? []).map((int, i) => (
                   <Card key={i}>
                     <CardContent className="p-3 space-y-2">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <div className="flex flex-wrap gap-1">
-                          {int.medications.map((m, j) => (
+                          {(int.medications ?? []).map((m, j) => (
                             <Badge key={j} variant="outline" className="text-xs">
                               {m}
                             </Badge>
@@ -219,14 +219,14 @@ export function DrugInteractions({ familyMemberId }: { familyMemberId?: string }
           )}
 
           {/* Food interactions */}
-          {result.foodInteractions.length > 0 && (
+{(result.foodInteractions ?? []).length > 0 && (
             <div>
               <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
                 <Utensils className="h-4 w-4 text-orange-500" />
-                Food interactions ({result.foodInteractions.length})
+                Food interactions ({(result.foodInteractions ?? []).length})
               </h3>
               <div className="space-y-2">
-                {result.foodInteractions.map((f, i) => (
+                {(result.foodInteractions ?? []).map((f, i) => (
                   <Card key={i}>
                     <CardContent className="p-3 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -251,14 +251,14 @@ export function DrugInteractions({ familyMemberId }: { familyMemberId?: string }
           )}
 
           {/* Timing advice */}
-          {result.timingAdvice.length > 0 && (
+          {(result.timingAdvice ?? []).length > 0 && (
             <Card>
               <CardContent className="p-4">
                 <h4 className="text-sm font-semibold flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-primary" /> Timing advice
                 </h4>
                 <ul className="space-y-1.5 text-sm">
-                  {result.timingAdvice.map((t, i) => (
+                  {(result.timingAdvice ?? []).map((t, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-primary mt-0.5">→</span>
                       <span>{t}</span>

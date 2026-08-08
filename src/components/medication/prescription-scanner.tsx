@@ -102,11 +102,11 @@ export function PrescriptionScanner({ onImported }: { onImported?: () => void })
   }
 
   const importAll = async () => {
-    if (!result || result.medications.length === 0) return
+    if (!result || (result.medications ?? []).length === 0) return
     setImporting(true)
     setImportProgress('')
     let count = 0
-    const total = result.medications.length
+    const total = (result.medications ?? []).length
     for (let i = 0; i < total; i++) {
       // result.medications.length === total is checked above
       const med = result.medications[i]!
@@ -252,7 +252,7 @@ export function PrescriptionScanner({ onImported }: { onImported?: () => void })
             </Card>
           )}
 
-          {result.medications.length === 0 ? (
+          {(result.medications ?? []).length === 0 ? (
             <Card className="border-amber-500/30 bg-amber-500/5">
               <CardContent className="p-4 flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
@@ -262,10 +262,10 @@ export function PrescriptionScanner({ onImported }: { onImported?: () => void })
           ) : (
             <>
               <p className="text-xs font-semibold text-muted-foreground">
-                {result.medications.length} medication(s) detected — review and import
+                {(result.medications ?? []).length} medication(s) detected — review and import
               </p>
               <div className="space-y-2">
-                {result.medications.map((med, i) => (
+                {(result.medications ?? []).map((med, i) => (
                   <Card key={i}>
                     <CardContent className="p-3">
                       <div className="flex items-start gap-2">

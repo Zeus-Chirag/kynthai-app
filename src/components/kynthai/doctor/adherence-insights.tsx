@@ -26,7 +26,7 @@ interface AdherenceInsightsProps {
   onPatientClick?: (patient: PatientInsight) => void
 }
 
-export function AdherenceInsights({ patients, summary, onPatientClick }: AdherenceInsightsProps) {
+export function AdherenceInsights({ patients = [], summary, onPatientClick }: AdherenceInsightsProps) {
   const adherenceColor = (v: number) =>
     v >= 80 ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-950 border-emerald-200" :
     v >= 60 ? "text-amber-600 bg-amber-50 dark:bg-amber-950 border-amber-200" :

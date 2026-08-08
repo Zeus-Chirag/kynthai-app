@@ -160,17 +160,17 @@ export function SymptomAnalyzer() {
       )}
 
       {/* Result */}
-      {result && (
+      {result && result.analysis && (
         <div className="space-y-3">
           {/* Red flags */}
-          {result.analysis.redFlags.length > 0 && (
+          {(result.analysis.redFlags ?? []).length > 0 && (
             <Card className="border-destructive/40 bg-destructive/5">
               <CardContent className="p-4">
                 <h3 className="text-sm font-semibold flex items-center gap-2 text-destructive mb-2">
                   <AlertTriangle className="h-4 w-4" /> Red flags — seek urgent care
                 </h3>
                 <ul className="space-y-1.5 text-sm">
-                  {result.analysis.redFlags.map((r, i) => (
+                  {(result.analysis.redFlags ?? []).map((r, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-destructive mt-0.5">⚠</span>
                       <span>{r}</span>
@@ -182,14 +182,14 @@ export function SymptomAnalyzer() {
           )}
 
           {/* Possible causes */}
-          {result.analysis.possibleCauses.length > 0 && (
+          {(result.analysis.possibleCauses ?? []).length > 0 && (
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
                   <Activity className="h-4 w-4 text-primary" /> Possible causes
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {result.analysis.possibleCauses.map((c, i) => (
+                  {(result.analysis.possibleCauses ?? []).map((c, i) => (
                     <Badge key={i} variant="secondary" className="text-xs">
                       {c}
                     </Badge>
@@ -200,14 +200,14 @@ export function SymptomAnalyzer() {
           )}
 
           {/* Self-care */}
-          {result.analysis.selfCareTips.length > 0 && (
+          {(result.analysis.selfCareTips ?? []).length > 0 && (
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
                   <Lightbulb className="h-4 w-4 text-amber-500" /> Self-care tips
                 </h3>
                 <ul className="space-y-1.5 text-sm">
-                  {result.analysis.selfCareTips.map((t, i) => (
+                  {(result.analysis.selfCareTips ?? []).map((t, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-primary mt-0.5">→</span>
                       <span>{t}</span>
@@ -219,14 +219,14 @@ export function SymptomAnalyzer() {
           )}
 
           {/* OTC options */}
-          {result.analysis.otcOptions.length > 0 && (
+          {(result.analysis.otcOptions ?? []).length > 0 && (
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
                   <Pill className="h-4 w-4 text-violet-500" /> OTC options
                 </h3>
                 <ul className="space-y-1.5 text-sm">
-                  {result.analysis.otcOptions.map((o, i) => (
+                  {(result.analysis.otcOptions ?? []).map((o, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-violet-500 mt-0.5">•</span>
                       <span>{o}</span>
@@ -256,12 +256,12 @@ export function SymptomAnalyzer() {
           )}
 
           {/* Sources */}
-          {result.sources.length > 0 && (
+          {(result.sources ?? []).length > 0 && (
             <Card>
               <CardContent className="p-4">
                 <h3 className="text-sm font-semibold mb-2">Web sources</h3>
                 <div className="space-y-2">
-                  {result.sources.map((s, i) => (
+                  {(result.sources ?? []).map((s, i) => (
                     <a
                       key={i}
                       href={s.url}

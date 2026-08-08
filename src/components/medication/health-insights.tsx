@@ -124,7 +124,7 @@ export function HealthInsights({ familyMemberId }: { familyMemberId?: string } =
           <Skeleton className="h-28 w-full rounded-xl" />
           <Skeleton className="h-48 w-full rounded-xl" />
         </div>
-      ) : data ? (
+      ) : data && data.insights ? (
         <>
           {/* Headline + stats */}
           <Card>
@@ -198,14 +198,14 @@ export function HealthInsights({ familyMemberId }: { familyMemberId?: string } =
 
           {/* Strengths & Concerns */}
           <div className="grid sm:grid-cols-2 gap-3">
-            {data.insights.strengths.length > 0 && (
+            {(data.insights.strengths ?? []).length > 0 && (
               <Card>
                 <CardContent className="p-4">
                   <h4 className="text-sm font-semibold flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-2">
                     <Award className="h-4 w-4" /> Strengths
                   </h4>
                   <ul className="space-y-1.5 text-sm">
-                    {data.insights.strengths.map((s, i) => (
+                    {(data.insights.strengths ?? []).map((s, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="text-emerald-500 mt-0.5">✓</span>
                         <span>{s}</span>
@@ -215,14 +215,14 @@ export function HealthInsights({ familyMemberId }: { familyMemberId?: string } =
                 </CardContent>
               </Card>
             )}
-            {data.insights.concerns.length > 0 && (
+            {(data.insights.concerns ?? []).length > 0 && (
               <Card>
                 <CardContent className="p-4">
                   <h4 className="text-sm font-semibold flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-2">
                     <AlertTriangle className="h-4 w-4" /> Concerns
                   </h4>
                   <ul className="space-y-1.5 text-sm">
-                    {data.insights.concerns.map((c, i) => (
+                    {(data.insights.concerns ?? []).map((c, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="text-amber-500 mt-0.5">!</span>
                         <span>{c}</span>
@@ -235,14 +235,14 @@ export function HealthInsights({ familyMemberId }: { familyMemberId?: string } =
           </div>
 
           {/* Recommendations */}
-          {data.insights.recommendations.length > 0 && (
+          {(data.insights.recommendations ?? []).length > 0 && (
             <Card>
               <CardContent className="p-4">
                 <h4 className="text-sm font-semibold flex items-center gap-2 text-primary mb-2">
                   <Lightbulb className="h-4 w-4" /> AI Recommendations
                 </h4>
                 <ul className="space-y-2 text-sm">
-                  {data.insights.recommendations.map((r, i) => (
+                  {(data.insights.recommendations ?? []).map((r, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
                         {i + 1}
