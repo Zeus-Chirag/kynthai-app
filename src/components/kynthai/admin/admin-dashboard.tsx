@@ -216,26 +216,8 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
     <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl pt-safe">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <KynthaiBrand iconSize={24} />
-            <button
-              onClick={() => setProfileOpen(true)}
-              className="flex items-center gap-3 text-left"
-              title="Open profile menu"
-              aria-label="Open profile menu"
-            >
-              <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
-                <AvatarFallback className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-semibold">
-                  {(user.name?.[0] ?? 'A').toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="hidden sm:block">
-                <p className="text-xs text-muted-foreground leading-tight">Admin Console</p>
-                <p className="text-sm font-semibold leading-tight">{user.name}</p>
-              </div>
-            </button>
-          </div>
+        <div className="mx-auto flex max-w-[96rem] items-center justify-between px-4 py-3">
+          <KynthaiBrand iconSize={30} />
           <div className="flex items-center gap-1">
             <Badge
               variant="secondary"
@@ -244,6 +226,18 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
               <ShieldAlert className="h-3 w-3" />
               Super admin
             </Badge>
+            <button
+              onClick={() => setProfileOpen(true)}
+              aria-label="Profile"
+              className="relative flex items-center gap-1.5 rounded-xl px-1.5 py-1 transition-colors hover:bg-accent"
+            >
+              <Avatar className="h-9 w-9 ring-2 ring-emerald-500/20">
+                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold">
+                  {(user.name?.[0] ?? 'A').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:inline text-xs font-medium text-muted-foreground">Profile</span>
+            </button>
           </div>
         </div>
       </header>
