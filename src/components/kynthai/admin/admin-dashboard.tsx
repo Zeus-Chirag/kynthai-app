@@ -18,6 +18,11 @@ import {
   Banknote,
   Receipt,
   LayoutDashboard,
+  LogOut,
+  ArrowLeftRight,
+  Shield,
+  UserCircle,
+  Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -38,6 +43,8 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { KynthaiBrand } from '@/components/kynthai/logo';
+import { ResponsiveSheet } from '@/components/kynthai/responsive-sheet';
+import { SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { apiFetch } from '@/lib/client-fetch';
 import { useRouter } from 'next/navigation';
@@ -96,6 +103,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
   const { logout } = useAppStore();
   const router = useRouter();
   const [tab, setTab] = React.useState<AdminTab>('overview');
+  const [profileOpen, setProfileOpen] = React.useState(false);
   const [reviewApp, setReviewApp] = React.useState<DoctorApp | LabApp | null>(null);
   const [reviewType, setReviewType] = React.useState<'doctor' | 'lab' | null>(null);
 
@@ -211,15 +219,22 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <KynthaiBrand iconSize={24} />
-            <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
-              <AvatarFallback className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-semibold">
-                {(user.name?.[0] ?? 'A').toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-xs text-muted-foreground leading-tight">Admin Console</p>
-              <p className="text-sm font-semibold leading-tight">{user.name}</p>
-            </div>
+            <button
+              onClick={() => setProfileOpen(true)}
+              className="flex items-center gap-3 text-left"
+              title="Open profile menu"
+              aria-label="Open profile menu"
+            >
+              <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
+                <AvatarFallback className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-semibold">
+                  {(user.name?.[0] ?? 'A').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden sm:block">
+                <p className="text-xs text-muted-foreground leading-tight">Admin Console</p>
+                <p className="text-sm font-semibold leading-tight">{user.name}</p>
+              </div>
+            </button>
           </div>
           <div className="flex items-center gap-1">
             <Badge
@@ -229,17 +244,6 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
               <ShieldAlert className="h-3 w-3" />
               Super admin
             </Badge>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => router.push('/login')}
-              title="Switch portal"
-            >
-              Switch
-            </Button>
-            <Button size="sm" variant="outline" onClick={logout}>
-              Sign out
-            </Button>
           </div>
         </div>
       </header>
@@ -464,7 +468,140 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
         }}
         onDone={() => setRefetchTick(t => t + 1)}
       />
+
+      <AdminProfileSheet
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        user={user}
+        onSwitchPortal={() => router.push('/login')}
+        onLogout={logout}
+      />
     </div>
+  );
+}
+
+/* --------------------------- Admin profile sheet --------------------------- */
+
+function AdminProfileSheet({
+  open,
+  onOpenChange,
+  user,
+  onSwitchPortal,
+  onLogout,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  user: AuthUser;
+  onSwitchPortal: () => void;
+  onLogout: () => void;
+}) {
+  const initial = (user.name?.[0] ?? 'A').toUpperCase();
+
+  return (
+    <ResponsiveSheet open={open} onOpenChange={onOpenChange}>
+      <SheetHeader className="px-5 pt-3 pb-3">
+        <SheetTitle className="text-sm text-muted-foreground">Profile &amp; Settings</SheetTitle>
+      </SheetHeader>
+
+      {/* Identity card */}
+      <div className="px-5">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 p-5 text-white shadow-lg shadow-emerald-600/20">
+          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative flex items-center gap-4">
+            <Avatar className="h-16 w-16 ring-4 ring-white/30">
+              <AvatarFallback className="bg-white/20 text-white text-xl font-bold">{initial}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold truncate">{user.name}</h2>
+              <div className="mt-1 flex items-center gap-2">
+                <Badge className="bg-white/20 text-white border-0 capitalize">{user.role}</Badge>
+                <Badge className="bg-white/20 text-white border-0">Super admin</Badge>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact */}
+      <div className="px-5 mt-4 space-y-2">
+        <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/60 p-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <Mail className="h-4 w-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] text-muted-foreground">Email</p>
+            <p className="text-sm font-medium truncate">{user.email}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Account actions */}
+      <div className="px-5 mt-5">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Account</h3>
+        <Card>
+          <CardContent className="p-0 divide-y divide-border/60">
+            <button
+              onClick={() => {
+                onOpenChange(false);
+                onSwitchPortal();
+              }}
+              className="flex w-full items-center gap-3 p-4 text-left hover:bg-accent/40 transition-colors"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                <ArrowLeftRight className="h-4 w-4" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Switch portal</p>
+                <p className="text-xs text-muted-foreground">Patient · Doctor · Lab · Family · Admin</p>
+              </div>
+            </button>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="flex w-full items-center gap-3 p-4 text-left hover:bg-accent/40 transition-colors"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <Shield className="h-4 w-4" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Owner access</p>
+                <p className="text-xs text-muted-foreground">Orders, refunds, fraud &amp; analytics</p>
+              </div>
+            </button>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="flex w-full items-center gap-3 p-4 text-left hover:bg-accent/40 transition-colors"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                <UserCircle className="h-4 w-4" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Identity</p>
+                <p className="text-xs text-muted-foreground">Account ID: {user.id.slice(0, 8)}…</p>
+              </div>
+            </button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Logout */}
+      <div className="px-5 mt-5 pb-8">
+        <Separator className="mb-4" />
+        <Button
+          variant="outline"
+          className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
+          onClick={() => {
+            onOpenChange(false);
+            onLogout();
+          }}
+        >
+          <LogOut className="h-4 w-4" />
+          Log out
+        </Button>
+        <p className="mt-3 text-center text-[11px] text-muted-foreground">
+          Kynthai v3 · Data encrypted in transit &amp; at rest
+        </p>
+      </div>
+    </ResponsiveSheet>
   );
 }
 
