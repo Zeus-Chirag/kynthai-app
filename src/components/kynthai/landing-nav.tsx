@@ -40,6 +40,9 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
     { label: 'For Patients', onClick: () => goToLogin('patient') },
     { label: 'For Doctors', onClick: () => goToLogin('doctor') },
     { label: 'For Labs', onClick: () => goToLogin('lab') },
+    ...(process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true'
+      ? [{ label: 'Try the demo', href: '/login?demo=1' }]
+      : []),
     { label: 'Privacy', href: '/privacy' },
     { label: 'Terms', href: '/terms' },
   ]
