@@ -74,21 +74,38 @@ export async function POST(req: NextRequest) {
     return jsonError(eligibility.reason, 400, 'NOT_ELIGIBLE');
   }
 
-  // Find linked payment record
+  // Find linked payment record — payments are NOT linked to appointments in
+  // the DB schema, so match the patient's latest succeeded consultation
+  // payment of the exact appointment amount. Never fall back to the
+  // appointment id: refund.paymentId is a required FK to Payment, so writing
+  // appt.id there violates the constraint and 500s the request.
   const payment = await db.payment.findFirst({
-    where: { userId: u.id, description: { contains: 'Consultation' } },
+    where: {
+      userId: appt.patientId,
+      type: 'consultation',
+      status: 'succeeded',
+      amount: appt.price,
+    },
     orderBy: { createdAt: 'desc' },
   });
+  if (!payment) {
+    return jsonError(
+      'Payment record not found for this appointment — contact support@kynthai.app',
+      409,
+      'NO_PAYMENT_RECORD'
+    );
+  }
 
   // Create refund
   const refund = await db.refund.create({
     data: {
       userId: u.id,
-      paymentId: payment?.id || appt.id,
+      paymentId: payment.id,
       appointmentId: appt.id,
       amount: eligibility.refundAmount,
       reason: body.reason.trim(),
       status: 'pending',
+      requestedBy: 'user',
     },
   });
 
@@ -156,7 +173,10 @@ export async function GET(req: NextRequest) {
 
   let where: Record<string, unknown> = {};
 
-  if (u.role === 'patient') {
+  if (u.role === 'patient' || u.role === 'caretaker') {
+    // Caretakers manage family accounts — scope to their own refunds only
+    // (previously caretakers fell through to `where = {}` and could list
+    // every patient's refunds).
     where.userId = u.id;
   } else if (u.role === 'admin') {
     // see all
@@ -179,14 +199,17 @@ export async function GET(req: NextRequest) {
     where.appointmentId = { in: [] };
   }
 
-  if (statusFilter) where.status = statusFilter;
   if (overdue === 'true') {
     // ponytail: 'overdue' = still pending past the 7-business-day review
     // window. Computed from createdAt because the Refund table has no
     // reviewDeadline column; the deadline promise is sent to patients at
     // request time (createdAt + 7 days), so this stays consistent with it.
+    // Overdue overrides any ?status= filter (pending is the only state that
+    // can be overdue).
     where.status = 'pending';
     where.createdAt = { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) };
+  } else if (statusFilter) {
+    where.status = statusFilter;
   }
 
   const refunds = await db.refund.findMany({

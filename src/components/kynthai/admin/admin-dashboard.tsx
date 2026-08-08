@@ -19,10 +19,10 @@ import {
   TrendingUp,
   Banknote,
   Receipt,
+  LayoutDashboard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { PRICING } from '@/lib/currency';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -45,18 +45,18 @@ import { useAppStore, type AuthUser } from '@/lib/store';
 import { apiFetch } from '@/lib/client-fetch';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { OverviewTab, type OverviewData } from '@/components/kynthai/admin/overview-tab';
 import {
   DOCTOR_BASE_FEE_PCT,
   LAB_BASE_FEE_PCT,
   LOYALTY_TIERS,
   type LoyaltyTier,
-  resolveTier,
   effectiveFeePct,
   platformFee,
   PAYOUT_POLICY,
 } from '@/lib/commission';
 
-type AdminTab = 'revenue' | 'doctors' | 'labs' | 'retention' | 'fraud' | 'refunds';
+type AdminTab = 'overview' | 'doctors' | 'labs' | 'refunds' | 'revenue' | 'retention' | 'fraud';
 
 interface DoctorApp {
   id: string;
@@ -84,45 +84,8 @@ interface LabApp {
   documents: { name: string; type: string }[];
 }
 
-const CHURN_RISKS: {
-  id: string;
-  name: string;
-  tier: string;
-  days: number;
-  reason: string;
-  risk: 'high' | 'medium' | 'low';
-}[] = [
-  {
-    id: 'c1',
-    name: 'Patient Jordan',
-    tier: 'plus',
-    days: 12,
-    reason: 'No AI chats in 12 days',
-    risk: 'high',
-  },
-  {
-    id: 'c2',
-    name: 'Patient Taylor',
-    tier: 'free',
-    days: 8,
-    reason: 'Skipped 5 doses this week',
-    risk: 'medium',
-  },
-  {
-    id: 'c3',
-    name: 'Patient Morgan',
-    tier: 'plus',
-    days: 5,
-    reason: 'No medication adds',
-    risk: 'low',
-  },
-];
-
-/* ------------------ Owner-level revenue model (demo data) ------------------ */
-// In production these numbers come from aggregations over Payment + Appointment
-// + LabBooking + MedicineOrder rows. The shape below mirrors what the owner
-// dashboard would render against the real DB.
-
+/* Partner leaderboard row — filled from the real /api/admin/overview
+   aggregations (no demo data). */
 interface PartnerRevenueRow {
   id: string;
   name: string;
@@ -132,74 +95,11 @@ interface PartnerRevenueRow {
   tier: LoyaltyTier;
 }
 
-// Owner-level revenue model — DEMO data (no real aggregations yet).
-// The other tabs (doctors, labs, refunds, fraud) load live from the real APIs.
-const PARTNER_REVENUE: PartnerRevenueRow[] = [
-  {
-    id: 'pr1',
-    name: 'Dr. Anjali Mehta',
-    type: 'Doctor',
-    lifetimeOrders: 212,
-    grossUsd: 18400,
-    tier: resolveTier(212),
-  },
-  {
-    id: 'pr2',
-    name: 'Dr. Rajiv Khanna',
-    type: 'Doctor',
-    lifetimeOrders: 91,
-    grossUsd: 9600,
-    tier: resolveTier(91),
-  },
-  {
-    id: 'pr3',
-    name: 'Dr. Sara Pinto',
-    type: 'Doctor',
-    lifetimeOrders: 24,
-    grossUsd: 1850,
-    tier: resolveTier(24),
-  },
-  {
-    id: 'pr4',
-    name: 'MediTest Labs',
-    type: 'Lab',
-    lifetimeOrders: 178,
-    grossUsd: 14200,
-    tier: resolveTier(178),
-  },
-  {
-    id: 'pr5',
-    name: 'NorthInd PathLabs',
-    type: 'Lab',
-    lifetimeOrders: 322,
-    grossUsd: 26800,
-    tier: resolveTier(322),
-  },
-  {
-    id: 'pr6',
-    name: 'QuickLab',
-    type: 'Lab',
-    lifetimeOrders: 33,
-    grossUsd: 2850,
-    tier: resolveTier(33),
-  },
-];
-
-// Subscription revenue (patient side) — monthly recurring.
-// Uses USD pricing.
-const SUB_REVENUE = {
-  plusCount: 420,
-  plusMonthlyUsd: 420 * PRICING.USD.plus.monthly, // $9.99/month
-  familyProCount: 130,
-  familyProMonthlyUsd: 130 * PRICING.USD.family_pro.monthly, // $19.99/month
-};
-
 export function AdminDashboard({ user }: { user: AuthUser }) {
   const { theme, setTheme } = useTheme();
-  const { logout, setScreen } = useAppStore();
+  const { logout } = useAppStore();
   const router = useRouter();
-  const isDemo = !!user.isDemo;
-  const [tab, setTab] = React.useState<AdminTab>('revenue');
+  const [tab, setTab] = React.useState<AdminTab>('overview');
   const [reviewApp, setReviewApp] = React.useState<DoctorApp | LabApp | null>(null);
   const [reviewType, setReviewType] = React.useState<'doctor' | 'lab' | null>(null);
 
@@ -210,6 +110,31 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
   const [fraudFlags, setFraudFlags] = React.useState<FraudFlag[] | null>(null);
   const [tabError, setTabError] = React.useState<string | null>(null);
   const [refetchTick, setRefetchTick] = React.useState(0);
+
+  // Owner-level overview — one real aggregation call, shared by Overview,
+  // Revenue, Retention and the headline stat cards.
+  const [overview, setOverview] = React.useState<OverviewData | null>(null);
+  const [overviewError, setOverviewError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/overview', { credentials: 'include', cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Failed to load overview');
+        if (!cancelled) {
+          setOverview(data);
+          setOverviewError(null);
+        }
+      } catch (e) {
+        if (!cancelled) setOverviewError(e instanceof Error ? e.message : 'Failed to load');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [refetchTick]);
 
   // Fetch real data whenever a live tab opens (and re-fetch after an action).
   React.useEffect(() => {
@@ -247,26 +172,32 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
     };
   }, [tab, refetchTick]);
 
-  const pendingDoctors = doctorApps?.filter(d => d.status === 'pending').length ?? 0;
-  const pendingLabs = labApps?.filter(l => l.status === 'pending').length ?? 0;
-  const activeDoctors = doctorApps?.filter(d => d.status === 'approved').length ?? 0;
-  const churnCount = CHURN_RISKS.length;
-  const fraudCount = fraudFlags?.length ?? 0;
+  const pendingDoctors = overview?.stats.doctorApps.pending ?? 0;
+  const pendingLabs = overview?.stats.labApps.pending ?? 0;
+  const activeDoctors = overview?.stats.doctorApps.approved ?? 0;
+  const churnCount = overview?.atRisk.length ?? 0;
+  const fraudCount = overview?.stats.fraud.total ?? 0;
 
-  // ---- Owner-level revenue aggregations ----
-  const doctorCommission = PARTNER_REVENUE.filter(p => p.type === 'Doctor').reduce(
-    (s, p) => s + platformFee(p.grossUsd, effectiveFeePct(DOCTOR_BASE_FEE_PCT, p.tier)),
-    0
-  );
-  const labCommission = PARTNER_REVENUE.filter(p => p.type === 'Lab').reduce(
-    (s, p) => s + platformFee(p.grossUsd, effectiveFeePct(LAB_BASE_FEE_PCT, p.tier)),
-    0
-  );
-  const totalPartnerGross = PARTNER_REVENUE.reduce((s, p) => s + p.grossUsd, 0);
-  const platformCommission = doctorCommission + labCommission;
-  const subscriptionMrr = SUB_REVENUE.plusMonthlyUsd + SUB_REVENUE.familyProMonthlyUsd;
-  const totalMrr = platformCommission / 12 + subscriptionMrr / 12;
-  const avgTakeRate = totalPartnerGross > 0 ? (platformCommission / totalPartnerGross) * 100 : 0;
+  // ---- Owner-level revenue aggregations (real, from /api/admin/overview) ----
+  const revenue = overview?.revenue;
+  const platformCommission = revenue?.platformCommissionUsd ?? 0;
+  const doctorCommission = revenue?.doctorCommissionUsd ?? 0;
+  const labCommission = revenue?.labCommissionUsd ?? 0;
+  const totalPartnerGross = revenue?.grossUsd ?? 0;
+  const subscriptionMrr = revenue?.mrrUsd ?? 0;
+  const totalMrr = revenue?.totalMrrUsd ?? 0;
+  const avgTakeRate = revenue?.takeRatePct ?? 0;
+  const partners: PartnerRevenueRow[] =
+    overview?.partners.map(p => ({
+      id: p.id,
+      name: p.name,
+      type: p.type,
+      lifetimeOrders: p.lifetimeOrders,
+      grossUsd: p.grossUsd,
+      tier: p.tier as LoyaltyTier,
+    })) ?? [];
+
+  const fmtUsd = (n: number) => `$${n.toLocaleString('en-US')}`;
 
   const openReview = (app: DoctorApp | LabApp, type: 'doctor' | 'lab') => {
     setReviewApp(app);
@@ -322,21 +253,20 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
         </div>
       </header>
 
-      {/* Demo banner — revenue & retention are sample data; the other tabs are live */}
-      {isDemo && process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
-        <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1.5 text-center text-[11px] text-amber-700 dark:text-amber-300">
-          Demo mode — revenue &amp; retention show sample data. Applications, fraud
-          &amp; refunds act on live data.
+      {/* All tabs act on real data (aggregated by /api/admin/overview). */}
+      {overviewError && (
+        <div className="bg-rose-500/10 border-b border-rose-500/20 px-4 py-1.5 text-center text-[11px] text-rose-700 dark:text-rose-300">
+          Overview aggregation failed — {overviewError}
         </div>
       )}
 
       <main id="main-content" className="mx-auto max-w-6xl px-4 pb-12 pt-4 space-y-5">
-        {/* Stats — owner view: revenue first */}
+        {/* Quick owner stats — real values from the overview aggregation */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             icon={<Wallet className="h-4 w-4" />}
-            label="Platform revenue"
-            value={`$${(platformCommission / 1000).toFixed(0)}K`}
+            label="Net revenue"
+            value={fmtUsd(platformCommission - (overview?.stats.refunds.issuedUsd ?? 0))}
             sub={`avg take ${avgTakeRate.toFixed(1)}%`}
             tint="emerald"
           />
@@ -351,7 +281,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
             icon={<Microscope className="h-4 w-4" />}
             label="Labs pending"
             value={pendingLabs}
-            sub={`${labApps?.length ?? 0} total`}
+            sub={`${overview?.stats.labApps.total ?? 0} total`}
             tint="amber"
           />
           <StatCard
@@ -365,10 +295,10 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
 
         <Tabs value={tab} onValueChange={v => setTab(v as AdminTab)} className="w-full">
           {/* Mobile: 2-col grid so labels stay readable; sm+: 6-col strip */}
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto p-1 gap-1">
-            <TabsTrigger value="revenue" className="py-1.5 text-xs col-span-3 sm:col-span-1">
-              <Wallet className="h-3.5 w-3.5" />
-              Revenue
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 h-auto p-1 gap-1">
+            <TabsTrigger value="overview" className="py-1.5 text-xs col-span-3 sm:col-span-1">
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
             <TabsTrigger value="doctors" className="py-1.5 text-xs">
               <Stethoscope className="h-3.5 w-3.5" />
@@ -382,6 +312,10 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
               <Receipt className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Refunds</span>
             </TabsTrigger>
+            <TabsTrigger value="revenue" className="py-1.5 text-xs">
+              <Wallet className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Revenue</span>
+            </TabsTrigger>
             <TabsTrigger value="retention" className="py-1.5 text-xs">
               <Users className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Retention</span>
@@ -392,6 +326,16 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="overview" className="mt-4">
+            <OverviewTab
+              data={overview}
+              loading={!overview && !overviewError}
+              error={overviewError}
+              userName={user.name ?? ''}
+              onNavigate={tabId => setTab(tabId as AdminTab)}
+            />
+          </TabsContent>
+
           <TabsContent value="revenue" className="mt-4">
             <RevenueTab
               platformCommission={platformCommission}
@@ -401,7 +345,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
               subscriptionMrr={subscriptionMrr}
               totalMrr={totalMrr}
               avgTakeRate={avgTakeRate}
-              partners={PARTNER_REVENUE}
+              partners={partners}
             />
           </TabsContent>
 
@@ -467,7 +411,19 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
           </TabsContent>
 
           <TabsContent value="retention" className="mt-4">
-            <RetentionTab risks={CHURN_RISKS} />
+            <RetentionTab
+              risks={overview?.atRisk ?? []}
+              loading={!overview && !overviewError}
+              stats={
+                overview?.stats.retention
+                  ? {
+                      totalPatients: overview.stats.retention.totalPatients,
+                      activated: overview.stats.retention.activated,
+                      repeat: overview.stats.retention.repeat,
+                    }
+                  : null
+              }
+            />
           </TabsContent>
 
           <TabsContent value="fraud" className="mt-4">
@@ -801,6 +757,8 @@ function ApplicationsTab({
 
 function RetentionTab({
   risks,
+  loading,
+  stats,
 }: {
   risks: {
     id: string;
@@ -810,15 +768,57 @@ function RetentionTab({
     reason: string;
     risk: 'high' | 'medium' | 'low';
   }[];
+  loading?: boolean;
+  stats?: { totalPatients: number; activated: number; repeat: number } | null;
 }) {
+  if (loading) return <LoadingCard />;
+
+  const activationPct = stats && stats.totalPatients > 0 ? (stats.activated / stats.totalPatients) * 100 : 0;
+  const repeatPct = stats && stats.activated > 0 ? (stats.repeat / stats.activated) * 100 : 0;
+
   return (
     <div className="space-y-3">
       <div>
-        <h2 className="text-base font-semibold">Churn risks</h2>
+        <h2 className="text-base font-semibold">Patient retention</h2>
         <p className="text-xs text-muted-foreground">
-          Users showing signs of disengagement in the last 7 days.
+          Real funnel — patients who booked at least once, then came back.
         </p>
       </div>
+
+      {stats && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Patients</p>
+              <p className="text-xl font-bold">{stats.totalPatients}</p>
+              <p className="text-[11px] text-muted-foreground">Registered accounts</p>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-500/30 bg-emerald-500/5">
+            <CardContent className="p-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Activated</p>
+              <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                {stats.activated} <span className="text-xs font-medium text-muted-foreground">({activationPct.toFixed(0)}%)</span>
+              </p>
+              <p className="text-[11px] text-muted-foreground">≥1 booking</p>
+            </CardContent>
+          </Card>
+          <Card className="border-teal-500/30 bg-teal-500/5">
+            <CardContent className="p-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Repeat</p>
+              <p className="text-xl font-bold text-teal-600 dark:text-teal-400">
+                {stats.repeat} <span className="text-xs font-medium text-muted-foreground">({repeatPct.toFixed(0)}% of activated)</span>
+              </p>
+              <p className="text-[11px] text-muted-foreground">≥2 bookings</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <h3 className="text-sm font-semibold pt-2">Churn risks</h3>
+      <p className="text-xs text-muted-foreground -mt-1">
+        Patients who booked before but haven&apos;t in 7+ days.
+      </p>
       {risks.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground">

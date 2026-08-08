@@ -24,7 +24,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!refund) return jsonError('Refund not found', 404);
 
   const isRequester = refund.userId === u.id;
-  const isAdmin = u.role === 'admin' || u.role === 'caretaker';
+  // Money operations are admin-only: approving a refund moves real funds.
+  // Caretakers can manage their own pending requests but cannot approve.
+  const isAdmin = u.role === 'admin';
   if (!isRequester && !isAdmin) return jsonError('Forbidden', 403);
 
   const body = await req.json().catch(() => null);
