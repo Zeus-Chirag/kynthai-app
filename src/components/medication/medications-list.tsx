@@ -174,7 +174,10 @@ export function MedicationsList({
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed');
       const data = await res.json();
-      setMeds(data);
+      // The GET endpoint returns a paginated envelope ({ data: [...], meta })
+      // — read the array out of it, not the whole object (which would make
+      // `meds.filter(...)` crash with "filter is not a function").
+      setMeds(Array.isArray(data) ? data : (data.data ?? []));
     } catch (e) {
       toast({
         title: 'Failed to load',
@@ -232,7 +235,11 @@ export function MedicationsList({
     }
   };
 
-  const filtered = meds.filter(
+  // ponytail: defensive — `meds` must always be an array (an API returning a
+// non-array body used to set it to an object and crash `meds.filter`). Guard
+// both the state shape and the filter so the portal can never blow up here.
+const medList = Array.isArray(meds) ? meds : [];
+  const filtered = medList.filter(
     m =>
       m.name.toLowerCase().includes(query.toLowerCase()) ||
       m.dosage.toLowerCase().includes(query.toLowerCase())
