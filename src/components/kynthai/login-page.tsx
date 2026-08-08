@@ -215,6 +215,25 @@ export function LoginPage({
           body: JSON.stringify({ email: pick.email, password: 'Demo@2024' }),
         });
         if (res.ok) {
+          // Mirror the real sign-in handler (submit → /auth/login → login(user)):
+          // keep the client store in sync with the server session cookie. The
+          // portal clients (admin-client, patient-client, doctor-client, …) gate
+          // on the STORE user and redirect to /login when it's null — on a fresh
+          // browser the demo login only set the cookie, so /admin (and every
+          // other portal) bounced straight back to /login. Persisted via zustand
+          // persist, so it survives the hard reload below.
+          const data = await res.json();
+          const demoUser: AuthUser = {
+            id: data.id,
+            email: data.email,
+            name: data.name,
+            role: data.role,
+            phone: data.phone,
+            subscriptionTier: data.subscriptionTier,
+            isDemo: data.isDemo,
+            isUserMinor: Boolean((data as { isUserMinor?: boolean }).isUserMinor),
+          };
+          useAppStore.getState().login(demoUser);
           // Demo accounts are pre-seeded, pre-consented "returning users"
           // (isDemo=false in DB, data + consent already present) — so mark
           // onboarding complete client-side. Without this, a fresh visitor
