@@ -292,7 +292,7 @@ export function LoginPage({
           password,
           name,
           role: active.id,
-          phone: phone || undefined,
+          phone: phone ? `+${phone.replace(/\D/g, '')}` || undefined : undefined,
           dateOfBirth: dateOfBirth || undefined,
           consentAccepted: termsConsent,
           dataProcessingConsent: dataConsent,
