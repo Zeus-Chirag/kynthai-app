@@ -156,20 +156,48 @@ export function LoginPage({
   }, [mode]);
   // ───────────────────────────────────────────────────────────────────────────
 
+  // Returning-user redirect: only navigate when the session is LIVE.
+  // A persisted store user can be stale (session cookie expired/rotated, or
+  // the store holds a different account than the current session). Blindly
+  // pushing to the store-role portal made the login page thrash form →
+  // portal → login on every load (mobile "form is blinking" report): this
+  // effect redirected on the stale user while AuthGuard skips /login, so
+  // nothing reconciled store vs. session until the portal bounced back.
+  // Verify /api/auth/me first; sync the store to the server truth, or clear
+  // the stale user and stay on the form (no redirect, no loop).
   React.useEffect(() => {
-    if (user) {
-      const targetScreen =
-        user.role === 'patient'
-          ? 'patient'
-          : user.role === 'doctor'
-            ? 'doctor'
-            : user.role === 'lab'
-              ? 'lab'
-              : user.role === 'admin'
-                ? 'admin'
-                : 'caretaker';
-      router.push(`/${targetScreen}`);
-    }
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store', credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (data?.authenticated && data?.user) {
+          if (data.user.id !== user.id) useAppStore.getState().login(data.user);
+          const targetScreen =
+            data.user.role === 'patient'
+              ? 'patient'
+              : data.user.role === 'doctor'
+                ? 'doctor'
+                : data.user.role === 'lab'
+                  ? 'lab'
+                  : data.user.role === 'admin'
+                    ? 'admin'
+                    : 'caretaker';
+          router.push(`/${targetScreen}`);
+        } else {
+          // Session is gone — the persisted user is stale. Clear it so the
+          // form stays put (no redirect) and the next login starts clean.
+          useAppStore.getState().logout();
+        }
+      } catch {
+        // Network error — do nothing; don't navigate, don't clear, don't loop.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user, router]);
 
   // Demo login is EXPLICIT, never automatic. It only fires when the URL
