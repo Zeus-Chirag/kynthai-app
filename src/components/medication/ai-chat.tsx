@@ -245,12 +245,22 @@ export function AiChat() {
     const res = await fetch(url);
     if (!res.ok) return;
     const data: PaginatedChatResponse = await res.json();
+    // GET /api/chat returns a paginated envelope (jsonPage): { data: [...], meta }.
+    // Read the message list out of it (also accept a plain array or { messages }
+    // shape for robustness) so `messages` is always an array and never undefined.
+    const list: ChatMsg[] = Array.isArray(data)
+      ? data
+      : Array.isArray((data as unknown as { data?: unknown }).data)
+        ? ((data as unknown as { data: ChatMsg[] }).data)
+        : (Array.isArray((data as unknown as { messages?: unknown }).messages)
+            ? (data as unknown as { messages: ChatMsg[] }).messages
+            : []);
     if (cursor) {
       // Prepend older messages
-      setMessages(prev => [...prev, ...data.messages]);
+      setMessages(prev => [...prev, ...list]);
       setOldestCursor(data.nextCursor);
     } else {
-      setMessages(data.messages);
+      setMessages(list);
       setOldestCursor(data.nextCursor);
     }
     setHasMore(data.hasMore);
@@ -519,7 +529,7 @@ export function AiChat() {
               </div>
             )}
 
-            {loadingInitial && messages.length === 0 && !isDemo && !loadError
+            {loadingInitial && (messages ?? []).length === 0 && !isDemo && !loadError
               ? [0, 1, 2].map(i => (
                   <div key={i} className="flex items-start gap-2">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -530,7 +540,7 @@ export function AiChat() {
                     </div>
                   </div>
                 ))
-              : messages.map(m => <MessageBubble key={m.id} msg={m} />)}
+              : (messages ?? []).map(m => <MessageBubble key={m.id} msg={m} />)}
             {sending && (
               <div className="flex items-start gap-2">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
