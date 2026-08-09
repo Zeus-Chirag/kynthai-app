@@ -76,7 +76,7 @@ function PhoneMockupSkeleton() {
       {/* Phone silhouette — same border-radius + border as real mockup */}
       <div
         className={cn(
-          'mx-auto overflow-hidden rounded-[3rem] border-[3px] border-emerald-300/30 bg-neutral-950 p-[4px]',
+          'mx-auto overflow-hidden rounded-[3rem] border-[3px] border-emerald-300/30 bg-neutral-950 p-[4px] phone-frame',
           'shadow-2xl shadow-emerald-900/30',
         )}
       >
