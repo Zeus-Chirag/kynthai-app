@@ -2,9 +2,11 @@
 
 import * as React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Sparkles, Users, Pill, Stethoscope, FlaskConical, ChevronLeft, ShieldCheck, UserCircle, BrainCircuit, AlertTriangle } from 'lucide-react'
+import { ArrowRight, Sparkles, Users, Pill, Stethoscope, FlaskConical, ChevronLeft, ShieldCheck, UserCircle, BrainCircuit, AlertTriangle, Plus, Loader2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { KynthaiBrand } from './logo'
 
@@ -77,6 +79,18 @@ export function Onboarding({
   const [dataProcessingAccepted, setDataProcessingAccepted] = React.useState(false)
   const [aiProcessingAccepted, setAiProcessingAccepted] = React.useState(false)
 
+  // First-value moment: optional quick-add of a medication after consent.
+  // Gives the user something real in their account immediately — the core of
+  // "reach first value fast" onboarding. Uses the real /api/medications API.
+  const [medName, setMedName] = React.useState('')
+  const [medDosage, setMedDosage] = React.useState('')
+  const [medTime, setMedTime] = React.useState('08:00')
+  const [medSaving, setMedSaving] = React.useState(false)
+  const [medSaved, setMedSaved] = React.useState(false)
+  const [medError, setMedError] = React.useState<string | null>(null)
+  const isMedSlide = index === CONSENT_INDEX + 1
+  const canAddMed = medName.trim().length > 0 && medDosage.trim().length > 0
+
   const slide = index < CONSENT_INDEX ? SLIDES[index]! : null
   const isConsentSlide = index === CONSENT_INDEX
   const isRoleSlide = index === ROLE_SLIDE_INDEX
@@ -87,32 +101,67 @@ export function Onboarding({
     ? allConsentGiven
     : isRoleSlide
     ? !!role  // role required on role-selection slide
+    : isMedSlide
+    ? true    // first-medication slide is optional — can always finish
     : true    // all other slides: can always tap Continue
+
+  const saveFirstMedication = React.useCallback(async () => {
+    if (!canAddMed || medSaving) return
+    setMedSaving(true)
+    setMedError(null)
+    try {
+      const res = await fetch('/api/medications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: medName.trim(),
+          dosage: medDosage.trim(),
+          times: [medTime],
+          frequency: 'Daily',
+        }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        throw new Error(d?.error || 'Could not add medication')
+      }
+      setMedSaved(true)
+    } catch (e) {
+      setMedError(e instanceof Error ? e.message : 'Could not add medication')
+    } finally {
+      setMedSaving(false)
+    }
+  }, [canAddMed, medSaving, medName, medDosage, medTime])
 
   const next = React.useCallback(() => {
     if (isConsentSlide) {
-      if (allConsentGiven) onComplete(role ?? 'patient')
+      setIndex(CONSENT_INDEX + 1) // consent → first-medication slide
     } else if (isRoleSlide) {
       setIndex(CONSENT_INDEX - 1) // role slide → AI limits slide (index 4)
     } else if (isAiLimitsSlide) {
       setIndex(CONSENT_INDEX) // AI limits slide → consent slide
+    } else if (isMedSlide) {
+      onComplete(role ?? 'patient') // medication slide → done
     } else {
       setIndex((i) => Math.min(i + 1, CONSENT_INDEX))
     }
-  }, [isConsentSlide, allConsentGiven, isRoleSlide, isAiLimitsSlide, onComplete, role])
+  }, [isConsentSlide, allConsentGiven, isRoleSlide, isAiLimitsSlide, isMedSlide, onComplete, role])
 
   const prev = React.useCallback(() => {
     if (isConsentSlide) {
       setIndex(CONSENT_INDEX - 1)
+    } else if (isMedSlide) {
+      setIndex(CONSENT_INDEX)
     } else {
       setIndex((i) => Math.max(i - 1, 0))
     }
-  }, [isConsentSlide])
+  }, [isConsentSlide, isMedSlide])
 
   // COMPLIANCE: Skip must navigate to consent slide, never bypass it.
   const handleSkip = React.useCallback(() => {
     if (index < CONSENT_INDEX) setIndex(CONSENT_INDEX)
-  }, [index])
+    else if (isMedSlide) onComplete(role ?? 'patient')
+  }, [index, isMedSlide, onComplete, role])
 
   // COMPLIANCE: Escape key must NOT bypass the consent slide.
   React.useEffect(() => {
@@ -165,7 +214,54 @@ export function Onboarding({
       <div className="flex flex-1 flex-col items-center justify-center px-4 sm:px-6 pb-3 sm:pb-4">
         <div className="w-full max-w-md">
           <AnimatePresence mode="wait">
-            {isConsentSlide ? (
+            {isMedSlide ? (
+              <motion.div key="med" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="flex flex-col items-center text-center">
+                <div className="relative mb-5 flex h-32 w-full items-center justify-center">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25">
+                    {medSaved ? <Check className="h-9 w-9" /> : <Pill className="h-9 w-9" />}
+                  </div>
+                </div>
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                  {medSaved ? 'You set your first medication!' : 'Add your first medication'}
+                </h1>
+                <p className="mt-2 max-w-sm text-pretty text-sm text-muted-foreground sm:text-base">
+                  {medSaved
+                    ? 'That was fast. You can always add more and scan prescriptions from your dashboard.'
+                    : 'Optional — add one now so Kynthai can start reminding you. Takes about 10 seconds.'}
+                </p>
+                {!medSaved && (
+                  <div className="mt-4 w-full space-y-3 text-left">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="ob-med-name" className="text-xs font-medium">Medication name</Label>
+                      <Input id="ob-med-name" value={medName} onChange={e => setMedName(e.target.value)}
+                        placeholder="e.g. Metformin" className="h-10" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="ob-med-dosage" className="text-xs font-medium">Dosage</Label>
+                        <Input id="ob-med-dosage" value={medDosage} onChange={e => setMedDosage(e.target.value)}
+                          placeholder="e.g. 500mg" className="h-10" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="ob-med-time" className="text-xs font-medium">Time</Label>
+                        <Input id="ob-med-time" type="time" value={medTime} onChange={e => setMedTime(e.target.value)}
+                          className="h-10" />
+                      </div>
+                    </div>
+                    {medError && (
+                      <p className="text-xs text-rose-600 dark:text-rose-400">{medError}</p>
+                    )}
+                    <Button variant="outline" size="sm" onClick={saveFirstMedication} disabled={!canAddMed || medSaving}
+                      className="w-full gap-2">
+                      {medSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                      {medSaving ? 'Adding…' : 'Add medication'}
+                    </Button>
+                  </div>
+                )}
+              </motion.div>
+            ) : isConsentSlide ? (
               <motion.div key={CONSENT_INDEX} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="flex flex-col items-center text-center">
@@ -358,7 +454,7 @@ export function Onboarding({
           </div>
           <Button onClick={next} disabled={!canComplete}
             className="w-full gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50">
-            {isConsentSlide ? 'Accept & Continue' : 'Continue'}
+            {isConsentSlide ? 'Accept & Continue' : isMedSlide ? (medSaved ? 'Get started' : 'Skip for now') : 'Continue'}
             <ArrowRight className="h-4 w-4" />
           </Button>
           {isConsentSlide && !allConsentGiven && (
