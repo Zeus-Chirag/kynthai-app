@@ -14,12 +14,14 @@ import {
   ChevronRight,
   Loader2,
   FileText as FileTextIcon,
+  Stethoscope,
+  Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TimelineEvent {
   id: string;
-  type: 'prescription' | 'lab_booking';
+  type: 'prescription' | 'lab_booking' | 'appointment' | 'health_journal';
   date: string;
   status: string;
   details: Record<string, unknown>;
@@ -157,6 +159,24 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
             STATUS_CONFIG.pending!) as StatusConfig;
           const StatusIcon = config.icon;
           const isRx = event.type === 'prescription';
+          const isLab = event.type === 'lab_booking';
+          const isAppt = event.type === 'appointment';
+          const isJournal = event.type === 'health_journal';
+          const accent = isRx
+            ? 'bg-emerald-500/10 text-emerald-600'
+            : isLab
+              ? 'bg-cyan-500/10 text-cyan-600'
+              : isAppt
+                ? 'bg-violet-500/10 text-violet-600'
+                : 'bg-amber-500/10 text-amber-600';
+          const borderAccent = isRx
+            ? 'border-l-emerald-500/40'
+            : isLab
+              ? 'border-l-cyan-500/40'
+              : isAppt
+                ? 'border-l-violet-500/40'
+                : 'border-l-amber-500/40';
+          const EvIcon = isRx ? Pill : isLab ? FlaskConical : isAppt ? Stethoscope : Activity;
           return (
             <motion.div
               key={event.id}
@@ -164,26 +184,22 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <Card
-                className={cn(
-                  'border-border/60',
-                  isRx ? 'border-l-emerald-500/40' : 'border-l-cyan-500/40'
-                )}
-              >
+              <Card className={cn('border-border/60', borderAccent)}>
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <span
-                      className={cn(
-                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                        isRx ? 'bg-emerald-500/10 text-emerald-600' : 'bg-cyan-500/10 text-cyan-600'
-                      )}
-                    >
-                      {isRx ? <Pill className="h-4 w-4" /> : <FlaskConical className="h-4 w-4" />}
+                    <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', accent)}>
+                      <EvIcon className="h-4 w-4" />
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-semibold">
-                          {isRx ? 'Prescription' : 'Lab Test'}
+                          {isRx
+                            ? 'Prescription'
+                            : isLab
+                              ? 'Lab Test'
+                              : isAppt
+                                ? 'Appointment'
+                                : 'Health Check-in'}
                         </p>
                         <Badge variant="secondary" className={cn('text-[10px] h-5', config.color)}>
                           <StatusIcon className="h-3 w-3" />
@@ -191,7 +207,11 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
                         </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {isRx ? `Dr. ${event.actor}` : event.actor}
+                        {isRx
+                          ? `Dr. ${event.actor}`
+                          : isJournal
+                            ? 'Self-reported'
+                            : event.actor}
                         {' · '}
                         {new Date(event.date).toLocaleDateString('en-US', {
                           day: 'numeric',
@@ -210,7 +230,7 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
                             ))}
                         </div>
                       )}
-                      {!isRx && Array.isArray(event.details.tests) && (
+                      {isLab && Array.isArray(event.details.tests) && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
                           {(event.details.tests as Array<{ name?: string }>)
                             .slice(0, 3)
@@ -219,6 +239,35 @@ export function CareJourneyTimeline({ userId, isDemo }: CareJourneyTimelineProps
                                 {test.name || 'Test'}
                               </Badge>
                             ))}
+                        </div>
+                      )}
+                      {isAppt && (
+                        <div className="mt-1.5">
+                          <Badge variant="secondary" className="text-[10px] capitalize">
+                            {(event.details.type as string) || 'video'}
+                          </Badge>
+                          {(event.details.reason as string) && (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              {event.details.reason as string}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {isJournal && Array.isArray(event.details.symptoms) && (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {((event.details.symptoms as unknown[])?.length ?? 0) > 0 ? (
+                            (event.details.symptoms as string[]).slice(0, 3).map((s, j) => (
+                              <Badge key={j} variant="secondary" className="text-[10px]">
+                                {s}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-[11px] text-muted-foreground">
+                              {event.details.mood
+                                ? `Mood: ${String(event.details.mood)}`
+                                : 'Check-in recorded'}
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
@@ -284,13 +333,28 @@ function getDemoTimeline(): TimelineEvent[] {
       },
     },
     {
-      id: 'demo-rx-2',
-      type: 'prescription',
-      date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'accepted',
-      actor: 'Rajesh Kumar',
+      id: 'demo-appt-1',
+      type: 'appointment',
+      date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'completed',
+      actor: 'Dr. Rajesh Kumar',
       details: {
-        medications: [{ name: 'Vitamin D3' }],
+        type: 'video',
+        reason: 'Follow-up on blood sugar',
+        scheduledAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+    },
+    {
+      id: 'demo-journal-1',
+      type: 'health_journal',
+      date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'recorded',
+      actor: 'Self',
+      details: {
+        symptoms: [],
+        mood: 'good',
+        vitals: null,
+        notes: 'Felt good today',
       },
     },
   ];

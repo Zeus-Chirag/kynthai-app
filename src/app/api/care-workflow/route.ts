@@ -64,10 +64,27 @@ export async function GET(req: NextRequest) {
       take: 20,
     })
 
+    // Fetch appointments (doctor visits) for this patient
+    const appointments = await db.appointment.findMany({
+      where: { patientId: targetPatientId, deletedAt: null },
+      include: {
+        doctor: { include: { user: { select: { name: true } } } },
+      },
+      orderBy: { scheduledAt: 'desc' },
+      take: 20,
+    })
+
+    // Fetch health journal entries (symptoms / mood / vitals) for this patient
+    const journals = await db.healthJournal.findMany({
+      where: { userId: targetPatientId, deletedAt: null },
+      orderBy: { date: 'desc' },
+      take: 20,
+    })
+
     // Build unified timeline
     const timeline: Array<{
       id: string
-      type: 'prescription' | 'lab_booking'
+      type: 'prescription' | 'lab_booking' | 'appointment' | 'health_journal'
       date: string
       status: string
       details: Record<string, unknown>
@@ -104,6 +121,51 @@ export async function GET(req: NextRequest) {
           homeCollection: b.homeCollection,
         },
         actor: b.lab?.labName || 'Lab',
+      })
+    }
+
+    for (const a of appointments) {
+      timeline.push({
+        id: `appt-${a.id}`,
+        type: 'appointment',
+        date: a.scheduledAt.toISOString(),
+        status: a.status,
+        details: {
+          doctorName: a.doctor?.user?.name || 'Doctor',
+          type: a.type,
+          reason: a.reason,
+          scheduledAt: a.scheduledAt.toISOString(),
+        },
+        actor: a.doctor?.user?.name || 'Doctor',
+      })
+    }
+
+    for (const j of journals) {
+      let symptoms: string[] = []
+      let mood: string | null = null
+      let vitals: Record<string, unknown> | null = null
+      try {
+        symptoms = JSON.parse((j as any).symptoms || '[]')
+      } catch { /* keep [] */ }
+      try {
+        mood = (j as any).mood || null
+      } catch { /* ignore */ }
+      try {
+        const v = (j as any).vitals
+        vitals = v ? JSON.parse(v) : null
+      } catch { /* ignore */ }
+      timeline.push({
+        id: `journal-${j.id}`,
+        type: 'health_journal',
+        date: j.date.toISOString(),
+        status: 'recorded',
+        details: {
+          symptoms,
+          mood,
+          vitals,
+          notes: (j as any).notes || null,
+        },
+        actor: 'Self',
       })
     }
 
