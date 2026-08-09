@@ -316,6 +316,16 @@ body {
   zoom: min(1, calc(100cqw / 340px));
 }
 
+/* Phone frame — softens the bezels in light mode. The dark bg + emerald border
+   look great in dark mode (blends into dark page) but are harsh against a white
+   background. In light mode, this override gives a premium titanium look with a
+   subtle neutral shadow instead. */
+html:not(.dark) .phone-frame {
+  background: linear-gradient(160deg, #3a3a3a 0%, #1e1e1e 100%) !important;
+  border-color: rgba(180, 180, 180, 0.45) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
 /* ── Premium motion + texture utilities ───────────────────────────────── */
 
 /* ── OTP/Input caret blink (moved from the removed legacy index.css) ─────── */
