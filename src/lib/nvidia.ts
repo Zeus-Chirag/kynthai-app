@@ -48,49 +48,52 @@ function estimateCost(model: string, promptTokens: number, completionTokens: num
 // which surfaced as chat POST -> 500 "Failed to get AI response" in production.
 // Resolve the model to match the provider that is actually configured.
 function resolveModel(): string {
-  if (process.env.NVIDIA_API_KEY) {
-    return process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
+  if (process.env.CLINE_API_KEY) {
+    return process.env.CLINE_MODEL || 'claude-sonnet-4-20250514'
   }
   if (process.env.OPENAI_API_KEY) {
     return process.env.OPENAI_MODEL || 'gpt-4o-mini'
   }
-  return process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
+  if (process.env.NVIDIA_API_KEY) {
+    return process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
+  }
+  return process.env.CLINE_MODEL || 'claude-sonnet-4-20250514'
 }
 export const NVIDIA_MODEL: string = resolveModel()
 
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
 
-// A real provider key is required for AI features. Treat obvious placeholder
-// values (e.g. the literal "sk-PLACE..._KEY" placeholder shipped in some env
-// setups) as NOT available so chat degrades gracefully to the medicine-DB /
-// config-needed path instead of calling the provider and 401/500ing.
 function isRealProviderKey(value: string | undefined): boolean {
   if (!value) return false
   if (value.length < 16) return false
-  // Placeholder / sample patterns: PLACE..., placeholder, your-api-key, xxx, changeme
   return !/PLACE|placeholder|your[-_ ]api|xxxx|changeme|sample/i.test(value)
 }
 
 export function isAiAvailable(): boolean {
-  return isRealProviderKey(process.env.NVIDIA_API_KEY) || isRealProviderKey(process.env.OPENAI_API_KEY)
+  return (
+    isRealProviderKey(process.env.CLINE_API_KEY) ||
+    isRealProviderKey(process.env.OPENAI_API_KEY) ||
+    isRealProviderKey(process.env.NVIDIA_API_KEY)
+  )
 }
 
 /**
  * Get the AI client instance.
- * Uses the NVIDIA NIM hosted endpoint when NVIDIA_API_KEY is configured
- * (OpenAI-compatible), otherwise falls back to OpenAI directly.
+ * Provider priority: CLINE_API_KEY → OPENAI_API_KEY → NVIDIA_API_KEY.
+ * All use the OpenAI-compatible chat completions API.
  */
 export function getNvidia(): OpenAI {
-  const nvidiaKey = process.env.NVIDIA_API_KEY
+  const clineKey = process.env.CLINE_API_KEY
   const openaiKey = process.env.OPENAI_API_KEY
+  const nvidiaKey = process.env.NVIDIA_API_KEY
 
-  if (!nvidiaKey && !openaiKey) {
-    throw new Error('NVIDIA_API_KEY (or OPENAI_API_KEY) must be set for AI features')
+  if (!clineKey && !openaiKey && !nvidiaKey) {
+    throw new Error('CLINE_API_KEY (or OPENAI_API_KEY/NVIDIA_API_KEY) must be set for AI features')
   }
 
-  const apiKey = nvidiaKey || openaiKey as string
-  const baseURL = nvidiaKey
-    ? process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL
+  const apiKey = clineKey || openaiKey || nvidiaKey as string
+  const baseURL = nvidiaKey && !clineKey && !openaiKey
+    ? (process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL)
     : 'https://api.openai.com/v1'
 
   return new OpenAI({
