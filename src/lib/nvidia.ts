@@ -49,7 +49,7 @@ function estimateCost(model: string, promptTokens: number, completionTokens: num
 // Resolve the model to match the provider that is actually configured.
 function resolveModel(): string {
   if (process.env.CLINE_API_KEY) {
-    return process.env.CLINE_MODEL || 'claude-sonnet-4-20250514'
+    return process.env.CLINE_MODEL || 'anthropic/claude-sonnet-4-6'
   }
   if (process.env.OPENAI_API_KEY) {
     return process.env.OPENAI_MODEL || 'gpt-4o-mini'
@@ -57,10 +57,11 @@ function resolveModel(): string {
   if (process.env.NVIDIA_API_KEY) {
     return process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
   }
-  return process.env.CLINE_MODEL || 'claude-sonnet-4-20250514'
+  return process.env.CLINE_MODEL || 'anthropic/claude-sonnet-4-6'
 }
 export const NVIDIA_MODEL: string = resolveModel()
 
+const CLINE_BASE_URL = 'https://api.cline.bot/api/v1'
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
 
 function isRealProviderKey(value: string | undefined): boolean {
@@ -92,9 +93,11 @@ export function getNvidia(): OpenAI {
   }
 
   const apiKey = clineKey || openaiKey || nvidiaKey as string
-  const baseURL = nvidiaKey && !clineKey && !openaiKey
-    ? (process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL)
-    : 'https://api.openai.com/v1'
+  const baseURL = clineKey
+    ? CLINE_BASE_URL
+    : nvidiaKey && !openaiKey
+      ? (process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL)
+      : 'https://api.openai.com/v1'
 
   return new OpenAI({
     apiKey,
