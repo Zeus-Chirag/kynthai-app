@@ -358,16 +358,16 @@ export function PhoneMockup({
 
           {/* ── Bottom navigation ───────────────────────────────────── */}
           <div className="mx-4 mb-2 mt-3 flex items-center justify-around rounded-2xl border border-neutral-200 bg-white/90 px-4 py-2 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-800/90">
-            <NavIcon icon={<Home className="h-4 w-4" />} active />
-            <NavIcon icon={<Pill className="h-4 w-4" />} />
+            <NavIcon icon={<Home className="h-4 w-4" />} active label="Home" />
+            <NavIcon icon={<Pill className="h-4 w-4" />} label="Medications" />
             <div
               className="-mt-5 flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-800/40 ring-4 ring-white dark:ring-neutral-900"
               style={reduced ? {} : { animation: 'phone-tick 3.5s ease-in-out infinite' }}
             >
               <Sparkles className="h-5 w-5" />
             </div>
-            <NavIcon icon={<Camera className="h-4 w-4" />} />
-            <NavIcon icon={<MessageCircle className="h-4 w-4" />} />
+            <NavIcon icon={<Camera className="h-4 w-4" />} label="Scan" />
+            <NavIcon icon={<MessageCircle className="h-4 w-4" />} label="Messages" />
           </div>
         </div>
       </div>
@@ -406,10 +406,11 @@ export function PhoneMockup({
   );
 }
 
-function NavIcon({ icon, active }: { icon: React.ReactNode; active?: boolean }) {
+function NavIcon({ icon, active, label }: { icon: React.ReactNode; active?: boolean; label: string }) {
   return (
     <button
       type="button"
+      aria-label={label}
       className={cn(
         'flex h-11 w-11 items-center justify-center rounded-xl transition-colors active:scale-90',
         active ? 'bg-emerald-50 text-emerald-700' : 'text-neutral-400'

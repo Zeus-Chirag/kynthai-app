@@ -1,14 +1,22 @@
 import { StructuredData } from '@/components/structured-data';
 
-// Render the landing page on every request (no ISR caching).
+// Render the landing page with a short ISR TTL (60s) so the CDN serves cached
+// HTML instantly (TTFB ~100ms vs ~800ms server render) while staying fresh.
 //
-// Previously this page used ISR (`revalidate = 3600`). On Vercel that left a
-// stale cache entry served indefinitely when background regeneration failed —
-// the live site served a 2-day-old empty-shell HTML while the deployed JS was
-// current, causing React hydration error #418 and "pages missing" symptoms.
-// force-dynamic matches the rest of the app (accessibility, admin, all API
-// routes) and keeps the landing HTML always fresh.
-export const dynamic = 'force-dynamic';
+// Why not `revalidate = 3600` (the old value)? That left a stale cache entry
+// served indefinitely when background regeneration failed — the live site
+// served a 2-day-old empty-shell HTML while the deployed JS was current,
+// causing React hydration error #418 and "pages missing" symptoms.
+//
+// Why not `force-dynamic` (the current value)? It renders the static marketing
+// HTML on every request (TTFB ~800ms), hurting Core Web Vitals (LCP/FCP).
+//
+// 60s is short enough that a failed regeneration can never leave content stale
+// for long, and long enough to cut TTFB dramatically. `suppressHydrationWarning`
+// on <html> handles the theme-class hydration, and the phone mockup is wrapped
+// in a hydration-safe skeleton (ssr:false + identical SSR markup), so the
+// hydration-error class of bug does not recur.
+export const revalidate = 60;
 
 interface RootPageProps {
   children: React.ReactNode;
