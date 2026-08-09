@@ -49,7 +49,7 @@ function estimateCost(model: string, promptTokens: number, completionTokens: num
 // Resolve the model to match the provider that is actually configured.
 function resolveModel(): string {
   if (process.env.CLINE_API_KEY) {
-    return process.env.CLINE_MODEL || 'anthropic/claude-sonnet-4-6'
+    return process.env.CLINE_MODEL || 'google/gemini-2.5-flash'
   }
   if (process.env.OPENAI_API_KEY) {
     return process.env.OPENAI_MODEL || 'gpt-4o-mini'
@@ -57,7 +57,7 @@ function resolveModel(): string {
   if (process.env.NVIDIA_API_KEY) {
     return process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct'
   }
-  return process.env.CLINE_MODEL || 'anthropic/claude-sonnet-4-6'
+  return process.env.CLINE_MODEL || 'google/gemini-2.5-flash'
 }
 export const NVIDIA_MODEL: string = resolveModel()
 
