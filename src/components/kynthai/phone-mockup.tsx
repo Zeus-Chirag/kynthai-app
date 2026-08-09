@@ -108,7 +108,7 @@ export function PhoneMockup({
             }}
           />
         </div>
-        <div className="relative rounded-[3rem] border-[2px] border-neutral-300/50 p-[4px] shadow-lg shadow-neutral-400/30 dark:border-neutral-600/40 dark:shadow-black/40" style={{ background: 'linear-gradient(160deg, #4a4a4a 0%, #2a2a2a 100%)' }}>
+        <div className="relative rounded-[3rem] border-2 border-gray-400/40 p-1 shadow-lg shadow-black/20 dark:shadow-black/50" style={{ background: 'linear-gradient(160deg, #3a3a3a 0%, #1e1e1e 100%)' }}>
           {/* Screen: NO overflow-hidden — height follows content, so the
               content can never be cut on any device. The rounded frame is
               kept (background clips itself to the radius). */}
@@ -194,7 +194,7 @@ export function PhoneMockup({
       </div>
 
       {/* ── Phone body ──────────────────────────────────────────────── */}
-      <div className="relative rounded-[3rem] border-[2px] border-neutral-300/50 p-[4px] shadow-lg shadow-neutral-400/30 dark:border-neutral-600/40 dark:shadow-black/40" style={{ background: 'linear-gradient(160deg, #4a4a4a 0%, #2a2a2a 100%)' }}>
+      <div className="relative rounded-[3rem] border-2 border-gray-400/40 p-1 shadow-lg shadow-black/20 dark:shadow-black/50" style={{ background: 'linear-gradient(160deg, #3a3a3a 0%, #1e1e1e 100%)' }}>
         <div
           className="pointer-events-none absolute inset-0 rounded-[3rem]"
           aria-hidden
