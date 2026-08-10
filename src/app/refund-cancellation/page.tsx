@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email'
 import {
   ArrowLeft,
   ShieldCheck,
@@ -68,12 +69,12 @@ export default function RefundCancellationPage() {
               <div className="flex-1">
                 <h3 className="font-semibold">Need a refund?</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Email us at <span className="font-medium text-foreground">privacy@kynthai.app</span> with your account email and reason.
+                  Email us at <ContactEmailText address="privacy@kynthai.app" className="font-medium text-foreground" /> with your account email and reason.
                   We process refunds within 5 business days.
                 </p>
               </div>
               <Button asChild variant="outline" className="shrink-0">
-                <a href="mailto:privacy@kynthai.app">Email Support</a>
+                <ContactEmail address="privacy@kynthai.app">Email Support</ContactEmail>
               </Button>
             </CardContent>
           </Card>
@@ -120,7 +121,7 @@ export default function RefundCancellationPage() {
               <h2 className="text-lg font-semibold text-foreground">5. General</h2>
               <ul className="mt-2 list-disc space-y-1 pl-5">
                 <li>All disputes are governed by Wyoming law, US jurisdiction.</li>
-                <li>Contact <span className="font-medium text-foreground">privacy@kynthai.app</span> for escalation.</li>
+                <li>Contact <ContactEmailText address="privacy@kynthai.app" className="font-medium text-foreground" /> for escalation.</li>
               </ul>
             </section>
           </div>

@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { ContactEmail } from '@/components/kynthai/contact-email';
 import { MedicalDisclaimer } from '@/components/kynthai/medical-disclaimer';
 import { useAppStore } from '@/lib/store';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
@@ -631,7 +632,7 @@ export function AiChat() {
         </div>
         <p className="text-[11px] text-muted-foreground mt-2 text-center">
           I'm an AI assistant — not a doctor. For medical concerns, email{' '}
-          <a href="mailto:hello@kynthai.app" className="text-emerald-600 hover:underline">hello@kynthai.app</a>
+          <ContactEmail address="hello@kynthai.app" className="text-emerald-600 hover:underline" />
           {' '}or call 911 in an emergency.
         </p>
       </CardContent>

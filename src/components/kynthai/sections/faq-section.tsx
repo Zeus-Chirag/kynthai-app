@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -57,12 +58,10 @@ function FAQ() {
           </h2>
           <p className="mt-3 text-muted-foreground">
             Still curious? Email us at{' '}
-            <a
-              href="mailto:hello@kynthai.app"
+            <ContactEmail
+              address="hello@kynthai.app"
               className="rounded-md px-1 -mx-1 py-2 -my-2 font-medium text-emerald-600 hover:underline"
-            >
-              hello@kynthai.app
-            </a>
+            />
             .
           </p>
         </div>

@@ -1,4 +1,6 @@
 import { Metadata } from 'next'
+import { ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email';
+
 import { LegalLayout } from '@/components/kynthai/legal/privacy-policy'
 import nppData from './npp-content.json'
 
@@ -23,7 +25,7 @@ export default function PrivacyPracticesPage() {
             details, please read our{' '}
             <a href="/privacy" className="underline ml-1">Privacy Policy</a>.
             Questions? Contact our privacy officer at{' '}
-            <a href="mailto:privacy@kynthai.app" className="underline ml-1">privacy@kynthai.app</a>.
+            <ContactEmail address="privacy@kynthai.app" className="underline ml-1" />.
           </p>
         </div>
         <div className="prose prose-sm max-w-none text-foreground space-y-1">

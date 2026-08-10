@@ -1,4 +1,6 @@
 import { Metadata } from 'next'
+import { ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email';
+
 
 const GRIEVANCE_EMAIL = 'privacy@kynthai.app'
 
@@ -18,7 +20,7 @@ export default function GrievancePage() {
         <h2 className="text-lg font-semibold">How to submit</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">
           <li>
-            Email us at <span className="font-medium text-foreground">{GRIEVANCE_EMAIL}</span> with subject{' '}
+            Email us at <ContactEmailText address={GRIEVANCE_EMAIL} className="font-medium text-foreground" /> with subject{' '}
             <span className="font-medium text-foreground">Grievance - Please describe your issue</span>.
           </li>
           <li>Include your account email and what happened.</li>

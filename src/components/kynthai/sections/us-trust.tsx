@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email';
 import { Scale, ShieldPlus, Server, Globe } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -89,7 +90,7 @@ function USTrust() {
         {/* Legal footnote */}
         <p className="mx-auto mt-6 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">
           Kynthai Health Technologies LLC operates secure data handling practices. Data is encrypted at
-          rest and in transit. Infrastructure hosted on Supabase Cloud, US region. For questions: privacy@kynthai.app.
+          rest and in transit. Infrastructure hosted on Supabase Cloud, US region. For questions: <ContactEmailText address="privacy@kynthai.app" />.
         </p>
       </div>
     </section>

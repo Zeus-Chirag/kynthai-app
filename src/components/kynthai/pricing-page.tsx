@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email';
 import {
   ArrowLeft,
   ArrowRight,
@@ -825,12 +826,10 @@ function EarningsCalculator() {
             Refund &amp; Cancellation Policy
           </a>{' '}
           or email{' '}
-          <a
-            href="mailto:privacy@kynthai.app"
+          <ContactEmail
+            address="privacy@kynthai.app"
             className="inline-block rounded-md px-1 -mx-1 py-2 -my-2 text-emerald-600 underline hover:text-emerald-700"
-          >
-            privacy@kynthai.app
-          </a>
+          />
           .
           <br />
           Registered Office: 16192 Coastal Highway, Lewes, DE 19958, United

@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { TextWithEmails, ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email'
 import { LegalLayout } from '@/components/kynthai/legal/privacy-policy'
 
 export const metadata: Metadata = {
@@ -81,7 +82,7 @@ export default function PatientRightsPage() {
             <strong>Full rights statement:</strong> Kynthai Health Technologies is committed to
             providing a respectful, safe, and transparent experience. These rights apply equally
             to patients, family members, caretakers, and legally authorized designees.
-            Questions? Contact privacy@kynthai.app.
+            Questions? Contact <ContactEmailText address="privacy@kynthai.app" />.
           </p>
         </div>
         <div className="space-y-4">
@@ -93,7 +94,7 @@ export default function PatientRightsPage() {
                 </span>
                 {right.title}
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{right.text}</p>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed"><TextWithEmails text={right.text} /></p>
             </div>
           ))}
         </div>
@@ -101,9 +102,7 @@ export default function PatientRightsPage() {
           <p className="font-semibold text-foreground">Need help exercising these rights?</p>
           <p className="mt-1">
             privacy officer:{' '}
-            <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">
-              privacy@kynthai.app
-            </a>{' '}
+            <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" />{' '}
             · FTC: ftc.gov/complaint · your state attorney general
           </p>
         </div>

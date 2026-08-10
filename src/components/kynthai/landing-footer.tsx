@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+
+import { ContactEmail, ContactEmailText } from '@/components/kynthai/contact-email';
 import Link from 'next/link';
 import { KynthaiBrand } from './logo';
 import { Mail, ShieldCheck, HeartPulse, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
@@ -31,13 +33,10 @@ export function LandingFooter() {
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
               Privacy-first · Secure billing
             </div>
-            <a
-              href="mailto:privacy@kynthai.app"
-              className="mt-3 inline-flex min-h-11 min-w-11 items-center gap-1.5 py-2 -my-2 text-xs font-medium text-emerald-600 transition-colors hover:text-emerald-700"
-            >
+            <span className="mt-3 inline-flex min-h-11 min-w-11 items-center gap-1.5 py-2 -my-2 text-xs font-medium text-emerald-600 transition-colors hover:text-emerald-700">
               <Mail className="h-3.5 w-3.5" />
-              privacy@kynthai.app
-            </a>
+              <ContactEmail address="privacy@kynthai.app" />
+            </span>
             {/* Social icons */}
             <div className="mt-4 flex items-center gap-3">
               {socials.map(s => (

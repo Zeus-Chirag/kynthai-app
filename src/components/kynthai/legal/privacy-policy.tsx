@@ -13,6 +13,7 @@ import { useAppStore } from '@/lib/store'
 import { useRouter } from 'next/navigation'
 import { KynthaiBrand } from '../logo'
 import { FadeIn } from '../animations'
+import { ContactEmail, ContactEmailText } from '../contact-email'
 
 export function LegalLayout({ title, subtitle, updated, children }: { title: string; subtitle: string; updated: string; children: React.ReactNode }) {
   const router = useRouter()
@@ -40,7 +41,7 @@ export function LegalLayout({ title, subtitle, updated, children }: { title: str
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-emerald-600" />Encrypted at rest and in transit</span>
           <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />Privacy-first</span>
-          <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-emerald-600" />{PRIVACY_OFFICER_EMAIL}</span>
+          <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-emerald-600" /><ContactEmailText address={PRIVACY_OFFICER_EMAIL} /></span>
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">Kynthai Health Technologies · United States</span>
         </div>
       </div>
@@ -93,7 +94,7 @@ export function PrivacyPolicy() {
       <SectionTitle icon={Globe}>2. How we use sensitive health data</SectionTitle>
       <p>Kynthai is not a HIPAA-covered entity or business associate. We process sensitive health data only for the purposes described below, based on your consent and the operation of the service:</p>
       <ul>
-        <li><strong>With your consent:</strong> — we process sensitive health data for the features you use, with free, specific, informed consent. You may withdraw consent at any time via the in-app consent manager or by emailing <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a>.</li>
+        <li><strong>With your consent:</strong> — we process sensitive health data for the features you use, with free, specific, informed consent. You may withdraw consent at any time via the in-app consent manager or by emailing <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" />.</li>
         <li><strong>To provide the service:</strong> — to deliver the Kynthai service you signed up for, including medication reminders, AI features, doctor consults, and lab orders.</li>
         <li><strong>Legal obligations:</strong> — to comply with applicable US federal and state laws, including tax and record-retention requirements.</li>
         <li><strong>Safety:</strong> — to send emergency SOS alerts to caretakers and linked doctors when your health or safety is at risk.</li>
@@ -115,7 +116,7 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={ShieldCheck}>4. US privacy authorization & privacy practices</SectionTitle>
       <p>
-        At registration, you are presented with our privacy practices and asked to consent to the processing of your data. For uses of sensitive health data beyond providing the service, we obtain your separate, specific consent. AI features may require a separate optional data-use consent. You may revoke any consent at any time via your account settings or by emailing <strong>privacy@kynthai.app</strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to processing that occurred before the revocation. Withdrawing AI consent disables AI features but retains your medication reminders and health records.
+        At registration, you are presented with our privacy practices and asked to consent to the processing of your data. For uses of sensitive health data beyond providing the service, we obtain your separate, specific consent. AI features may require a separate optional data-use consent. You may revoke any consent at any time via your account settings or by emailing <strong><ContactEmailText address="privacy@kynthai.app" /></strong>. Revocation takes effect promptly (typically within 72 hours) but does not apply to processing that occurred before the revocation. Withdrawing AI consent disables AI features but retains your medication reminders and health records.
       </p>
 
 
@@ -125,12 +126,12 @@ export function PrivacyPolicy() {
       </p>
       <ul>
         <li><strong>Right of access:</strong> — Export all your data via Profile → Export Data (GET /api/user/data-export). You will receive a JSON file within 30 days.</li>
-        <li><strong>Right to correction:</strong> — Request correction of inaccurate or incomplete sensitive health data via your profile settings or by emailing <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a>.</li>
+        <li><strong>Right to correction:</strong> — Request correction of inaccurate or incomplete sensitive health data via your profile settings or by emailing <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" />.</li>
         <li><strong>Right to request restrictions:</strong> — Request restrictions on how your sensitive health data is used and shared, subject to applicable limitations.</li>
         <li><strong>Right to delete account:</strong> — You may delete your account and all associated sensitive health data at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies.</li>
-        <li><strong>Privacy complaints:</strong> — File a complaint with our Privacy Officer at <strong>privacy@kynthai.app</strong>. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint with the Federal Trade Commission at <strong>ftc.gov/complaint</strong> or with your state attorney general.</li>
+        <li><strong>Privacy complaints:</strong> — File a complaint with our Privacy Officer at <strong><ContactEmailText address="privacy@kynthai.app" /></strong>. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint with the Federal Trade Commission at <strong>ftc.gov/complaint</strong> or with your state attorney general.</li>
         <li><strong>Escalation:</strong> — Unresolved complaints may be escalated to the FTC or your state attorney general.</li>
-        <li><strong>Right to designate an authorized representative:</strong> — Designate an authorized individual to act on your behalf in the event of death or incapacity. Email <strong>privacy@kynthai.app</strong> to set up.</li>
+        <li><strong>Right to designate an authorized representative:</strong> — Designate an authorized individual to act on your behalf in the event of death or incapacity. Email <strong><ContactEmailText address="privacy@kynthai.app" /></strong> to set up.</li>
       </ul>
       <p>
         If you are a California resident, you have additional rights under the CCPA/CPRA, including the right to know, delete, and opt out of the sale of personal information. We do not sell your personal information. We will respond to valid requests within 30 days (extendable by 30 days for complex requests, with notice).
@@ -159,10 +160,10 @@ export function PrivacyPolicy() {
         In addition to US privacy and CCPA/CPRA, Kynthai complies with the following state-level privacy statutes that grant consumers rights over their personal information:
       </p>
       <ul>
-        <li><strong>Virginia — Consumer Data Protection Act (VCDPA):</strong> Virginia residents have the right to confirm whether we process their personal data, correct inaccuracies, delete their personal data, obtain a copy of their personal data in a portable format, and opt out of the processing of personal data for targeted advertising or sale. You may exercise these rights by contacting privacy@kynthai.app.</li>
-        <li><strong>Colorado — Privacy Act (CPA):</strong> Colorado residents have the right to know what personal data is collected, correct inaccuracies, delete personal data, obtain a copy of their data, and opt out of targeted advertising, profiling, or sale. To exercise these rights, submit a request to privacy@kynthai.app.</li>
-        <li><strong>Utah — Consumer Privacy Act (UCPA):</strong> Utah residents may request confirmation of data processing, access to their data, correction of inaccuracies, and deletion of their data. Opt-out rights apply to targeted advertising and sale. Submit requests to privacy@kynthai.app.</li>
-        <li><strong>Connecticut — Data Privacy Act (CTDPA):</strong> Connecticut residents have the right to confirm processing, access their data, correct inaccuracies, delete personal data, and opt out of targeted advertising or sale. Requests may be submitted to privacy@kynthai.app.</li>
+        <li><strong>Virginia — Consumer Data Protection Act (VCDPA):</strong> Virginia residents have the right to confirm whether we process their personal data, correct inaccuracies, delete their personal data, obtain a copy of their personal data in a portable format, and opt out of the processing of personal data for targeted advertising or sale. You may exercise these rights by contacting <ContactEmailText address="privacy@kynthai.app" />.</li>
+        <li><strong>Colorado — Privacy Act (CPA):</strong> Colorado residents have the right to know what personal data is collected, correct inaccuracies, delete personal data, obtain a copy of their data, and opt out of targeted advertising, profiling, or sale. To exercise these rights, submit a request to <ContactEmailText address="privacy@kynthai.app" />.</li>
+        <li><strong>Utah — Consumer Privacy Act (UCPA):</strong> Utah residents may request confirmation of data processing, access to their data, correction of inaccuracies, and deletion of their data. Opt-out rights apply to targeted advertising and sale. Submit requests to <ContactEmailText address="privacy@kynthai.app" />.</li>
+        <li><strong>Connecticut — Data Privacy Act (CTDPA):</strong> Connecticut residents have the right to confirm processing, access their data, correct inaccuracies, delete personal data, and opt out of targeted advertising or sale. Requests may be submitted to <ContactEmailText address="privacy@kynthai.app" />.</li>
       </ul>
       <p>
         <strong>Nondiscrimination:</strong> We will not discriminate against you for exercising any of your privacy rights under these laws.
@@ -250,10 +251,10 @@ export function PrivacyPolicy() {
       </p>
       <ul>
         <li><strong>Right of access:</strong> Request a copy of your sensitive health data. Use Profile → Export Data (GET /api/user/data-export). Delivery within 30 days.</li>
-        <li><strong>Right to correction:</strong> Request correction of inaccurate or incomplete sensitive health data via your profile settings or email to privacy@kynthai.app.</li>
+        <li><strong>Right to correction:</strong> Request correction of inaccurate or incomplete sensitive health data via your profile settings or email to <ContactEmailText address="privacy@kynthai.app" />.</li>
         <li><strong>Right to request restrictions:</strong> Request restrictions on how your sensitive health data is used and shared.</li>
         <li><strong>Right to delete account:</strong> You may delete your account and all associated sensitive health data at any time via Profile → Delete Account (DELETE /api/user/account). A 7-day cooldown applies before permanent deletion.</li>
-        <li><strong>Privacy complaints:</strong> File a complaint with our Privacy Officer at privacy@kynthai.app. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint with the Federal Trade Commission (ftc.gov/complaint) or your state attorney general.</li>
+        <li><strong>Privacy complaints:</strong> File a complaint with our Privacy Officer at <ContactEmailText address="privacy@kynthai.app" />. We acknowledge within 5 business days and resolve within 30 days. You may also file a complaint with the Federal Trade Commission (ftc.gov/complaint) or your state attorney general.</li>
         <li><strong>Escalation:</strong> Unresolved complaints may be escalated to the FTC or your state attorney general.</li>
       </ul>
       <p>
@@ -287,7 +288,7 @@ export function PrivacyPolicy() {
         executed (or in the case of open-source components, is covered by) a
         data-processing agreement imposing obligations no less protective than
         those in this policy. You may request a current copy of any DPA in force
-        by emailing <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a>.
+        by emailing <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" />.
       </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full border-collapse text-sm">
@@ -369,7 +370,7 @@ export function PrivacyPolicy() {
       <p>We do <strong>not</strong> use third-party advertising cookies, tracking pixels, or cross-site advertising networks. You can clear all cookies and local storage via your browser settings at any time.</p>
 
       <SectionTitle icon={Users}>14. Children&apos;s privacy</SectionTitle>
-      <p>Kynthai is not directed at children under 16. Family profiles for minors may be created and managed by a parent or legal guardian who consents to the processing on the child&apos;s behalf. The parent may request deletion of a minor&apos;s profile at any time. We do not knowingly collect data from children under 16 without verified parental consent, consistent with the Children&apos;s Online Privacy Protection Act (COPPA, 15 U.S.C. §§ 6501–6506) and applicable US child-protection framework. If you believe we have collected data from a child without consent, contact <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">hello@kynthai.app</a> for immediate deletion.</p>
+      <p>Kynthai is not directed at children under 16. Family profiles for minors may be created and managed by a parent or legal guardian who consents to the processing on the child&apos;s behalf. The parent may request deletion of a minor&apos;s profile at any time. We do not knowingly collect data from children under 16 without verified parental consent, consistent with the Children&apos;s Online Privacy Protection Act (COPPA, 15 U.S.C. §§ 6501–6506) and applicable US child-protection framework. If you believe we have collected data from a child without consent, contact <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" /> for immediate deletion.</p>
 
       <SectionTitle icon={Bell}>14A. Marketing communications</SectionTitle>
       <p>
@@ -405,12 +406,12 @@ export function PrivacyPolicy() {
       <p>
         <strong>AI Incident Reporting:</strong> If you believe an AI response was
         incorrect, misleading, or potentially harmful, report it immediately to
-        <strong>ai-incidents@kynthai.app</strong>. Include the AI feature used, the
+        <strong><ContactEmailText address="ai-incidents@kynthai.app" /></strong>. Include the AI feature used, the
         query/input, and the output received. We review all reports, track patterns,
         and use findings to improve AI accuracy. All reports are logged and reviewed
         within 72 hours.
       </p>
-      <p>Kynthai uses AI (large language models, vision models, speech recognition) for chat, symptom analysis, medicine identification, prescription scanning, drug-interaction checking, and insights. These features provide <strong>advisory information only</strong> and do not make automated decisions with legal or similarly significant effects about you. All AI outputs are clearly labelled as AI-generated, and a qualified healthcare professional should be consulted before making medical decisions. You may request human review of any AI-generated output by contacting your doctor or <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">hello@kynthai.app</a>.</p>
+      <p>Kynthai uses AI (large language models, vision models, speech recognition) for chat, symptom analysis, medicine identification, prescription scanning, drug-interaction checking, and insights. These features provide <strong>advisory information only</strong> and do not make automated decisions with legal or similarly significant effects about you. All AI outputs are clearly labelled as AI-generated, and a qualified healthcare professional should be consulted before making medical decisions. You may request human review of any AI-generated output by contacting your doctor or <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />.</p>
 
       <SectionTitle icon={FileText}>17. Changes to this policy</SectionTitle>
       <p>We may update this policy from time to time. We will notify you of material changes via email and in-app at least 30 days before they take effect. Continued use after the effective date constitutes acceptance. A version history is available at <a href="https://kynthai.app/privacy/history" className="text-emerald-600 underline">kynthai.app/privacy/history</a>.</p>
@@ -421,26 +422,22 @@ export function PrivacyPolicy() {
         <strong>Address (United States):</strong> United States (correspondence via email)<br />
 
         Email:{' '}
-        <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">
-          hello@kynthai.app
-        </a>
+        <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />
         <br />
         Support:{' '}
-        <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">
-          hello@kynthai.app
-        </a>
+        <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />
         <br />
       </p>
       <p>
         <strong>Privacy Officer:</strong><br />
         Name: Privacy Officer<br />
-        Email: <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a><br />
+        Email: <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" /><br />
         Address: United States
       </p>
       <p>
         <strong>Privacy Officer / Privacy Contact:</strong><br />
         Name: Privacy Officer<br />
-        Email: <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">privacy@kynthai.app</a><br />
+        Email: <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" /><br />
         Address: United States<br />
         Acknowledgment: all complaints are acknowledged within 5 business days.
         Standard complaints are resolved within <strong>30 calendar days</strong>
@@ -449,7 +446,7 @@ export function PrivacyPolicy() {
         unresolved complaints may be referred to the HHS Office for Civil Rights (OCR).
       </p>
       <p>
-        Correspondence is handled primarily via email at privacy@kynthai.app. Physical correspondence may be directed to the registered US address in the Terms of Service.
+        Correspondence is handled primarily via email at <ContactEmailText address="privacy@kynthai.app" />. Physical correspondence may be directed to the registered US address in the Terms of Service.
       </p>
     </LegalLayout>
   )
@@ -541,9 +538,7 @@ export function CcpaOptOutPage() {
       <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
         <li>
           Email:{' '}
-          <a href="mailto:privacy@kynthai.app" className="text-emerald-600 underline">
-            privacy@kynthai.app
-          </a>{' '}
+          <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" />{' '}
           with subject "Privacy Rights Request"
         </li>
         <li>
@@ -622,7 +617,7 @@ export function TermsOfService() {
       <p>All prices shown are the full charge — no hidden fees or surprise charges.
         State sales tax, if applicable, will be itemized at checkout per your state.
         All payments are processed securely by Stripe. Cancel anytime from your account settings
-        or by contacting hello@kynthai.app. Your subscription remains active until the end of your
+        or by contacting <ContactEmailText address="hello@kynthai.app" />. Your subscription remains active until the end of your
         billing period; no further charges apply after cancellation.</p>
 
       <SectionTitle icon={Stethoscope}>5. Platform role & independent doctors</SectionTitle>
@@ -786,7 +781,7 @@ export function TermsOfService() {
       <p>
         <strong>Subscriptions.</strong> You may cancel your subscription at any
         time from your account settings or by contacting
-        hello@kynthai.app. Cancellation takes effect at the end of the current
+        <ContactEmailText address="hello@kynthai.app" />. Cancellation takes effect at the end of the current
         billing period; you will retain access until that date. No partial-period
         refunds are issued for unused days in the cancelled period.
       </p>
@@ -794,9 +789,7 @@ export function TermsOfService() {
         <strong>Refund eligibility.</strong> A full refund may be requested
         within 14 calendar days of an accidental double-charge or an unauthorised
         transaction. To request a refund, email
-        <a className="text-emerald-600 underline" href="mailto:hello@kynthai.app">
-          hello@kynthai.app
-        </a>{' '}
+        <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />{' '}
         with your receipt number, the charged amount, and a brief description of
         the issue. Refunds are processed within 10 business days to the original
         payment method.
@@ -882,7 +875,7 @@ export function TermsOfService() {
       <SectionTitle icon={FileText}>15. Infringement notices</SectionTitle>
       <p>
         If you believe content on Kynthai infringes your copyright, send a
-        takedown notice to <a className="text-emerald-600 underline" href="mailto:hello@kynthai.app">hello@kynthai.app</a>{' '}
+        takedown notice to <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />{' '}
         with the item URL, your original work URL, and contact information. We
         will respond to valid takedown requests within 72 hours, in accordance
         with the Digital Millennium Copyright Act (DMCA) 17 U.S.C. §512 and the
@@ -984,27 +977,18 @@ export function TermsOfService() {
       <SectionTitle icon={Mail}>23. Contact</SectionTitle>
       <p>
         <strong>Kynthai Health Technologies</strong><br />
-        Registered: United States (please email privacy@kynthai.app for legal/privacy correspondence)<br />
+        Registered: United States (please email <ContactEmailText address="privacy@kynthai.app" /> for legal/privacy correspondence)<br />
         Email:{' '}
-        <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">
-          hello@kynthai.app
-        </a>
+        <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />
         <br />
         Support:{' '}
-        <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">
-          hello@kynthai.app
-        </a>
+        <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />
         <br />
         Grievance Officer:{' '}
-        <a
-          href="mailto:privacy@kynthai.app"
-          className="text-emerald-600 underline"
-        >
-          privacy@kynthai.app
-        </a>
+        <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" />
         <br />
         <br />
-        Postal address: United States (handled via email: privacy@kynthai.app)<br />
+        Postal address: United States (handled via email: <ContactEmailText address="privacy@kynthai.app" />)<br />
       </p>
     </LegalLayout>
   )
@@ -1168,7 +1152,7 @@ export function AccessibilityStatement() {
       <SectionTitle icon={Bell}>7. Feedback &amp; contact</SectionTitle>
       <p>
         We welcome your feedback on the accessibility of Kynthai. Please contact
-        us at <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">hello@kynthai.app</a>.
+        us at <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />.
         We aim to respond to accessibility feedback within 5 business days and
         remediate critical issues within 30 days.
       </p>
@@ -1261,9 +1245,7 @@ export function MedicalDisclaimer() {
       <SectionTitle icon={Mail}>7. Questions</SectionTitle>
       <p>
         If you have questions about this disclaimer, contact us at{' '}
-        <a href="mailto:hello@kynthai.app" className="text-emerald-600 underline">
-          hello@kynthai.app
-        </a>.
+        <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />.
       </p>
     </LegalLayout>
   )
