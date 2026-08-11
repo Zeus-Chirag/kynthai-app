@@ -44,42 +44,39 @@ export async function GET(req: NextRequest) {
 
     if (!targetPatientId) return jsonError('patientId required', 400)
 
-    // Fetch prescriptions for this patient
-    const prescriptions = await db.prescription.findMany({
-      where: { patientId: targetPatientId },
-      include: {
-        doctor: { include: { user: { select: { name: true } } } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-    })
-
-    // Fetch lab bookings for this patient
-    const labBookings = await db.labBooking.findMany({
-      where: { patientId: targetPatientId },
-      include: {
-        lab: { include: { user: { select: { name: true } } } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-    })
-
-    // Fetch appointments (doctor visits) for this patient
-    const appointments = await db.appointment.findMany({
-      where: { patientId: targetPatientId, deletedAt: null },
-      include: {
-        doctor: { include: { user: { select: { name: true } } } },
-      },
-      orderBy: { scheduledAt: 'desc' },
-      take: 20,
-    })
-
-    // Fetch health journal entries (symptoms / mood / vitals) for this patient
-    const journals = await db.healthJournal.findMany({
-      where: { userId: targetPatientId, deletedAt: null },
-      orderBy: { date: 'desc' },
-      take: 20,
-    })
+    // Run all four read queries in parallel — was 4 sequential round-trips
+    // (~12s+ under Supabase pooler). N+1-like pattern fixed here.
+    const [prescriptions, labBookings, appointments, journals] = await Promise.all([
+      db.prescription.findMany({
+        where: { patientId: targetPatientId },
+        include: {
+          doctor: { include: { user: { select: { name: true } } } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      }),
+      db.labBooking.findMany({
+        where: { patientId: targetPatientId },
+        include: {
+          lab: { include: { user: { select: { name: true } } } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      }),
+      db.appointment.findMany({
+        where: { patientId: targetPatientId, deletedAt: null },
+        include: {
+          doctor: { include: { user: { select: { name: true } } } },
+        },
+        orderBy: { scheduledAt: 'desc' },
+        take: 20,
+      }),
+      db.healthJournal.findMany({
+        where: { userId: targetPatientId, deletedAt: null },
+        orderBy: { date: 'desc' },
+        take: 20,
+      }),
+    ]);
 
     // Build unified timeline
     const timeline: Array<{
