@@ -12,7 +12,14 @@ export const dynamic = 'force-dynamic';
 // Source of truth for payment status — handles payment_intent.succeeded,
 // payment_intent.payment_failed, and subscription lifecycle events.
 export async function POST(req: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  // SECURITY: constructing the client or the webhook verifier with missing
+  // env keys throws — return a clean 503 instead of an uncaught 500 so a
+  // misconfigured deployment fails loudly but safely, and the signature
+  // checks below still 400 on invalid input rather than crashing first.
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return jsonError('Stripe is not configured', 503);
+  }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2026-06-24.dahlia',
   });
 
@@ -25,7 +32,7 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
     logger.phiSafeError(err, 'stripe.webhook.verify');

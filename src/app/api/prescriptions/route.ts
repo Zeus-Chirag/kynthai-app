@@ -132,6 +132,8 @@ export async function POST(req: NextRequest) {
     doctorId = profile.id
   }
   if (!doctorId) return jsonError('doctorId is required', 400)
+  const doctor = await db.doctorProfile.findUnique({ where: { id: doctorId }, select: { id: true } })
+  if (!doctor) return jsonError('Doctor not found', 404)
 
   const meds = Array.isArray(body.medications) ? body.medications : []
   // ENCRYPTION-AT-REST: wrap the imageBase64 (prescription photo data URI)
