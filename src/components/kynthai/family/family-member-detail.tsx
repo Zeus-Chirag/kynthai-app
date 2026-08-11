@@ -82,7 +82,9 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
   }
 
   const today = new Date().toISOString().split('T')[0]
-  const todayReminders = data.reminders.filter((r) => r.date === today)
+  // reminder.date is a full ISO datetime from the API; normalize to a
+  // date-only key on both sides or nothing ever matches (adherence → 0).
+  const todayReminders = data.reminders.filter((r) => String(r.date).slice(0, 10) === today)
   const takenToday = todayReminders.filter((r) => r.status === 'taken').length
   const totalToday = todayReminders.length
   const adherence = totalToday > 0 ? Math.round((takenToday / totalToday) * 100) : 0

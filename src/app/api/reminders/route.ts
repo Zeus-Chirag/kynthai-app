@@ -93,6 +93,9 @@ export async function POST(req: NextRequest) {
   if (!['pending', 'taken', 'skipped'].includes(status)) {
     return jsonError('Invalid status', 400)
   }
+  // reminder.date is a DateTime column — the caretaker app sends date-only
+  // ("2026-08-11"); normalize to full ISO-8601 or Prisma rejects the upsert.
+  const date = body.date.includes('T') ? body.date : toISODateTime(body.date)
 
   // IDOR: ensure med belongs to user.
   const med = await db.medication.findUnique({ where: { id: body.medicationId } })
@@ -105,11 +108,11 @@ export async function POST(req: NextRequest) {
   if (!owns) return jsonError('Forbidden', 403)
 
   const reminder = await db.reminder.upsert({
-    where: { medicationId_date_time: { medicationId: body.medicationId, date: body.date, time: body.time } },
+    where: { medicationId_date_time: { medicationId: body.medicationId, date, time: body.time } },
     update: { status, takenAt: status === 'taken' ? new Date() : null },
     create: {
       medicationId: body.medicationId,
-      date: body.date,
+      date,
       time: body.time,
       status,
       takenAt: status === 'taken' ? new Date() : null,

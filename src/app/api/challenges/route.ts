@@ -150,7 +150,9 @@ export async function POST(req: NextRequest) {
             type: streakType,
             count: 0,
             bestCount: 0,
-            lastDate: new Date().toISOString().slice(0, 10),
+            // lastDate is a DateTime column — a date-only string ("2026-08-11")
+            // makes Prisma reject the create with "premature end of input".
+            lastDate: new Date(),
           },
         })
       }

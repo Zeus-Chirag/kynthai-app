@@ -618,9 +618,32 @@ function HomeTab({
             </div>
             <Button
               className="w-full"
-              onClick={() => {
-                setJournalOpen(false);
-                toast({ title: 'Journal entry saved' });
+              onClick={async () => {
+                const t = (document.getElementById('j-title') as HTMLInputElement | null)?.value?.trim() || '';
+                const b = (document.getElementById('j-body') as HTMLTextAreaElement | null)?.value?.trim() || '';
+                if (!t && !b) {
+                  toast({ title: 'Write something first', variant: 'destructive' });
+                  return;
+                }
+                try {
+                  const res = await fetch('/api/health-journal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      mood: 'okay',
+                      notes: b ? `${t}\n\n${b}` : t,
+                      symptoms: [],
+                    }),
+                  });
+                  if (res.ok) {
+                    setJournalOpen(false);
+                    toast({ title: 'Journal entry saved' });
+                  } else {
+                    toast({ title: 'Failed to save entry', variant: 'destructive' });
+                  }
+                } catch {
+                  toast({ title: 'Failed to save entry', variant: 'destructive' });
+                }
               }}
             >
               Save Entry
@@ -701,9 +724,55 @@ function AiTab() {
 function JournalTab() {
   const { toast } = useToast();
   const { user } = useAppStore();
-  const [entries, setEntries] = React.useState<JournalEntry[]>(DEMO_JOURNAL);
-  const [open, setOpen] = React.useState(false);
   const isDemo = !!user?.isDemo;
+  const [entries, setEntries] = React.useState<JournalEntry[]>(isDemo ? DEMO_JOURNAL : []);
+  const [open, setOpen] = React.useState(false);
+
+  // Real users: load persisted entries. Demo users keep the hardcoded samples.
+  const load = React.useCallback(async () => {
+    if (isDemo) return;
+    try {
+      const res = await fetch('/api/health-journal');
+      if (res.ok) {
+        const data = await res.json();
+        const list: JournalEntry[] = (data.entries || []).map((e: any) => ({
+          id: e.id,
+          date: String(e.date).slice(0, 10),
+          title: e.notes ? e.notes.split('\n')[0].slice(0, 80) : 'Journal entry',
+          body: e.notes || '',
+          mood: e.mood === 'bad' || e.mood === 'okay' || e.mood === 'good' ? e.mood : 'okay',
+        }));
+        setEntries(list);
+      }
+    } catch {
+      // Keep whatever is shown; a failed load should not crash the tab.
+    }
+  }, [isDemo]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  const saveEntry = async (title: string, body: string) => {
+    try {
+      const res = await fetch('/api/health-journal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mood: 'okay',
+          notes: body ? `${title}\n\n${body}` : title,
+          symptoms: [],
+        }),
+      });
+      if (res.ok) {
+        await load();
+        return true;
+      }
+    } catch {
+      // fall through to failure toast
+    }
+    return false;
+  };
 
   return (
     <div className="space-y-4">
@@ -720,7 +789,9 @@ function JournalTab() {
           <CardContent className="flex items-center gap-4 p-4">
             <span className="text-3xl">😊</span>
             <div>
-              <p className="text-sm font-semibold">This week: Mostly positive</p>
+              <p className="text-sm font-semibold">
+                {entries.length > 0 ? 'Your recent entries' : 'Start tracking today'}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {entries.length} entries · {entries.filter(e => e.mood === 'good').length} good days
               </p>
@@ -749,13 +820,27 @@ function JournalTab() {
             </Card>
           </FadeIn>
         ))}
+        {entries.length === 0 && !isDemo && (
+          <Card>
+            <CardContent className="p-6 text-center text-sm text-muted-foreground">
+              No journal entries yet. Tap &ldquo;New&rdquo; to record how you&apos;re feeling today.
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Add entry dialog */}
       <JournalDialog
         open={open}
         onOpenChange={setOpen}
-        onSave={() => toast({ title: 'Entry saved' })}
+        onSave={async (title, body) => {
+          const ok = await saveEntry(title, body);
+          toast(
+            ok
+              ? { title: 'Journal entry saved' }
+              : { title: 'Failed to save entry', variant: 'destructive' }
+          );
+        }}
       />
 
     </div>
@@ -769,7 +854,7 @@ function JournalDialog({
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onSave: () => void;
+  onSave: (title: string, body: string) => void | Promise<void>;
 }) {
   const [title, setTitle] = React.useState('');
   const [body, setBody] = React.useState('');
@@ -779,9 +864,9 @@ function JournalDialog({
       setBody('');
     }
   }, [open]);
-  function handleSave() {
+  async function handleSave() {
     if (!title.trim()) return;
-    onSave();
+    await onSave(title, body);
     onOpenChange(false);
   }
   return (
