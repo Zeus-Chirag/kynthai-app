@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 import reticleNext from '@reticlehq/next';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig = {
   // Hide x-powered-by header for security
@@ -94,4 +95,14 @@ const nextConfig = {
 
 // Reticle (dev-only runtime verification): wraps next config for source
 // mapping (file:line evidence). No-op in production builds.
-export default reticleNext.withReticle(nextConfig);
+// withSentryConfig wires the Sentry SDK + source map upload (no-op in builds
+// without SENTRY_DSN / SENTRY_AUTH_TOKEN; silent avoids noisy build logs).
+export default withSentryConfig(
+  reticleNext.withReticle(nextConfig),
+  {
+    silent: true,
+    hideSourceMaps: false,
+    disableLogger: true,
+    telemetry: false,
+  }
+);

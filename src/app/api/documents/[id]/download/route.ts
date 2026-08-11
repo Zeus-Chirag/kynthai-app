@@ -2,22 +2,21 @@
 // Download medical document with decryption
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth.config';
 import { db } from '@/lib/db';
 import { decryptFile } from '@/lib/encryption';
 import { downloadMedicalDocument, getSignedDocumentUrl } from '@/lib/storage';
 import { logger } from '@/lib/logger';
+import { requireAuth, jsonError } from '@/lib/api-helpers';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  const { response, user } = await requireAuth(req);
+  if (response || !user) return response!;
+  const u = user!;
 
+  try {
     const { id } = await params;
 
     // Get document from database
@@ -26,13 +25,13 @@ export async function GET(
     });
 
     if (!document) {
-      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+      return jsonError('Document not found', 404);
     }
 
     // Check access permissions
-    const hasAccess = await checkDocumentAccess(session.user.id, (session.user as any).role, document);
+    const hasAccess = await checkDocumentAccess(u.id, u.role, document);
     if (!hasAccess) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return jsonError('Forbidden', 403);
     }
 
     // Option 1: Return signed URL for direct download (recommended for large files)
@@ -50,7 +49,7 @@ export async function GET(
       // Audit log
       await db.auditLog.create({
         data: {
-          userId: session.user.id,
+          userId: u.id,
           action: 'document.download',
           category: 'access',
           resourceType: 'MedicalDocument',
@@ -69,7 +68,7 @@ export async function GET(
     // Option 2: Stream decrypted file (fallback)
     const { data: encryptedData, error: downloadError } = await downloadMedicalDocument(document.storagePath);
     if (downloadError || !encryptedData) {
-      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+      return jsonError('File not found', 404);
     }
 
     // Parse encryption metadata from base64 string
@@ -95,7 +94,7 @@ export async function GET(
     // Audit log
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId: u.id,
         action: 'document.download',
         category: 'access',
         resourceType: 'MedicalDocument',
@@ -124,7 +123,7 @@ export async function GET(
     });
   } catch (error) {
     logger.phiSafeError(error, 'documents.download');
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return jsonError('Internal server error', 500);
   }
 }
 
@@ -142,7 +141,7 @@ async function checkDocumentAccess(
 ): Promise<boolean> {
   // Owner
   if (document.userId === userId) return true;
-  
+
   // Uploader
   if (document.uploadedById === userId) return true;
 

@@ -45,21 +45,38 @@ export async function GET(req: NextRequest) {
     where: { active: true, ...memberFilter },
   })
 
+  // Batch auto-create: gather all (medicationId, time) candidates, fetch the
+  // existing set in one query, then createMany with skipDuplicates as a safety
+  // net (unique(medicationId, date, time) already exists in the schema).
+  // ponytail: previously a serial per-med x per-time findUnique+create loop
+  // (~17s with many meds); this is O(1) queries regardless of med/time count.
+  const medIds = meds.map((m) => m.id)
+  const candidates: { medicationId: string; date: string; time: string }[] = []
   for (const med of meds) {
-    const times: string[] = JSON.parse(med.times)
-    for (const t of times) {
-      const exists = await db.reminder.findUnique({
-        where: { medicationId_date_time: { medicationId: med.id, date, time: t } },
-      })
-      if (!exists) {
-        await db.reminder.create({
-          data: { medicationId: med.id, date, time: t, status: 'pending' },
-        })
-      }
+    let times: string[] = []
+    try {
+      times = JSON.parse(med.times)
+    } catch {
+      // Corrupt times JSON on a row — skip it rather than 500ing the whole list.
+      continue
     }
+    for (const t of times) candidates.push({ medicationId: med.id, date, time: t })
   }
 
-  const medIds = meds.map((m) => m.id)
+  if (candidates.length) {
+    const existing = await db.reminder.findMany({
+      where: { date, medicationId: { in: medIds } },
+      select: { medicationId: true, time: true },
+    })
+    const existingKeys = new Set(existing.map((e) => `${e.medicationId}|${e.time}`))
+    const toCreate = candidates.filter((c) => !existingKeys.has(`${c.medicationId}|${c.time}`))
+    if (toCreate.length) {
+      await db.reminder.createMany({
+        data: toCreate.map((c) => ({ ...c, status: 'pending' })),
+        skipDuplicates: true,
+      })
+    }
+  }
   const reminders = medIds.length
     ? await db.reminder.findMany({
         where: { date, medicationId: { in: medIds } },
