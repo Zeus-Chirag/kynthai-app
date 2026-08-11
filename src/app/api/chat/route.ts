@@ -20,7 +20,7 @@ import { getCached, setCached } from '@/lib/ai-cache';
 import { getMedicineFromDb, buildPatientAlerts } from '@/lib/medicine-db-cache';
 import { buildDeidentifiedContext } from '@/lib/phi-filter';
 import { safeAIResponse, normalizeMarkdownSpacing, enforceNsaidSafetyForAnticoagulatedPatients } from '@/lib/ai-output-filter';
-import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia';
+import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia';
 import { needsRag, getSystemPromptWithRAG } from '@/lib/medical-rag';
 import { FEW_SHOT_EXAMPLES } from '@/lib/chat-system-prompt';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
@@ -443,7 +443,7 @@ hasPatientContext: formattedContext.length > 0,
             )) as unknown as AsyncIterable<{ choices?: Array<{ delta?: { content?: string } }> }>;
 
             for await (const chunk of completion) {
-              const delta = chunk.choices?.[0]?.delta?.content;
+              const delta = choicesOf(chunk)[0]?.delta?.content;
               if (delta) {
                 accumulated += delta;
                 send('delta', { text: delta });
@@ -510,7 +510,7 @@ hasPatientContext: formattedContext.length > 0,
     );
 
     const reply =
-      completion.choices[0]?.message?.content ||
+      choicesOf(completion)[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again.";
 
     // ── OUTPUT SAFETY BOUNDARY ────────────────────────────────────────────────

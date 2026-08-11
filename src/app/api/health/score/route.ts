@@ -5,7 +5,7 @@ import { jsonOk, jsonError, requireAuth } from '@/lib/api-helpers'
 import { checkCsrf } from '@/lib/csrf'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
-import { todayStr } from '@/lib/utils'
+import { todayStr, toISODateTime } from '@/lib/utils'
 export const dynamic = 'force-dynamic'
 
 export const runtime = 'nodejs'
@@ -27,7 +27,11 @@ export async function POST(req: NextRequest) {
 
     const score = Math.max(0, Math.min(100, Math.round(body.score)))
     const breakdown = body.breakdown ?? {}
-    const date = body.date ?? todayStr()
+    // healthScore.date is a DateTime column — a date-only string ("2026-08-11")
+    // makes Prisma reject the query with "premature end of input". Normalize
+    // anything missing the time suffix to a full ISO-8601 datetime.
+    const rawDate = typeof body.date === 'string' && body.date ? body.date : todayStr()
+    const date = rawDate.includes('T') ? rawDate : toISODateTime(rawDate)
 
     const record = await db.healthScore.upsert({
       where: { userId_date: { userId, date } },

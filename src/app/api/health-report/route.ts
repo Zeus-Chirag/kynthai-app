@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL } from '@/lib/nvidia'
+import { getNvidia, NVIDIA_MODEL, choicesOf } from '@/lib/nvidia'
 import { db } from '@/lib/db'
 import { requireAuthWithCsrf, checkAiTier, jsonError } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
@@ -183,7 +183,7 @@ Be thorough, specific, and reference actual data. Use US clinical context and st
       AI_TIMEOUTS.COMPLEX
     )
 
-    const content = completion.choices[0]?.message?.content || ''
+    const content = choicesOf(completion)[0]?.message?.content || ''
     let report: Record<string, unknown>
     try {
       const cleaned = content

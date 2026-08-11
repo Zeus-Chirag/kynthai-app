@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia'
+import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia'
 import { db } from '@/lib/db'
 import { requireAuth, requireAuthWithCsrf, checkAiTier, jsonError } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout'
 import { logger } from '@/lib/logger'
+import { dateStr } from '@/lib/utils'
 export const dynamic = 'force-dynamic'
 
-function dateStr(d: Date) {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
+// Prisma stores reminder.date as a full ISO-8601 datetime; the local dateStr
+// used to return date-only ("2026-08-04") which Prisma rejects ("premature end
+// of input") and which never matched the reminder.date Map keys (so adherence
+// always computed as 0). dayKey normalizes any datetime to a date-only key for
+// grouping/display.
+const dayKey = (d: unknown): string => String(d).slice(0, 10)
 
 // POST /api/insights
 // Body: { days?: number }
@@ -53,12 +54,14 @@ export async function POST(req: NextRequest) {
         })
       : []
 
-    // Group reminders by date for daily aggregation.
+    // Group reminders by date for daily aggregation. reminder.date is a Date
+    // object; normalize to a date-only key so it matches the daily loop below.
     const remsByDate = new Map<string, typeof allReminders>()
     for (const r of allReminders) {
-      const existing = remsByDate.get((r as any).date) || []
+      const key = dayKey((r as any).date)
+      const existing = remsByDate.get(key) || []
       existing.push((r as any))
-      remsByDate.set((r as any).date, existing)
+      remsByDate.set(key, existing)
     }
 
     const daily: {
@@ -71,7 +74,7 @@ export async function POST(req: NextRequest) {
     for (let i = span - 1; i >= 0; i--) {
       const d = new Date()
       d.setDate(d.getDate() - i)
-      const ds = dateStr(d)
+      const ds = dayKey(dateStr(d))
       const rems = remsByDate.get(ds) || []
       daily.push({
         date: ds,
@@ -138,7 +141,7 @@ Be warm, specific, and practical. Reference actual medication names and days whe
       AI_TIMEOUTS.COMPLEX
     )
 
-    const content = completion.choices[0]?.message?.content || ''
+    const content = choicesOf(completion)[0]?.message?.content || ''
     let insights: Record<string, unknown>
     try {
       const cleaned = content

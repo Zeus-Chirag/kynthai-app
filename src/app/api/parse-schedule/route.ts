@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL } from '@/lib/nvidia'
+import { getNvidia, NVIDIA_MODEL, choicesOf } from '@/lib/nvidia'
 import { requireAuth, requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText } from '@/lib/security'
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       AI_TIMEOUTS.DEFAULT
     )
 
-    const content = completion.choices[0]?.message?.content || ''
+    const content = choicesOf(completion)[0]?.message?.content || ''
 
     let parsed: Record<string, unknown>
     try {

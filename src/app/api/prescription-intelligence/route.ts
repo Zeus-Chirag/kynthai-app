@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia'
+import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia'
 import { db } from '@/lib/db'
 import { requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
@@ -131,7 +131,7 @@ Guidelines:
       AI_TIMEOUTS.COMPLEX
     )
 
-    const content = completion.choices[0]?.message?.content || ''
+    const content = choicesOf(completion)[0]?.message?.content || ''
     let result: Record<string, unknown>
     try {
       const cleaned = content

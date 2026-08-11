@@ -72,7 +72,20 @@ export async function GET(req: NextRequest) {
       percentage: totalDoses > 0 ? Math.round((taken / totalDoses) * 100) : 0,
     };
 
-    const allergies = user?.allergies ? JSON.parse(user.allergies) : [];
+    // user.allergies may be a JSON array string OR a plain comma-separated
+    // string (e.g. "Penicillin, Sulfa drugs"). Tolerate both.
+    let allergies: string[] = [];
+    if (user?.allergies) {
+      try {
+        const parsed = JSON.parse(user.allergies);
+        allergies = Array.isArray(parsed) ? parsed.map(String) : [];
+      } catch {
+        allergies = user.allergies
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+    }
 
     return jsonOk({
       patientName: sessionUser.name,

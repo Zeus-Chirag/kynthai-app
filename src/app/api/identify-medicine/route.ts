@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL, isAiAvailable } from '@/lib/nvidia'
+import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia'
 import { requireAuth, requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout'
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
       AI_TIMEOUTS.MEDIA
     )
 
-    const content = aiResponse.choices[0]?.message?.content || ''
+    const content = choicesOf(aiResponse)[0]?.message?.content || ''
 
     // Try to extract JSON from the response
     let parsed: Record<string, unknown>

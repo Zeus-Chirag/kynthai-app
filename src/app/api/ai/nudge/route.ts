@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { logAudit } from '@/lib/auth'
 import { jsonOk, jsonError, requireAuth } from '@/lib/api-helpers'
 import { logger } from '@/lib/logger'
-import { todayStr, daysAgo, toISODateTime } from '@/lib/utils'
+import { todayStr, daysAgo } from '@/lib/utils'
 // Prevent static generation — this route reads session + DB at runtime
 export const dynamic = 'force-dynamic'
 
@@ -34,11 +34,14 @@ export async function GET(req: NextRequest) {
           select: { id: true, name: true, createdAt: true },
         }),
         // Missed / skipped reminders in last 24 h
+        // daysAgo()/todayStr() already return full ISO-8601 timestamps; do NOT
+        // wrap them in toISODateTime() (that appends a second suffix and Prisma
+        // rejects the DateTime with "trailing input").
         db.reminder.findMany({
           where: {
             date: {
-              gte: toISODateTime(daysAgo(1)),
-              lte: toISODateTime(todayStr())
+              gte: daysAgo(1),
+              lte: todayStr()
             },
             status: { in: ['pending', 'skipped'] },
             medication: { userId },
@@ -75,7 +78,7 @@ export async function GET(req: NextRequest) {
       ? await db.reminder.findMany({
           where: {
             medicationId: { in: medIds },
-            date: toISODateTime(today)
+            date: today
           },
         })
       : []

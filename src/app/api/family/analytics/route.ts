@@ -68,7 +68,9 @@ export async function GET(req: NextRequest) {
       const taken = reminders.filter((r: any) => r.status === 'taken').length
       const adherence = reminders.length ? Math.round((taken / reminders.length) * 100) : 0
       const perDay = days.map((d) => {
-        const rows = reminders.filter((r: any) => (r as any).date === d)
+        // reminder.date is a Date object; normalize both sides to a date-only
+        // key or the strict === never matches and every day reports 0.
+        const rows = reminders.filter((r: any) => String((r as any).date).slice(0, 10) === String(d).slice(0, 10))
         const t = rows.filter((r: any) => r.status === 'taken').length
         return { date: d, total: rows.length, taken: t, adherence: rows.length ? Math.round((t / rows.length) * 100) : 0 }
       })

@@ -70,6 +70,18 @@ function isRealProviderKey(value: string | undefined): boolean {
   return !/PLACE|placeholder|your[-_ ]api|xxxx|changeme|sample/i.test(value)
 }
 
+/**
+ * Normalize a chat.completions response across providers.
+ * CLINE wraps the payload as `{"data":{"choices":[...]},"success":true}` while
+ * OpenAI/NVIDIA return `{"choices":[...]}` at the top level. Return the choices
+ * array either way; an empty array lets callers degrade gracefully.
+ */
+export function choicesOf(completion: any): Array<any> {
+  if (Array.isArray(completion?.choices)) return completion.choices
+  if (Array.isArray(completion?.data?.choices)) return completion.data.choices
+  return []
+}
+
 export function isAiAvailable(): boolean {
   return (
     isRealProviderKey(process.env.CLINE_API_KEY) ||
@@ -159,7 +171,7 @@ export async function aiChat(
         { signal: options.signal },
       )
 
-      const choice = response.choices?.[0]
+      const choice = choicesOf(response)[0]
       const usage = response.usage
         ? {
             promptTokens: response.usage.prompt_tokens,
