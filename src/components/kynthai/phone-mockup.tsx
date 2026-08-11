@@ -171,6 +171,8 @@ export function PhoneMockup({
       animate="visible"
       className={cn(PHONE_SIZE, className)}
       aria-hidden={ariaHidden}
+      // ponytail: framer writes mid-flight inline transforms during hydration → #418
+      suppressHydrationWarning
     >
       {/* ── Decorative glow layer — bounded to the phone frame ────────
        * An absolute inset-0 overflow-hidden box matching the phone frame:
@@ -452,6 +454,7 @@ function FloatingBadge({
         className,
       )}
       style={{ willChange: 'transform' }}
+      suppressHydrationWarning
     >
       <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-neutral-50">{icon}</div>
       <div>

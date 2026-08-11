@@ -121,6 +121,7 @@ export function LandingNav({ goToLogin }: { goToLogin: (portal: LoginPortal) => 
             animate={{ rotate: 0, opacity: 1 }}
             exit={{ rotate: 90, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
+            suppressHydrationWarning
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </motion.span>

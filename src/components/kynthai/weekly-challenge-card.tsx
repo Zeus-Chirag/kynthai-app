@@ -171,6 +171,7 @@ export function WeeklyChallengeCard({ userId, isDemo }: WeeklyChallengeCardProps
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      suppressHydrationWarning
     >
       <Card className={cn('overflow-hidden', completed && 'border-emerald-500/30')}>
         <CardContent className="p-4 space-y-3">

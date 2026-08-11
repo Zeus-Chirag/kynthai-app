@@ -692,6 +692,7 @@ export function LoginPage({
                         onChange={e => setName(e.target.value)}
                         autoComplete="name"
                         required
+                        disabled={mode !== 'register'}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -718,6 +719,7 @@ export function LoginPage({
                         value={dateOfBirth}
                         onChange={e => setDateOfBirth(e.target.value)}
                         required
+                        disabled={mode !== 'register'}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -737,6 +739,7 @@ export function LoginPage({
                         onChange={e => setEmergencyContact1(e.target.value)}
                         autoComplete="tel"
                         required={active.id === 'patient' || active.id === 'caretaker'}
+                        disabled={mode !== 'register'}
                       />
                     </div>
                     <div className="space-y-1.5">

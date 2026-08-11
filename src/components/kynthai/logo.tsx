@@ -22,11 +22,16 @@ export function KynthaiIcon({
   className?: string
   size?: number
 }) {
-  // Unique gradient IDs per instance — the icon renders multiple times per
-  // page (nav, footer, loading states), so static IDs would be invalid HTML.
-  const uid = React.useId().replace(/:/g, '')
-  const heartGrad = `kynthai-heart-grad-${uid}`
-  const pulseGrad = `kynthai-pulse-${uid}`
+  // Shared static gradient IDs. The gradient is defined identically in every
+  // instance, so a single shared definition is functionally equivalent to
+  // per-instance IDs (url(#…) resolves to the first match, same colors) and
+  // avoids duplicate <defs>. It is also the ONLY hydration-safe choice here:
+  // React.useId() emits DIFFERENT values on the server (`_R_<random>`) vs the
+  // client (`_r_<counter>`) inside Next's streamed Suspense boundaries, so the
+  // rendered `id` attribute mismatched and threw minified React error #418
+  // (HTML mismatch) on every page that paints the icon before hydration.
+  const heartGrad = 'kynthai-heart-grad'
+  const pulseGrad = 'kynthai-pulse'
 
   return (
     <svg
@@ -114,13 +119,7 @@ export function KynthaiBrand({
     <span className={cn('inline-flex items-center gap-2 select-none', className)}>
       <KynthaiIcon size={iconSize} />
       <span
-        className="font-bold tracking-tight text-xl"
-        style={{
-          background: 'linear-gradient(110deg, #34d399 0%, #10b981 40%, #059669 100%)',
-          WebkitBackgroundClip: 'text',
-          backgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}
+        className="bg-[linear-gradient(110deg,#34d399_0%,#10b981_40%,#059669_100%)] bg-clip-text font-bold tracking-tight text-xl text-transparent"
       >
         Kynthai
       </span>

@@ -239,6 +239,7 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="grid gap-8 lg:grid-cols-5"
+              suppressHydrationWarning
             >
               {/* Form */}
               <div className="lg:col-span-3">
@@ -368,12 +369,14 @@ function SuccessView({
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       className="mx-auto max-w-md text-center"
+      suppressHydrationWarning
     >
       <motion.div
         initial={{ scale: 0, rotate: -30 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: 'spring', stiffness: 220, damping: 12, delay: 0.1 }}
         className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-600/30"
+        suppressHydrationWarning
       >
         <CheckCircle2 className="h-9 w-9" />
       </motion.div>

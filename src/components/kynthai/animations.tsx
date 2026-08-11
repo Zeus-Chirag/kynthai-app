@@ -7,6 +7,7 @@ import {
   useMotionValue,
   useSpring,
   useReducedMotion,
+  useAnimationControls,
   AnimatePresence,
   type Variants,
 } from 'framer-motion'
@@ -49,6 +50,13 @@ export function Reveal({
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: effectiveY }}
       transition={{ duration: reduced ? 0.2 : 0.75, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
+      // ponytail: framer-motion writes a mid-flight inline transform on the
+      // client while React is still hydrating the SSR'd style, which throws
+      // minified React error #418 and (with the old fatal catcher) blanked
+      // the page — exactly the login "can't sign in" regression. Suppressing
+      // hydration warnings here is safe: the element's className/layout are
+      // deterministic; only the transient animated transform differs.
+      suppressHydrationWarning
     >
       {children}
     </motion.div>
@@ -95,6 +103,8 @@ export function StaggerGroup({
       animate={inView ? 'show' : 'hidden'}
       className={className}
       style={reduced ? { opacity: inView ? 1 : 0 } : undefined}
+      // ponytail: see Reveal — transient animated styles must not throw #418
+      suppressHydrationWarning
     >
       {children}
     </motion.div>
@@ -109,7 +119,7 @@ export function StaggerItem({
   className?: string
 }) {
   return (
-    <motion.div variants={itemVariants} className={className}>
+    <motion.div variants={itemVariants} className={className} suppressHydrationWarning>
       {children}
     </motion.div>
   )
@@ -173,13 +183,30 @@ export function FadeIn({
   delay?: number
 }) {
   const reduced = useReducedMotion()
+  const controls = useAnimationControls()
+
+  // Start the entrance animation only AFTER hydration: framer-motion kicks
+  // off mount-driven animations in a layout effect, so the DOM style is
+  // already mid-flight (e.g. translateY(9.7px)) when React diffs the
+  // SSR'd inline style (translateY(12px)) → minified error #418 → the old
+  // fatal catcher blanked the whole page (the login "can't sign in"
+  // regression). useEffect + rAF runs strictly after the hydration diff.
+  React.useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      controls.start({
+        opacity: 1,
+        y: 0,
+        transition: { duration: reduced ? 0 : 0.4, delay, ease: 'easeOut' },
+      })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [controls, reduced, delay])
 
   return (
     <motion.div
-      initial={reduced ? {} : { opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={controls}
       exit={reduced ? {} : { opacity: 0, y: -8 }}
-      transition={{ duration: reduced ? 0 : 0.4, delay, ease: 'easeOut' }}
       className={className}
     >
       {children}

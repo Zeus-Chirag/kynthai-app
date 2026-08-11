@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useAnimationControls } from 'framer-motion'
 import { ArrowRight, Sparkles, Users, Pill, Stethoscope, FlaskConical, ChevronLeft, ShieldCheck, UserCircle, BrainCircuit, AlertTriangle, Plus, Loader2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -78,6 +78,18 @@ export function Onboarding({
   const [termsAccepted, setTermsAccepted] = React.useState(false)
   const [dataProcessingAccepted, setDataProcessingAccepted] = React.useState(false)
   const [aiProcessingAccepted, setAiProcessingAccepted] = React.useState(false)
+
+  // Slide entrance animation — deferred until AFTER hydration. framer-motion
+  // starts mount-driven animations in a layout effect, so the DOM style is
+  // already mid-flight when React diffs the SSR'd inline style → minified
+  // error #418 (the same crash class as the login FadeIn regression).
+  const slideControls = useAnimationControls()
+  React.useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      slideControls.start({ opacity: 1, x: 0 })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [slideControls])
 
   // First-value moment: optional quick-add of a medication after consent.
   // Gives the user something real in their account immediately — the core of
@@ -215,9 +227,9 @@ export function Onboarding({
         <div className="w-full max-w-md">
           <AnimatePresence mode="wait">
             {isMedSlide ? (
-              <motion.div key="med" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
+              <motion.div key="med" initial={{ opacity: 0, x: 40 }} animate={slideControls}
                 exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="flex flex-col items-center text-center">
+                className="flex flex-col items-center text-center" suppressHydrationWarning>
                 <div className="relative mb-5 flex h-32 w-full items-center justify-center">
                   <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25">
                     {medSaved ? <Check className="h-9 w-9" /> : <Pill className="h-9 w-9" />}
@@ -262,8 +274,8 @@ export function Onboarding({
                 )}
               </motion.div>
             ) : isConsentSlide ? (
-              <motion.div key={CONSENT_INDEX} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              <motion.div key={CONSENT_INDEX} initial={{ opacity: 0, x: 40 }} animate={slideControls}
+                exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} suppressHydrationWarning
                 className="flex flex-col items-center text-center">
                 <div className="relative mb-5 flex h-48 w-full items-center justify-center">
                   <ConsentArt />
@@ -319,8 +331,8 @@ export function Onboarding({
                 </div>
               </motion.div>
             ) : slide ? (
-              <motion.div key={index} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              <motion.div key={index} initial={{ opacity: 0, x: 40 }} animate={slideControls}
+                exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} suppressHydrationWarning
                 className="flex flex-col items-center text-center">
                 <div className="relative mb-5 flex h-48 w-full items-center justify-center">
                   {slide.illustration}
@@ -478,16 +490,16 @@ function WelcomeArt() {
       <circle cx="174" cy="110" r="4" fill="#10b981" />
       <rect x="106" y="124" width="68" height="6" rx="3" fill="#10b981" opacity="0.6" />
       <rect x="106" y="136" width="48" height="4" rx="2" fill="#94a3b8" opacity="0.6" />
-      <motion.g animate={{ y: [0, -6, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}>
+      <motion.g animate={{ y: [0, -6, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} suppressHydrationWarning>
         <rect x="58" y="80" width="34" height="16" rx="8" fill="#10b981" transform="rotate(-15 75 88)" />
         <rect x="58" y="80" width="17" height="16" rx="8" fill="white" opacity="0.7" transform="rotate(-15 75 88)" />
       </motion.g>
-      <motion.g animate={{ y: [0, 6, 0] }} transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}>
+      <motion.g animate={{ y: [0, 6, 0] }} transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }} suppressHydrationWarning>
         <rect x="190" y="120" width="34" height="16" rx="8" fill="#0d9488" transform="rotate(20 207 128)" />
         <rect x="190" y="120" width="17" height="16" rx="8" fill="white" opacity="0.7" transform="rotate(20 207 128)" />
       </motion.g>
-      <motion.circle cx="64" cy="150" r="3" fill="#10b981" animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 2, repeat: Infinity }} />
-      <motion.circle cx="210" cy="74" r="3" fill="#0d9488" animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 2.4, repeat: Infinity }} />
+      <motion.circle cx="64" cy="150" r="3" fill="#10b981" animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 2, repeat: Infinity }}  suppressHydrationWarning />
+      <motion.circle cx="210" cy="74" r="3" fill="#0d9488" animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 2.4, repeat: Infinity }}  suppressHydrationWarning />
     </svg>
   )
 }
@@ -507,13 +519,13 @@ function FamilyArt() {
       <path d="M132 80 h5 l3 -7 l4 14 l3 -7 h6" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       {members.map((m) => <line key={m.label} x1="140" y1="80" x2={m.x} y2={m.y} stroke="#0d9488" strokeOpacity="0.3" strokeWidth="1.5" strokeDasharray="4 4" />)}
       {members.map((m, i) => (
-        <motion.g key={m.label} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 + i * 0.15, type: 'spring', stiffness: 220, damping: 14 }}>
+        <motion.g key={m.label} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 + i * 0.15, type: 'spring', stiffness: 220, damping: 14 }} suppressHydrationWarning>
           <circle cx={m.x} cy={m.y} r="20" fill={m.c} />
           <circle cx={m.x} cy={m.y - 4} r="6" fill="white" opacity="0.85" />
           <path d={`M${m.x - 9} ${m.y + 9} q9 -10 18 0`} stroke="white" strokeWidth="2.4" fill="white" opacity="0.85" strokeLinecap="round" />
         </motion.g>
       ))}
-      <motion.circle cx="140" cy="80" r="22" fill="none" stroke="#10b981" strokeWidth="2" animate={{ r: [22, 36, 22], opacity: [0.6, 0, 0.6] }} transition={{ duration: 2.4, repeat: Infinity }} />
+      <motion.circle cx="140" cy="80" r="22" fill="none" stroke="#10b981" strokeWidth="2" animate={{ r: [22, 36, 22], opacity: [0.6, 0, 0.6] }} transition={{ duration: 2.4, repeat: Infinity }}  suppressHydrationWarning />
     </svg>
   )
 }
@@ -527,18 +539,18 @@ function MedsArt() {
       <rect x="60" y="60" width="160" height="22" rx="14" fill="url(#ob-grad-3)" />
       <text x="74" y="76" fill="white" fontSize="11" fontWeight="600">Today · 3 reminders</text>
       {[0, 1, 2].map((i) => (
-        <motion.g key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.12 }}>
+        <motion.g key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.12 }} suppressHydrationWarning>
           <rect x="74" y={94 + i * 22} width="12" height="12" rx="3" fill={i === 0 ? '#10b981' : '#e2e8f0'} />
           <rect x="94" y={96 + i * 22} width="70" height="4" rx="2" fill="#0f766e" opacity="0.6" />
           <rect x="94" y={103 + i * 22} width="40" height="3" rx="1.5" fill="#94a3b8" />
           {i === 0 && <circle cx="200" cy={100 + i * 22} r="6" fill="#10b981"><animate attributeName="opacity" values="1;0.3;1" dur="1.6s" repeatCount="indefinite" /></circle>}
         </motion.g>
       ))}
-      <motion.g animate={{ y: [0, -8, 0], rotate: [0, 8, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}>
+      <motion.g animate={{ y: [0, -8, 0], rotate: [0, 8, 0] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} suppressHydrationWarning>
         <rect x="200" y="34" width="34" height="14" rx="7" fill="#10b981" transform="rotate(-12 217 41)" />
         <rect x="200" y="34" width="17" height="14" rx="7" fill="white" opacity="0.7" transform="rotate(-12 217 41)" />
       </motion.g>
-      <motion.g animate={{ scale: [0.6, 1, 0.6], opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }}>
+      <motion.g animate={{ scale: [0.6, 1, 0.6], opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }} suppressHydrationWarning>
         <path d="M50 50 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 z" fill="#0d9488" />
       </motion.g>
     </svg>
@@ -554,7 +566,7 @@ function ConsentArt() {
       <circle cx="140" cy="100" r="44" fill="white" stroke="#10b981" strokeOpacity="0.25" strokeWidth="2" />
       <motion.path d="M124 100 l8 8 l20 -20" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"
         initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 0.3 }} />
-      <motion.g animate={{ scale: [0.9, 1.1, 0.9], opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 3, repeat: Infinity }}>
+      <motion.g animate={{ scale: [0.9, 1.1, 0.9], opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 3, repeat: Infinity }} suppressHydrationWarning>
         <circle cx="80" cy="55" r="4" fill="#10b981" />
         <circle cx="200" cy="55" r="4" fill="#0d9488" />
         <circle cx="80" cy="155" r="4" fill="#14b8a6" />
@@ -576,12 +588,12 @@ function RoleArt() {
       <defs><linearGradient id="ob-grad-4" x1="0" y1="0" x2="280" y2="220" gradientUnits="userSpaceOnUse"><stop stopColor="#10b981" /><stop offset="1" stopColor="#0891b2" /></linearGradient></defs>
       <path d="M140 18c42 0 78 22 96 60 18 38 12 88-22 116-30 25-86 26-126 8-40-18-64-58-58-102 6-44 42-82 110-82Z" fill="url(#ob-grad-4)" opacity="0.12" />
       {items.map((r, i) => (
-        <motion.g key={r.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 * i, type: 'spring', stiffness: 200, damping: 14 }}>
+        <motion.g key={r.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 * i, type: 'spring', stiffness: 200, damping: 14 }} suppressHydrationWarning>
           <circle cx={r.x} cy={r.y} r="26" fill={r.c} />
           <text x={r.x} y={r.y + 5} textAnchor="middle" fill="white" fontSize="16" fontWeight="700">{r.label}</text>
         </motion.g>
       ))}
-      <motion.circle cx="140" cy="95" r="4" fill="#10b981" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.8, repeat: Infinity }} />
+      <motion.circle cx="140" cy="95" r="4" fill="#10b981" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.8, repeat: Infinity }}  suppressHydrationWarning />
       <line x1="80" y1="130" x2="200" y2="130" stroke="#0d9488" strokeOpacity="0.25" strokeWidth="1.5" strokeDasharray="4 4" />
     </svg>
   )
