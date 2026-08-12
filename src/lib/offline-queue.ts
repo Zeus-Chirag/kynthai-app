@@ -60,13 +60,13 @@ function saveQueue(queue: QueuedAction[]): void {
   }
 }
 
-function getCached<T>(key: string): T | null {
+function getCached<T>(key: string, ttlMs = 300_000): T | null {
   try {
     const raw = localStorage.getItem(CACHE_PREFIX + key)
     if (!raw) return null
     const parsed = JSON.parse(raw)
-    // Cache expires after 5 minutes
-    if (Date.now() - parsed.cachedAt > 300_000) {
+    // Cache expires after ttlMs (5 minutes by default).
+    if (Date.now() - parsed.cachedAt > ttlMs) {
       localStorage.removeItem(CACHE_PREFIX + key)
       return null
     }
@@ -112,6 +112,22 @@ export async function syncQueue(): Promise<{ synced: number; failed: number }> {
   const queue = getQueue()
   if (queue.length === 0) return { synced: 0, failed: 0 }
 
+  // Every replayed mutation must carry a fresh CSRF token or the server
+  // rejects it with 403 (token lives in a cookie set by GET /api/auth/csrf,
+  // so a stored header would be stale). Fetch the token once per batch; if
+  // it fails we're still offline — leave the queue untouched, no retry burn.
+  let csrfToken: string | null = null
+  try {
+    const csrfRes = await fetch('/api/auth/csrf', { cache: 'no-store' })
+    if (csrfRes.ok) {
+      const csrfBody = await csrfRes.json().catch(() => null)
+      csrfToken = (csrfBody as { token?: string } | null)?.token ?? null
+    }
+  } catch {
+    // Offline still — keep queue as-is.
+  }
+  if (!csrfToken) return { synced: 0, failed: 0 }
+
   let synced = 0
   let failed = 0
   const remaining: QueuedAction[] = []
@@ -120,7 +136,12 @@ export async function syncQueue(): Promise<{ synced: number; failed: number }> {
     try {
       const res = await fetch(action.url, {
         method: action.method,
-        headers: { 'Content-Type': 'application/json', ...(action.headers ?? {}) },
+        headers: {
+          'Content-Type': 'application/json',
+          // Fresh token wins over anything a queued action may have stored.
+          ...(action.headers ?? {}),
+          'X-CSRF-Token': csrfToken,
+        },
         body: action.body ? JSON.stringify(action.body) : undefined,
         // Use no-cache to ensure we hit the server
         cache: 'no-store',
@@ -156,8 +177,8 @@ export function cachePatientData(key: string, data: unknown): void {
   setCached(`patient_${key}`, data)
 }
 
-export function getCachedPatientData<T>(key: string): T | null {
-  return getCached<T>(`patient_${key}`)
+export function getCachedPatientData<T>(key: string, ttlMs?: number): T | null {
+  return getCached<T>(`patient_${key}`, ttlMs)
 }
 
 export function cacheCaretakerData(key: string, data: unknown): void {

@@ -11,6 +11,7 @@ import {
   CalendarDays,
   RefreshCw,
   Volume2,
+  WifiOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,6 +22,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { type Medication, type Reminder, type ReminderStats, getColorClasses } from '@/lib/types';
 import { useAppStore } from '@/lib/store';
+import { cachePatientData, getCachedPatientData } from '@/lib/offline-queue';
 import {
   playProfessionalRingtone,
   playAlertRingtone,
@@ -57,9 +59,14 @@ export function TodayView({ userId, isDemo }: { userId?: string; isDemo?: boolea
   const [stats, setStats] = useState<ReminderStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [offline, setOffline] = useState(false);
   const { toast } = useToast();
   const { alarmEnabled, alarmMode } = useAppStore();
   const date = todayStr();
+  // Last-good snapshot key for offline viewing; 24h TTL so a long outage
+  // still shows the list. ponytail: status may be stale while offline —
+  // labeled via the offline banner, and queued actions sync on reconnect.
+  const cacheKey = `reminders_${date}${userId ? `_${userId}` : ''}`;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -113,12 +120,32 @@ export function TodayView({ userId, isDemo }: { userId?: string; isDemo?: boolea
       const [rems, s] = await Promise.all([remRes.json(), statsRes.json()]);
       setReminders(rems);
       setStats(s);
+      setOffline(false);
+      cachePatientData(cacheKey, rems);
+      cachePatientData(`${cacheKey}_stats`, s);
     } catch (e) {
-      toast({
-        title: 'Failed to load reminders',
-        description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
-      });
+      // Offline (or transient failure): fall back to the last saved snapshot.
+      const cached = getCachedPatientData<Reminder[]>(cacheKey, 24 * 60 * 60 * 1000);
+      const cachedStats = getCachedPatientData<ReminderStats>(
+        `${cacheKey}_stats`,
+        24 * 60 * 60 * 1000
+      );
+      if (cached && cached.length > 0) {
+        setReminders(cached);
+        setStats(cachedStats);
+        setOffline(true);
+        toast({
+          title: 'Showing saved reminders',
+          description: "You're offline — showing the last saved list.",
+        });
+      } else {
+        setOffline(false);
+        toast({
+          title: 'Failed to load reminders',
+          description: e instanceof Error ? e.message : 'Unknown error',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -403,6 +430,14 @@ export function TodayView({ userId, isDemo }: { userId?: string; isDemo?: boolea
           )}
         </div>
       </div>
+
+      {/* Offline notice — data shown is the last saved snapshot */}
+      {offline && (
+        <div className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-400">
+          <WifiOff className="h-3.5 w-3.5 shrink-0" />
+          Offline — showing last saved reminders. Take/Skip actions are queued and will sync when you&apos;re back online.
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
