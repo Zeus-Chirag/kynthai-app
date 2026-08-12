@@ -223,8 +223,8 @@ describe('rateLimitProduction (Redis path)', () => {
   let redisInstance: MockRatelimitInstance;
 
   beforeAll(async () => {
-    vi.stubEnv('UPSTASH_REDIS_REST_URL', 'https://mock.upstash.io');
-    vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', 'mock-token');
+    vi.stubEnv('UPSTASH_REDIS_REST_URL', 'https://redis.upstash.io');
+    vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', 'kynthai-test-token-0123456789abcdef');
     // First call constructs (and caches) the mocked limiter.
     await rateLimitProduction(req('/api/auth/me', '9.9.9.9'));
     redisInstance = MOCK_RATELIMIT.instances[0]!;

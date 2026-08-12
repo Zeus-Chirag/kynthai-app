@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { logAudit } from '@/lib/auth';
 import { sanitizeText, rateLimit } from '@/lib/security';
+import { parseTimes } from '@/lib/parse-times';
 import {
   requireAuth,
   requireAuthWithCsrf,
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
-  return jsonOk({ ...med, times: JSON.parse(med.times) });
+  return jsonOk({ ...med, times: parseTimes(med.times) });
 }
 
 // PUT /api/medications/[id]
@@ -93,7 +94,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const updated = await db.medication.update({ where: { id }, data });
   await logAudit(u.id, 'medication.update', `med=${id} fields=${Object.keys(data).join(',')}`);
-  return jsonOk({ ...updated, times: JSON.parse(updated.times) });
+  return jsonOk({ ...updated, times: parseTimes(updated.times) });
 }
 
 // DELETE /api/medications/[id]

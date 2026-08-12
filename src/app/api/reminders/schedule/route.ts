@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { db } from '@/lib/db'
 import { logAudit } from '@/lib/auth'
 import { rateLimit } from '@/lib/security'
+import { parseTimes } from '@/lib/parse-times'
 import { requireSystemToken, jsonOk, audit, jsonError } from '@/lib/api-helpers'
 import { logger } from '@/lib/logger'
 import { todayStr } from '@/lib/utils'
@@ -99,7 +100,7 @@ export async function POST(req: NextRequest) {
     let skippedQuiet = 0
 
     for (const med of meds) {
-      const times: string[] = JSON.parse(med.times)
+      const times: string[] = parseTimes(med.times)
       for (const t of times) {
         // Smart: respect quiet hours
         const prefs = getSmartPrefs(med.userId || med.familyMemberId || '')

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { db } from '@/lib/db'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText, rateLimit } from '@/lib/security'
+import { parseTimes } from '@/lib/parse-times'
 import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, readJson, audit, parseJsonCol, checkConsent, validateBody, isResponseError } from '@/lib/api-helpers'
 import { createMedicationSchema } from '@/lib/schemas'
 import { todayStr } from '@/lib/utils'
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     color: member.color,
     conditions: parseJsonCol(member.conditions, []),
     photoUrl: member.photoUrl,
-    medications: meds.map((m) => ({ ...m, times: JSON.parse(m.times) })),
+    medications: meds.map((m) => ({ ...m, times: parseTimes(m.times) })),
     reminders: todayReminders,
   })
 }
@@ -124,7 +125,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   })
 
   await logAudit(u.id, 'family.member.med.add', `member=${id} med=${med.id}`)
-  return jsonOk({ ...med, times: JSON.parse(med.times) })
+  return jsonOk({ ...med, times: parseTimes(med.times) })
 }
 
 // DELETE /api/family/members/[id]

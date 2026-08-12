@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { db } from '@/lib/db'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText, rateLimit } from '@/lib/security'
+import { parseTimes } from '@/lib/parse-times'
 import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, readJson, audit, checkConsent } from '@/lib/api-helpers'
 import { ReminderStatus } from '@prisma/client'
 import { todayStr, toISODateTime } from '@/lib/utils'
@@ -53,13 +54,9 @@ export async function GET(req: NextRequest) {
   const medIds = meds.map((m) => m.id)
   const candidates: { medicationId: string; date: string; time: string }[] = []
   for (const med of meds) {
-    let times: string[] = []
-    try {
-      times = JSON.parse(med.times)
-    } catch {
-      // Corrupt times JSON on a row — skip it rather than 500ing the whole list.
-      continue
-    }
+    // ponytail: parseTimes tolerates legacy comma-format rows instead of
+    // skipping them (previous behavior) — a corrupt row degrades to 09:00.
+    const times = parseTimes(med.times)
     for (const t of times) candidates.push({ medicationId: med.id, date, time: t })
   }
 
@@ -88,7 +85,7 @@ export async function GET(req: NextRequest) {
   return jsonOk(
     reminders.map((r) => ({
       ...r,
-      medication: r.medication ? { ...r.medication, times: JSON.parse(r.medication.times) } : null,
+      medication: r.medication ? { ...r.medication, times: parseTimes(r.medication.times) } : null,
     })),
   )
 }

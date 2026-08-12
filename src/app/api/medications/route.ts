@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { logAudit } from '@/lib/auth';
 import { sanitizeText, rateLimit } from '@/lib/security';
+import { parseTimes } from '@/lib/parse-times';
 import {
   requireAuth,
   requireAuthWithCsrf,
@@ -91,7 +92,7 @@ export async function GET(req: NextRequest) {
   const page = hasMore ? meds.slice(0, limit) : meds;
   const nextCursor = hasMore && page.length > 0 ? page[page.length - 1]!.id : null;
 
-  const serialized = page.map((m: any) => ({ ...m, times: JSON.parse(m.times) }));
+  const serialized = page.map((m: any) => ({ ...m, times: parseTimes(m.times) }));
 
   return jsonPage(serialized, { cursor: nextCursor, limit, hasMore });
 }
@@ -180,5 +181,5 @@ export async function POST(req: NextRequest) {
   });
 
   await logAudit(u.id, 'medication.create', `med=${med.id}`);
-  return jsonOk({ ...med, times: JSON.parse(med.times) });
+  return jsonOk({ ...med, times: parseTimes(med.times) });
 }

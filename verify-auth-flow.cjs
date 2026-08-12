@@ -2,7 +2,7 @@ const { config } = require('dotenv');
 config({ path: '/tmp/kynthai-touch/.env.local' });
 
 const fetch = require('node-fetch');
-const BASE = 'https://kynthai-deploy-fl15szhy6-chiragkoshti0628-rgbs-projects.vercel.app';
+const BASE = 'https://kynthai-deploy-mdmfj32jj-chiragkoshti0628-rgbs-projects.vercel.app';
 
 (async () => {
   // 1. Get CSRF token
