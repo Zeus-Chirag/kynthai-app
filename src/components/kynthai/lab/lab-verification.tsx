@@ -23,12 +23,16 @@ import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
+import { useAppStore } from '@/lib/store'
 import type { AuthUser } from '@/lib/store'
 import { KynthaiBrand } from '../logo'
+import { LogOut } from 'lucide-react'
 
 interface LabVerificationProps {
   user: AuthUser
   onSubmitted: () => void
+  onLogout?: () => void
 }
 
 interface TestEntry {
@@ -44,7 +48,7 @@ const DOC_TYPES = [
   { id: 'photo', label: 'Lab Photo' },
 ]
 
-export function LabVerification({ user, onSubmitted }: LabVerificationProps) {
+export function LabVerification({ user, onSubmitted, onLogout }: LabVerificationProps) {
   const { toast } = useToast()
   const [labName, setLabName] = React.useState('')
   const [licenseNumber, setLicenseNumber] = React.useState('')
@@ -122,9 +126,17 @@ export function LabVerification({ user, onSubmitted }: LabVerificationProps) {
       <div className="mx-auto max-w-2xl px-4 py-6">
         <div className="flex items-center justify-between">
           <KynthaiBrand />
-          <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            Lab partner registration
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              Lab partner registration
+            </Badge>
+            {onLogout && (
+              <Button variant="ghost" size="sm" onClick={onLogout} className="text-muted-foreground hover:text-destructive">
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="mt-6">

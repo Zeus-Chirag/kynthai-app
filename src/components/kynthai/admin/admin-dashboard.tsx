@@ -102,6 +102,16 @@ interface PartnerRevenueRow {
 export function AdminDashboard({ user }: { user: AuthUser }) {
   const { logout } = useAppStore();
   const router = useRouter();
+  // Real logout: clear the server session first — AuthGuard's mount-time
+  // /api/auth/me check would otherwise re-authenticate and bounce straight
+  // back into the portal (the old onLogout={logout} only cleared the store).
+  const handleLogout = React.useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch { /* ignore */ }
+    logout();
+    router.replace('/');
+  }, [logout, router]);
   const [tab, setTab] = React.useState<AdminTab>('overview');
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [reviewApp, setReviewApp] = React.useState<DoctorApp | LabApp | null>(null);
@@ -468,7 +478,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
         onOpenChange={setProfileOpen}
         user={user}
         onSwitchPortal={() => router.push('/login')}
-        onLogout={logout}
+        onLogout={handleLogout}
       />
     </div>
   );

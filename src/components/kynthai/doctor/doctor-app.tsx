@@ -43,11 +43,22 @@ const DEMO_PROFILE: DoctorProfile = {
 
 export function DoctorApp({ user }: { user: AuthUser }) {
   const { toast } = useToast();
-  const { setScreen } = useAppStore();
+  const { setScreen, logout } = useAppStore();
   const router = useRouter();
   const isDemo = !!user.isDemo;
   const [state, setState] = React.useState<ProfileState>('loading');
   const [profile, setProfile] = React.useState<DoctorProfile | null>(null);
+
+  // Real logout: clear the server session cookie (AuthGuard would otherwise
+  // re-authenticate via /me and bounce the user straight back into the
+  // portal), then clear the store and land on the home page.
+  const handleLogout = React.useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch { /* ignore */ }
+    logout();
+    router.replace('/');
+  }, [logout, router]);
 
   const load = React.useCallback(async () => {
     setState('loading');
@@ -98,6 +109,7 @@ export function DoctorApp({ user }: { user: AuthUser }) {
       <DoctorVerification
         user={user}
         existing={profile}
+        onLogout={handleLogout}
         onSubmitted={() => {
           toast({
             title: 'Application submitted',
@@ -114,9 +126,7 @@ export function DoctorApp({ user }: { user: AuthUser }) {
       <PendingState
         user={user}
         onRefresh={load}
-        onLogout={() => {
-          router.push('/');
-        }}
+        onLogout={handleLogout}
       />
     );
   }

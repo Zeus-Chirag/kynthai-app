@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { LogOut } from 'lucide-react';
 import type { AuthUser } from '@/lib/store';
 import { KynthaiBrand } from '../logo';
 import { t, initLanguage } from '@/lib/i18n';
@@ -53,6 +54,7 @@ interface DoctorVerificationProps {
     taxId?: string;
   } | null;
   onSubmitted: () => void;
+  onLogout?: () => void;
 }
 
 const SPECIALIZATIONS = [
@@ -90,7 +92,7 @@ const DOC_TYPES: DocSlot[] = [
   { id: 'photo', label: t('profile_photo') },
 ];
 
-export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerificationProps) {
+export function DoctorVerification({ user, existing, onSubmitted, onLogout }: DoctorVerificationProps) {
   const { toast } = useToast();
   React.useEffect(() => {
     initLanguage();
@@ -202,12 +204,20 @@ export function DoctorVerification({ user, existing, onSubmitted }: DoctorVerifi
       <div className="mx-auto max-w-2xl px-4 py-6">
         <div className="flex items-center justify-between">
           <KynthaiBrand />
-          <Badge
-            variant="secondary"
-            className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-          >
-            {t('doctor_verification')}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="secondary"
+              className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+            >
+              {t('doctor_verification')}
+            </Badge>
+            {onLogout && (
+              <Button variant="ghost" size="sm" onClick={onLogout} className="text-muted-foreground hover:text-destructive">
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="mt-6">

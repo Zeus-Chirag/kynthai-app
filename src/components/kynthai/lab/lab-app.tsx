@@ -99,6 +99,7 @@ export function LabApp({ user }: { user: AuthUser }) {
     return (
       <LabVerification
         user={user}
+        onLogout={handleLogout}
         onSubmitted={() => {
           load();
         }}
