@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { dbId, dbIdOptional } from './ids'
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 
@@ -28,7 +29,7 @@ const hmString = z.preprocess(
 export const createMedicationSchema = z.object({
   ...medicationBase,
   times:            timeSchema,
-  familyMemberId:   z.string().uuid().optional().nullable(),
+  familyMemberId:   dbIdOptional,
   timeWindowEnd:    hmString,
   reminderInterval: z.number().int().min(1).max(1440).optional().default(10),
 })
@@ -49,7 +50,7 @@ export const updateMedicationSchema = z.object({
 /** GET /api/medications — query parameters */
 export const medicationsQuerySchema = z.object({
   userId:         z.string().uuid().optional(),
-  familyMemberId: z.string().uuid().optional(),
+  familyMemberId: dbId.optional(),
   active:         z.enum(['true','false','all']).optional().default('all'),
   cursor:         z.string().optional(),
   limit:          z.coerce.number().int().min(1).max(100).optional().default(20),

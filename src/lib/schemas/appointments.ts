@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { dbId, dbIdOptional, dbIdWithMessage } from './ids';
 
 /** POST /api/appointments — book an appointment */
 export const createAppointmentSchema = z.object({
-  patientId: z.string().uuid().optional().nullable(),
-  doctorId: z.string().uuid('doctorId must be a valid UUID'),
+  patientId: dbIdOptional,
+  doctorId: dbIdWithMessage('doctorId must be a valid id'),
   scheduledAt: z.string().datetime('scheduledAt must be a valid ISO date/time'),
   type: z.enum(['video', 'audio', 'chat', 'in-person']).optional().default('video'),
   reason: z.string().max(500).optional().nullable(),
@@ -26,8 +27,8 @@ export const updateAppointmentSchema = z.object({
 
 /** GET /api/appointments — query parameters */
 export const appointmentsQuerySchema = z.object({
-  patientId: z.string().uuid().optional(),
-  doctorId: z.string().uuid().optional(),
+  patientId: dbId.optional(),
+  doctorId: dbId.optional(),
   status: z.enum(['pending', 'confirmed', 'completed', 'cancelled', 'no-show']).optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),

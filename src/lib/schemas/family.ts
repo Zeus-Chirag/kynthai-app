@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { dbId } from './ids'
 
 const RELATIONS = ['self','spouse','parent','child','sibling','grandparent','grandchild','other'] as const
 const ROLES     = ['patient','caretaker','viewer'] as const
@@ -6,7 +7,7 @@ const COLORS    = ['emerald','blue','amber','rose','violet','teal','orange','pin
 
 /** POST /api/family/members — add a family member */
 export const createMemberSchema = z.object({
-  familyId:     z.string().uuid().optional().nullable(),
+  familyId:     dbId.optional().nullable(),
   name:         z.string().min(1, 'Member name is required').max(120),
   relation:     z.enum(RELATIONS).optional().default('self'),
   age:          z.coerce.number().int().min(0).max(150).optional().nullable(),
@@ -27,7 +28,7 @@ export const inviteSchema = z.object({
   email:       z.string().email().max(254).optional(),
   name:        z.string().max(120).optional(),
   relation:    z.string().max(60).optional(),
-  inviteId:    z.string().uuid().optional(),
+  inviteId:    dbId.optional(),
   age:         z.coerce.number().int().min(0).max(150).optional().nullable(),
   /** COMPLIANCE (COPPA/family governance): guardian verification for minors */
   guardianVerificationToken: z.string().uuid().optional().nullable(),
@@ -39,7 +40,7 @@ export const inviteSchema = z.object({
 
 /** GET /api/family/members — query parameters */
 export const familyMembersQuerySchema = z.object({
-  familyId: z.string().uuid().optional(),
+  familyId: dbId.optional(),
   role:     z.enum(ROLES).optional(),
   cursor:   z.string().optional(),
   limit:    z.coerce.number().int().min(1).max(100).optional().default(20),
