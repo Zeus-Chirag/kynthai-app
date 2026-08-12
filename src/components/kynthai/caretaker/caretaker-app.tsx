@@ -916,24 +916,38 @@ function SosTab({
 
   const trigger = async (tier: 'critical' | 'family') => {
     setStage('triggering');
+    let anyOk = false;
+    let lastError = '';
     try {
+      const csrf = await fetch('/api/auth/csrf', { credentials: 'include' })
+        .then((r) => r.json())
+        .then((d) => d.token as string)
+        .catch(() => null);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
+      };
+
       // Step 1: call emergency-sos to log the SOS trigger
-      await fetch('/api/emergency-sos', {
+      const sosRes = await fetch('/api/emergency-sos', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           location: `Caretaker app — ${selected.name}`,
           notes: `${tier === 'critical' ? 'Critical' : 'Family'} SOS triggered from caretaker app`,
           medicalInfo: '',
         }),
       });
+      anyOk = sosRes.ok;
+      if (!sosRes.ok) lastError = ((await sosRes.json().catch(() => ({}))).error as string) || '';
 
       // Step 2: call the emergency family alert endpoint (returns real linked doctors)
       const emRes = await fetch('/api/emergency', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ memberId: selected.id, memberName: selected.name, tier }),
       });
+      anyOk = anyOk || emRes.ok;
       let data: { notifiedDoctors?: { name: string; eta?: string }[]; summary?: string } = {};
       if (emRes.ok) {
         data = await emRes.json();
@@ -942,22 +956,33 @@ function SosTab({
         notifiedDoctors: data.notifiedDoctors ?? [],
         summary:
           data.summary ??
-          `${selected.name} — emergency SOS sent to your family and linked doctors.`,
+          (anyOk
+            ? `${selected.name} — emergency SOS sent to your family and linked doctors.`
+            : 'SOS alert could not be sent. Call 911 or your local emergency number immediately.'),
       });
       setStage('triggered');
-      const desc =
-        tier === 'critical'
-          ? 'Family and linked doctors alerted. Call 911 yourself if life-threatening.'
-          : 'Caretaker notified — they will reach out shortly.';
-      toast({
-        title: `${tier === 'critical' ? 'Critical' : 'Family'} SOS triggered`,
-        description: desc,
-        variant: 'destructive',
-      });
+      if (anyOk) {
+        const desc =
+          tier === 'critical'
+            ? 'Family and linked doctors alerted. Call 911 yourself if life-threatening.'
+            : 'Caretaker notified — they will reach out shortly.';
+        toast({
+          title: `${tier === 'critical' ? 'Critical' : 'Family'} SOS triggered`,
+          description: desc,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'SOS alert could not be sent',
+          description:
+            lastError || 'Call 911 or your local emergency number immediately.',
+          variant: 'destructive',
+        });
+      }
     } catch {
       setResponse({
         notifiedDoctors: [],
-        summary: `${selected.name} — emergency SOS request sent. Call 911 yourself if life-threatening.`,
+        summary: `${selected.name} — SOS alert could not be sent. Call 911 yourself if life-threatening.`,
       });
       setStage('triggered');
     }

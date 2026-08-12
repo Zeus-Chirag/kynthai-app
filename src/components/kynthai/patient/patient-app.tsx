@@ -941,9 +941,16 @@ function SosTab() {
   const trigger = async () => {
     setStage('triggering');
     try {
+      const csrf = await fetch('/api/auth/csrf', { credentials: 'include' })
+        .then((r) => r.json())
+        .then((d) => d.token as string)
+        .catch(() => null);
       const res = await fetch('/api/emergency-sos', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
+        },
         body: JSON.stringify({ location: 'Patient app', notes: 'Emergency SOS', medicalInfo: '' }),
       });
       const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
