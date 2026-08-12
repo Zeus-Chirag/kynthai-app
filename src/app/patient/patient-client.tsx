@@ -9,11 +9,12 @@ import { ConsentGate } from '@/components/kynthai/consent-gate'
 
 export default function PatientClient() {
   const router = useRouter()
-  const { user, setLoginPortal, login: storeLogin } = useAppStore((s) => ({
-    user: s.user,
-    setLoginPortal: s.setLoginPortal,
-    login: s.login,
-  }))
+  // ponytail: slice subscriptions (not whole-store) so unrelated writes like
+  // alarmMode/setAlarmMode do NOT re-render this client → keeps loadPortal from
+  // re-running and avoids remounting the portal subtree.
+  const user = useAppStore((s) => s.user)
+  const setLoginPortal = useAppStore((s) => s.setLoginPortal)
+  const storeLogin = useAppStore((s) => s.login)
   const { node } = loadPortal("patient", user)
 
   useEffect(() => {
