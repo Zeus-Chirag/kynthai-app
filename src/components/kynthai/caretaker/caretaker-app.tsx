@@ -283,8 +283,31 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
           return;
         }
         const famData = await famRes.json();
-        const members: Array<{ id: string; name: string }> = famData.members ?? [];
+        const members: Array<{ id: string; name: string; relation?: string; age?: number | null }> =
+          famData.members ?? [];
         if (cancelled || members.length === 0) return;
+
+        // Real family members replace the SAMPLE_FAMILY placeholders (whose fake
+        // ids like 'fm1' break any API call that validates familyMemberId).
+        // ponytail: adherence/pending/lowStock default to 0 — /api/family
+        // doesn't return them; if demo numbers are wanted later, compute from
+        // reminders instead of hardcoding.
+        if (!cancelled) {
+          const realFamily: FamilyMember[] = members.map(m => ({
+            id: m.id,
+            name: m.name,
+            relation: m.relation ?? 'Family',
+            adherence: 0,
+            pending: 0,
+            lowStock: 0,
+            age: m.age ?? 0,
+          }))
+          setFamily(realFamily)
+          setSelectedMember(prev => {
+            const stillReal = prev && realFamily.some(x => x.id === prev.id)
+            return stillReal ? prev : (realFamily[0] ?? null)
+          })
+        }
 
         const today = new Date().toISOString().split('T')[0];
         const allMeds: MemberMeds = {};
