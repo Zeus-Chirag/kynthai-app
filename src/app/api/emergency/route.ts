@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     alerts: alerts.map((a) => ({
       id: a.id,
       familyId: a.familyId,
-      memberId: (a as any).memberId,
+      memberId: (a as any).familyMemberId,
       memberName: a.memberName,
       type: a.type,
       tier: a.tier,
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
   const alert = await db.emergencyAlert.create({
     data: {
       familyId: family.id,
-      memberId: memberId as string,
+      familyMemberId: memberId === 'self' ? null : (memberId as string),
       memberName,
       reporterId: u.id,
       type: alertType,

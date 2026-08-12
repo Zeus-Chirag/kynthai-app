@@ -4,6 +4,7 @@ import { requireAuthWithCsrf, jsonError, readJson, isUserMinor } from '@/lib/api
 import { logAudit } from '@/lib/auth'
 import { sanitizeText } from '@/lib/security'
 import { emergencySosSchema } from '@/lib/schemas/security'
+import { sendSMSReal, isSMSEnabled } from '@/lib/integrations'
 import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
@@ -55,14 +56,17 @@ export async function POST(req: NextRequest) {
 
     // Wrap all SOS mutations in a single atomic transaction so no alert is
     // partially persisted if something fails mid-way.
-    const allNotifiedIds: string[] = []
+    const notifiedNames: string[] = []
+    // Phone targets collected inside the transaction (linked user accounts) —
+    // SMS reminders go out AFTER commit below, best-effort.
+    const smsTargets: { name: string; phone: string }[] = []
     const alerts = await db.$transaction(async (tx): Promise<any[]> => {
       const created: any[] = []
       for (const membership of memberships) {
         const alert = await tx.emergencyAlert.create({
           data: {
             familyId: membership.familyId,
-            memberId: membership.id as string, // kept for schema compatibility
+            familyMemberId: membership.id as string, // the member this alert is about
             memberName: user.name,
             reporterId: user.id,
             type: 'sos',
@@ -78,14 +82,17 @@ export async function POST(req: NextRequest) {
             familyId: membership.familyId,
             userId: { not: user.id },
           },
-          include: { user: { select: { id: true, name: true } } },
+          include: { user: { select: { id: true, name: true, phone: true } } },
         })
 
         const membershipNotifiedIds: string[] = []
         for (const fm of familyMembers) {
           if (fm.userId) {
             membershipNotifiedIds.push(fm.userId)
-            allNotifiedIds.push(fm.userId)
+            notifiedNames.push(fm.user?.name || 'A family member')
+            if (fm.user?.phone) {
+              smsTargets.push({ name: fm.user.name || 'Family member', phone: fm.user.phone })
+            }
             await tx.notificationLog.create({
               data: {
                 userId: fm.userId,
@@ -121,18 +128,58 @@ export async function POST(req: NextRequest) {
       return created
     })
 
-    // Track notified contacts for the response (uses the last batch of notified IDs)
-    const lastNotifiedUsers: { name: string; eta: string }[] = allNotifiedIds.length > 0
-      ? [{ name: 'On-call doctor', eta: '~8 min' }]
-      : []
+    // Best-effort SMS reminders to the contact numbers on file. The alert is
+    // already committed — a failed SMS must never fail the SOS itself. Each
+    // recipient is guarded individually so one bad number can't block the rest.
+    // SMS content is deliberately NON-SENSITIVE (no notes/medical info) per the
+    // Twilio channel boundary in src/lib/integrations.ts.
+    let smsSent = 0
+    if (smsTargets.length > 0 && isSMSEnabled()) {
+      const base = `Kynthai SOS alert: ${user.name} needs help.`
+      const where = location ? ` Location: ${location}.` : ''
+      const tail = ` Please check on them right away. Kynthai cannot dispatch responders - call 911 or your local emergency number if needed.`
+      for (const t of smsTargets) {
+        try {
+          const r = await sendSMSReal({ to: t.phone, body: base + where + tail })
+          if (r.ok) {
+            smsSent += 1
+            await db.notificationLog
+              .create({
+                data: {
+                  userId: undefined as any,
+                  channel: 'sms',
+                  type: 'emergency_sos',
+                  title: `SOS reminder to ${t.name}`,
+                  body: base + where + tail,
+                  recipient: t.phone,
+                  status: 'sent',
+                  cost: 0,
+                },
+              })
+              .catch(() => { /* analytics row is best-effort */ })
+          } else {
+            console.warn(`[emergency-sos] SMS to ${t.name} failed: ${r.error ?? 'unknown'}`)
+          }
+        } catch (e) {
+          // Never let a transport error fail the SOS alert itself.
+          console.warn(`[emergency-sos] SMS to ${t.name} threw`, e instanceof Error ? e.message : String(e))
+        }
+      }
+    }
+
+    // Track notified contacts for the response — real family member names, no
+    // fabricated responders or ETAs. The patient SOS UI renders this directly.
+    const notifiedContacts = [...new Set(notifiedNames)].map((name) => ({ name }))
 
     return NextResponse.json({
       success: true,
       alertCount: alerts.length,
       message: 'SOS alert sent to all family members',
       emergencyNumber: '911',
-      notifiedDoctors: lastNotifiedUsers,
-      summary: `${user.name} — emergency SOS triggered. Medical details will be shared by the responding doctor.`,
+      notifiedDoctors: [],
+      notifiedContacts,
+      smsSent,
+      summary: `${user.name} — SOS alert sent to your family and listed contacts${smsSent > 0 ? ` (${smsSent} reminder text sent)` : ''}. Call 911 yourself if this is life-threatening.`,
       ...(isMinor
         ? { minorNotice: 'Guardian notification attempted. A minor has triggered a SOS alert — guardian should respond immediately and contact emergency services if needed.' }
         : {}),

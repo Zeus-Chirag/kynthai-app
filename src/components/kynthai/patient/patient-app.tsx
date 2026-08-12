@@ -4,6 +4,8 @@ import * as React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
   Home,
+  Phone,
+  PhoneCall,
   Pill,
   ShoppingBag,
   Sparkles,
@@ -11,6 +13,7 @@ import {
   Siren,
   Loader2,
   Activity,
+  AlertTriangle,
   CheckCircle2,
   Heart,
   HeartPulse,
@@ -105,7 +108,7 @@ const MarketView = dynamic(
 // types & data
 // ════════════════════════════════════════════════════════════════════════════
 
-type Tab = 'home' | 'meds' | 'market' | 'lab' | 'ai' | 'journal' | 'sos';
+type Tab = 'home' | 'meds' | 'market' | 'lab' | 'ai' | 'journal' | 'tools' | 'sos';
 type TabVariant = Tab;
 
 const TABS: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -115,6 +118,7 @@ const TABS: { id: Tab; label: string; icon: React.ComponentType<{ className?: st
   { id: 'lab', label: 'Lab', icon: FlaskConical },
   { id: 'ai', label: 'AI', icon: Sparkles },
   { id: 'journal', label: 'Journal', icon: BookOpen },
+  { id: 'tools', label: 'Tools', icon: HeartPulse },
   { id: 'sos', label: 'SOS', icon: Siren },
 ];
 
@@ -911,9 +915,29 @@ function JournalDialog({
 function SosTab() {
   const [stage, setStage] = React.useState<'idle' | 'triggering' | 'triggered'>('idle');
   const [response, setResponse] = React.useState<{
-    notifiedDoctors: { name: string; eta: string }[];
+    notifiedContacts: { name: string }[];
     summary: string;
   } | null>(null);
+  // First family member with a phone number on file = the patient's entered contact.
+  const [callContact, setCallContact] = React.useState<{ name: string; phone: string } | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    fetch('/api/emergency-sos/contacts', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d) => {
+        if (cancelled) return;
+        const contact = (d.contacts ?? [])[0];
+        if (contact) setCallContact({ name: contact.name, phone: contact.phone });
+      })
+      .catch(() => {
+        /* best-effort — SOS never depends on the contact lookup */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const trigger = async () => {
     setStage('triggering');
     try {
@@ -922,19 +946,26 @@ function SosTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ location: 'Patient app', notes: 'Emergency SOS', medicalInfo: '' }),
       });
-      let data: Record<string, unknown> = {};
-      if (res.ok) data = await res.json();
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (!res.ok) {
+        // Surface the real failure — never fake a success in an emergency UI.
+        setResponse({
+          notifiedContacts: [],
+          summary:
+            (data.error as string) ||
+            'SOS alert could not be sent. Call 911 or your local emergency number immediately.',
+        });
+        setStage('triggered');
+        return;
+      }
       setResponse({
-        notifiedDoctors: (data.notifiedDoctors as { name: string; eta: string }[]) ?? [
-          { name: 'On-call doctor', eta: '~8 min' },
-          { name: 'Emergency services', eta: '~14 min' },
-        ],
-        summary: (data.summary as string) ?? 'Emergency SOS triggered — help is on the way.',
+        notifiedContacts: (data.notifiedContacts as { name: string }[]) ?? [],
+        summary: (data.summary as string) ?? 'SOS alert sent to your family and listed contacts.',
       });
     } catch {
       setResponse({
-        notifiedDoctors: [{ name: 'On-call doctor', eta: '~8 min' }],
-        summary: 'Emergency SOS triggered.',
+        notifiedContacts: [],
+        summary: 'SOS alert could not be sent. Call 911 or your local emergency number immediately.',
       });
     }
     setStage('triggered');
@@ -948,15 +979,44 @@ function SosTab() {
             <Siren className="h-8 w-8 text-rose-600 dark:text-rose-400" />
           </div>
           <p className="text-sm text-muted-foreground text-center">
-            Notifies emergency contacts, on-call doctors & 911 with your medical summary.
+            Alerts your family and listed contacts, and sends them a reminder text with your
+            location. It does not replace calling 911.
           </p>
+          {/* Always-available call actions — never hidden behind the trigger state */}
+          <div className="space-y-3">
+            <a href="tel:911" aria-label="Call 911, the US emergency number" className="block">
+              <Button
+                size="lg"
+                className="w-full h-14 text-base bg-gradient-to-r from-rose-500 to-rose-700 text-white shadow-lg shadow-rose-600/30 hover:from-rose-600 hover:to-rose-800"
+              >
+                <Phone className="h-5 w-5" /> Call 911 — US emergency number
+              </Button>
+            </a>
+            {callContact ? (
+              <a href={`tel:${callContact.phone}`} aria-label={`Call ${callContact.name}`} className="block">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full h-12 text-sm border-rose-500/40 text-rose-700 dark:text-rose-400 hover:bg-rose-500/10"
+                >
+                  <PhoneCall className="h-4 w-4" /> Call {callContact.name}
+                </Button>
+              </a>
+            ) : (
+              <p className="text-[11px] text-muted-foreground text-center">
+                No contact number on file — add one in your family profile to enable one-tap
+                calling.
+              </p>
+            )}
+          </div>
           {stage === 'idle' && (
             <Button
               size="lg"
+              variant="outline"
               onClick={trigger}
-              className="w-full h-14 text-base bg-gradient-to-r from-rose-500 to-rose-700 text-white shadow-lg shadow-rose-600/30"
+              className="w-full h-12 text-sm border-rose-500/40 text-rose-700 dark:text-rose-400 hover:bg-rose-500/10"
             >
-              <Siren className="h-5 w-5" /> Trigger SOS
+              <Siren className="h-4 w-4" /> Trigger SOS alert to family
             </Button>
           )}
           {stage === 'triggering' && (
@@ -966,25 +1026,42 @@ function SosTab() {
           )}
           {stage === 'triggered' && response && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+              <p
+                className={cn(
+                  'text-xs font-semibold',
+                  response.notifiedContacts.length > 0
+                    ? 'text-rose-600 dark:text-rose-400'
+                    : 'text-amber-600 dark:text-amber-400'
+                )}
+              >
                 {response.summary}
               </p>
-              {response.notifiedDoctors.map((d, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-lg border border-rose-500/40 bg-rose-500/5 p-3"
-                >
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-rose-600" />
-                    <span className="text-sm font-medium">{d.name}</span>
+              {response.notifiedContacts.length > 0 ? (
+                response.notifiedContacts.map((c, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 rounded-lg border border-rose-500/40 bg-rose-500/5 p-3"
+                  >
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-rose-600" />
+                    <span className="text-sm font-medium">{c.name} notified</span>
                   </div>
-                  <Badge variant="secondary" className="text-[10px]">
-                    ETA {d.eta}
-                  </Badge>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No family members with accounts were notified. If this is an emergency, call 911
+                  yourself.
+                </p>
+              )}
             </div>
           )}
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
+            <AlertTriangle className="h-3.5 w-3.5 inline-block -mt-0.5 mr-1 text-amber-600 dark:text-amber-400" />
+            <span className="font-semibold text-amber-700 dark:text-amber-400">Important:</span>{' '}
+            Kynthai cannot place calls or dispatch responders. In a life-threatening emergency,
+            always <span className="font-semibold text-foreground">call 911 (US) or your local emergency number yourself</span> and
+            call your hospital directly. Kynthai sends alerts and reminder texts to your listed
+            contacts, but it is not a replacement for emergency services.
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -1000,11 +1077,6 @@ export function PatientApp({ user }: { user: AuthUser }) {
   const { toast } = useToast();
   const [tab, setTab] = React.useState<Tab>('home');
   const [profileOpen, setProfileOpen] = React.useState(false);
-  const [sosStage, setSosStage] = React.useState<'idle' | 'triggering' | 'triggered'>('idle');
-  const [sosResponse, setSosResponse] = React.useState<{
-    notifiedDoctors: { name: string; eta: string }[];
-    summary: string;
-  } | null>(null);
   const [shareOpen, setShareOpen] = React.useState(false);
   const [joiningCallApptId, setJoiningCallApptId] = React.useState<string | null>(null);
   const [cancellingApptId, setCancellingApptId] = React.useState<string | null>(null);
@@ -1079,43 +1151,6 @@ export function PatientApp({ user }: { user: AuthUser }) {
     logout();
     router.replace('/');
   }, [logout, router]);
-  const sosTrigger = async () => {
-    setSosStage('triggering');
-    try {
-      const res = await fetch('/api/emergency-sos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'Patient app',
-          notes: 'SOS from patient app',
-          medicalInfo: '',
-        }),
-      });
-      let data: Record<string, unknown> = {};
-      if (res.ok) data = await res.json();
-      setSosResponse({
-        notifiedDoctors: (data.notifiedDoctors as { name: string; eta: string }[]) ?? [
-          { name: 'On-call doctor', eta: '~8 min' },
-        ],
-        summary: (data.summary as string) ?? 'Emergency SOS triggered.',
-      });
-    } catch {
-      setSosResponse({
-        notifiedDoctors: [{ name: 'On-call doctor', eta: '~8 min' }],
-        summary: 'Emergency SOS triggered.',
-      });
-    }
-    setSosStage('triggered');
-    toast({
-      title: 'SOS triggered',
-      description: 'Emergency contacts notified.',
-      variant: 'destructive',
-    });
-  };
-  const sosReset = () => {
-    setSosStage('idle');
-    setSosResponse(null);
-  };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
@@ -1192,6 +1227,11 @@ export function PatientApp({ user }: { user: AuthUser }) {
               <JournalTab />
             </FadeIn>
           )}
+          {tab === 'tools' && (
+            <FadeIn key="tools">
+              <CareHub memberName={user.name} />
+            </FadeIn>
+          )}
           {tab === 'sos' && (
             <FadeIn key="sos">
               <SosTab />
@@ -1262,7 +1302,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
 
       {/* Bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">
-        <div className="mx-auto flex max-w-3xl items-stretch justify-around px-2 py-2">
+        <div className="mx-auto flex max-w-3xl items-stretch justify-around gap-1 overflow-x-auto px-2 py-2 scrollbar-none">
           {TABS.map(t => {
             const active = tab === t.id;
             const Icon = t.icon;
@@ -1270,13 +1310,14 @@ export function PatientApp({ user }: { user: AuthUser }) {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
+                aria-label={t.label}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 min-h-11 text-[11px] font-medium transition-all',
                   t.id === 'sos'
                     ? active
                       ? 'text-rose-600 dark:text-rose-400'
-                      : 'text-muted-foreground'
+                      : 'text-rose-500/80 hover:text-rose-600'
                     : active
                       ? 'text-emerald-600 dark:text-emerald-400'
                       : 'text-muted-foreground'
@@ -1288,7 +1329,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
                     t.id === 'sos'
                       ? active
                         ? 'bg-rose-500/15 text-rose-600'
-                        : 'bg-transparent'
+                        : 'bg-rose-500/10 text-rose-500'
                       : active
                         ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shadow-sm'
                         : 'bg-transparent'

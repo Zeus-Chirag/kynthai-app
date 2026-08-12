@@ -910,7 +910,7 @@ function SosTab({
   const { toast } = useToast();
   const [stage, setStage] = React.useState<'idle' | 'triggering' | 'triggered'>('idle');
   const [response, setResponse] = React.useState<{
-    notifiedDoctors: { name: string; eta: string }[];
+    notifiedDoctors: { name: string; eta?: string }[];
     summary: string;
   } | null>(null);
 
@@ -928,31 +928,27 @@ function SosTab({
         }),
       });
 
-      // Step 2: call the emergency family alert endpoint
+      // Step 2: call the emergency family alert endpoint (returns real linked doctors)
       const emRes = await fetch('/api/emergency', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ memberId: selected.id, memberName: selected.name, tier }),
       });
-      // Even if endpoint is not implemented, simulate a response
-      let data: { notifiedDoctors?: { name: string; eta: string }[]; summary?: string } = {};
+      let data: { notifiedDoctors?: { name: string; eta?: string }[]; summary?: string } = {};
       if (emRes.ok) {
         data = await emRes.json();
       }
       setResponse({
-        notifiedDoctors: data.notifiedDoctors ?? [
-          { name: 'On-call doctor', eta: '~8 min' },
-          { name: 'Emergency services', eta: '~14 min' },
-        ],
+        notifiedDoctors: data.notifiedDoctors ?? [],
         summary:
           data.summary ??
-          `${selected.name} (${selected.age}y) -- emergency SOS triggered. Medical details will be shared by the responding doctor.`,
+          `${selected.name} — emergency SOS sent to your family and linked doctors.`,
       });
       setStage('triggered');
       const desc =
         tier === 'critical'
-          ? 'Emergency contacts, doctors, and 911 notified.'
-          : 'Caretaker notified -- they will reach out shortly.';
+          ? 'Family and linked doctors alerted. Call 911 yourself if life-threatening.'
+          : 'Caretaker notified — they will reach out shortly.';
       toast({
         title: `${tier === 'critical' ? 'Critical' : 'Family'} SOS triggered`,
         description: desc,
@@ -960,11 +956,8 @@ function SosTab({
       });
     } catch {
       setResponse({
-        notifiedDoctors: [
-          { name: 'On-call doctor', eta: '~8 min' },
-          { name: 'Emergency services', eta: '~14 min' },
-        ],
-        summary: `${selected.name} (${selected.age}y) -- emergency SOS triggered. Medical details will be shared by the responding doctor.`,
+        notifiedDoctors: [],
+        summary: `${selected.name} — emergency SOS request sent. Call 911 yourself if life-threatening.`,
       });
       setStage('triggered');
     }
@@ -987,8 +980,8 @@ function SosTab({
           <h2 className="text-lg font-bold">Emergency SOS</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Trigger an emergency for{' '}
-            <span className="font-semibold text-foreground">{selected.name}</span>. Notifies on-call
-            doctors, ambulance & emergency contacts with medical summary.
+            <span className="font-semibold text-foreground">{selected.name}</span>. Alerts your
+            family and linked doctors — it does not replace calling 911.
           </p>
 
           {stage === 'idle' && (
@@ -1002,7 +995,7 @@ function SosTab({
                 SOS -- Critical
               </Button>
               <p className="text-[11px] text-muted-foreground text-center">
-                Ambulance, 911, doctors, emergency contacts
+                Alerts family + linked doctors — call 911 yourself if life-threatening
               </p>
 
               <Button
@@ -1020,6 +1013,14 @@ function SosTab({
             </div>
           )}
 
+          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-[11px] leading-relaxed text-muted-foreground text-left">
+            <AlertTriangle className="h-3.5 w-3.5 inline-block -mt-0.5 mr-1 text-amber-600 dark:text-amber-400" />
+            <span className="font-semibold text-amber-700 dark:text-amber-400">Important:</span>{' '}
+            Kynthai cannot place calls or dispatch responders. In a life-threatening emergency,
+            always <span className="font-semibold text-foreground">call 911 (US) or your local emergency number yourself</span> and
+            call the hospital directly. Kynthai sends alerts and reminder texts to your listed
+            contacts, but it is not a replacement for emergency services.
+          </div>
           {stage === 'triggering' && (
             <Button
               size="lg"
@@ -1038,37 +1039,42 @@ function SosTab({
                   Emergency triggered for {selected.name}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Help is on the way. Stay calm and keep the patient comfortable.
+                  Family and linked doctors have been alerted. If this is life-threatening, call 911
+                  or your local emergency number now.
                 </p>
               </div>
 
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                  Notified doctors
-                </p>
-                <div className="space-y-2">
-                  {response.notifiedDoctors.map((d, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between rounded-lg border border-border/60 p-2.5"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="h-4 w-4" />
-                        </span>
-                        <span className="text-sm font-medium">{d.name}</span>
+              {response.notifiedDoctors.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                    Notified doctors
+                  </p>
+                  <div className="space-y-2">
+                    {response.notifiedDoctors.map((d, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between rounded-lg border border-border/60 p-2.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 className="h-4 w-4" />
+                          </span>
+                          <span className="text-sm font-medium">{d.name}</span>
+                        </div>
+                        {d.eta && (
+                          <Badge variant="secondary" className="text-[10px]">
+                            ETA {d.eta}
+                          </Badge>
+                        )}
                       </div>
-                      <Badge variant="secondary" className="text-[10px]">
-                        ETA {d.eta}
-                      </Badge>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                  Medical summary shared
+                  Alert summary
                 </p>
                 <Card className="bg-muted/40">
                   <CardContent className="p-3 text-sm leading-relaxed">
