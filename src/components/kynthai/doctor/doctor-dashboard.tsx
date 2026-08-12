@@ -221,7 +221,10 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
   const [profileOpen, setProfileOpen] = React.useState(false);
   const greeting = useGreeting();
 
-  const handleLogout = React.useCallback(() => {
+  const handleLogout = React.useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch { /* ignore */ }
     logout();
     router.replace('/');
   }, [logout, router]);

@@ -281,7 +281,10 @@ export default function SettingsClient() {
     }
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch { /* ignore */ }
     logout();
     router.replace('/');
   }

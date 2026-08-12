@@ -138,9 +138,21 @@ function maskPathIds(pathname: string): string {
 // cookie) and must NOT require a session. They are still gated by the system
 // token inside the route handler — in production requireSystemToken refuses
 // any call whose bearer doesn't match CRON_SECRET.
+//
+// /api/auth/logout is listed here as a session-meta exemption: every client
+// logout handler (patient, caretaker, doctor, lab, settings, AuthGuard 401
+// cleanup) calls it as a bare POST with no CSRF token, and the double-submit
+// gate was 403-ing every one of them — the session cookie survived logout and
+// the mount-time /api/auth/me check (AuthGuard / portal clients) re-logged the
+// user straight back in ("logout re-renders into demo mode"). CSRF on logout
+// protects nothing (worst case: a cross-site POST ends the victim's own
+// session — a nuisance, and SameSite=Strict cookies already block cross-site
+// POSTs from carrying the session). ponytail: if logout is ever made to
+// require auth, move it out of this set and add a CSRF fetch to the handlers.
 const SYSTEM_API_PATHS = new Set([
   '/api/reminders/schedule',
   '/api/chat/cleanup',
+  '/api/auth/logout',
 ]);
 
 function isSystemApi(pathname: string): boolean {

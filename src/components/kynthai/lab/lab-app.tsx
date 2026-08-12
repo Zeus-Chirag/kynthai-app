@@ -45,7 +45,10 @@ export function LabApp({ user }: { user: AuthUser }) {
   const [state, setState] = React.useState<ProfileState>('loading');
   const [profile, setProfile] = React.useState<LabProfile | null>(null);
 
-  const handleLogout = React.useCallback(() => {
+  const handleLogout = React.useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch { /* ignore */ }
     logout();
     router.replace('/');
   }, [logout, router]);
