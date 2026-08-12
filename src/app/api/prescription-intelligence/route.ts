@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia'
+import { createChatCompletion, isAiAvailable, choicesOf } from '@/lib/nvidia'
 import { db } from '@/lib/db'
 import { requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
@@ -54,16 +54,15 @@ export async function POST(req: NextRequest) {
       : ''
 
     if (!isAiAvailable()) return NextResponse.json({ intelligence: null, message: 'AI prescription intelligence requires NVIDIA_API_KEY.' })
-    const nvidia = await getNvidia()
-
+    
     const safeText = text ? sanitizeForAi(text, MAX_TEXT_LEN) : ''
     const userContent = imageData
       ? `Analyze this prescription image and extract all medication information.${patientContext}`
       : `Analyze this prescription text and extract all medication information:\n\n"${safeText}"${patientContext}`
 
     const completion = await withAiTimeout(
-      nvidia.chat.completions.create({
-        model: NVIDIA_MODEL,
+      createChatCompletion({
+
         messages: [
           {
             role: 'assistant',

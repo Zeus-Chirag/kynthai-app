@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia'
+import { createChatCompletion, isAiAvailable, choicesOf } from '@/lib/nvidia'
 import { requireAuthWithCsrf, jsonError, jsonOk, readJson, checkAiTier } from '@/lib/api-helpers'
 import { sanitizeText } from '@/lib/security'
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout'
@@ -51,8 +51,7 @@ export async function POST(req: NextRequest) {
     const withSearch = body.withSearch !== false // default true
 
     if (!isAiAvailable()) return jsonOk({ analysis: null, message: 'AI symptom analysis requires NVIDIA_API_KEY. For urgent symptoms, contact a healthcare provider immediately.' })
-    const nvidia = await getNvidia()
-
+    
     // Optionally search the web for related context
     let searchResults: { name: string; url: string; snippet: string }[] = []
     if (withSearch) {
@@ -76,8 +75,8 @@ export async function POST(req: NextRequest) {
     const context = contextParts.join('\n\n')
 
     const completion = await withAiTimeout(
-      nvidia.chat.completions.create({
-        model: NVIDIA_MODEL,
+      createChatCompletion({
+
         messages: [
           {
             role: 'assistant',

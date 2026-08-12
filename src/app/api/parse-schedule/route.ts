@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL, choicesOf } from '@/lib/nvidia'
+import { createChatCompletion, choicesOf } from '@/lib/nvidia'
 import { requireAuth, requireAuthWithCsrf, jsonError, readJson, checkAiTier } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText } from '@/lib/security'
@@ -44,18 +44,15 @@ export async function POST(req: NextRequest) {
     const text = sanitizeText(String(body.text ?? ''), MAX_TEXT_LEN)
     if (!text) return jsonError('text is required', 400, 'VALIDATION_ERROR')
 
-    const nvidia = await getNvidia()
-
-    const completion = await withAiTimeout(
-      nvidia.chat.completions.create({
-        model: NVIDIA_MODEL,
+    const completion = (await withAiTimeout(
+      createChatCompletion({
         messages: [
           { role: 'assistant', content: PROMPT },
           { role: 'user', content: `${text}${user.allergies ? `\n\nPatient allergies: ${user.allergies}` : ''}` },
         ],
       }),
       AI_TIMEOUTS.DEFAULT
-    )
+    )) as { choices?: Array<{ message?: { content?: string } }> }
 
     const content = choicesOf(completion)[0]?.message?.content || ''
 

@@ -20,7 +20,7 @@ import { getCached, setCached } from '@/lib/ai-cache';
 import { getMedicineFromDb, buildPatientAlerts } from '@/lib/medicine-db-cache';
 import { buildDeidentifiedContext } from '@/lib/phi-filter';
 import { safeAIResponse, normalizeMarkdownSpacing, enforceNsaidSafetyForAnticoagulatedPatients } from '@/lib/ai-output-filter';
-import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia';
+import { createChatCompletion, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia';
 import { needsRag, getSystemPromptWithRAG } from '@/lib/medical-rag';
 import { FEW_SHOT_EXAMPLES } from '@/lib/chat-system-prompt';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
@@ -240,8 +240,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ response: msg, source: 'config-needed' });
     }
 
-    const nvidia = await getNvidia();
-
     // ── sensitive health data / AI BOUNDARY — AUDIT & DE-IDENTIFICATION ────────────────────────
     // Consent already verified at line 114 (checkConsent).
     // The patient context assembled below is transmitted to a third-party
@@ -434,11 +432,10 @@ hasPatientContext: formattedContext.length > 0,
           };
           try {
             const completion = (await withAiTimeout(
-              nvidia.chat.completions.create({
-                model: NVIDIA_MODEL,
+              createChatCompletion({
                 messages: messages as never,
                 stream: true,
-              } as never),
+              }),
               AI_TIMEOUTS.DEFAULT,
             )) as unknown as AsyncIterable<{ choices?: Array<{ delta?: { content?: string } }> }>;
 
@@ -502,8 +499,7 @@ hasPatientContext: formattedContext.length > 0,
 
     // ── NON-STREAMING LLM PATH (existing behavior) ─────────────────────────
     const completion = await withAiTimeout(
-      nvidia.chat.completions.create({
-        model: NVIDIA_MODEL,
+      createChatCompletion({
         messages: messages as never,
       }),
       AI_TIMEOUTS.DEFAULT

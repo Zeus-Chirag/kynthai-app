@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getNvidia, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia';
+import { createChatCompletion, isAiAvailable, choicesOf } from '@/lib/nvidia';
 import { db } from '@/lib/db';
 import {
   requireAuth,
@@ -103,11 +103,11 @@ async function runAnalysis(medications: string[], allergies?: string | null) {
       warning:
         'AI interactions check requires NVIDIA_API_KEY. Consult your doctor for safe medication combinations.',
     });
-  const nvidia = await getNvidia();
+  ;
 
   const completion = await withAiTimeout(
-    nvidia.chat.completions.create({
-      model: NVIDIA_MODEL,
+    createChatCompletion({
+
       messages: [
         {
           role: 'assistant',

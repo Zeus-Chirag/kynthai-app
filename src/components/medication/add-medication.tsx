@@ -64,9 +64,16 @@ export function AddMedication({ onAdded, onClose, familyMemberId }: AddMedicatio
     }
     setParsing(true)
     try {
+      const csrf = await fetch('/api/auth/csrf', { credentials: 'include' })
+        .then((r) => r.json())
+        .then((d) => d.token as string)
+        .catch(() => null)
       const res = await fetch('/api/parse-schedule', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
+        },
         body: JSON.stringify({ text: scheduleText }),
       })
       if (!res.ok) throw new Error('Parse failed')
@@ -103,9 +110,16 @@ export function AddMedication({ onAdded, onClose, familyMemberId }: AddMedicatio
     }
     setSaving(true)
     try {
+      const csrf = await fetch('/api/auth/csrf', { credentials: 'include' })
+        .then((r) => r.json())
+        .then((d) => d.token as string)
+        .catch(() => null)
       const res = await fetch('/api/medications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
+        },
         body: JSON.stringify({
           name,
           dosage,

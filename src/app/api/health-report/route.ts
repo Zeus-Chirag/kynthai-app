@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNvidia, NVIDIA_MODEL, choicesOf } from '@/lib/nvidia'
+import { createChatCompletion, choicesOf } from '@/lib/nvidia'
 import { db } from '@/lib/db'
 import { requireAuthWithCsrf, checkAiTier, jsonError } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
@@ -112,11 +112,10 @@ export async function POST(req: NextRequest) {
       recentHealthQuestions: chatMessages.slice(0, 5).map((m: any) => m.content),
     }
 
-    const nvidia = await getNvidia()
-
+    
     const completion = await withAiTimeout(
-      nvidia.chat.completions.create({
-        model: NVIDIA_MODEL,
+      createChatCompletion({
+
         messages: [
           {
             role: 'assistant',

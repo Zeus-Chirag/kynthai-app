@@ -119,6 +119,88 @@ export function getNvidia(): OpenAI {
   })
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Provider chain with auth-failure fallback
+// ──────────────────────────────────────────────────────────────────────────────
+// The configured priority provider's key can be revoked/expired (or the model
+// id can be wrong for that endpoint) while other providers are still
+// configured. Without a fallback every AI feature 500s — a single dead key is
+// a total AI outage. This helper retries the next provider only on
+// auth/config-class failures (401 bad key, 403 forbidden, 404 model not
+// found); rate limits and upstream 5xx propagate immediately (switching
+// providers on those would mask real load problems).
+// ponytail: chain order is fixed CLINE → OPENAI → NVIDIA, resolved per call
+// from env. If you ever need runtime priority control, lift into config.
+
+type ProviderEntry = { label: string; apiKey: string; baseURL: string; model: string }
+
+function providerChain(): ProviderEntry[] {
+  const chain: ProviderEntry[] = []
+  if (isRealProviderKey(process.env.CLINE_API_KEY))
+    chain.push({
+      label: 'cline',
+      apiKey: process.env.CLINE_API_KEY as string,
+      baseURL: CLINE_BASE_URL,
+      model: process.env.CLINE_MODEL || 'google/gemini-2.5-flash',
+    })
+  if (isRealProviderKey(process.env.OPENAI_API_KEY))
+    chain.push({
+      label: 'openai',
+      apiKey: process.env.OPENAI_API_KEY as string,
+      baseURL: 'https://api.openai.com/v1',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    })
+  if (isRealProviderKey(process.env.NVIDIA_API_KEY))
+    chain.push({
+      label: 'nvidia',
+      apiKey: process.env.NVIDIA_API_KEY as string,
+      baseURL: process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL,
+      model: process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct',
+    })
+  return chain
+}
+
+/**
+ * One shared chat-completions call across all AI routes, with provider
+ * fallback. `model` is provider-resolved here — call sites must NOT pass it.
+ * Returns the raw OpenAI SDK completion (stream when `stream: true`).
+ */
+export async function createChatCompletion(
+  body: Record<string, unknown>,
+  requestOpts?: { signal?: AbortSignal },
+): Promise<unknown> {
+  const chain = providerChain()
+  if (chain.length === 0) {
+    throw new Error('CLINE_API_KEY (or OPENAI_API_KEY/NVIDIA_API_KEY) must be set for AI features')
+  }
+  const { model: _dropped, ...params } = body
+  let lastErr: unknown = null
+  for (const provider of chain) {
+    const client = new OpenAI({
+      apiKey: provider.apiKey,
+      baseURL: provider.baseURL,
+      timeout: 30000,
+      maxRetries: 1,
+    })
+    try {
+      return await client.chat.completions.create(
+        { ...params, model: provider.model } as never,
+        requestOpts as never,
+      )
+    } catch (err: any) {
+      lastErr = err
+      const status = err?.status
+      if (status !== 401 && status !== 403 && status !== 404) throw err
+      logger.warn('ai.provider_fallback', {
+        from: provider.label,
+        status,
+        reason: err?.message?.slice(0, 160),
+      })
+    }
+  }
+  throw lastErr
+}
+
 type AIChatMessage = {
   role: 'system' | 'user' | 'assistant'
   content: string
