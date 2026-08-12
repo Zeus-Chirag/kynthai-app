@@ -9,7 +9,11 @@ import { ConsentGate } from '@/components/kynthai/consent-gate'
 
 export default function PatientClient() {
   const router = useRouter()
-  const { user, setLoginPortal, login: storeLogin } = useAppStore()
+  const { user, setLoginPortal, login: storeLogin } = useAppStore((s) => ({
+    user: s.user,
+    setLoginPortal: s.setLoginPortal,
+    login: s.login,
+  }))
   const { node } = loadPortal("patient", user)
 
   useEffect(() => {

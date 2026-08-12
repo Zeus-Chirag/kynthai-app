@@ -50,6 +50,10 @@ function PortalError({ error, reset }: { error: Error; reset: () => void }) {
  * Patients CANNOT access doctor/lab portals, doctors CANNOT access patient portals, etc.
  * An unauthenticated user or a user with the wrong role gets null.
  */
+// Memoized dynamic() loaders — see loadPortal. Created once per role so the
+// component type is stable across re-renders (prevents spurious portal remounts).
+const lazyCompCache: Record<string, React.ComponentType<any>> = {};
+
 export function loadPortal(
   role: string,
   user?: {
@@ -96,7 +100,18 @@ export function loadPortal(
   const roleMatches = user.role === role || (user.role === 'caretaker' && role === 'family');
   if (!roleMatches) return { key: keys[role] ?? role, node: null };
 
-  const Comp = dynamic(load, { ssr: false, loading: () => <PortalSkeleton /> });
+  // ponytail: dynamic() MUST be created once per role at module scope, not per
+  // call. loadPortal runs on every render of its portal client; its callers
+  // subscribe to the whole zustand store, so any unrelated store write (e.g.
+  // flipping the in-app ringtone toggle) re-renders the client → re-invokes
+  // loadPortal → a NEW dynamic() component type → React unmounts the portal
+  // subtree and mounts a fresh one, which resets every component's useState
+  // (e.g. PatientApp's active-tab defaulting to 'home'). Memoizing the Comp
+  // keeps the type stable so React reconciles in place instead of remounting.
+  if (!lazyCompCache[role]) {
+    lazyCompCache[role] = dynamic(load, { ssr: false, loading: () => <PortalSkeleton /> });
+  }
+  const Comp = lazyCompCache[role];
   const wrapped = (
     <ErrorBoundary fallback={props => <PortalError {...props} />}>
       <Comp user={user} />
