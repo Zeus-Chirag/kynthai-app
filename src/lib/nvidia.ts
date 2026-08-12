@@ -129,19 +129,22 @@ export function getNvidia(): OpenAI {
 // auth/config-class failures (401 bad key, 403 forbidden, 404 model not
 // found); rate limits and upstream 5xx propagate immediately (switching
 // providers on those would mask real load problems).
-// ponytail: chain order is fixed CLINE → OPENAI → NVIDIA, resolved per call
-// from env. If you ever need runtime priority control, lift into config.
+// ponytail: chain order is fixed NVIDIA → OPENAI → CLINE, resolved per call
+// from env. Order is HEALTH-first, not preference-first: as of 2026-08-12 the
+// CLINE_API_KEY in prod is dead (401 from any origin) and api.cline.bot
+// returns a terminal error to Vercel's region, so CLINE sits last. If you
+// ever need runtime priority control, lift into config.
 
 type ProviderEntry = { label: string; apiKey: string; baseURL: string; model: string }
 
 function providerChain(): ProviderEntry[] {
   const chain: ProviderEntry[] = []
-  if (isRealProviderKey(process.env.CLINE_API_KEY))
+  if (isRealProviderKey(process.env.NVIDIA_API_KEY))
     chain.push({
-      label: 'cline',
-      apiKey: process.env.CLINE_API_KEY as string,
-      baseURL: CLINE_BASE_URL,
-      model: process.env.CLINE_MODEL || 'google/gemini-2.5-flash',
+      label: 'nvidia',
+      apiKey: process.env.NVIDIA_API_KEY as string,
+      baseURL: process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL,
+      model: process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct',
     })
   if (isRealProviderKey(process.env.OPENAI_API_KEY))
     chain.push({
@@ -150,12 +153,12 @@ function providerChain(): ProviderEntry[] {
       baseURL: 'https://api.openai.com/v1',
       model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
     })
-  if (isRealProviderKey(process.env.NVIDIA_API_KEY))
+  if (isRealProviderKey(process.env.CLINE_API_KEY))
     chain.push({
-      label: 'nvidia',
-      apiKey: process.env.NVIDIA_API_KEY as string,
-      baseURL: process.env.NVIDIA_BASE_URL || NVIDIA_BASE_URL,
-      model: process.env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct',
+      label: 'cline',
+      apiKey: process.env.CLINE_API_KEY as string,
+      baseURL: CLINE_BASE_URL,
+      model: process.env.CLINE_MODEL || 'google/gemini-2.5-flash',
     })
   return chain
 }
@@ -190,10 +193,15 @@ export async function createChatCompletion(
     } catch (err: any) {
       lastErr = err
       const status = err?.status
-      if (status !== 401 && status !== 403 && status !== 404) throw err
+      // Fall through on auth-class errors (401/403/404) and on transport-class
+      // failures (no HTTP status — DNS/TLS/connect/timeout, except our own
+      // AbortError from the route timeout, which must terminate immediately).
+      const isAuthClass = status === 401 || status === 403 || status === 404
+      const isTransportClass = !status && err?.name !== 'AbortError'
+      if (!isAuthClass && !isTransportClass) throw err
       logger.warn('ai.provider_fallback', {
         from: provider.label,
-        status,
+        status: status ?? 'transport',
         reason: err?.message?.slice(0, 160),
       })
     }
