@@ -11,7 +11,7 @@ test.describe('Authentication', () => {
       // Form elements visible
       await expect(page.locator('input[type="email"]')).toBeVisible();
       await expect(page.locator('input[type="password"]')).toBeVisible();
-      await expect(page.getByRole('button', { name: /sign.?in|log.?in|login|submit/i })).toBeVisible();
+      await expect(page.locator('#login-submit-btn')).toBeVisible();
 
       // Links to register and forgot password
       const registerLink = page.getByRole('link', { name: /register|sign.?up|create.?account/i });
@@ -25,7 +25,7 @@ test.describe('Authentication', () => {
       await page.waitForLoadState('networkidle');
 
       // Submit empty form
-      await page.getByRole('button', { name: /sign.?in|log.?in|login|submit/i }).click();
+      await page.locator('#login-submit-btn').click();
       await page.waitForTimeout(2000);
 
       // Should show some validation feedback (either HTML5 or custom)
@@ -45,7 +45,7 @@ test.describe('Authentication', () => {
       await page.fill('input[type="email"]', 'nonexistent@test.com');
       await page.fill('input[type="password"]', 'WrongPassword123!');
 
-      await page.getByRole('button', { name: /sign.?in|log.?in|login|submit/i }).click();
+      await page.locator('#login-submit-btn').click();
 
       // Should show error message
       await page.waitForTimeout(3000);
@@ -74,7 +74,7 @@ test.describe('Authentication', () => {
       await page.fill('input[type="email"]', demo.email);
       await page.fill('input[type="password"]', demo.password);
 
-      await page.getByRole('button', { name: /sign.?in|log.?in|login|submit/i }).click();
+      await page.locator('#login-submit-btn').click();
 
       // Should redirect away from login page
       await page.waitForTimeout(3000);
@@ -107,7 +107,7 @@ test.describe('Authentication', () => {
     test('forgot password page loads', async ({ page }) => {
       await goto(page, '/forgot-password');
       await page.waitForLoadState('networkidle');
-      await expect(page.locator('input[type="email"]').or(page.locator('form'))).toBeVisible();
+      await expect(page.locator('input[type="email"]').or(page.locator('form')).first()).toBeVisible();
     });
   });
 

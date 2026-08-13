@@ -42,7 +42,7 @@ async function main() {
   // ── 1. PATIENT ──
   const patient = await prisma.user.create({
     data: {
-      email: 'patient@kynthai.app',
+      email: 'patient@demo.kynthai.app',
       name: 'Sarah Johnson',
       role: 'patient',
       password,
@@ -59,7 +59,7 @@ async function main() {
   // ── 2. DOCTOR ──
   const doctorUser = await prisma.user.create({
     data: {
-      email: 'doctor@kynthai.app',
+      email: 'priya@demo.kynthai.app',
       name: 'Dr. Michael Chen',
       role: 'doctor',
       password,
@@ -95,7 +95,7 @@ async function main() {
   // ── 3. LAB ──
   const labUser = await prisma.user.create({
     data: {
-      email: 'lab@kynthai.app',
+      email: 'pathlabs@demo.kynthai.app',
       name: 'Quest Diagnostics Partner Lab',
       role: 'lab',
       password,
@@ -133,7 +133,7 @@ async function main() {
   // ── 4. CARETAKER ──
   const caretaker = await prisma.user.create({
     data: {
-      email: 'caretaker@kynthai.app',
+      email: 'caretaker@demo.kynthai.app',
       name: 'James Wilson',
       role: 'caretaker',
       password,
@@ -150,7 +150,7 @@ async function main() {
   // ── 5. ADMIN ──
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@kynthai.app',
+      email: 'admin@demo.kynthai.app',
       name: 'Kynthai Admin',
       role: 'admin',
       password,
@@ -352,11 +352,11 @@ async function main() {
   console.log('\n📋  DEMO LOGIN CREDENTIALS:');
   console.log('   Password for all:  Demo@2024');
   console.log('   ────');
-  console.log('   👤 Patient:   patient@kynthai.app');
-  console.log('   👨‍⚕️  Doctor:    doctor@kynthai.app');
-  console.log('   🔬 Lab:       lab@kynthai.app');
-  console.log('   👨‍👩‍👧  Caretaker: caretaker@kynthai.app');
-  console.log('   ⚙️  Admin:     admin@kynthai.app');
+  console.log('   👤 Patient:   patient@demo.kynthai.app');
+  console.log('   👨‍⚕️  Doctor:    priya@demo.kynthai.app');
+  console.log('   🔬 Lab:       pathlabs@demo.kynthai.app');
+  console.log('   👨‍👩‍👧  Caretaker: caretaker@demo.kynthai.app');
+  console.log('   ⚙️  Admin:     admin@demo.kynthai.app');
   console.log('═══════════════════════════════════════════\n');
 }
 

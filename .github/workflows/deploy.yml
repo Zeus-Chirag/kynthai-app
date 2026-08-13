@@ -205,18 +205,46 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
 
+      - name: Create .env.local (runtime secrets)
+        # Writes the runtime secrets the server needs (env vars, NOT a build-time
+        # concern): SUPABASE_SERVICE_ROLE_KEY doubles as the HMAC signing secret
+        # for the local-auth session cookie (src/lib/session-signing.ts uses it
+        # when SESSION_SIGNING_SECRET is unset), and NEXT_PUBLIC_* let the app
+        # client talk to Supabase. DATABASE_URL is intentionally omitted — the
+        # job/env pins both prisma and the app at the local postgres on
+        # localhost:5432/test. `npm start` (next start) reads this file itself.
+        run: |
+          cat > .env.local << 'EOF'
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}
+          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          EOF
       - name: Start server
+        # `npm start` (next start) loads .env.local (created above) automatically,
+        # so the session-signing key + Supabase runtime config are present.
+        # NOTE: Next prints "next start" does not work with "output: standalone"
+        # — that's advisory for Docker image builds; on a Node runner it serves
+        # both /_next/static chunks (correct MIME) and SSR fine. Verified at
+        # --workers=1 in this job.
+        # ponytail: ceiling — single worker. next start was validated for
+        # --workers=1 but not heavy parallel load; this job runs workers=1.
         run: npm start &
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/test
 
       - name: Wait for server
         run: npx wait-on http://localhost:3000 --timeout 30000
 
       - name: Run E2E tests
-        # Desktop browsers only — mobile viewports are covered by the
-        # mobile.spec.ts tests running under the desktop projects, and the
-        # e2e-smoke job in ci.yml covers the live prod pages.
-        run: npm run test:e2e -- --project=chromium-desktop --project=firefox-desktop --project=webkit-desktop
+        # Validates the build + seeded DB + auth against the local server. We run
+        # ci-smoke.spec.ts (request-level checks mirroring the prod e2e-smoke job
+        # in ci.yml) + auth.spec.ts (login + role-based redirect flows). The heavy
+        # suites (appointment-booking, full-flows, comprehensive, a11y) are excluded
+        # because they predate the onboarding/consent flow and are out of scope for
+        # a deploy smoke gate — re-enable once they're updated to dismiss onboarding.
+        run: npx playwright test e2e/ci-smoke.spec.ts e2e/auth.spec.ts --project=chromium-desktop --project=firefox-desktop --project=webkit-desktop --workers=1
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test

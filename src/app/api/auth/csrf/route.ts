@@ -18,6 +18,6 @@ export async function GET(req: NextRequest) {
   const fwdFor = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   logger.info('csrf.token_issued', JSON.stringify({ ip: fwdFor }));
 
-  const { token } = await setCsrfCookie();
+  const { token } = await setCsrfCookie(req);
   return jsonOk({ token });
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { logAudit } from '@/lib/auth';
 import { isValidEmail, rateLimit, getIp } from '@/lib/security';
-import { checkCsrf } from '@/lib/csrf';
+import { checkCsrf, isSecureRequest } from '@/lib/csrf';
 import { signSessionToken } from '@/lib/session-signing';
 import { verifyTurnstileToken, isCaptchaConfigured } from '@/lib/captcha';
 import { assessLoginRisk, logSuspiciousLogin, computeDeviceFingerprint } from '@/lib/login-anomaly';
@@ -259,7 +259,7 @@ export async function POST(req: NextRequest) {
       }
       res.cookies.set('kynthai-session', signedValue, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isSecureRequest(req),
         sameSite: 'strict',
         maxAge: 60 * 60 * 24 * 7,
         path: '/',

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { checkCsrf } from '@/lib/csrf';
+import { checkCsrf, isSecureRequest } from '@/lib/csrf';
 import { rateLimit, getIp, isValidEmail } from '@/lib/security';
 import { jsonError, jsonOk, readJson } from '@/lib/api-helpers';
 import { signSessionToken } from '@/lib/session-signing';
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     }
     res.cookies.set('kynthai-session', signedValue, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecureRequest(req),
       sameSite: 'strict',
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',

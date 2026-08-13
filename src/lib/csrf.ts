@@ -25,6 +25,21 @@ const CSRF_COOKIE = 'kynthai-csrf'
 const CSRF_HEADER = 'x-csrf-token'
 const TOKEN_LENGTH = 32
 
+// ── Security headers for rate-limit responses (avoids circular import) ── NO, keep
+// ── Helpers ──────────────────────────────────────────────────────────────
+
+/**
+ * Is this request over HTTPS? Used to decide whether sensitive cookies get the
+ * `Secure` flag. We can't rely on NODE_ENV alone: the production build also
+ * runs on http://localhost during local dev and CI e2e, where WebKit refuses to
+ * store Secure cookies over plain http (Chrome/Firefox make a localhost
+ * exemption). Reading the proxy proto keeps prod (https) cookies Secure while
+ * letting local http testing work identically across browsers.
+ */
+export function isSecureRequest(req: { headers: { get(h: string): string | null } }): boolean {
+  return req.headers.get('x-forwarded-proto') === 'https' || req.headers.get('x-forwarded-ssl') === 'on';
+}
+
 /** Generate a cryptographically random CSRF token. */
 export async function generateCsrfToken(): Promise<string> {
   const bytes = new Uint8Array(TOKEN_LENGTH)
@@ -35,7 +50,7 @@ export async function generateCsrfToken(): Promise<string> {
 /**
  * Set the CSRF cookie on the response. Called by the /api/auth/csrf endpoint.
  */
-export async function setCsrfCookie(): Promise<{ token: string }> {
+export async function setCsrfCookie(req: { headers: { get(h: string): string | null } }): Promise<{ token: string }> {
   // During Next.js build (page data collection), cookies() throws
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return { token: 'build-dummy-token' }
@@ -47,9 +62,9 @@ export async function setCsrfCookie(): Promise<{ token: string }> {
 
   const token = await generateCsrfToken()
   store?.set(CSRF_COOKIE, token, {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+      httpOnly: false,
+      secure: isSecureRequest(req),
+      sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 30, // 30 days
   })
