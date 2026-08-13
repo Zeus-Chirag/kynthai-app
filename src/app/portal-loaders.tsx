@@ -12,6 +12,10 @@
 import dynamic from 'next/dynamic';
 import { type ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/kynthai/error-boundary';
+// Client-side CSRF interceptor — auto-attaches X-CSRF-Token to same-origin
+// mutating /api/ requests (fixes the recurring "CSRF token missing" 403s).
+import { installGlobalCsrf } from '@/lib/client-fetch';
+installGlobalCsrf();
 
 function PortalSkeleton() {
   return (

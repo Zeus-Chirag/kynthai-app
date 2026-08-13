@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
     // Check if AI provider is configured before attempting the call
     if (!isAiAvailable()) {
       const msg =
-        'AI chat is not available yet. Set NVIDIA_API_KEY in your .env file to enable it. For now, you can search the medicine database directly.';
+        "The AI assistant is temporarily unavailable. Please try again shortly — your question wasn't answered, so nothing was missed.";
       try {
         await db.chatMessage.createMany({
           data: [

@@ -27,6 +27,8 @@ import { cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
 import { KynthaiBrand } from './logo';
 import { FadeIn, motion, AnimatePresence } from './animations';
+import { installGlobalCsrf } from '@/lib/client-fetch';
+installGlobalCsrf();
 import {
   PRICING,
   EARLY_ADOPTER_PRICING,

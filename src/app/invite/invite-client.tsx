@@ -6,6 +6,8 @@ import { Loader2, MailCheck, CheckCircle2, FileText, CalendarClock } from 'lucid
 import { useAppStore, selectors } from '@/lib/store'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { installGlobalCsrf } from '@/lib/client-fetch'
+installGlobalCsrf()
 
 type InviteInfo = {
   id: string
