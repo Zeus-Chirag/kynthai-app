@@ -77,7 +77,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-kynthai}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kynthai}
       POSTGRES_DB: ${POSTGRES_DB:-kynthai_us}
-      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      # No POSTGRES_INITDB_ARGS override: --auth-local=scram-sha-256 breaks the
+      # postgres image's first-boot password setup (it connects over the unix
+      # socket before any password exists → init fails → db unreachable).
+      # Image defaults (host=scram-sha-256, local=trust) are what prod uses.
     ports:
       # Publish for host-local tooling (prisma db push, e2e). Prod uses
       # docker-compose.prod.yml which does not expose the DB.

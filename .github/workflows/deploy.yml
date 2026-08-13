@@ -223,7 +223,9 @@ jobs:
           # the runner against localhost:5432). Building the full app image here
           # adds ~5 min and needs the whole prod env.
           docker compose -f docker-compose.yml up -d db
-          sleep 5
+          sleep 8
+          docker compose -f docker-compose.yml ps
+          docker logs "$(docker compose -f docker-compose.yml ps -q db)" 2>&1 | tail -15 || true
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
