@@ -35,8 +35,20 @@ const nextConfig = {
     cpus: 2,
     // Tell Turbopack to reduce memory usage during build
     optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/*', 'recharts', 'date-fns', 'cmdk'],
-    // Optimize bundle size for server components
-    optimizeServerReact: true,
+    // DISABLED optimizeServerReact: it splits client components into a
+    // separate server-render chunk graph, and on Vercel the landing-page
+    // island (PortalShell -> PortalClient) never flushed its SSR HTML —
+    // the deployment served a thin 35KB shell (empty Suspense boundary)
+    // vs the full 204KB SSR locally. The island then hydrated against an
+    // empty server fragment and React threw #418 on every prod landing
+    // visit. Disabling restores the standard server chunk graph.
+    // (Vercel prod ISR still had the abort behavior, so prerenderEarlyExit
+    // is also pinned off below.)
+    // prerenderEarlyExit: false stops Next from finalizing a prerender as
+    // soon as the shell is complete — with it true, a boundary still
+    // pending at shell-finish (the island) was dropped from the cached
+    // HTML, which is exactly the thin-shell -> #418 chain above.
+    prerenderEarlyExit: false,
   },
 
   // External packages that shouldn't be traced/bundled (fixes NFT warnings)
