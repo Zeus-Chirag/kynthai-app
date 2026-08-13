@@ -57,9 +57,10 @@ export async function PATCH(req: NextRequest) {
   const { consentAccepted, dataProcessingConsent, aiTrainingConsent } = result.data
 
   // requireAuthWithCsrf handles rate-limiting, CSRF check, consent block check,
-  // and session validation in one call.
-  // SECURITY: only the account owner or admin can modify consent flags.
-  const authResult = await requireAuthWithCsrf(req)
+  // and session validation in one call. skipConsentCheck: this route IS the
+  // consent grant — blocking unconsented users here would lock them out of
+  // ever consenting (chicken-and-egg).
+  const authResult = await requireAuthWithCsrf(req, { skipConsentCheck: true })
   if (isResponseError(authResult.response)) return authResult.response
   if (!authResult.user) return jsonError('Unauthorized', 401)
 

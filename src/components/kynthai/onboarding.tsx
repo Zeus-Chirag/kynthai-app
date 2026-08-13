@@ -100,6 +100,13 @@ export function Onboarding({
   const [medSaving, setMedSaving] = React.useState(false)
   const [medSaved, setMedSaved] = React.useState(false)
   const [medError, setMedError] = React.useState<string | null>(null)
+  // Consent persistence: the consent slide must WRITE the three flags to the
+  // DB (PATCH /api/user/consent) — previously it only set client state, so a
+  // user who consented on a fresh browser was blocked again on the next
+  // session (ConsentGate / checkConsent 403s). The global CSRF interceptor
+  // attaches X-CSRF-Token automatically.
+  const [consentSaving, setConsentSaving] = React.useState(false)
+  const [consentError, setConsentError] = React.useState<string | null>(null)
   const isMedSlide = index === CONSENT_INDEX + 1
   const canAddMed = medName.trim().length > 0 && medDosage.trim().length > 0
 
@@ -110,7 +117,7 @@ export function Onboarding({
 
   const allConsentGiven = termsAccepted && dataProcessingAccepted && aiProcessingAccepted
   const canComplete = isConsentSlide
-    ? allConsentGiven
+    ? allConsentGiven && !consentSaving
     : isRoleSlide
     ? !!role  // role required on role-selection slide
     : isMedSlide
@@ -147,7 +154,35 @@ export function Onboarding({
 
   const next = React.useCallback(() => {
     if (isConsentSlide) {
-      setIndex(CONSENT_INDEX + 1) // consent → first-medication slide
+      // Persist consent to the DB before advancing. The consent slide
+      // checkboxes are the legal consent moment — skipping the write left the
+      // DB flags false forever (silent no-op, then ConsentGate on next load).
+      if (allConsentGiven && !consentSaving) {
+        setConsentSaving(true)
+        setConsentError(null)
+        fetch('/api/user/consent', {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            consentAccepted: true,
+            dataProcessingConsent: true,
+            aiTrainingConsent: true,
+          }),
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              const d = await res.json().catch(() => ({}))
+              throw new Error(d?.error || 'Could not save consent — please try again.')
+            }
+            setConsentSaving(false)
+            setIndex(CONSENT_INDEX + 1) // consent → first-medication slide
+          })
+          .catch((e) => {
+            setConsentSaving(false)
+            setConsentError(e instanceof Error ? e.message : 'Could not save consent — please try again.')
+          })
+      }
     } else if (isRoleSlide) {
       setIndex(CONSENT_INDEX - 1) // role slide → AI limits slide (index 4)
     } else if (isAiLimitsSlide) {
@@ -157,7 +192,7 @@ export function Onboarding({
     } else {
       setIndex((i) => Math.min(i + 1, CONSENT_INDEX))
     }
-  }, [isConsentSlide, allConsentGiven, isRoleSlide, isAiLimitsSlide, isMedSlide, onComplete, role])
+  }, [isConsentSlide, allConsentGiven, consentSaving, isRoleSlide, isAiLimitsSlide, isMedSlide, onComplete, role])
 
   const prev = React.useCallback(() => {
     if (isConsentSlide) {
@@ -466,9 +501,17 @@ export function Onboarding({
           </div>
           <Button onClick={next} disabled={!canComplete}
             className="w-full gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50">
-            {isConsentSlide ? 'Accept & Continue' : isMedSlide ? (medSaved ? 'Get started' : 'Skip for now') : 'Continue'}
-            <ArrowRight className="h-4 w-4" />
+            {consentSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Saving consent…
+              </>
+            ) : isConsentSlide ? 'Accept & Continue' : isMedSlide ? (medSaved ? 'Get started' : 'Skip for now') : 'Continue'}
+            {!consentSaving && <ArrowRight className="h-4 w-4" />}
           </Button>
+          {isConsentSlide && consentError && (
+            <p className="text-[11px] text-red-600" role="alert">{consentError}</p>
+          )}
           {isConsentSlide && !allConsentGiven && (
             <p className="text-[11px] text-muted-foreground">Please accept all three to continue</p>
           )}

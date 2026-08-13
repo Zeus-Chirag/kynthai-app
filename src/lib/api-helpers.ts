@@ -221,7 +221,8 @@ export function jsonPage<T>(
 }
 
 export async function requireAuth(
-  req: NextRequest
+  req: NextRequest,
+  opts?: { skipConsentCheck?: boolean }
 ): Promise<{ response: NextResponse | null; user: User | null }> {
   const limited = await rateLimitProduction(req);
   if (limited) return { response: limited, user: null };
@@ -310,7 +311,10 @@ export async function requireAuth(
   } as User;
 
   // US privacy enforcement: block any unconsented user from accessing sensitive health data endpoints.
-  const consentErr = checkConsent(user, req);
+  // The consent-granting endpoint itself (PATCH /api/user/consent) opts out via
+  // skipConsentCheck — otherwise a user who has never consented could never
+  // consent (chicken-and-egg lockout).
+  const consentErr = opts?.skipConsentCheck ? null : checkConsent(user, req);
   if (consentErr) return { response: consentErr, user: null };
 
   // Fraud prevention: a hard-blocked user is denied app-wide (any API call).
@@ -366,11 +370,12 @@ export async function requireAdmin(
 }
 
 export async function requireAuthWithCsrf(
-  req: NextRequest
+  req: NextRequest,
+  opts?: { skipConsentCheck?: boolean }
 ): Promise<{ response: NextResponse | null; user: User | null }> {
   const csrfError = await checkCsrf(req);
   if (csrfError) return { response: csrfError, user: null };
-  return requireAuth(req);
+  return requireAuth(req, opts);
 }
 
 /**

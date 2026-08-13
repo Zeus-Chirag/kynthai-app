@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react';
+import { ShieldAlert, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
@@ -18,6 +18,8 @@ export function ConsentGate({
   userName,
 }: ConsentGateProps) {
   const router = useRouter();
+  const [granting, setGranting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
   const missingItems = [
     {
       key: 'consentAccepted',
@@ -30,6 +32,36 @@ export function ConsentGate({
       accepted: dataProcessingConsent,
     },
   ] as const;
+
+  // Grants all three consents in one call. The global CSRF interceptor
+  // (client-fetch) attaches X-CSRF-Token automatically; PATCH /api/user/consent
+  // is the one endpoint exempted from the consent block so unconsented users
+  // can consent in the first place. On success the store re-fetches /api/auth/me
+  // on reload, which returns the fresh flags and lets the portal render.
+  const grantConsent = async () => {
+    setGranting(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/user/consent', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          consentAccepted: true,
+          dataProcessingConsent: true,
+          aiTrainingConsent: true,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d?.error || 'Could not save consent — please try again.');
+      }
+      window.location.reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not save consent — please try again.');
+      setGranting(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-md px-4">
@@ -84,13 +116,35 @@ export function ConsentGate({
             your profile settings.
           </p>
 
+          {error && (
+            <p className="text-xs text-red-600" role="alert">
+              {error}
+            </p>
+          )}
+
           <Button
-            onClick={() => router.push('/privacy')}
+            onClick={grantConsent}
+            disabled={granting}
             className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
           >
-            Review & Accept Consent
-            <ArrowRight className="h-4 w-4 ml-2" />
+            {granting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              <>
+                Accept & Continue
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </>
+            )}
           </Button>
+          <button
+            onClick={() => router.push('/privacy')}
+            className="w-full text-center text-xs text-muted-foreground hover:text-emerald-600"
+          >
+            View Privacy Policy
+          </button>
         </CardContent>
       </Card>
     </div>

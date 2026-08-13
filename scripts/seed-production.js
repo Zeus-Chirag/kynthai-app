@@ -26,10 +26,10 @@ async function seedAdminIfMissing() {
       password: hashed,
       name: 'Admin',
       role: 'admin',
-      emailVerified: true,
+      emailVerified: new Date(),
       consentAccepted: true,
       dataProcessingConsent: true,
-      aiTrainingConsent: false,
+      aiTrainingConsent: true,
     },
   });
 

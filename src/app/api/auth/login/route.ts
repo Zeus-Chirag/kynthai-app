@@ -11,7 +11,6 @@ import {
   jsonOk,
   readJson,
   isUserMinor as isUserMinorFlag,
-  checkConsent,
 } from '@/lib/api-helpers';
 import { loginSchema } from '@/lib/schemas';
 import { isIpBlocked, logSecurityEvent } from '@/lib/security-audit';
@@ -161,14 +160,15 @@ export async function POST(req: NextRequest) {
     // Reset lockout on successful login
     await resetLockout(email);
 
-    // Compliance: enforce consent before issuing session
-    const consentErr = checkConsent({
-      consentAccepted: user.consentAccepted ?? false,
-      dataProcessingConsent: user.dataProcessingConsent ?? false,
-      aiTrainingConsent: user.aiTrainingConsent ?? false,
-    });
-    if (consentErr) return consentErr;
-
+    // Compliance: consent is enforced at the DATA layer (requireAuth →
+    // checkConsent blocks every health-data endpoint for unconsented users)
+    // and at the UI layer (onboarding consent slide / patient ConsentGate).
+    // Login must NOT hard-block unconsented users: there is no consent UI
+    // reachable without a session, so a hard block here permanently locks the
+    // account (chicken-and-egg). Issuing the session lets the app route the
+    // user straight to the consent flow; data stays inaccessible until they
+    // consent. This mirrors the US-privacy pattern of consent-before-processing
+    // instead of consent-before-authentication.
     const isUserMinor = isUserMinorFlag({
       dateOfBirth: user.dateOfBirth ?? null,
     } as any);
