@@ -53,7 +53,16 @@ function getDb(): PrismaClient {
   }
 }
 
-export const db = getDb()
+// Lazy Prisma accessor — do NOT construct/validate Prisma at import time.
+// Importing this module happens during `next build` page-data collection and
+// inside docker image builds where DATABASE_URL is absent; eager
+// `getDb()` there crashed with "Cannot read properties of undefined
+// (reading 'startsWith')". Proxy defers getDb() to first actual use.
+export const db: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop: string | symbol) {
+    return typeof prop === 'string' ? Reflect.get(getDb(), prop) : undefined
+  },
+})
 
 // ── Connection lifecycle ──────────────────────────────────────────────
 
