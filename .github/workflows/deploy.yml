@@ -142,13 +142,23 @@ jobs:
           # Only the db is used by the e2e steps (they run npm/prisma/server on
           # the runner against localhost:5432). Building the full app image here
           # adds ~5 min and needs the whole prod env.
+          # down -v first: a recycled runner can hand us a leftover db container
+          # or a pgdata volume with a stale postmaster.pid. postgres then passes
+          # pg_isready while crash-recovering and dies mid-write, so `prisma db
+          # push` P1001s seconds after the readiness check passed (seen on the
+          # fdd3cfe run: Start services OK in 10s, db push unreachable at ~40s).
+          docker compose -f docker-compose.yml down -v
           docker compose -f docker-compose.yml up -d db
           # Wait for postgres to actually accept connections — the image pull on
           # a cold runner can take 30s+, so `sleep 8` was never a readiness
           # wait (symptom: P1001 on `prisma db push` right after).
           for i in $(seq 1 90); do
-            if docker compose -f docker-compose.yml exec -T db pg_isready -U postgres -d test >/dev/null 2>&1; then
-              echo "DB ready after ${i}s"
+            if docker compose -f docker-compose.yml exec -T db pg_isready -U postgres -d test >/dev/null 2>&1 && \
+               (timeout 2 bash -c '</dev/tcp/127.0.0.1/5432') 2>/dev/null; then
+              # pg_isready inside the container proves postgres accepts the
+              # user/db, but prisma connects over the HOST port — the
+              # /dev/tcp check verifies the published 127.0.0.1:5432 listener.
+              echo "DB ready after ${i}s (container + host port)"
               exit 0
             fi
             sleep 1
@@ -167,7 +177,17 @@ jobs:
       - run: npx prisma generate
 
       - name: Run DB push
-        run: npx prisma db push --accept-data-loss
+        # Retry: postgres can still be crash-recovering or restarting right
+        # after the readiness loop (P1001 seen ~40s after a green check).
+        run: |
+          for attempt in 1 2 3; do
+            if npx prisma db push --accept-data-loss; then
+              exit 0
+            fi
+            echo "db push attempt $attempt failed, retrying in 5s..." >&2
+            sleep 5
+          done
+          exit 1
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
 
