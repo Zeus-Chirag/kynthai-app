@@ -215,8 +215,15 @@ jobs:
 
       - name: Start services
         run: |
-          docker compose -f docker-compose.yml up -d
+          # Only the db is used by the e2e steps (they run npm/prisma/server on
+          # the runner against localhost:5432). Building the full app image here
+          # adds ~5 min and needs the whole prod env.
+          docker compose -f docker-compose.yml up -d db
           sleep 5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
 
       - run: npm ci
 

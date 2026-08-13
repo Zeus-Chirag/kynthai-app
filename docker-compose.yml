@@ -75,9 +75,13 @@ services:
         max-file: "3"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-kynthai}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kynthai}
       POSTGRES_DB: ${POSTGRES_DB:-kynthai_us}
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    ports:
+      # Publish for host-local tooling (prisma db push, e2e). Prod uses
+      # docker-compose.prod.yml which does not expose the DB.
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
