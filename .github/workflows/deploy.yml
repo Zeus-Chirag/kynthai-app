@@ -205,6 +205,10 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: build
+    env:
+      # schema.prisma requires both DATABASE_URL and DIRECT_URL
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/test
     steps:
       - uses: actions/checkout@v4
 
