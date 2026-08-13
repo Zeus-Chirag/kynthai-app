@@ -20,6 +20,11 @@ const nextConfig = {
   // React strict mode for development
   reactStrictMode: true,
 
+  // Standalone output — required by Dockerfile.prod runner stage
+  // (copies /app/.next/standalone); without it docker builds fail with
+  // "/app/.next/standalone: not found".
+  output: 'standalone',
+
   // Production source maps (hidden in prod, available for error tracking)
   productionBrowserSourceMaps: false,
 
