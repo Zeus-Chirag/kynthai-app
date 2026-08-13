@@ -139,7 +139,6 @@ jobs:
 
       - name: Run ESLint
         run: npx eslint . --max-warnings=0
-        continue-on-error: true
 
   unit-tests:
     name: Unit Tests
@@ -163,7 +162,6 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || '' }}
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || 'test-encryption-key-not-for-production' }}
-        continue-on-error: true
 
   e2e-tests:
     name: E2E (${{ matrix.browser }})

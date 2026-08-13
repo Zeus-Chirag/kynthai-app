@@ -31,13 +31,13 @@ jobs:
         run: npm audit --audit-level=high || echo '⚠️ npm audit found issues — review before merge'
 
       - name: Run ESLint
-        run: npm run lint || true
+        run: npm run lint
 
       - name: Run TypeScript check
-        run: npm run typecheck || true
+        run: npm run typecheck
 
       - name: Run unit tests
-        run: npm run test:ci || true
+        run: npm run test:ci
 
   # ── Job 2: Build ──────────────────────────────────────────────────────────
   build:
@@ -113,94 +113,11 @@ jobs:
           include-hidden-files: true
           retention-days: 1
 
-  # ── Job 3: Deploy to Server ────────────────────────────────────────────────
-  deploy:
-    name: Deploy to Server
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nextjs-build
-          path: .next-build
-
-      - name: Verify deploy secrets
-        run: |
-          if [ -z "$SERVER_HOST" ] || [ -z "$SERVER_USER" ] || [ -z "$SERVER_SSH_KEY" ]; then
-            echo "::error::Deploy secrets missing — set SERVER_HOST, SERVER_USER and SERVER_SSH_KEY in GitHub repo Actions secrets (Settings → Secrets and variables → Actions), then re-run this workflow."
-            exit 1
-          fi
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-
-      - name: Copy build to server
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-        run: |
-          # Build the deployment package
-          mkdir -p deploy-package
-          cp -r .next-build/.next deploy-package/
-          cp -r .next-build/public deploy-package/ 2>/dev/null || true
-          cp package.json package-lock.json deploy-package/
-          cp -r prisma deploy-package/
-          cp Dockerfile.prod deploy-package/Dockerfile
-          cp docker-compose.prod.yml deploy-package/docker-compose.yml
-
-          tar -czf deploy-package.tar.gz -C deploy-package .
-
-          # Transfer and deploy via SSH
-          echo "$SERVER_SSH_KEY" > deploy_key
-          chmod 600 deploy_key
-          
-          scp -i deploy_key -o StrictHostKeyChecking=no deploy-package.tar.gz ${SERVER_USER}@${SERVER_HOST}:/tmp/kynthai-deploy.tar.gz
-          
-          ssh -i deploy_key -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_HOST} << 'SSHEOF'
-            set -e
-            cd /opt/kynthai || mkdir -p /opt/kynthai && cd /opt/kynthai
-            
-            # Backup current deployment
-            if [ -f docker-compose.yml ]; then
-              cp docker-compose.yml docker-compose.yml.backup.$(date +%Y%m%d%H%M%S)
-            fi
-            
-            # Extract new deployment (keeps existing .env — never clobber secrets)
-            tar -xzf /tmp/kynthai-deploy.tar.gz
-            
-            # Stop old containers
-            docker compose down --remove-orphans 2>/dev/null || true
-            
-            # Start new deployment
-            docker compose up -d --build app
-            
-            # Run migrations
-            docker compose run --rm app npx prisma migrate deploy || true
-            
-            # Restart to pick up migrations
-            docker compose restart app
-            
-            echo "Deployment complete!"
-          SSHEOF
-
-      - name: Health check
-        run: |
-          sleep 15
-          curl -sf https://kynthai.app/api/health || curl -sf http://localhost:3000/api/health || echo "Health check skipped - server not reachable from CI"
-
-      - name: Post-deploy smoke tests
-        run: |
-          npx playwright test e2e/ci-smoke.spec.ts --reporter=list 2>&1 || echo "Smoke tests skipped - Playwright browsers not installed in deploy job"
-        env:
-          PLAYWRIGHT_BASE_URL: ${{ env.APP_URL || 'https://kynthai.app' }}
-
-  # ── Job 4: E2E Tests ──────────────────────────────────────────────────────
+  # ── Job 3: E2E Tests ──────────────────────────────────────────────────────
+  # NOTE: Production is hosted on Vercel (kynthai.app) and deploys via Vercel's
+  # Git integration / CLI, not this workflow. The old SSH "Deploy to Server"
+  # job was removed — it had no secrets, no configured server, and never ran.
+  # ─────────────────────────────────────────────────────────────────────────
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
