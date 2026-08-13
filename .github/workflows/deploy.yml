@@ -36,6 +36,9 @@ jobs:
       - name: Run TypeScript check
         run: npm run typecheck
 
+      - name: Generate Prisma client
+        run: npx prisma generate
+
       - name: Run unit tests
         run: npm run test:ci
 
@@ -140,9 +143,20 @@ jobs:
           # the runner against localhost:5432). Building the full app image here
           # adds ~5 min and needs the whole prod env.
           docker compose -f docker-compose.yml up -d db
-          sleep 8
+          # Wait for postgres to actually accept connections — the image pull on
+          # a cold runner can take 30s+, so `sleep 8` was never a readiness
+          # wait (symptom: P1001 on `prisma db push` right after).
+          for i in $(seq 1 90); do
+            if docker compose -f docker-compose.yml exec -T db pg_isready -U postgres -d test >/dev/null 2>&1; then
+              echo "DB ready after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "DB did not become ready within 90s" >&2
           docker compose -f docker-compose.yml ps
-          docker logs "$(docker compose -f docker-compose.yml ps -q db)" 2>&1 | tail -15 || true
+          docker logs "$(docker compose -f docker-compose.yml ps -q db)" 2>&1 | tail -30 || true
+          exit 1
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -154,6 +168,12 @@ jobs:
 
       - name: Run DB push
         run: npx prisma db push --accept-data-loss
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+
+      - name: Seed demo data
+        # Demo accounts (Demo@2024) must exist for the auth specs to log in.
+        run: node prisma/seed.js
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
 
@@ -171,9 +191,12 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
 
       - name: Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 30000 || true
+        run: npx wait-on http://localhost:3000 --timeout 30000
 
       - name: Run E2E tests
-        run: npm run test:e2e || true
+        # Desktop browsers only — mobile viewports are covered by the
+        # mobile.spec.ts tests running under the desktop projects, and the
+        # e2e-smoke job in ci.yml covers the live prod pages.
+        run: npm run test:e2e -- --project=chromium-desktop --project=firefox-desktop --project=webkit-desktop
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test

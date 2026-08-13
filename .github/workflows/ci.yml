@@ -157,20 +157,27 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
 
+      - name: Generate Prisma client
+        run: npx prisma generate
+
       - name: Run Vitest
         run: npx vitest --run --reporter=verbose
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || '' }}
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || 'test-encryption-key-not-for-production' }}
 
-  e2e-tests:
-    name: E2E (${{ matrix.browser }})
+  # Smoke tests against the live production deployment (kynthai.app).
+  # API-first checks (public pages 200, protected routes 307->/login, health)
+  # plus a few lightweight browser assertions. No build/db/secrets needed.
+  # The old 3-browser matrix never ran anything real: it passed
+  # --project=chromium|firefox|webkit (names that don't exist in
+  # playwright.config.ts, real names are *-desktop) and started no server
+  # (playwright webServer is disabled in CI), so every run failed in ~2s
+  # and was hidden by continue-on-error. Replaced with this honest gate.
+  e2e-smoke:
+    name: E2E Smoke (prod)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium, firefox, webkit]
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -184,23 +191,18 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
 
-      - name: Install Playwright browsers
-        run: npx playwright install ${{ matrix.browser }} --with-deps
+      - name: Install Playwright chromium
+        run: npx playwright install chromium
 
-      - name: Build app
-        run: npm run build
+      - name: Run prod smoke tests
+        run: npx playwright test e2e/ci-smoke.spec.ts --project=chromium-desktop
         env:
-          NODE_ENV: test
-        continue-on-error: true
-
-      - name: Run Playwright tests (${{ matrix.browser }})
-        run: npx playwright test --project=${{ matrix.browser }}
-        continue-on-error: true
+          PLAYWRIGHT_BASE_URL: https://kynthai.app
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}
-          path: playwright-report/
+          name: playwright-report-smoke
+          path: e2e-report/
           retention-days: 30

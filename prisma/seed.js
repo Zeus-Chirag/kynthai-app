@@ -37,7 +37,7 @@ async function main() {
   await prisma.labProfile.deleteMany();
   await prisma.user.deleteMany();
 
-  const password = await bcrypt.hash('Demo@123', 10);
+  const password = await bcrypt.hash('Demo@2024', 10);
 
   // ── 1. PATIENT ──
   const patient = await prisma.user.create({
@@ -350,7 +350,7 @@ async function main() {
   console.log('🎉  SEED COMPLETE');
   console.log('═══════════════════════════════════════════');
   console.log('\n📋  DEMO LOGIN CREDENTIALS:');
-  console.log('   Password for all:  Demo@123');
+  console.log('   Password for all:  Demo@2024');
   console.log('   ────');
   console.log('   👤 Patient:   patient@kynthai.app');
   console.log('   👨‍⚕️  Doctor:    doctor@kynthai.app');
