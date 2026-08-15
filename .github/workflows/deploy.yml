@@ -36,7 +36,10 @@ jobs:
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
 
       - name: npm audit (high/critical) — blocking
-        run: npm audit --audit-level=high
+        # Allowlists next's bundled sharp/postcss advisories (unfixable without
+        # upgrading next past 16.2.12, which breaks the Vercel prod build). Any
+        # other high/critical FAILS. See scripts/check-deps.mjs.
+        run: node scripts/deps-audit-check.mjs
 
       - name: Run ESLint
         run: npx eslint src e2e scripts prisma --max-warnings=0

@@ -46,11 +46,12 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Run npm audit (fail on high+)
-        # Blocking gate: high/critical CVEs fail CI. The previous
-        # continue-on-error made this step purely informational.
+        # Blocking gate: high/critical CVEs fail CI, EXCEPT the known
+        # next-bundled sharp/postcss advisories whose only npm fix is
+        # next@16.3.1 (breaks the Vercel prod build). See scripts/check-deps.mjs.
         run: |
-          echo "🔍 Running npm audit — failing on HIGH and CRITICAL vulnerabilities..."
-          npm audit --audit-level=high
+          echo "🔍 Running dependency audit — blocking on un-allowlisted HIGH/CRITICAL..."
+          node scripts/deps-audit-check.mjs
 
       - name: Generate SBOM (CycloneDX)
         run: |
