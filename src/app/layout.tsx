@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from 'next';
+import { headers } from 'next/headers';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { PortalShell } from './portal-shell';
 import { ReticleDev } from './reticle-dev';
+import { StructuredData } from '@/components/structured-data';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -99,14 +101,18 @@ export const viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerStore = await headers();
+  const pathname = headerStore.get('x-nextjs-url') || '/';
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <StructuredData pathname={pathname} />
         <meta name="theme-color" content="#10b981" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#022c22" />
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
