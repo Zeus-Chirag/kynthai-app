@@ -74,7 +74,7 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <AlertTriangle className="h-12 w-12 text-muted-foreground" />
         <p className="text-muted-foreground">Member not found or access denied.</p>
-        <Button onClick={() => router.push('/family')} variant="outline">
+        <Button onClick={() => router.back()} variant="outline">
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Family
         </Button>
       </div>
@@ -93,7 +93,7 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-6">
       {/* Back button */}
-      <Button variant="ghost" size="sm" onClick={() => router.push('/family')}>
+      <Button variant="ghost" size="sm" onClick={() => router.back()}>
         <ArrowLeft className="h-4 w-4 mr-1" /> Back to Family
       </Button>
 
