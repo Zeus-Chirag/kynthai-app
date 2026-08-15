@@ -104,7 +104,7 @@ export function LandingFooter() {
           <div className="space-y-1 flex-1 min-w-0">
             <p suppressHydrationWarning>© {new Date().getFullYear()} Kynthai™. All rights reserved.</p>
             <p className="text-[10px] leading-relaxed">
-              Kynthai Health Technologies LLC · United States
+              Kynthai Health Technologies · United States
             </p>
             <p className="text-[10px] leading-relaxed">
               Kynthai and the Kynthai logo are trademarks of Kynthai Health Technologies (pending). All

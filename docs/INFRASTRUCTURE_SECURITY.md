@@ -74,7 +74,7 @@ Body/Query contains ' OR 1=1 OR DROP OR UNION SELECT → block
 | **CSRF Protection** | `src/lib/csrf.ts` | ✅ Double-submit cookie pattern |
 | **Rate Limiting** | `src/middleware.ts` | ✅ Per-endpoint via Upstash |
 | **Session Signing** | `src/lib/session-signing.ts` | ✅ HMAC-signed sessions |
-| **PHI Encryption** | `src/lib/prisma-encryption-middleware.ts` | ✅ AES-256-GCM on 57+ PII fields |
+| **PHI Encryption** | `src/lib/prisma-encryption-middleware.ts` | 🔄 Schema prepared (`*_enc` columns + middleware); not yet enabled — requires backfill migration before activation (see note below) |
 | **Audit Logging** | `src/lib/audit-logger.ts` | ✅ All user actions logged |
 | **Input Validation** | Zod schemas (`src/lib/schemas/`) | ✅ All API route inputs validated |
 | **Auth Middleware** | `src/middleware.ts` | ✅ Route protection + redirect |
@@ -89,7 +89,7 @@ Body/Query contains ' OR 1=1 OR DROP OR UNION SELECT → block
 | **TLS** | ✅ Required | `sslmode=require` in connection string |
 | **Network isolation** | ✅ VPC | Supabase Pro: dedicated IPv4, no public internet exposure |
 | **Connection pooling** | ✅ PgBouncer | Via Supabase pooler (port 6543) |
-| **Encryption at rest** | ✅ AES-256 | Managed by Supabase + field-level |
+| **Encryption at rest** | ✅ AES-256 | Disk-level (managed by Supabase) + AES-256-GCM for uploaded documents and prescription images; field-level encryption prepared but not yet enabled |
 | **Backups** | ✅ PITR | 7-day retention, daily snapshots |
 | **Row Level Security** | 🔄 Migration | Schema supports RLS, migrating policies |
 
@@ -109,9 +109,9 @@ DIRECT_URL=postgresql://user:pass@host:5432/postgres?sslmode=require
 
 | Service | Auth Method | Data Sensitivity | Notes |
 |---------|------------|-----------------|-------|
-| **Supabase** | API key + JWT | PHI (encrypted) | HIPAA BAA in place |
+| **Supabase** | API key + JWT | Health data | Database host; data-processing terms, no BAA (not a covered entity) |
 | **Stripe** | Secret key (sk_live_) | Payment data | PCI DSS Level 1, Stripe handles scope |
-| **OpenAI** | API key | Health context (minimized) | No PHI sent; data-minimized |
+| **NVIDIA / ZenMux (AI)** | API key | De-identified health context | No PHI sent; `buildDeidentifiedContext()` minimizes to de-identified context |
 | **Twilio** | Account SID + Auth Token | Phone numbers | SMS delivery only |
 | **Sentry** | DSN | Error context (no PII) | PII filtering configured |
 | **Upstash** | REST Token | Rate limit counters | Ephemeral data only |
@@ -173,10 +173,14 @@ See [Incident Response Playbook](./INCIDENT_RESPONSE.md) for:
 
 ## 8. Compliance Mapping
 
+> Note: Kynthai is not a HIPAA-covered entity or business associate. The HIPAA
+> rows below map our security controls to HIPAA's technical safeguards for
+> internal gap analysis only; they are not a claim of HIPAA compliance.
+
 | Requirement | Control | Status |
 |-------------|---------|--------|
 | HIPAA §164.312(a)(1) | Access control (auth) | ✅ |
-| HIPAA §164.312(c)(1) | Encryption at rest | ✅ AES-256-GCM |
+| HIPAA §164.312(c)(1) | Encryption at rest | 🔄 Disk-level + uploads encrypted; field-level prepared, pending migration |
 | HIPAA §164.312(e)(1) | Encryption in transit | ✅ TLS 1.3 |
 | HIPAA §164.312(b) | Audit controls | ✅ Audit logging |
 | HIPAA §164.308(a)(1) | Security management | ✅ Incident response |

@@ -1,13 +1,16 @@
 /**
- * CI Smoke Tests — lightweight checks that run against the live Vercel deployment.
- * Uses Playwright's `request` API only (no browser needed for most tests).
- * No build, no database, no secrets required.
+ * CI Smoke Tests — lightweight checks of public pages, protected redirects and
+ * API health. Run against the target passed via PLAYWRIGHT_BASE_URL (the
+ * deploy e2e job points it at the freshly built local server on :3000; the
+ * PR/push job in ci.yml points it at the live kynthai.app). Defaults to the
+ * local dev server so an unset variable fails fast against localhost instead
+ * of silently testing a stale remote deployment.
  *
- * Run: PLAYWRIGHT_BASE_URL=https://kynthai-deploy.vercel.app npx playwright test e2e/ci-smoke.spec.ts
+ * Run: PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test e2e/ci-smoke.spec.ts
  */
 import { test, expect, type APIRequestContext } from '@playwright/test';
 
-const BASE = process.env.PLAYWRIGHT_BASE_URL || 'https://kynthai-deploy.vercel.app';
+const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
 
 // ── Utility ─────────────────────────────────────────────────────────────────
 /** Run a batch of URL checks using the Playwright request context (no browser). */

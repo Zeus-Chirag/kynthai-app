@@ -109,7 +109,7 @@ e2e/quick-test.mjs
 BUG-REPORT.md
 CONTEXT-MANAGEMENT-FIX.md
 docs/UX-FRICTION-ANALYSIS.md
-e2e-report/data/*.png
+e2e-report/
 review-screenshot.png
 run-kynthai-7000.sh
 start-server-godmode.sh

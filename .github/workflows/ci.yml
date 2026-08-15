@@ -9,13 +9,19 @@ on:
 env:
   NODE_VERSION: '22'
   # No secrets needed for lint/build/audit steps
-  # Production secrets are injected by Freebuff/Vercel, not CI
+  # Production secrets are injected by Vercel, not CI
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   security-audit:
     name: Security Audit & Supply Chain
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -40,11 +46,11 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Run npm audit (fail on high+)
+        # Blocking gate: high/critical CVEs fail CI. The previous
+        # continue-on-error made this step purely informational.
         run: |
           echo "🔍 Running npm audit — failing on HIGH and CRITICAL vulnerabilities..."
           npm audit --audit-level=high
-        continue-on-error: true
-        id: npm_audit
 
       - name: Generate SBOM (CycloneDX)
         run: |
@@ -90,17 +96,12 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Alert on audit findings
-        if: steps.npm_audit.outputs.exitcode != 0
-        run: |
-          echo "⚠️ npm audit found HIGH or CRITICAL vulnerabilities!" >> $GITHUB_STEP_SUMMARY
-          echo "Run \`npm audit\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -124,6 +125,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -138,12 +141,15 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Run ESLint
-        run: npx eslint . --max-warnings=0
+        # Lint only source + e2e + scripts (excludes generated .vercel/.next output).
+        run: npx eslint src e2e scripts prisma --max-warnings=0
 
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -166,18 +172,17 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL || '' }}
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || 'test-encryption-key-not-for-production' }}
 
-  # Smoke tests against the live production deployment (kynthai.app).
-  # API-first checks (public pages 200, protected routes 307->/login, health)
-  # plus a few lightweight browser assertions. No build/db/secrets needed.
-  # The old 3-browser matrix never ran anything real: it passed
-  # --project=chromium|firefox|webkit (names that don't exist in
-  # playwright.config.ts, real names are *-desktop) and started no server
-  # (playwright webServer is disabled in CI), so every run failed in ~2s
-  # and was hidden by continue-on-error. Replaced with this honest gate.
+  # API-first smoke checks against the live production deployment (kynthai.app).
+  # Public pages 200, protected routes 307->/login, health, plus lightweight
+  # browser assertions. Runs on push/PR; a transient prod issue fails PRs, so
+  # this is a canary, not a code gate — the deploy.yml e2e job is the real
+  # gate and it runs against the freshly built local server.
   e2e-smoke:
     name: E2E Smoke (prod)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -192,7 +197,7 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Install Playwright chromium
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Run prod smoke tests
         run: npx playwright test e2e/ci-smoke.spec.ts --project=chromium-desktop

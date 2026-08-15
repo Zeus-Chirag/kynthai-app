@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Demo Login Flow', () => {
   test('patient demo can login via demo button', async ({ page }) => {
-    await page.goto('http://localhost:4000/login');
+    await page.goto('/login');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -21,7 +21,7 @@ test.describe('Demo Login Flow', () => {
   });
 
   test('doctor demo can login via demo button', async ({ page }) => {
-    await page.goto('http://localhost:4000/login');
+    await page.goto('/login');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -35,7 +35,7 @@ test.describe('Demo Login Flow', () => {
   });
 
   test('family demo can login via demo button', async ({ page }) => {
-    await page.goto('http://localhost:4000/login');
+    await page.goto('/login');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
@@ -49,7 +49,7 @@ test.describe('Demo Login Flow', () => {
   });
 
   test('lab demo can login via demo button', async ({ page }) => {
-    await page.goto('http://localhost:4000/login');
+    await page.goto('/login');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 

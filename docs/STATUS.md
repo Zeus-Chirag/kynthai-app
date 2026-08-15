@@ -13,7 +13,7 @@
 | 2 | **Cost Optimization** | AI token cost tracking per request with model-specific pricing (`estimateCost()` in zai.ts) | `0cb315a` | Jul 30 |
 | 3 | **API Consumer Experience** | OpenAPI 3.0 spec at `docs/openapi.yaml` (health, auth, chat, emergency, stripe, user) | `0cb315a` | Jul 30 |
 | 4 | **Observability Maturity** | SLOs/SLIs doc at `docs/SLOS.md` (8 SLIs, 3 tiers, error budgets, burn rate alerts) | `0cb315a` | Jul 30 |
-| 5 | **Infrastructure Security** | `docs/INFRASTRUCTURE_SECURITY.md` — WAF, DDoS, IAM, CSP, DB isolation, HIPAA compliance | `bd28ea5` | Jul 30 |
+| 5 | **Infrastructure Security** | `docs/INFRASTRUCTURE_SECURITY.md` — WAF, DDoS, IAM, CSP, DB isolation, HIPAA-readiness (prepared, not covered-entity claim) | `bd28ea5` | Jul 30 |
 | 6 | **Operational Readiness** | `docs/INCIDENT_RESPONSE.md` — P0-P4 severity definitions, runbooks, escalation, postmortem template | `bd28ea5` | Jul 30 |
 | 7 | **Release Engineering** | Post-deploy smoke tests step in `deploy.yml` after health check | `bd28ea5` | Jul 30 |
 | 8 | **Secrets** | `generate_production_secrets.js` — all fake keys replaced with `placeholder_` prefix + WARNING comments | `bd28ea5` | Jul 30 |

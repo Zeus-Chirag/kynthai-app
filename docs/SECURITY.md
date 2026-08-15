@@ -7,7 +7,9 @@
 
 ## Executive Summary
 
-Kynthai underwent a comprehensive security audit across 17 categories of the security framework. The codebase demonstrates **strong foundational security** (AES-256-GCM encryption, PHI/PII redaction, prompt injection safety, rate limiting, CSRF protection, security headers, audit logging). **6 critical/high gaps were identified and fixed** in this audit cycle.
+Kynthai underwent a comprehensive security audit across 17 categories of the security framework. The codebase demonstrates **strong foundational security** (AES-256-GCM for uploads, PHI/PII redaction, prompt injection safety, rate limiting, CSRF protection, security headers, audit logging). **6 critical/high gaps were identified and fixed** in this audit cycle.
+
+> Note: Kynthai is not a HIPAA-covered entity or business associate; references to HIPAA in this document are internal control-mapping only. Field-level DB encryption is prepared (schema + middleware) but not yet enabled.
 
 | Metric | Value |
 |--------|-------|
@@ -108,8 +110,8 @@ See [AUTH_AUDIT.md](./AUTH_AUDIT.md) for full 80-criterion audit.
 
 | Control | Algorithm | Key Management |
 |---------|-----------|----------------|
-| PHI fields at rest | AES-256-GCM | Prisma middleware, master key from `ENCRYPTION_KEY` env var |
-| File storage | AES-256-GCM | Per-file key derived via scrypt(masterKey, randomSalt) |
+| PHI fields at rest | AES-256-GCM | **Prepared, not yet enabled** — `*_enc` schema columns + `prisma-encryption-middleware.ts` exist; activation requires a backfill migration of existing rows before `ENCRYPTION_TRANSITIONAL=false` |
+| File storage (uploads) | AES-256-GCM | ✅ Active — per-file key derived via scrypt(masterKey, randomSalt) |
 | Data in transit | TLS 1.2+ | Enforced by middleware (`sslmode=require` check on DATABASE_URL) |
 | Session cookies | HMAC-SHA256 | `SESSION_SIGNING_SECRET` or `SUPABASE_SERVICE_ROLE_KEY` fallback |
 

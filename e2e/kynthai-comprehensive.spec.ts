@@ -17,7 +17,9 @@ async function authFetchJson(page: Page, path: string) {
   }, BASE + path);
 }
 
-const BASE = 'http://localhost:4000';
+// Default matches playwright.config.ts baseURL; override with PLAYWRIGHT_BASE_URL
+// (e.g. CI smoke runs against the deployed origin).
+const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
 
 const DEMO_EMAILS: Record<string, string> = {
   patient: 'patient@demo.kynthai.app',

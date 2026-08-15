@@ -145,7 +145,7 @@ export function PrivacyPolicy() {
       <ul>
         <li>Sensitive health data is used and disclosed only for the purposes described in this policy, or with your explicit consent for anything beyond those purposes.</li>
         <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (sensitive health data) at any time.</li>
-        <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
+        <li>Health data is encrypted in transit with TLS 1.3; uploaded documents and prescription images are additionally encrypted at rest with AES-256-GCM.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
         <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals and, where required, the FTC and applicable state regulators, without unreasonable delay — in no case later than 60 calendar days from discovery (consistent with the FTC Health Breach Notification Rule).</li>
@@ -271,7 +271,7 @@ export function PrivacyPolicy() {
       <ul>
         <li>Sensitive health data is used and disclosed only for the purposes described in this policy, or with your explicit consent for anything beyond those purposes.</li>
         <li>You may request access to, amendment of, or restrictions on the use and disclosure of your health data (sensitive health data) at any time.</li>
-        <li>Health data is encrypted at rest and in transit with encryption and TLS 1.3.</li>
+        <li>Health data is encrypted in transit with TLS 1.3; uploaded documents and prescription images are additionally encrypted at rest with AES-256-GCM.</li>
         <li>Access to health data is restricted to authorised personnel on a need-to-know basis.</li>
         <li>Audit logs record all access to health data for security and compliance review.</li>
         <li>In the event of a breach involving unsecured sensitive health data, we will notify affected individuals and, where required, the FTC and applicable state regulators, without unreasonable delay — in no case later than 60 calendar days from discovery (consistent with the FTC Health Breach Notification Rule).</li>
@@ -370,7 +370,7 @@ export function PrivacyPolicy() {
       <p>We do <strong>not</strong> use third-party advertising cookies, tracking pixels, or cross-site advertising networks. You can clear all cookies and local storage via your browser settings at any time.</p>
 
       <SectionTitle icon={Users}>14. Children&apos;s privacy</SectionTitle>
-      <p>Kynthai is not directed at children under 16. Family profiles for minors may be created and managed by a parent or legal guardian who consents to the processing on the child&apos;s behalf. The parent may request deletion of a minor&apos;s profile at any time. We do not knowingly collect data from children under 16 without verified parental consent, consistent with the Children&apos;s Online Privacy Protection Act (COPPA, 15 U.S.C. §§ 6501–6506) and applicable US child-protection framework. If you believe we have collected data from a child without consent, contact <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" /> for immediate deletion.</p>
+      <p>Kynthai is not directed at children under 16. Family profiles for minors may be created and managed by a parent or legal guardian who consents to the processing on the child&apos;s behalf. The parent may request deletion of a minor&apos;s profile at any time. We do not knowingly collect data from children under 16 without verified parental consent, consistent with the Children&apos;s Online Privacy Protection Act (COPPA, 15 U.S.C. §§ 6501–6506) and applicable US child-protection framework. If you believe we have collected data from a child without consent, contact <ContactEmail address="privacy@kynthai.app" className="text-emerald-600 underline" /> for immediate deletion.</p>
 
       <SectionTitle icon={Bell}>14A. Marketing communications</SectionTitle>
       <p>

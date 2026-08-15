@@ -6,7 +6,10 @@ async function main() {
   const page = await context.newPage();
   
   console.log('[TEST] Navigating to landing page...');
-  await page.goto('http://localhost:8000/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.goto(process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000/', {
+    waitUntil: 'domcontentloaded',
+    timeout: 30000,
+  });
   console.log('[TEST] Title:', await page.title());
   await page.screenshot({ path: 'e2e-report/quick-landing.png' });
   console.log('[TEST] Screenshot saved');

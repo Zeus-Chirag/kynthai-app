@@ -15,7 +15,7 @@ services:
         max-file: "5"
     environment:
       - NODE_ENV=production
-      # DATABASE_URL must include ?sslmode=require for HIPAA compliance
+      # DATABASE_URL should include ?sslmode=require for encrypted transport
       # Example: postgresql://kynthai:password@db:5432/kynthai_us?sslmode=require
       - DATABASE_URL=${DATABASE_URL}
       - DIRECT_URL=${DIRECT_URL}
@@ -39,7 +39,7 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - NEXT_PUBLIC_STRIPE_PK=${NEXT_PUBLIC_STRIPE_PK}
       - NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
       - NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}
       - NEXT_PUBLIC_UPLOAD_PRESET=${NEXT_PUBLIC_UPLOAD_PRESET}
@@ -47,9 +47,9 @@ services:
       - VIDEO_TOKEN_SECRET=${VIDEO_TOKEN_SECRET}
       - CORS_ORIGIN=${CORS_ORIGIN}
       - NEXT_PUBLIC_COMPLIANCE_MODE=US
-      - NEXT_PUBLIC_JURISDICTION=Delaware, United States
+      - NEXT_PUBLIC_JURISDICTION=United States
       - NEXT_PUBLIC_PRIVACY_OFFICER_EMAIL=privacy@kynthai.app
-      - NEXT_PUBLIC_SUPPORT_EMAIL=support@kynthai.app
+      - NEXT_PUBLIC_SUPPORT_EMAIL=hello@kynthai.app
     depends_on:
       db:
         condition: service_healthy

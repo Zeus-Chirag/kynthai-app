@@ -75,8 +75,8 @@ function HonestSocialProof() {
                 {[
                   'Transparent pricing in USD — no hidden fees, no surprise charges.',
                   'Your data belongs to you — export or delete anytime, no questions asked.',
-                  'Privacy-first architecture with encryption at rest and in transit.',
-                  'US-hosted on Supabase Cloud — your data never leaves American soil.',
+                  'Privacy-first architecture — data encrypted in transit (TLS 1.3); uploaded documents and prescription images encrypted at rest with AES-256-GCM.',
+                  'No health data is ever sold to third parties.',
                 ].map(item => (
                   <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />

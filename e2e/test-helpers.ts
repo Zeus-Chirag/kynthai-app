@@ -78,6 +78,7 @@ export const PORTAL_PATHS: Record<string, string> = {
  * Bridge browser cookies into page.request so API calls carry the session.
  */
 export async function withAuthCookies(page: any): Promise<string> {
-  const cookies = await page.context().cookies('http://localhost:4000');
+  // No URL arg: returns every cookie in the context, whatever the base URL is.
+  const cookies = await page.context().cookies();
   return cookies.map(c => `${c.name}=${c.value}`).join('; ');
 }

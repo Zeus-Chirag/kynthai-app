@@ -12,6 +12,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding Kynthai demo database...\n');
 
+  // Safety guard: this script wipes the database. Never let it run against a
+  // production environment by accident. `--force` is the explicit override.
+  if (process.env.NODE_ENV === 'production' && !process.argv.includes('--force')) {
+    console.error(
+      'Refusing to seed: NODE_ENV=production and this script wipes existing data.\n' +
+        'If you really mean it, re-run with --force.'
+    );
+    process.exit(1);
+  }
+
   // Clean existing data
   await prisma.auditLog.deleteMany();
   await prisma.chatMessage.deleteMany();

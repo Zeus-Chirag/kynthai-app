@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { logAudit } from '@/lib/auth';
 import { logger } from '@/lib/logger';
+import { signSessionToken } from '@/lib/session-signing';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,6 +78,21 @@ export async function GET(req: NextRequest) {
       // Apply cookies from the session exchange
       for (const { name, value, options } of responseCookies) {
         res.cookies.set(name, value, options as any);
+      }
+
+      // Also set the HMAC-signed kynthai-session cookie (same rationale as
+      // /auth/callback): the edge middleware only trusts verified cookies.
+      const signedValue = await signSessionToken(profile?.id ?? user.id);
+      if (signedValue) {
+        res.cookies.set('kynthai-session', signedValue, {
+          httpOnly: true,
+          secure:
+            req.headers.get('x-forwarded-proto') === 'https' ||
+            req.headers.get('x-forwarded-ssl') === 'on',
+          sameSite: 'strict',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+        });
       }
 
       return res;

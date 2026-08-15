@@ -66,7 +66,6 @@ export async function POST(req: NextRequest) {
     // ── Supabase Auth: sign in ──────────────────────────────────────────
     let supabaseResponseCookies: { name: string; value: string; options?: Record<string, unknown> }[] = [];
     let user: any = null;
-    let usedLocalAuth = false;
 
     try {
       const supabase = createServerClient(
@@ -102,7 +101,6 @@ export async function POST(req: NextRequest) {
           const valid = await bcrypt.compare(password, localUser.password);
           if (valid) {
             user = localUser;
-            usedLocalAuth = true;
           }
         }
         if (!user) {
@@ -137,7 +135,6 @@ export async function POST(req: NextRequest) {
         const valid = await bcrypt.compare(password, localUser.password);
         if (valid) {
           user = localUser;
-          usedLocalAuth = true;
         }
       }
       if (!user) {
@@ -250,21 +247,24 @@ export async function POST(req: NextRequest) {
     for (const cookie of supabaseResponseCookies) {
       res.cookies.set(cookie.name, cookie.value, cookie.options as any);
     }
-    // If using local auth (no Supabase cookies), set a signed session cookie
-    if (usedLocalAuth) {
-      const signedValue = await signSessionToken(user.id);
-      if (!signedValue) {
-        // Signing failed in production — abort rather than set an unsigned cookie
-        return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');
-      }
-      res.cookies.set('kynthai-session', signedValue, {
-        httpOnly: true,
-        secure: isSecureRequest(req),
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 7,
-        path: '/',
-      });
+    // Always set the HMAC-signed kynthai-session cookie on success, regardless
+    // of which auth path was used (Supabase or local). The edge middleware
+    // trusts ONLY this cookie and signature-verified sb-* JWTs — a login that
+    // sets neither would be invisible to the portal guard. Supabase sessions
+    // rotate their sb-* tokens hourly, so the fixed 7-day kynthai-session
+    // expiry is renewed here on each new login.
+    const signedValue = await signSessionToken(user.id);
+    if (!signedValue) {
+      // Signing failed in production — abort rather than set an unsigned cookie
+      return jsonError('Server configuration error', 500, 'INTERNAL_ERROR');
     }
+    res.cookies.set('kynthai-session', signedValue, {
+      httpOnly: true,
+      secure: isSecureRequest(req),
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    });
     return res;
   } catch (error) {
     logger.phiSafeError(error, 'login.POST');

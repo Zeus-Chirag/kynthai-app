@@ -58,7 +58,7 @@ function wrap(subject: string, body: string): { subject: string; html: string } 
                 <a href="https://kynthai.app/settings" style="color:${LINK};text-decoration:none;">Manage preferences</a>
               </p>
               <p style="margin:0;">
-                &copy; ${new Date().getFullYear()} Kynthai Health Technologies LLC &middot;
+                &copy; ${new Date().getFullYear()} Kynthai Health Technologies &middot;
                 <a href="https://kynthai.app/privacy" style="color:${LINK};text-decoration:none;">Privacy Policy</a>
                 &middot;
                 <a href="https://kynthai.app/terms" style="color:${LINK};text-decoration:none;">Terms of Service</a>

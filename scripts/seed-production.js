@@ -17,7 +17,13 @@ async function seedAdminIfMissing() {
     return;
   }
 
-  const password = process.env.ADMIN_PASSWORD || 'CHANGE_ME_IMMEDIATELY';
+  // C4: never fall back to a known default password. If ADMIN_PASSWORD is
+  // missing in production, fail loudly instead of creating a login-able admin.
+  if (!process.env.ADMIN_PASSWORD) {
+    console.error('ADMIN_PASSWORD is required to seed the admin account. Refusing to create an admin with a default password.');
+    process.exit(1);
+  }
+  const password = process.env.ADMIN_PASSWORD;
   const hashed = await bcrypt.hash(password, 10);
 
   await db.user.create({

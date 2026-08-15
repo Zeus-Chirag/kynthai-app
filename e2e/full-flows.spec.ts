@@ -12,7 +12,9 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-const BASE = 'http://localhost:4000';
+// Default matches playwright.config.ts baseURL; override with PLAYWRIGHT_BASE_URL
+// (e.g. CI smoke runs against the deployed origin).
+const BASE = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
 
 const DEMO_ACCOUNTS: Record<string, { email: string; password: string }> = {
   patient: { email: 'patient@demo.kynthai.app', password: 'Demo@2024' },

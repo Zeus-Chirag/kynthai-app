@@ -127,7 +127,7 @@ export default function RefundCancellationPage() {
           </div>
 
           <footer className="mt-12 border-t border-border/60 pt-6 text-xs text-muted-foreground">
-            Last updated: July 13, 2026. Kynthai Health Technologies LLC
+            Last updated: July 13, 2026. Kynthai Health Technologies
           </footer>
         </div>
       </div>

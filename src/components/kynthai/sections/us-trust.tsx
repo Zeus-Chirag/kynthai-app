@@ -89,8 +89,9 @@ function USTrust() {
 
         {/* Legal footnote */}
         <p className="mx-auto mt-6 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">
-          Kynthai Health Technologies LLC operates secure data handling practices. Data is encrypted at
-          rest and in transit. Infrastructure hosted on Supabase Cloud, US region. For questions: <ContactEmailText address="privacy@kynthai.app" />.
+          Kynthai Health Technologies operates secure data handling practices. Data is encrypted in
+          transit (TLS 1.3), and uploaded documents and prescription images are additionally encrypted
+          at rest with AES-256-GCM. For questions: <ContactEmailText address="privacy@kynthai.app" />.
         </p>
       </div>
     </section>

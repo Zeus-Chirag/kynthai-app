@@ -68,7 +68,7 @@ export function FounderStory() {
               <div className="mt-4 flex items-center gap-3">
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent" />
                 <p className="whitespace-nowrap text-xs font-semibold text-foreground/80">
-                  Kynthai Health Technologies LLC
+                  Kynthai Health Technologies
                 </p>
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent" />
               </div>

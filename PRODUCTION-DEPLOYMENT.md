@@ -127,6 +127,6 @@ Ensure your database and Redis can handle the connection pool increase.
 
 1. Never expose port 3000 or 5432 to the public internet
 2. The Caddyfile enforces HSTS, COOP/COEP, and CSP
-3. PHI fields are encrypted at rest via Prisma middleware (`ENCRYPTION_KEY`)
+3. Uploaded documents and prescription images are encrypted at rest (AES-256-GCM); field-level DB encryption is prepared (schema + middleware) but not yet enabled — see `docs/INFRASTRUCTURE_SECURITY.md`
 4. All secrets are injected via environment variables — no secrets baked into the image
 5. Containers run as non-root user `nextjs` (UID 1001)

@@ -1,9 +1,9 @@
-# Kynthai HIPAA Compliance — Field-Level Encryption Implementation
+# Kynthai Security Controls — Field-Level Encryption (Internal Reference)
 
-**Status:** ACTIVE (transitional mode enabled by default)  
+**Status:** PREPARED — schema columns and middleware exist, but field-level encryption is **not yet enabled** (no data migration has been run; the middleware is not installed on the Prisma client). Activating it requires: (1) backfill migration of existing rows into `*_enc` columns, (2) installing `installEncryptionMiddleware()` at `src/lib/db.ts`, (3) running with `ENCRYPTION_TRANSITIONAL=false` in production and verifying reads. Until then, general DB fields are stored in plaintext; uploaded documents and prescription images ARE encrypted (AES-256-GCM) today.  
 **Date:** 2026-07-11  
 **Officer:** Privacy/Technical Contact = privacy@kynthai.app  
-**Scope:** All Protected Health Information (PHI) stored in the PostgreSQL database and file storage.
+**Scope:** Sensitive health data stored in the PostgreSQL database and file storage.
 
 > **Disclaimer (2026-08-02):** Kynthai is **not** a HIPAA-covered entity or business
 > associate and does **not** claim HIPAA compliance. This document describes internal
@@ -21,7 +21,7 @@
 - **IV:** Random 128-bit IV per encryption operation.  
 - **Auth tag:** 128-bit GCM authentication tag prepended to ciphertext for integrity.  
 - **Fields encrypted:** See §1.A below.  
-- **Implementation:** Transparent Prisma middleware (`src/lib/prisma-encryption-middleware.ts`) intercepts all DB reads/writes.  
+- **Implementation:** Intended via transparent Prisma middleware (`src/lib/prisma-encryption-middleware.ts`); not yet installed — see status note above.  
 
 ### 1.A PHI Fields Encrypted
 

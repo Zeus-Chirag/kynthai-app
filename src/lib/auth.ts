@@ -239,10 +239,24 @@ export async function canAccessDocument(
   // Uploader can access
   if (user.id === document.uploadedById) return true;
 
-  // Doctor role can access clinical documents
+  // Doctor access: only if a real care relationship exists (appointment or
+  // prescription linking this doctor to the patient). Previously any doctor
+  // could read any patient's clinical documents (C2 — PHI leak).
   if (user.role === 'doctor' && ['CLINICAL', 'ADMINISTRATIVE'].includes(document.visibility)) {
-    // Check if doctor is in patient's care team (simplified)
-    return true;
+    const profile = (await supabaseAdmin()
+      .from('doctor_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()) as unknown as { data: { id: string } | null; error: unknown };
+    if (profile.data) {
+      const [apt, rx] = await Promise.all([
+        supabaseAdmin().from('appointments').select('id').eq('doctor_id', profile.data.id).eq('patient_id', document.userId).maybeSingle(),
+        supabaseAdmin().from('prescriptions').select('id').eq('doctor_id', profile.data.id).eq('patient_id', document.userId).maybeSingle(),
+      ]);
+      if ((apt as { data?: unknown }).data || (rx as { data?: unknown }).data) return true;
+    }
+    // No care relationship → no access.
+    return false;
   }
 
   // Family access

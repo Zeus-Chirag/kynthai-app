@@ -3,7 +3,7 @@
 Kynthai is a family-first AI health app built for US households. It combines medication adherence, drug-safety intelligence, doctor consults, and lab bookings — purpose-built for families where one person often manages health for 2–4 family members.
 
 ## What is Kynthai?
-Kynthai is a health-management platform operated by Kynthai Health Technologies Inc., based in Wilmington, Delaware. It brings together medicine reminders, AI health tools, video consultations with verified US-licensed doctors, lab test bookings, and family health management — all in one trusted app designed for American families.
+Kynthai is a health-management platform operated by Kynthai Health Technologies. It brings together medicine reminders, AI health tools, video consultations with verified licensed doctors, lab test bookings, and family health management — all in one trusted app designed for families. Kynthai is not a HIPAA-covered entity and does not claim HIPAA compliance.
 
 ## Key Features
 - Smart medicine reminders with snooze, streaks, and caretaker alerts
@@ -34,7 +34,7 @@ Kynthai is a health-management platform operated by Kynthai Health Technologies 
 Unlike single-patient apps, Kynthai was built from day one for multi-member households. Your parents' medications and your kids' schedules live in the same dashboard with caretaker alerts. AI drug-interaction checking, prescription scanning via vision AI, and family health insights are features that no competitor currently offers at this depth in the US market.
 
 ## AI Safety & Compliance
-All AI features provide advisory information only — not medical advice. AI outputs are clearly labelled, and a licensed doctor should always be consulted before making medical decisions. Kynthai is HIPAA-aligned: health data is encrypted at rest and in transit. Users can export or delete their data anytime. In a medical emergency, call 911.
+All AI features provide advisory information only — not medical advice. AI outputs are clearly labelled, and a licensed doctor should always be consulted before making medical decisions. All data is encrypted in transit (TLS 1.3); uploaded documents and prescription images are additionally encrypted at rest with AES-256-GCM. Kynthai is not a HIPAA-covered entity or business associate. Users can export or delete their data anytime. In a medical emergency, call 911.
 
 ## Technology
 - Built with Next.js 16, React 19, TypeScript, Tailwind CSS
@@ -44,7 +44,7 @@ All AI features provide advisory information only — not medical advice. AI out
 - Database: Prisma ORM
 - Caching: Upstash Redis
 - Error tracking: Sentry
-- HIPAA-aligned architecture (BAA with AI processor recommended)
+- Kynthai is not a HIPAA-covered entity or business associate; it follows applicable US consumer-privacy laws (FTC Health Breach Notification Rule and state consumer health privacy laws).
 
 ## Frequently Asked Questions
 Q: Is Kynthai free to use?
@@ -60,7 +60,7 @@ Q: Can I pay with cards and digital wallets?
 A: Yes. All major credit/debit cards, Apple Pay, Google Pay, and ACH are accepted via Stripe.
 
 Q: Is my health data safe?
-A: Yes. Health data is encrypted at rest and in transit under HIPAA-aligned practices. You can export or delete your data anytime.
+A: Yes. Your data is encrypted in transit (TLS 1.3), and uploaded documents and prescription images are additionally encrypted at rest with AES-256-GCM. We never sell your personal data. You can export or delete your data anytime.
 
 Q: Does it work for elderly family members?
 A: Yes. The caretaker portal lets family members monitor elders' medication adherence, receive missed-dose alerts, and manage health records on their behalf. Large-text mode and simple UI options available.

@@ -15,7 +15,7 @@ function FAQ() {
   const faqs: Array<{ q: string; a: string }> = [
     {
       q: 'Is my health data safe?',
-      a: 'Yes. Kynthai is designed with Privacy-first safeguards. Your data is encrypted at rest and in transit. We never sell your personal data. You can export or delete it anytime.',
+      a: 'Yes. Kynthai is designed with Privacy-first safeguards. Your data is encrypted in transit (TLS 1.3), and uploaded documents and prescription images are additionally encrypted at rest with AES-256-GCM. We never sell your personal data. You can export or delete it anytime.',
     },
     {
       q: 'What payment methods are supported?',

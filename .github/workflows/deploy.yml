@@ -6,14 +6,22 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   NEXT_PUBLIC_APP_URL: 'https://kynthai.app'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ── Job 1: Lint + Type Check + Unit Tests ─────────────────────────────────
   quality:
     name: Quality Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -22,16 +30,16 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Lockfile verification
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
 
-      - name: npm audit (high/critical)
-        run: npm audit --audit-level=high || echo '⚠️ npm audit found issues — review before merge'
+      - name: npm audit (high/critical) — blocking
+        run: npm audit --audit-level=high
 
       - name: Run ESLint
-        run: npm run lint
+        run: npx eslint src e2e scripts prisma --max-warnings=0
 
       - name: Run TypeScript check
         run: npm run typecheck
@@ -46,7 +54,11 @@ jobs:
   build:
     name: Build App
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs: quality
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -55,42 +67,22 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Create .env.local
+      - name: Create .env.local (build-time public vars only)
+        # Build-time NEXT_PUBLIC_* are inlined into the client bundle, so the
+        # build needs them; server-only secrets are NOT written here — the e2e
+        # job writes its own minimal runtime .env.local against the local DB.
         run: |
           cat > .env.local << 'EOF'
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          DIRECT_URL=${{ secrets.DIRECT_URL }}
-          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL=https://kynthai.app
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}
-          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
-          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
-          CRON_SECRET=${{ secrets.CRON_SECRET }}
-          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
           NEXT_PUBLIC_STRIPE_PK=${{ secrets.NEXT_PUBLIC_STRIPE_PK }}
-          STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}
-          SMTP_HOST=${{ secrets.SMTP_HOST }}
-          SMTP_PORT=${{ secrets.SMTP_PORT }}
-          SMTP_USER=${{ secrets.SMTP_USER }}
-          SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
-          SMTP_FROM_EMAIL=${{ secrets.SMTP_FROM_EMAIL }}
           NEXT_PUBLIC_APP_URL=https://kynthai.app
-          NODE_ENV=production
-          CORS_ORIGIN=https://kynthai.app,https://www.kynthai.app
-          HIPAA_ENABLED=true
           NEXT_PUBLIC_COMPLIANCE_MODE=true
           NEXT_PUBLIC_JURISDICTION=US
           EOF
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -101,30 +93,19 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NODE_ENV: production
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nextjs-build
-          path: |
-            .next/
-            public/
-            package.json
-            package-lock.json
-            prisma/
-          # .next is a hidden dir — without this the artifact only contained
-          # public/ + prisma/, so the deploy job's cp .next-build/.next failed
-          include-hidden-files: true
-          retention-days: 1
-
-  # ── Job 3: E2E Tests ──────────────────────────────────────────────────────
+  # ── Job 3: E2E Tests against the freshly built local server ───────────────
   # NOTE: Production is hosted on Vercel (kynthai.app) and deploys via Vercel's
-  # Git integration / CLI, not this workflow. The old SSH "Deploy to Server"
-  # job was removed — it had no secrets, no configured server, and never ran.
-  # ─────────────────────────────────────────────────────────────────────────
+  # Git integration, not this workflow. This job is the real deploy gate: it
+  # builds the app, seeds a throwaway postgres, starts the server on :3000 and
+  # runs the smoke + auth suites against THAT build — a broken commit fails
+  # here before Vercel ships it.
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: build
+    permissions:
+      contents: read
     env:
       # schema.prisma requires both DATABASE_URL and DIRECT_URL
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
@@ -172,7 +153,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts --no-audit --no-fund
 
       - run: npx prisma generate
 
@@ -238,13 +219,23 @@ jobs:
       - name: Wait for server
         run: npx wait-on http://localhost:3000 --timeout 30000
 
-      - name: Run E2E tests
-        # Validates the build + seeded DB + auth against the local server. We run
-        # ci-smoke.spec.ts (request-level checks mirroring the prod e2e-smoke job
-        # in ci.yml) + auth.spec.ts (login + role-based redirect flows). The heavy
-        # suites (appointment-booking, full-flows, comprehensive, a11y) are excluded
-        # because they predate the onboarding/consent flow and are out of scope for
-        # a deploy smoke gate — re-enable once they're updated to dismiss onboarding.
-        run: npx playwright test e2e/ci-smoke.spec.ts e2e/auth.spec.ts --project=chromium-desktop --project=firefox-desktop --project=webkit-desktop --workers=1
+      - name: Run E2E tests against the local build
+        # Real gate: targets the freshly built local server on :3000 (the
+        # smoke spec reads PLAYWRIGHT_BASE_URL). Previously ci-smoke.spec.ts
+        # defaulted to the stale kynthai-deploy.vercel.app project, so the
+        # API/browser half of the gate tested an old deployment and a broken
+        # build could go green. auth.spec.ts now asserts real behavior
+        # (validation toast, failed-login toast, patient redirect, admin
+        # auth-guard redirect) instead of expect(true).toBe(true).
+        run: npx playwright test e2e/ci-smoke.spec.ts e2e/auth.spec.ts --project=chromium-desktop --workers=1
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-e2e
+          path: e2e-report/
+          retention-days: 30

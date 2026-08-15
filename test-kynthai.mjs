@@ -14,7 +14,10 @@ import { chromium } from 'playwright';
 
   // Login
   console.log('=== Login ===');
-  await page.goto('http://localhost:4000/login', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.goto(process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000/login', {
+    waitUntil: 'domcontentloaded',
+    timeout: 30000,
+  });
   await page.fill('input[type="email"]', 'patient@demo.kynthai.app');
   await page.fill('input[type="password"]', 'Demo@2024');
   await page.click('button[type="submit"]');

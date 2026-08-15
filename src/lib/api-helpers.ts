@@ -264,6 +264,30 @@ export async function requireAuth(
     profile = await db.user.findUnique({ where: { id: userId } })
   }
 
+  // C3: load the patient's allergies (plain JSON string or comma list) so the
+  // drug-allergy safety checks in chat/interactions/symptom-analyze actually
+  // fire. `getSupabaseProfile` strips them, so fetch the two columns directly.
+  let allergies: string | null = null
+  try {
+    const { db } = await import('@/lib/db')
+    const row = await db.user.findUnique({
+      where: { id: userId },
+      select: { allergies: true, allergies_enc: true },
+    })
+    if (row) {
+      if (row.allergies_enc) {
+        const { decryptValue } = await import('@/lib/encryption')
+        const dec = decryptValue(row.allergies_enc)
+        allergies = dec || row.allergies
+      } else {
+        allergies = row.allergies
+      }
+    }
+  } catch {
+    // Non-fatal: fall back to whatever the profile carried (or null).
+    allergies = (profile as any)?.allergies ?? null
+  }
+
   // Build a minimal User object for downstream code
   const user = {
     id: profile.id,
@@ -279,9 +303,9 @@ export async function requireAuth(
     stripeCustomerId: null,
     sessionToken: null,
     sessionExpiry: null,
-    consentAccepted: profile.consentAccepted ?? true,
-    dataProcessingConsent: profile.dataProcessingConsent ?? true,
-    aiTrainingConsent: profile.aiTrainingConsent ?? true,
+    consentAccepted: profile.consentAccepted ?? false,
+    dataProcessingConsent: profile.dataProcessingConsent ?? false,
+    aiTrainingConsent: profile.aiTrainingConsent ?? false,
     notificationPrefs: null,
     emailOptOut: false,
     isDemo: profile.isDemo ?? false,
@@ -289,7 +313,7 @@ export async function requireAuth(
     lockedUntil: null,
     dateOfBirth: null,
     dateOfBirth_enc: null,
-    allergies: null,
+    allergies: allergies,
     allergies_enc: null,
     passwordResetToken: null,
     passwordResetToken_enc: null,

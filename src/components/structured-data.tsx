@@ -9,12 +9,11 @@
 
 // ─── Schema definitions (pure data — no hooks, no subscriptions) ──────────────
 
-const KYNETHA_ADDRESS = {
-  streetAddress: '1209 Orange St, Wilmington, DE 19801',
-  addressLocality: 'Wilmington',
-  addressRegion: 'DE',
-  postalCode: '19801',
-  addressCountry: 'US',
+// No registered mailing address to publish (company not yet registered; a
+// placeholder/inferred address would be a false claim). Contact is email-only:
+// hello@kynthai.app (support) / privacy@kynthai.app (privacy).
+const KYNETHA_CONTACT = {
+  email: 'privacy@kynthai.app',
 } as const;
 
 const SOCIAL_PROFILES = [
@@ -59,7 +58,7 @@ const WEBAPP_SCHEMA = {
   author: {
     '@type': 'Organization',
     '@id': 'https://kynthai.app/#organization',
-    name: 'Kynthai Health Technologies LLC',
+    name: 'Kynthai Health Technologies',
   },
   publisher: { '@id': 'https://kynthai.app/#organization' },
 } as const;
@@ -68,12 +67,11 @@ const MEDICAL_ORG_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': 'https://kynthai.app/#medicalorganization',
-  name: 'Kynthai Health Technologies LLC',
+  name: 'Kynthai Health Technologies',
   description:
     'AI-powered health management platform for patients, families, doctors, and labs in the United States.',
   url: 'https://kynthai.app',
-  ...KYNETHA_ADDRESS,
-  email: 'privacy@kynthai.app',
+  ...KYNETHA_CONTACT,
   foundingDate: '2025',
   sameAs: [...SOCIAL_PROFILES],
   areaServed: { '@type': 'Country', name: 'United States' },
@@ -83,12 +81,11 @@ const ORG_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': 'https://kynthai.app/#organization',
-  name: 'Kynthai Health Technologies LLC',
+  name: 'Kynthai Health Technologies',
   description:
     'AI-powered health management platform for patients, families, doctors, and labs in the United States.',
   url: 'https://kynthai.app',
-  ...KYNETHA_ADDRESS,
-  email: 'privacy@kynthai.app',
+  ...KYNETHA_CONTACT,
   foundingDate: '2025',
   sameAs: [...SOCIAL_PROFILES],
   areaServed: { '@type': 'Country', name: 'United States' },
@@ -152,7 +149,7 @@ const FAQ_SCHEMA = {
       name: 'Is my data safe with Kynthai?',
       acceptedAnswer: {
         '@type': 'Answer' as const,
-        text: 'Kynthai uses encryption at rest and in transit to protect your data. No health data is sold to third parties. You can export or delete your data anytime. For questions: privacy@kynthai.app.',
+        text: 'Kynthai protects your data in transit with TLS 1.3, and uploads/prescription images are encrypted at rest with AES-256-GCM. No health data is sold to third parties. You can export or delete your data anytime. For questions: privacy@kynthai.app.',
       },
     },
     {

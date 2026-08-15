@@ -124,13 +124,10 @@ Non-critical but needed for features:
 NOTE: DATABASE_URL and DIRECT_URL MUST include sslmode=require.
 Owner: Security / DevOps | Sprint: Hour 0-4 (pre-production)
 
-#### BLOCKER B11: Missing prisma-encryption-middleware.ts
+#### BLOCKER B11: Missing prisma-encryption-middleware.ts — ✅ RESOLVED
 File: HIPAA-COMPLIANCE.md:17 references src/lib/prisma-encryption-middleware.ts
-Actual: Only src/lib/encryption.ts (low-level primitives) exists.
-Required:
-  (a) Create src/lib/prisma-encryption-middleware.ts intercepting all Prisma reads/writes, OR
-  (b) Update HIPAA-COMPLIANCE.md to match actual implementation, AND
-  (c) Verify every PHI field in HIPAA-COMPLIANCE.md 1.A has matching _enc column in prisma/schema.prisma
+Actual: `src/lib/prisma-encryption-middleware.ts` EXISTS (full AES-256-GCM middleware with per-field map).
+Remaining (status tracked in HIPAA-COMPLIANCE.md): the middleware is NOT installed on the Prisma client and `_enc` columns are not backfilled — field-level encryption is PREPARED, not enabled. Activation requires: backfill migration → `installEncryptionMiddleware()` at `src/lib/db.ts` → `ENCRYPTION_TRANSITIONAL=false`. Until then general DB fields are plaintext; uploads/prescription images are encrypted today.
 Owner: Security | Sprint: Hour 0-24
 
 #### BLOCKER B12: HIPAA Production Checklist Items
@@ -143,7 +140,7 @@ From HIPAA-COMPLIANCE.md section 10 (all currently unchecked):
 | Transitional mode disabled | Set ENCRYPTION_TRANSITIONAL=false after verification | grep ENCRYPTION_TRANSITIONAL .env.production |
 | Database backups encrypted | Enable AWS RDS encryption OR disk-level + S3 SSE | AWS console / infra-as-code review |
 | Access logs reviewed | Run src/lib/audit-compliance-report.ts | Review PHI exposure report output |
-| Penetration test completed | Complete internal/external pentest | Retain signed report for BAA evidence |
+| Penetration test completed | Complete internal/external pentest | Retain signed report in compliance folder |
 Owner: Security + DevOps | Sprint: Hour 4-48
 
 #### CSRF TOKEN CONFIGURATION

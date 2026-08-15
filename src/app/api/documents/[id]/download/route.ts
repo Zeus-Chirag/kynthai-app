@@ -145,9 +145,20 @@ async function checkDocumentAccess(
   // Uploader
   if (document.uploadedById === userId) return true;
 
-  // Doctor access
+  // Doctor access: only with a real care relationship (appointment or
+  // prescription linking this doctor to the patient). Previously any doctor
+  // could read any patient's clinical documents (C2 — PHI leak).
   if (userRole === 'doctor' && ['CLINICAL', 'ADMINISTRATIVE'].includes(document.visibility)) {
-    return true;
+    const profile = await db.doctorProfile.findUnique({ where: { userId } });
+    if (profile) {
+      const [apt, rx] = await Promise.all([
+        db.appointment.findFirst({ where: { doctorId: profile.id, patientId: document.userId } }),
+        db.prescription.findFirst({ where: { doctorId: profile.id, patientId: document.userId } }),
+      ]);
+      if (apt || rx) return true;
+    }
+    // No care relationship → no access.
+    return false;
   }
 
   // Family access

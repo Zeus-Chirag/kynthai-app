@@ -227,11 +227,11 @@ Kynthai is a **HIPAA-ready** AI health management platform built on Next.js 16, 
 |-------------|--------|-------|
 | Access controls | ✅ | Role-based auth, session management |
 | Audit controls | ✅ | Structured audit log with all required fields |
-| Integrity controls | ✅ | Encryption at rest, HMAC session signing |
+| Integrity controls | ✅ | HMAC session signing, file upload encryption |
 | Transmission security | ✅ | TLS enforced, HSTS preload |
-| Encryption at rest | ✅ | PII fields encrypted, database encryption |
-| BAA | ⚠️ | Logic implies BAA with Supabase but not documented |
-| Breach notification | ❌ | No automated breach detection or notification flow |
+| Encryption at rest | ⚠️ | Disk-level + uploads/prescription images (AES-256-GCM); field-level prepared, pending migration |
+| BAA | N/A | Not a HIPAA-covered entity — no BAA required or claimed; vendor DPAs apply instead |
+| Breach notification | ⚠️ | No automated breach detection or notification flow (FTC HBNR 60-day obligation applies) |
 | Minimum necessary | ⚠️ | Some queries fetch full rows instead of selecting only needed fields |
 
 ### US Privacy

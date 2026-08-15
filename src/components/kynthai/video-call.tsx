@@ -45,15 +45,14 @@ export function VideoCall({
   const pollTimerRef = React.useRef<number | null>(null);
   const endedRef = React.useRef(false);
 
-  // Optional TURN server for NAT traversal (required when STUN alone fails).
-  // Provide all three or none; they are injected as public NEXT_PUBLIC_* env vars.
-  // Recommended providers: Twilio Network Traversal, Xirsys, or self-hosted coturn.
-  //   NEXT_PUBLIC_TURN_URL        e.g. turn:your-turn-server.com:3478
-  //   NEXT_PUBLIC_TURN_USERNAME   arbitrary identifier
-  //   NEXT_PUBLIC_TURN_PASSWORD   TURN credential or password
-  const TURN_URL = process.env.NEXT_PUBLIC_TURN_URL || '';
-  const TURN_USERNAME = process.env.NEXT_PUBLIC_TURN_USERNAME || '';
-  const TURN_PASSWORD = process.env.NEXT_PUBLIC_TURN_PASSWORD || '';
+  // ICE servers are fetched from the authenticated /api/turn-credentials
+  // endpoint — TURN credentials are never shipped in the client bundle
+  // (previously NEXT_PUBLIC_TURN_* were inlined into the JS for anyone to
+  // extract and abuse). STUN-only is the offline/dev fallback.
+  const [iceServers, setIceServers] = React.useState<RTCIceServer[]>([
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+  ]);
 
   const [peer, setPeer] = React.useState<PeerState>({ connected: false });
   const [muted, setMuted] = React.useState(false);
@@ -95,15 +94,7 @@ export function VideoCall({
   );
 
   const buildPeerConnection = React.useCallback(() => {
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        ...(TURN_URL
-          ? [{ urls: TURN_URL, username: TURN_USERNAME, credential: TURN_PASSWORD }]
-          : []),
-      ],
-    });
+    const pc = new RTCPeerConnection({ iceServers });
 
     pc.ontrack = event => {
       const stream = event.streams[0]!;
@@ -125,7 +116,7 @@ export function VideoCall({
     };
 
     return pc;
-  }, [TURN_URL, TURN_USERNAME, TURN_PASSWORD, postSignal]);
+  }, [iceServers, postSignal]);
 
   const handleEnd = React.useCallback(() => {
     endedRef.current = true;
@@ -284,6 +275,30 @@ export function VideoCall({
       if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
     };
   }, [showConsent, consentGiven, buildPeerConnection, postSignal, poll]);
+
+  React.useEffect(() => {
+    // Fetch authenticated ICE servers (may include ephemeral TURN credentials).
+    // Best-effort: on failure keep the STUN fallback — calls still work for
+    // most peers, only NAT-traversal-heavy ones may fail.
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/turn-credentials', {
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as { iceServers?: RTCIceServer[] };
+        if (data.iceServers?.length && !cancelled) {
+          setIceServers(data.iceServers);
+        }
+      } catch {
+        // keep STUN fallback
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   React.useEffect(() => {
     return () => {

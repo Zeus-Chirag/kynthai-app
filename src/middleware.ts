@@ -23,7 +23,7 @@ import { validateEnv } from './lib/env';
 // import { recordAudit, AuditCategory } from './lib/audit-logger';
 import { logger } from '@/lib/logger';
 import { checkCsrf } from '@/lib/csrf';
-import { verifySessionToken } from './lib/session-signing';
+import { verifySessionToken, signSessionToken, verifySupabaseJwt } from './lib/session-signing';
 
 // HMR-safe env validation (fail-loud in production, skip during build/edge)
 let envValidated = false;
@@ -235,6 +235,8 @@ function buildAuthPrefixes(): string[] {
     '/api/account',
     '/api/consent',
     '/api/me',
+    '/api/monitoring',
+    '/api/turn-credentials',
   ];
   // Add /api/v1/ variants
   const v1: string[] = v0.map(p => '/api/v1' + p.slice(4));
@@ -468,19 +470,50 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
   res.headers.set('X-Request-Id', requestId);
 
   // ── Supabase Auth: check session presence ──────────────────────────────
-  // Parse user ID from the cookie JWT (no network call, no Supabase client).
+  // Parse user ID from the cookie JWT. The sb-*-auth-token cookie is only
+  // trusted after verifying its HS256 signature against SUPABASE_JWT_SECRET —
+  // previously the middleware base64-decoded the cookie and trusted any
+  // JSON payload, so an attacker could forge `sb-x-auth-token` claiming any
+  // user id (bypassing the login-redirect guard, keying rate limits to a
+  // victim, and poisoning audit logs with fake ids). Unverifiable cookies
+  // fail closed to unauthenticated. When no verification secret is
+  // configured the sb-* cookie is ignored entirely; every real login path
+  // also sets the HMAC-verified kynthai-session cookie, so the gate still
+  // works. There is no network call — pure WebCrypto at the edge.
   let supabaseUser: { id: string } | null = null;
   try {
     const cookies = req.cookies.getAll();
     const sessionCookie = cookies.find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'));
-    if (sessionCookie?.value) {
-      const raw = sessionCookie.value.replace('base64-', '');
-      // Supabase uses URL-safe base64 (replaces +/ with -_)
-      const std = raw.replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(Buffer.from(std, 'base64').toString('utf-8'));
-      if (payload.user?.id) supabaseUser = { id: payload.user.id };
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    if (sessionCookie?.value && jwtSecret) {
+      const verified = await verifySupabaseJwt(sessionCookie.value, jwtSecret);
+      if (verified) {
+        supabaseUser = verified;
+        // Sliding renewal: make sure the HMAC-verified kynthai-session cookie
+        // exists too, so the portal guard keeps working even if the sb-*
+        // refresh window outlives it and SUPABASE_JWT_SECRET is absent.
+        const localSessionCookie = cookies.find(c => c.name === 'kynthai-session');
+        if (!localSessionCookie?.value || !(await verifySessionToken(localSessionCookie.value))) {
+          const signed = await signSessionToken(verified.id);
+          if (signed) {
+            // Same cookie policy as the login route; Secure only behind a TLS
+            // proxy so local/CI http testing still stores it.
+            const secure =
+              req.headers.get('x-forwarded-proto') === 'https' ||
+              req.headers.get('x-forwarded-ssl') === 'on';
+            res.cookies.set('kynthai-session', signed, {
+              httpOnly: true,
+              secure,
+              sameSite: 'strict',
+              maxAge: 60 * 60 * 24 * 7,
+              path: '/',
+            });
+          }
+        }
+      }
+      // Verification failed OR no secret configured → sb-* cookie not trusted.
     }
-    // Also check for local session cookie (kynthai-session) — HMAC verified
+    // Local session cookie (kynthai-session) — HMAC verified
     if (!supabaseUser) {
       const localSessionCookie = cookies.find(c => c.name === 'kynthai-session');
       if (localSessionCookie?.value) {

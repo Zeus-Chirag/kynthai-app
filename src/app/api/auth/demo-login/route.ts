@@ -13,6 +13,13 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    // C4: this endpoint is a demo convenience — never let it authenticate
+    // against the live production database. In production, login must go
+    // through the real auth flow only.
+    if (process.env.NODE_ENV === 'production') {
+      return jsonError('Not available in production', 404, 'NOT_FOUND');
+    }
+
     const limited = rateLimit(req, 10, 60000, { globalKey: true });
     if (limited) return limited;
 

@@ -13,7 +13,7 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
-      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - NEXT_PUBLIC_STRIPE_PK=${NEXT_PUBLIC_STRIPE_PK}
       - NEXT_PUBLIC_APP_URL=https://kynthai.app
       - NEXTAUTH_URL=https://kynthai.app
       - ADMIN_EMAILS=${ADMIN_EMAILS}

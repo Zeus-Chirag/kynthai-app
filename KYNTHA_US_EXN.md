@@ -365,7 +365,7 @@ src/
 | Patient Portal Invites (email) | ❌ | Simulated only |
 | Audit Logging | ❌ | No comprehensive audit trail |
 | Admin Action Audit | ❌ | Admin actions not logged |
-| HIPAA BAA | ❌ | Not in code |
+| HIPAA BAA | N/A | Not a HIPAA-covered entity — no BAA required or claimed |
 
 ---
 
@@ -381,7 +381,7 @@ src/
 ### 5.2 US Market Requirements
 1. **State Medical Board Verification** — Replace UK license verification with US state-by-state medical board checks, NPI registry lookup
 2. **State Telemedicine Licensure** — US requires doctors to be licensed in the patient's state for video consultations
-3. **HIPAA BAA** — Need Business Associate Agreement flow for AI providers (Claude, Google AI)
+3. **HIPAA BAA** — N/A: not a HIPAA-covered entity, so no BAA flow needed; use data-processing agreements + de-identified AI context instead
 4. **Insurance Integration** — US patients expect insurance verification before appointments
 5. **Stripe Payments** — Must integrate real payment processing (currently simulated)
 6. **State-by-State Lab Licensing** — Lab CLIA certificates vary by state
@@ -449,7 +449,7 @@ STRIPE_SECRET_KEY=...      # Payments (not implemented)
 1. Remove UK artifacts (NHS forum, NHS app, Agreement J)
 2. Replace medical license verification with NPI/state board lookup
 3. Integrate Stripe for real payments
-4. Add HIPAA BAA flow for AI providers
+4. Remove HIPAA/BAA references — Kynthai is not a covered entity; rely on data-processing agreements + de-identified AI context
 5. Implement state-by-state telemedicine compliance
 6. Add proper audit logging
 

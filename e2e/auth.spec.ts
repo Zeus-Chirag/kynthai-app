@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { goto, expectPath, loginAs, DEMO_ACCOUNTS, collectConsoleErrors } from './helpers';
-import type { DemoRole } from './helpers';
+import { goto, loginAs, DEMO_ACCOUNTS, collectConsoleErrors } from './helpers';
 
 test.describe('Authentication', () => {
   test.describe('Login Page', () => {
@@ -26,12 +25,11 @@ test.describe('Authentication', () => {
 
       // Submit empty form
       await page.locator('#login-submit-btn').click();
-      await page.waitForTimeout(2000);
 
-      // Should show some validation feedback (either HTML5 or custom)
-      const bodyText = await page.locator('body').textContent();
-      const hasError = bodyText?.includes('required') || bodyText?.includes('invalid') || bodyText?.includes('error');
-      // HTML5 validation may prevent submission — either way, no crash
+      // The submit handler must surface the "Missing details" validation toast.
+      await expect(page.locator('body')).toContainText(/missing details|email and password are required/i, { timeout: 8000 });
+      // And must NOT navigate away from the login page.
+      expect(page.url()).toContain('/login');
     });
 
     test('shows error for invalid credentials', async ({ page }) => {
@@ -47,22 +45,13 @@ test.describe('Authentication', () => {
 
       await page.locator('#login-submit-btn').click();
 
-      // Should show error message
-      await page.waitForTimeout(3000);
-      const bodyText = await page.locator('body').textContent();
-      const hasErrorFeedback = (
-        bodyText?.includes('Invalid') ||
-        bodyText?.includes('incorrect') ||
-        bodyText?.includes('failed') ||
-        bodyText?.includes('error') ||
-        bodyText?.includes('Wrong') ||
-        bodyText?.includes('not found')
-      );
-      // If we reached a redirect, that's also valid (demo mode may be off)
-      expect(true).toBe(true);
+      // The failed POST /auth/login must surface the "Sign in failed" toast.
+      await expect(page.locator('body')).toContainText(/sign in failed/i, { timeout: 10000 });
+      // Stay on /login — no session issued for bad credentials.
+      expect(page.url()).toContain('/login');
     });
 
-    test('logs in with valid demo credentials', async ({ page }) => {
+    test('logs in with valid demo credentials and redirects to patient portal', async ({ page }) => {
       const errors: string[] = [];
       page.on('console', collectConsoleErrors(errors));
 
@@ -76,16 +65,9 @@ test.describe('Authentication', () => {
 
       await page.locator('#login-submit-btn').click();
 
-      // Should redirect away from login page
-      await page.waitForTimeout(3000);
-      const currentUrl = page.url();
-
-      // If login succeeded, we should NOT still be on /login
-      if (!currentUrl.includes('/login')) {
-        // Verify we landed on a meaningful page
-        const bodyText = await page.locator('body').textContent();
-        expect(bodyText?.length).toBeGreaterThan(100);
-      }
+      // Valid credentials must redirect the patient to /patient.
+      await page.waitForURL('**/patient**', { timeout: 15000 });
+      expect(page.url()).toContain('/patient');
     });
   });
 
@@ -114,26 +96,18 @@ test.describe('Authentication', () => {
   test.describe('Role-Based Redirects', () => {
     test('patient role lands on patient dashboard after login', async ({ page }) => {
       await loginAs(page, 'patient', '/patient');
-      const url = page.url();
-      // Should be on patient dashboard or the auth handled it
-      expect(url.includes('/patient') || url.includes('/login')).toBe(true);
+      // loginAs waits for the redirect — the auth guard must land the patient
+      // on the patient dashboard, not leave them on /login.
+      expect(page.url()).toContain('/patient');
     });
 
-    test('admin page requires admin role', async ({ page }) => {
+    test('admin page requires admin role — unauthenticated visit redirects to login', async ({ page }) => {
       // Try accessing admin page directly without auth
       await goto(page, '/admin');
 
-      // Run a simple check — either it shows the page, or redirects to login
-      await page.waitForTimeout(3000);
-      const currentUrl = page.url();
-      // If redirected to login, that's the expected auth guard behavior
-      if (currentUrl.includes('/login') || currentUrl.includes('/auth')) {
-        expect(true).toBe(true); // Auth guard works
-      } else {
-        // If we're on admin page without auth, that's a security concern
-        const body = await page.locator('body').textContent();
-        expect(body?.length).toBeGreaterThan(50);
-      }
+      // Auth guard must bounce unauthenticated visitors to /login.
+      await page.waitForURL('**/login**', { timeout: 10000 });
+      expect(page.url()).toContain('/login');
     });
   });
 });

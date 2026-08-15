@@ -42,19 +42,14 @@ export default function RootPage({ children }: RootPageProps) {
       {
         '@type': 'MedicalOrganization',
         '@id': BASE + '/#organization',
-        name: 'Kynthai Health Technologies LLP',
+        name: 'Kynthai Health Technologies',
         url: BASE,
         logo: BASE + '/logo.png',
         description:
-          'Kynthai is an AI-powered health companion for American families, offering medicine reminders, health tracking, doctor video consultations, lab test bookings, and family health management, Privacy-first.',
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: 'TBD — update upon registration',
-          addressLocality: 'TBD',
-          addressRegion: 'TBD',
-          postalCode: 'TBD',
-          addressCountry: 'US',
-        },
+          'Kynthai is an AI-powered health companion for families, offering medicine reminders, health tracking, doctor video consultations, lab test bookings, and family health management, Privacy-first.',
+        // No street address published yet: the company has not registered a
+        // corporate mailing address, and publishing a placeholder or inferred
+        // one would be a false claim. Contact is email-only until registration.
         contactPoint: [
           {
             '@type': 'ContactPoint',

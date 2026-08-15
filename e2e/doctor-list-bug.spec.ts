@@ -2,14 +2,14 @@ import { test, expect } from '@playwright/test';
 
 test('Doctor listing bug — Care tab shows doctors after portal-loaders fix', async ({ page }) => {
   // Login via API
-  const csrfRes = await page.request.get('http://localhost:4000/api/auth/csrf');
+  const csrfRes = await page.request.get('/api/auth/csrf');
   const csrfToken = (await csrfRes.json()).token;
-  await page.request.post('http://localhost:4000/api/auth/login', {
+  await page.request.post('/api/auth/login', {
     data: { email: 'patient@demo.kynthai.app', password: 'Demo@2024' },
     headers: { 'X-CSRF-Token': csrfToken },
   });
 
-  await page.goto('http://localhost:4000/patient');
+  await page.goto('/patient');
   await page.waitForTimeout(5000);
 
   // Accept cookies consent if present (this blocks clicks)

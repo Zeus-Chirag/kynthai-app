@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     'health tech US',
     'family medication management',
   ],
-  authors: [{ name: 'Kynthai Health Technologies LLC' }],
+  authors: [{ name: 'Kynthai Health Technologies' }],
   manifest: '/manifest.json',
   openGraph: {
     title: 'Kynthai — AI Health & Medication Manager for American Families',

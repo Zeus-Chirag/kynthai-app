@@ -34,9 +34,11 @@ export async function syncSupabaseUser(
         emailVerified: supabaseUser.email_confirmed_at ? new Date(supabaseUser.email_confirmed_at) : null,
         // No password — Supabase manages auth
         password: null,
-        consentAccepted: true,
-        dataProcessingConsent: true,
-        aiTrainingConsent: true,
+        // Consent starts explicitly un-granted: the user must opt in via the
+        // registration checkbox / consent gate before health features unlock.
+        consentAccepted: false,
+        dataProcessingConsent: false,
+        aiTrainingConsent: false,
       },
     });
   }
