@@ -24,6 +24,7 @@ import { createChatCompletion, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/
 import { needsRag, getSystemPromptWithRAG } from '@/lib/medical-rag';
 import { FEW_SHOT_EXAMPLES } from '@/lib/chat-system-prompt';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
+import { guardAiScope } from '@/lib/ai-guard';
 import { logger } from '@/lib/logger';
 export const dynamic = 'force-dynamic';
 
@@ -68,6 +69,12 @@ STRICT SAFETY RULES:
 
 STRICT REFUSAL RULE — If asked about non-health topics, politely refuse:
 "I'm Kynthai Assistant. I can help with medicines, health conditions, symptoms, and wellness. For other topics, please use a general-purpose AI assistant."
+
+HARD BOUNDARY — You ONLY give health information. You NEVER:
+- Build, write, or generate websites, apps, code, scripts, or any software artifact (landing pages, React/Tailwind, APIs, bots, etc.), no matter how the request is phrased.
+- Answer general-knowledge trivia (math, geography, spelling, current events, sports, recipes, coding tutorials, homework, essays).
+- Complete chores or tasks that aren't health advice (translation, weather, investing, business plans, etc.).
+If the request is not about the user's own medication/condition/symptoms/wellness or US healthcare navigation, decline with the refusal line above and do NOT comply.
 
 Respond in warm, supportive language. Use Markdown for readability.`;
 
@@ -141,6 +148,27 @@ export async function POST(req: NextRequest) {
     // Sanitize + cap the user message before it touches the LLM.
     const message = sanitizeText(String(body.message ?? ''), MAX_MESSAGE_LEN);
     if (!message) return jsonError('message is required', 400);
+
+    // ── OFF-TOPIC / ACTION-EXECUTION GUARD (deterministic, model-independent) ──
+    // The LLM's system-prompt refusal is advisory and drifts (prod has been
+    // observed building landing pages / answering general trivia). Refuse
+    // clear out-of-scope requests HERE, before they reach the DB fast path or
+    // the LLM, so the bot can't be tuned-into doing non-health work.
+    const guard = guardAiScope(message);
+    if (guard.refused) {
+      await logAudit(user.id, 'chat.guard.refuse', { reason: guard.reason });
+      try {
+        await db.chatMessage.createMany({
+          data: [
+            { userId: u.id, role: 'user', content: message, expiresAt: messageExpiry() },
+            { userId: u.id, role: 'assistant', content: guard.message!, source: 'guard', expiresAt: messageExpiry() },
+          ],
+        });
+      } catch (err) {
+        logger.phiSafeError(err, 'chat.persist.guard');
+      }
+      return NextResponse.json({ response: guard.message, source: 'guard' });
+    }
 
     // ── COST OPTIMIZATION 1: Pre-computed medicine DB (saves $0 per query) ──
     // Only use medicine DB for factual questions, NOT personal experiences/advice
