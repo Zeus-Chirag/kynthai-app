@@ -50,7 +50,7 @@ export function LabApp({ user }: { user: AuthUser }) {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch { /* ignore */ }
     logout();
-    router.replace('/');
+    router.replace('/login');
   }, [logout, router]);
 
   const load = React.useCallback(async () => {

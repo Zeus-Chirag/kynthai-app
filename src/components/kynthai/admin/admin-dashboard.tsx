@@ -110,7 +110,7 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch { /* ignore */ }
     logout();
-    router.replace('/');
+    router.replace('/login');
   }, [logout, router]);
   const [tab, setTab] = React.useState<AdminTab>('overview');
   const [profileOpen, setProfileOpen] = React.useState(false);

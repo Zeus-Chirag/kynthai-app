@@ -235,7 +235,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
   const handleLogout = React.useCallback(async () => {
     try { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); } catch {}
     logout();
-    router.replace('/');
+    router.replace('/login');
   }, [logout, router]);
   const [family, setFamily] = React.useState<FamilyMember[]>(SAMPLE_FAMILY);
   const [alerts, setAlerts] = React.useState<EscalatedAlert[]>(SAMPLE_ALERTS);

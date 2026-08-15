@@ -226,7 +226,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch { /* ignore */ }
     logout();
-    router.replace('/');
+    router.replace('/login');
   }, [logout, router]);
 
   React.useEffect(() => {

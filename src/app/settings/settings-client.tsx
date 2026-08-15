@@ -237,7 +237,7 @@ export default function SettingsClient() {
         throw new Error(data.error || 'Delete failed');
       }
       logout();
-      router.replace('/');
+      router.replace('/login');
       toast({ title: 'Account deleted', description: 'Your account has been permanently deleted.' });
     } catch (err) {
       toast({
@@ -286,7 +286,7 @@ export default function SettingsClient() {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch { /* ignore */ }
     logout();
-    router.replace('/');
+    router.replace('/login');
   }
 
   // ── Render ──────────────────────────────────────────────────────────────
