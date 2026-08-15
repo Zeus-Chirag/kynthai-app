@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { requireAuthWithCsrf, jsonError, readJson, isUserMinor } from '@/lib/api-helpers'
+import { requireAuthWithCsrf, requireAuth, jsonError, readJson, isUserMinor } from '@/lib/api-helpers'
 import { logAudit } from '@/lib/auth'
 import { sanitizeText } from '@/lib/security'
 import { emergencySosSchema } from '@/lib/schemas/security'
@@ -192,7 +192,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const { response, user } = await requireAuthWithCsrf(req)
+  // ponytail: GET is read-only — CSRF validation is for state-changing
+  // methods only (POST/PATCH/DELETE). Requiring CSRF on GET breaks
+  // browser prefetching and link prefetching.
+  const { response, user } = await requireAuth(req)
   if (response || !user) return response!
 
   try {

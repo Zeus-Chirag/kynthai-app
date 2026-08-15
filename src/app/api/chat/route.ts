@@ -565,7 +565,7 @@ hasPatientContext: formattedContext.length > 0,
           {
             userId: u.id,
             role: 'assistant',
-            content: safeReply,
+            content: finalReply,
             source: 'llm',
             expiresAt: messageExpiry(),
           },
@@ -575,7 +575,7 @@ hasPatientContext: formattedContext.length > 0,
       logger.phiSafeError(err, 'chat.persist.llm');
     }
 
-    return NextResponse.json({ response: safeReply, source: 'llm' });
+    return NextResponse.json({ response: finalReply, source: 'llm' });
   } catch (error) {
     // Security: never log raw medical context or AI errors — they may contain sensitive health data
     logger.phiSafeError(error, 'chat.POST');

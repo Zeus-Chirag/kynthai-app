@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { sanitizeText, rateLimit } from '@/lib/security';
 import { logAudit } from '@/lib/auth';
-import { requireAuth, jsonError, jsonOk, readJson, audit } from '@/lib/api-helpers';
+import { requireAuthWithCsrf, jsonError, jsonOk, readJson, audit } from '@/lib/api-helpers';
 import crypto from 'crypto';
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   const limited = rateLimit(req);
   if (limited) return limited;
 
-  const { response, user } = await requireAuth(req);
+  const { response, user } = await requireAuthWithCsrf(req);
   if (response || !user) return response!;
   const u = user!;
 

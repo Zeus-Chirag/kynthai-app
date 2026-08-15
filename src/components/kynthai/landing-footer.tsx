@@ -65,7 +65,7 @@ export function LandingFooter() {
               { label: 'Family Portal', href: '/login' },
               { label: 'Doctor Portal', href: '/login' },
               { label: 'Lab Portal', href: '/login' },
-              { label: 'Reviews', href: '/#reviews' },
+              { label: 'Reviews', href: '/#faq' },
             ]}
           />
 

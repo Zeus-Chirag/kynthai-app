@@ -27,9 +27,6 @@ export async function GET(req: NextRequest) {
   // Audit: all admin lab profile accesses
   await logAudit(user.id, 'admin.labs.list');
 
-  // Audit: all admin lab profile accesses
-  await logAudit(user.id, 'admin.labs.list');
-
   try {
     const status = req.nextUrl.searchParams.get('status')?.trim();
     const where: any = {};
