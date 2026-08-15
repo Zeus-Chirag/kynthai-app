@@ -158,11 +158,11 @@ export async function POST(req: NextRequest) {
               })
               .catch(() => { /* analytics row is best-effort */ })
           } else {
-            console.warn(`[emergency-sos] SMS to ${t.name} failed: ${r.error ?? 'unknown'}`)
+            logger.warn('emergency-sos.sms_failed', { contact: t.name })
           }
         } catch (e) {
           // Never let a transport error fail the SOS alert itself.
-          console.warn(`[emergency-sos] SMS to ${t.name} threw`, e instanceof Error ? e.message : String(e))
+          logger.phiSafeError(e, 'emergency-sos.sms_exception')
         }
       }
     }
