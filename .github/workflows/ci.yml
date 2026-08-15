@@ -57,14 +57,28 @@ jobs:
         run: |
           echo "📋 Generating Software Bill of Materials (SBOM)..."
           mkdir -p sbom
-          # npm 10+ supports native sbom generation
-          npm sbom --sbom-format=cyclonedx > sbom/cyclonedx.json 2>&1 || \
-          npm sbom > sbom/cyclonedx.json 2>&1
+          # npm 10+ supports native sbom generation. Known quirk: `npm sbom`
+          # aborts with ESBOMPROBLEMS when next@16.2.12 bundles its own sharp
+          # 0.34.5 alongside the project's direct sharp ^0.35.3 (the resolver
+          # chokes on the duplicated @img/sharp-wasm32).next platform tree.
+          # That is not a dependency-version error worth failing CI on, so fall
+          # back to an explicit CycloneDX tool if the native sbom errors.
+          if npm sbom --sbom-format=cyclonedx > sbom/cyclonedx.json 2>/tmp/sbom.err; then
+            echo "  ✅ npm sbom OK ($(wc -c < sbom/cyclonedx.json) bytes)"
+          elif grep -q 'ESBOMPROBLEMS' /tmp/sbom.err; then
+            echo "  ⚠️ npm sbom rejected dual-sharp platform tree (known tooling quirk, not a vuln) — using CycloneDX tool"
+            npx @cyclonedx/bom --output sbom/cyclonedx.json 2>&1 | tail -2 || \
+              (npm install -g @cyclonedx/bom >/dev/null 2>&1 && cyclonedx-bom -o sbom/cyclonedx.json 2>&1 | tail -2)
+          else
+            echo "  ❌ npm sbom failed with an unexpected error:"
+            cat /tmp/sbom.err
+            exit 1
+          fi
 
       - name: Generate SBOM summary
         run: |
           echo "📊 SBOM Summary:"
-          if [ -f sbom/cyclonedx.json ]; then
+          if [ -f sbom/cyclonedx.json ] && [ -s sbom/cyclonedx.json ]; then
             echo "  ✅ CycloneDX SBOM generated ($(wc -c < sbom/cyclonedx.json) bytes)"
             # Extract key metrics if jq is available
             if command -v jq &> /dev/null; then
@@ -72,9 +86,7 @@ jobs:
               echo "  🏷  Format: $(jq -r '.bomFormat // "unknown"' sbom/cyclonedx.json)"
             fi
           else
-            echo "  ⚠️ Native npm sbom not available — installing CycloneDX tool..."
-            npm install -g @cyclonedx/bom 2>&1 | tail -3
-            cyclonedx-bom -o sbom/cyclonedx.json 2>&1 || echo "  ⚠️ SBOM generation skipped"
+            echo "  ⚠️ No SBOM produced (npm sbom + CycloneDX tool both unavailable)"
           fi
 
       - name: Upload SBOM artifact
