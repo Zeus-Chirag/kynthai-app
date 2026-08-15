@@ -111,7 +111,8 @@ async function apiCall(path: string, body: Record<string, unknown>) {
 
 export function LoginPage({
   initialMode = 'signin',
-}: { initialMode?: 'signin' | 'register' } = {}) {
+  initialDemo = false,
+}: { initialMode?: 'signin' | 'register'; initialDemo?: boolean } = {}) {
   const loginPortal = useAppStore(selectors.loginPortal);
   const setLoginPortal = useAppStore((s) => s.setLoginPortal);
   const login = useAppStore((s) => s.login);
@@ -126,14 +127,18 @@ export function LoginPage({
   // effect kicks in — a brief but real form→portal flash ("demo blinks for a
   // second on the same page"). Compute the intent synchronously here (before
   // effects) so the FIRST render already shows a loader and never the form.
+  //
+  // `initialDemo` comes from the server component (searchParams.demo === '1')
+  // so both SSR and client agree on the state — no hydration flash.
   const bootRequestingDemo =
-    typeof window !== 'undefined' &&
+    initialDemo ||
+    (typeof window !== 'undefined' &&
     process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' &&
     // URL marker survives only until the auto-login effect consumes it
     (new URLSearchParams(window.location.search).get('demo') === '1' ||
       ['patient', 'doctor', 'caretaker', 'lab', 'admin'].includes(
         (window.location.hash || '').replace('#', '').toLowerCase()
-      ));
+      )));
   const [demoBooting, setDemoBooting] = React.useState(bootRequestingDemo);
   // ───────────────────────────────────────────────────────────────────────────
 
