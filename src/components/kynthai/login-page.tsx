@@ -120,6 +120,23 @@ export function LoginPage({
   const router = useRouter();
   const { toast } = useToast();
 
+  // ── DEMO: suppress the login-form "blink" ────────────────────────────────
+  // The demo auto-login (below) runs an async login then replaces to the
+  // portal. Without a gate, the first paint shows the sign-in form, then the
+  // effect kicks in — a brief but real form→portal flash ("demo blinks for a
+  // second on the same page"). Compute the intent synchronously here (before
+  // effects) so the FIRST render already shows a loader and never the form.
+  const bootRequestingDemo =
+    typeof window !== 'undefined' &&
+    process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' &&
+    // URL marker survives only until the auto-login effect consumes it
+    (new URLSearchParams(window.location.search).get('demo') === '1' ||
+      ['patient', 'doctor', 'caretaker', 'lab', 'admin'].includes(
+        (window.location.hash || '').replace('#', '').toLowerCase()
+      ));
+  const [demoBooting, setDemoBooting] = React.useState(bootRequestingDemo);
+  // ───────────────────────────────────────────────────────────────────────────
+
   const [mode, setMode] = React.useState<'signin' | 'register'>(initialMode);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -252,6 +269,7 @@ export function LoginPage({
       return demoAccounts[0]!;
     })();
     setLoading(true);
+    setDemoBooting(true); // hide the form while the demo session comes up
     (async () => {
       try {
         const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
@@ -294,6 +312,7 @@ export function LoginPage({
         }
       } catch { /* fall through */ }
       setLoading(false);
+      setDemoBooting(false); // session failed — fall back to the sign-in form
     })();
   }, []);
 
@@ -440,6 +459,17 @@ export function LoginPage({
     } finally {
       setLoading(false);
     }
+  }
+
+  if (demoBooting) {
+    return (
+      <div className="flex min-h-dvh w-full items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <p className="text-sm text-muted-foreground">Preparing your demo experience…</p>
+        </div>
+      </div>
+    );
   }
 
   return (
