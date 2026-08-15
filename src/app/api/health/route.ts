@@ -19,16 +19,11 @@ export async function GET(req: NextRequest) {
     logger.phiSafeError(err, 'health_check.db')
   }
 
-  // Check environment
-  checks.env = process.env.NODE_ENV || 'unknown'
-  checks.uptime = `${Math.floor(process.uptime())}s`
-
+  // SECURITY: Only return minimal health info — no env, no uptime, no internals
   const status = healthy ? 200 : 503
   const res = NextResponse.json({
     status: healthy ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    checks,
   }, { status })
 
   applyStandardHeaders(res, req)

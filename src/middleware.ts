@@ -335,6 +335,12 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
     res.headers.set('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
   }
 
+  // Static pages cache (landing, pricing, legal) — short cache for SEO + performance
+  const staticPages = ['/' , '/pricing', '/privacy', '/terms', '/cookies', '/accessibility', '/medical-disclaimer', '/refund-cancellation'];
+  if (staticPages.includes(pathname)) {
+    res.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  }
+
   // API responses: never cache (may contain sensitive health data)
   if (pathname.startsWith('/api/')) {
     res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

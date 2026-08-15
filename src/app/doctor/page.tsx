@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Doctor Portal',
+  description: 'Manage consultations, patients, and practice on Kynthai.',
+}
 
 import DoctorClient from './doctor-client'
 import { requireSessionUser } from '@/lib/auth'
