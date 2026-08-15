@@ -471,8 +471,10 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
 
   // ── Supabase Auth: check session presence ──────────────────────────────
   // Parse user ID from the cookie JWT. The sb-*-auth-token cookie is only
-  // trusted after verifying its HS256 signature against SUPABASE_JWT_SECRET —
-  // previously the middleware base64-decoded the cookie and trusted any
+  // trusted after verifying its signature — HS256 against SUPABASE_JWT_SECRET,
+  // or ES256 against the project's public signing key
+  // (SUPABASE_JWT_ES256_PUBLIC_JWK) for projects migrated to asymmetric keys.
+  // Previously the middleware base64-decoded the cookie and trusted any
   // JSON payload, so an attacker could forge `sb-x-auth-token` claiming any
   // user id (bypassing the login-redirect guard, keying rate limits to a
   // victim, and poisoning audit logs with fake ids). Unverifiable cookies
@@ -486,7 +488,9 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
     const sessionCookie = cookies.find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'));
     const jwtSecret = process.env.SUPABASE_JWT_SECRET;
     if (sessionCookie?.value && jwtSecret) {
-      const verified = await verifySupabaseJwt(sessionCookie.value, jwtSecret);
+      const rawJwk = process.env.SUPABASE_JWT_ES256_PUBLIC_JWK;
+      const es256Jwk: JsonWebKey | null = rawJwk ? (JSON.parse(rawJwk) as JsonWebKey) : null;
+      const verified = await verifySupabaseJwt(sessionCookie.value, jwtSecret, es256Jwk);
       if (verified) {
         supabaseUser = verified;
         // Sliding renewal: make sure the HMAC-verified kynthai-session cookie

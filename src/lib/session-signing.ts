@@ -10,10 +10,11 @@
  *   3. 'kynthai-dev-fallback-secret' (dev only — refuses to sign in production)
  *
  * Also exports verifySupabaseJwt: cryptographic verification of the
- * Supabase sb-*-auth-token cookie (HS256, signed with SUPABASE_JWT_SECRET)
- * for use at the Edge middleware. A cookie whose signature does not verify
- * (or that is not a JWT at all) MUST be treated as unauthenticated — the old
- * base64-JSON decode trusted arbitrary forged payloads.
+ * Supabase sb-*-auth-token cookie (HS256 via SUPABASE_JWT_SECRET, or ES256 via
+ * the project's public signing key) for use at the Edge middleware. A cookie
+ * whose signature does not verify (or that is not a JWT at all) MUST be
+ * treated as unauthenticated — the old base64-JSON decode trusted arbitrary
+ * forged payloads.
  */
 
 function getSigningSecret(): string | null {
@@ -93,42 +94,103 @@ function base64UrlToBytes(s: string): Uint8Array<ArrayBuffer> {
 /**
  * Verify a Supabase `sb-*-auth-token` cookie value and extract the user id.
  *
- * The stored value is `base64-` + base64url(JWT), where the JWT is the
- * Supabase access token signed HS256 with the project's SUPABASE_JWT_SECRET.
- * Returns { id } on success, null on ANY failure (wrong secret, tampered
- * payload, expired, malformed, or not a JWT) — always fail closed.
+ * Cookie shape (GoTrue): `base64-` + base64url(JSON { access_token, ... }) —
+ * the `access_token` field is the JWT to verify. A bare JWT cookie value is
+ * also accepted.
  *
- * Expiry is enforced against the JWT `exp` claim.
+ * Signature verification is per the JWT header `alg`:
+ *  - HS256: HMAC-SHA256 with the project's SUPABASE_JWT_SECRET. IMPORTANT:
+ *    Supabase signs with the secret's UTF-8 string bytes — do NOT base64-decode
+ *    the secret first (verified against the project's real anon key).
+ *  - ES256: ECDSA P-256 with the project's PUBLIC signing key
+ *    (SUPABASE_JWT_ES256_PUBLIC_JWK). The private key never leaves Supabase;
+ *    the public JWK is safe to embed (it is public by design). Projects that
+ *    migrated to asymmetric keys have `alg: ES256` session tokens — HS256-only
+ *    verification silently fails for them.
+ *  - anything else → fail closed.
+ *
+ * Returns { id } (from `sub`, falling back to `user.id`) on success, null on
+ * ANY failure (wrong secret, tampered payload, expired, malformed, unknown
+ * alg) — always fail closed. Expiry is enforced against the JWT `exp` claim.
  */
 export async function verifySupabaseJwt(
   cookieValue: string,
-  secret: string
+  secret: string,
+  es256PublicJwk?: (JsonWebKey & { kid?: string }) | null
 ): Promise<{ id: string } | null> {
   if (!cookieValue || !secret) return null;
   try {
+    // 1. Unwrap the cookie: base64- prefixed envelope (JSON) or bare JWT.
     const raw = cookieValue.startsWith('base64-')
       ? cookieValue.slice('base64-'.length)
       : cookieValue;
-    const jwt = new TextDecoder().decode(base64UrlToBytes(raw));
+    const decoded = new TextDecoder().decode(base64UrlToBytes(raw));
+    // Envelopes start with `{` (JSON); a bare JWT never does (starts with a
+    // base64url character). The envelope's access_token alone may contain two
+    // dots, so counting dots on the whole decoded value is ambiguous.
+    let jwt: string;
+    if (decoded.startsWith('{')) {
+      const envelope = JSON.parse(decoded); // { access_token, refresh_token, ... }
+      const at = typeof envelope?.access_token === 'string' ? envelope.access_token : null;
+      if (!at || at.split('.').length !== 3) return null;
+      jwt = at;
+    } else {
+      jwt = decoded; // bare JWT stored directly
+    }
+
+    // 2. Verify the JWT signature per its alg.
     const parts = jwt.split('.');
     if (parts.length !== 3) return null;
     const [headerB64, payloadB64, sigB64] = parts as [string, string, string];
+    const header = JSON.parse(new TextDecoder().decode(base64UrlToBytes(headerB64))) as {
+      alg?: string;
+      kid?: string;
+    };
+    const alg = header.alg;
+    const kid = typeof header.kid === 'string' ? header.kid : null;
+    const signingInput = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
 
-    const key = await crypto.subtle.importKey(
-      'raw',
-      new TextEncoder().encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['verify']
-    );
-    const valid = await crypto.subtle.verify(
-      'HMAC',
-      key,
-      base64UrlToBytes(sigB64),
-      new TextEncoder().encode(`${headerB64}.${payloadB64}`)
-    );
+    let valid = false;
+    if (alg === 'HS256') {
+      const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(secret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['verify']
+      );
+      valid = await crypto.subtle.verify('HMAC', key, base64UrlToBytes(sigB64), signingInput);
+    } else if (alg === 'ES256') {
+      if (
+        !es256PublicJwk ||
+        es256PublicJwk.kty !== 'EC' ||
+        es256PublicJwk.crv !== 'P-256'
+      ) {
+        return null;
+      }
+      // If both the token and the configured key carry a kid, they must match.
+      if (kid && es256PublicJwk.kid && kid !== es256PublicJwk.kid) return null;
+      const key = await crypto.subtle.importKey(
+        'jwk',
+        es256PublicJwk,
+        { name: 'ECDSA', namedCurve: 'P-256' },
+        false,
+        ['verify']
+      );
+      // JOSE ES256 signatures are raw R||S (64 bytes) — WebCrypto's expected form.
+      valid = await crypto.subtle.verify(
+        { name: 'ECDSA', hash: 'SHA-256' },
+        key,
+        base64UrlToBytes(sigB64),
+        signingInput
+      );
+    } else {
+      // Unknown/unexpected alg → fail closed.
+      return null;
+    }
     if (!valid) return null;
 
+    // 3. Payload checks: shape, expiry, identity.
     const payload = JSON.parse(new TextDecoder().decode(base64UrlToBytes(payloadB64)));
     if (typeof payload !== 'object' || payload === null) return null;
     // Reject expired tokens (exp is seconds since epoch)
