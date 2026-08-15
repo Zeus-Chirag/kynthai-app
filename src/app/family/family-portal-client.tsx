@@ -62,6 +62,45 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
     setPulseData(normalizePulse(members))
   }, [])
 
+  // ponytail: fetch family data on mount so the "circle" tab shows members
+  // immediately — without this, pulseData stays empty until the user visits
+  // the "pulse" tab (which triggers FamilyHealthPulse → onDataLoaded).
+  React.useEffect(() => {
+    const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+    if (isDemoMode) {
+      // In demo mode, use the seeded family data
+      setPulseData([
+        { memberId: 'fm1', name: 'Robert Wilson', relation: 'Father', color: 'emerald', score: 85, adherence: 85, total: 4, taken: 3, missed: 1, status: 'all_taken', lastTaken: null, conditions: [] },
+        { memberId: 'fm2', name: 'Emma Wilson', relation: 'Mother', color: 'teal', score: 78, adherence: 78, total: 2, taken: 1, missed: 1, status: 'in_progress', lastTaken: null, conditions: [] },
+        { memberId: 'fm3', name: 'Noah Wilson', relation: 'Child', color: 'cyan', score: 100, adherence: 100, total: 1, taken: 1, missed: 0, status: 'all_taken', lastTaken: null, conditions: [] },
+      ])
+      return
+    }
+    // Fetch real family data from API
+    fetch('/api/family', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.members && Array.isArray(data.members)) {
+          const normalized = data.members.map((m: any) => ({
+            memberId: m.id,
+            name: m.name,
+            relation: m.relation,
+            color: m.color,
+            score: 0,
+            adherence: 0,
+            total: m.medicationsCount ?? 0,
+            taken: 0,
+            missed: 0,
+            status: 'no_reminders' as const,
+            lastTaken: null,
+            conditions: m.conditions ?? [],
+          }))
+          setPulseData(normalized)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
