@@ -273,8 +273,7 @@ export function LoginPage({
       if (found) return found as typeof demoAccounts[number];
       return demoAccounts[0]!;
     })();
-    setLoading(true);
-    setDemoBooting(true); // hide the form while the demo session comes up
+    setLoading(true); // disable buttons while demo logs in
     (async () => {
       try {
         const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
@@ -466,16 +465,9 @@ export function LoginPage({
     }
   }
 
-  if (demoBooting) {
-    return (
-      <div className="flex min-h-dvh w-full items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-          <p className="text-sm text-muted-foreground">Preparing your demo experience…</p>
-        </div>
-      </div>
-    );
-  }
+  // ponytail: removed demoBooting loading screen — the form stays visible
+  // with disabled buttons while the demo logs in, avoiding a double-loading
+  // spinner (login page → target page).
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background">
