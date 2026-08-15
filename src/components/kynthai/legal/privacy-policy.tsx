@@ -184,8 +184,8 @@ export function PrivacyPolicy() {
       </p>
       <ul>
         <li><strong>Encryption in transit:</strong> All API and web traffic is protected with TLS 1.3.</li>
-        <li><strong>Encryption at rest for high-sensitivity data:</strong> Government-issued identity fields are encrypted with encryption (256-bit key, 128-bit IV, 128-bit authentication tag) before being written. Data is decrypted only when required for a specific authorised operation.</li>
-        <li><strong>Encryption at rest — general health data:</strong> Column-level encryption encryption for general health columns (medications, lab results, AI chat logs, prescription images) is being rolled out. This will mirror the approach for identity fields. We will update this policy once rollout is complete.</li>
+        <li><strong>Encryption at rest for high-sensitivity data:</strong> Government-issued identity fields are encrypted with AES-256-GCM (256-bit key, 128-bit IV, 128-bit authentication tag) before being written. Data is decrypted only when required for a specific authorised operation.</li>
+        <li><strong>Encryption at rest — general health data:</strong> Column-level encryption for general health columns (medications, lab results, AI chat logs, prescription images) is being rolled out. This will mirror the approach for identity fields. We will update this policy once rollout is complete.</li>
         <li><strong>Password storage:</strong> Passwords are hashed with bcrypt (cost factor 12).</li>
         <li><strong>Session tokens:</strong> Authentication sessions use HTTP-only, Secure, SameSite cookies. Session tokens are HMAC-SHA256 hashed before storage. Session TTL is 30 days from last activity; if fewer than 7 days remain it is automatically extended. Password reset tokens expire after 30 minutes. You can end all sessions by logging out or changing your password.</li>
         <li><strong>Access control:</strong> Role-based access control restricts data access to authorised personnel on a need-to-know basis.</li>

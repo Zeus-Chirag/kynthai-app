@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   const ownedFamily = await db.family.findFirst({
     where: { ownerId: u.id },
     include: {
-      members: { include: { medications: true } },
+      members: { include: { medications: true, user: { include: { medications: true } } } },
       alerts: { orderBy: { createdAt: 'desc' }, take: 10 },
     },
   } as any) as any
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
       targetFamily = (await db.family.findFirst({
         where: { id: membership.familyId },
         include: {
-          members: { include: { medications: true } },
+          members: { include: { medications: true, user: { include: { medications: true } } } },
           alerts: { orderBy: { createdAt: 'desc' }, take: 10 },
         },
       } as any)) as any
@@ -68,7 +68,12 @@ export async function GET(req: NextRequest) {
   }
 
   const today = todayStr()
-  const medIds = (targetFamily.members as any[]).flatMap((m: any) => (m.medications as any[]).map((med: any) => med.id))
+  // ponytail: count medications from BOTH FamilyMember.medications AND linked User.medications
+  const allMemberMeds = (targetFamily.members as any[]).flatMap((m: any) => [
+    ...(m.medications as any[]),
+    ...((m.user?.medications as any[]) ?? []),
+  ])
+  const medIds = allMemberMeds.map((med: any) => med.id)
   const todayReminders = medIds.length
     ? await db.reminder.findMany({ where: { medicationId: { in: medIds }, date: today } })
     : []
@@ -98,7 +103,8 @@ export async function GET(req: NextRequest) {
       color: m.color,
       conditions: parseJsonCol(m.conditions, []),
       photoUrl: m.photoUrl,
-      medicationsCount: (m.medications as any[]).length,
+      // ponytail: count medications from both FamilyMember and linked User
+      medicationsCount: (m.medications as any[]).length + ((m.user?.medications as any[])?.length ?? 0),
     })),
     alerts: targetFamily.alerts,
     stats,
