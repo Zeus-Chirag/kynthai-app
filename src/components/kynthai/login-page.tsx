@@ -614,6 +614,7 @@ export function LoginPage({
                         // Full navigation (not router.push) so the page remounts
                         // and the demo auto-login effect re-evaluates the URL.
                         const hash = loginPortal !== 'patient' ? `#${loginPortal}` : '';
+                        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
                         window.location.assign(`/login?demo=1${hash}`);
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300"

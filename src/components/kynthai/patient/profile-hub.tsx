@@ -243,6 +243,8 @@ export function ProfileHub({
         title: 'Account deleted',
         description: 'Your account and all data have been permanently deleted.',
       });
+      // Full reload after account deletion to clear all React state.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = '/';
     } catch {
       toast({
