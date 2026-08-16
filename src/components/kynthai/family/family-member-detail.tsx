@@ -39,11 +39,21 @@ interface MemberData {
   reminders: Array<{ id: string; medicationId: string; date: string; time: string; status: string }>
 }
 
-export default function FamilyMemberDetailClient({ memberId, user }: { memberId: string; user: { id: string } }) {
+export default function FamilyMemberDetailClient({ memberId, user }: { memberId: string; user: { id: string; role?: string } }) {
   const router = useRouter()
   const { toast } = useToast()
   const [data, setData] = React.useState<MemberData | null>(null)
   const [loading, setLoading] = React.useState(true)
+
+  // ponytail: safe back — if browser history has entries from this
+  // session, go back; otherwise soft-navigate to the family page.
+  const goBack = React.useCallback(() => {
+    if (window.history.length > 1) {
+      window.history.back()
+    } else {
+      router.push('/family')
+    }
+  }, [router])
 
   const load = React.useCallback(async () => {
     setLoading(true)
@@ -74,7 +84,7 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <AlertTriangle className="h-12 w-12 text-muted-foreground" />
         <p className="text-muted-foreground">Member not found or access denied.</p>
-        <Button onClick={() => router.back()} variant="outline">
+        <Button onClick={goBack} variant="outline">
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Family
         </Button>
       </div>
@@ -92,10 +102,12 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-6">
-      {/* Back button */}
-      <Button variant="ghost" size="sm" onClick={() => router.back()}>
-        <ArrowLeft className="h-4 w-4 mr-1" /> Back to Family
-      </Button>
+      {/* Sticky back button — always visible on mobile */}
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl -mx-4 px-4 py-2 border-b border-border/40">
+        <Button variant="ghost" size="sm" onClick={goBack}>
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Family
+        </Button>
+      </div>
 
       {/* Member Header */}
       <Card>
