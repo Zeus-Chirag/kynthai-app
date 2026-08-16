@@ -45,15 +45,11 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
   const [data, setData] = React.useState<MemberData | null>(null)
   const [loading, setLoading] = React.useState(true)
 
-  // ponytail: go back to wherever the user came from (the family circle in
-  // their portal — /caretaker, /family, or the patient Care Hub). Fall back
-  // to the role's portal only when there's no history.
+  // ponytail: navigate back to the portal the user came from. The family
+  // circle lives in /caretaker (caretaker portal) and /patient (Care Hub),
+  // NOT /family — router.back() was unreliable and landed on /family.
   const goBack = React.useCallback(() => {
-    if (window.history.length > 1) {
-      router.back()
-    } else {
-      router.push(user.role === 'caretaker' ? '/caretaker' : '/patient')
-    }
+    router.push(user.role === 'caretaker' ? '/caretaker' : '/patient')
   }, [router, user.role])
 
   const load = React.useCallback(async () => {
