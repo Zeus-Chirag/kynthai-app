@@ -1061,7 +1061,7 @@ function SosTab({
             </div>
           )}
 
-          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-[11px] leading-relaxed text-muted-foreground text-left">
+          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm leading-relaxed text-muted-foreground text-left">
             <AlertTriangle className="h-3.5 w-3.5 inline-block -mt-0.5 mr-1 text-amber-600 dark:text-amber-400" />
             <span className="font-semibold text-amber-700 dark:text-amber-400">Important:</span>{' '}
             Kynthai cannot place calls or dispatch responders. In a life-threatening emergency,

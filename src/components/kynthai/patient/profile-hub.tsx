@@ -46,6 +46,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { ResponsiveSheet } from '@/components/kynthai/responsive-sheet';
 import { useAppStore, type AuthUser } from '@/lib/store';
+import { apiFetch } from '@/lib/client-fetch';
 import { ReferralDashboard } from '@/components/kynthai/referral-dashboard';
 import { HealthPulseRing } from '@/components/kynthai/health-pulse-ring';
 import { Input } from '@/components/ui/input';
@@ -223,10 +224,11 @@ export function ProfileHub({
     setDeleteConfirmOpen(false);
     setDeleting(true);
     try {
-      const res = await fetch('/api/user/account', {
+      // ponytail: apiFetch() attaches the real CSRF token (the previous
+      // hardcoded '' empty header blocked the global interceptor → 403 every
+      // time → account deletion silently never worked).
+      const res = await apiFetch('/api/user/account', {
         method: 'DELETE',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '' },
         body: JSON.stringify({ confirm: 'DELETE_MY_ACCOUNT' }),
       });
       const data = await res.json().catch(() => ({}));

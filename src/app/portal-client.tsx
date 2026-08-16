@@ -110,7 +110,10 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   const hydrated = useAppStore(selectors._hydrated);
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const setLoginPortal = useAppStore((s) => s.setLoginPortal);
-  const store = useAppStore(); // for login()
+  // ponytail: subscribe to login() only — a whole-store useAppStore() here
+  // re-rendered the entire app shell on ANY store write (alarm toggle,
+  // currency, hydration, …), since the selector identity changed every time.
+  const login = useAppStore((s) => s.login);
 
   // ─── iOS Safari tab-restore / page-visibility recovery ──────────────
   // When Safari brings a background tab back to foreground after hours,
@@ -258,7 +261,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
           aiTrainingConsent: true,
           isDemo: true,
         };
-        store.login(fallback);
+        login(fallback);
         completeOnboarding('caretaker');
         if (pathname === '/') router.replace('/family');
       })();

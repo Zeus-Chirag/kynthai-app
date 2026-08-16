@@ -472,7 +472,7 @@ export function AiChat() {
   };
 
   return (
-    <Card className="flex flex-col h-[70vh] min-h-[28rem]">
+    <Card className="flex flex-col h-[60vh] min-h-0 sm:h-[70vh] sm:min-h-[28rem]">
       <CardContent className="p-4 flex-1 flex flex-col min-h-0">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 pb-3 border-b">

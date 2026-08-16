@@ -6,6 +6,13 @@ import { logger } from '@/lib/logger'
 // If not set, requests are REJECTED (no fallback secret)
 const MIGRATION_SECRET = process.env.MIGRATION_SECRET;
 export async function POST(req: NextRequest) {
+  // ponytail: refuse to run the schema-altering migration in production. This
+  // is a one-time scaffolding endpoint guarded only by a bearer secret, not a
+  // runtime service. Mirror the /api/debug NODE_ENV gate so a consumer can't
+  // mass-alter production tables (or half-migrate) via a leaked/weak secret.
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
   if (!MIGRATION_SECRET) {
     // Reject if not configured — never fall back to a guessable default
     return NextResponse.json({ error: 'Migration not configured' }, { status: 503 });

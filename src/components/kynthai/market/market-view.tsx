@@ -416,7 +416,7 @@ function BookingDialog({
           </div>
           <div className="space-y-1.5">
             <Label>Time slot</Label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {(doctorSlots.length > 0 ? doctorSlots.map((sl) => `${sl.start} - ${sl.end}`) : TIME_SLOTS).map((s) => (
                 <button
                   key={s}

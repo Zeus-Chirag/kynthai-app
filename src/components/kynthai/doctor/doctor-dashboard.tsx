@@ -646,7 +646,7 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
                   {(isDemo ? 'G' : (user.name?.[0] ?? 'D')).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="text-left">
+              <div className="hidden sm:block text-left">
                 <p className="text-xs text-muted-foreground leading-tight">{greeting}</p>
                 <p className="text-sm font-semibold leading-tight">
                   Dr. {isDemo ? 'Guest' : (user.name?.split(' ').slice(-1)[0] ?? 'Doctor')}
