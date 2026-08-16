@@ -57,6 +57,7 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
   const router = useRouter()
   const [tab, setTab] = React.useState<Tab>('circle')
   const [pulseData, setPulseData] = React.useState<PulseMember[]>([])
+  const [loading, setLoading] = React.useState(true)
 
   const handlePulseLoaded = React.useCallback((members: FamilyMemberPulse[]) => {
     setPulseData(normalizePulse(members))
@@ -74,6 +75,7 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
         { memberId: 'fm2', name: 'Emma Wilson', relation: 'Mother', color: 'teal', score: 78, adherence: 78, total: 2, taken: 1, missed: 1, status: 'in_progress', lastTaken: null, conditions: [] },
         { memberId: 'fm3', name: 'Noah Wilson', relation: 'Child', color: 'cyan', score: 100, adherence: 100, total: 1, taken: 1, missed: 0, status: 'all_taken', lastTaken: null, conditions: [] },
       ])
+      setLoading(false)
       return
     }
     // Fetch real family data from API
@@ -97,9 +99,21 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
           }))
           setPulseData(normalized)
         }
+        setLoading(false)
       })
-      .catch(() => {})
+      .catch(() => setLoading(false))
   }, [])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted/30">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Loading family portal…</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <ErrorBoundary>
