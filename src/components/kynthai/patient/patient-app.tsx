@@ -718,7 +718,7 @@ function LabTab({ isDemo }: { isDemo: boolean }) {
 }
 
 // ── AI tab ──────────────────────────────────────────────────────────────────
-function AiTab() {
+function AiTab({ onNavigate }: { onNavigate: (t: Tab) => void }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -736,7 +736,7 @@ function AiTab() {
       <p className="text-xs text-muted-foreground">
         Ask about symptoms, meds, or general health. Triage only — not a diagnosis.
       </p>
-      <AiChat />
+      <AiChat onNavigate={(t) => onNavigate(t as Tab)} />
 
     </div>
   );
@@ -1244,7 +1244,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
           )}
           {tab === 'ai' && (
             <FadeIn key="ai">
-              <AiTab />
+              <AiTab onNavigate={setTab} />
             </FadeIn>
           )}
           {tab === 'journal' && (

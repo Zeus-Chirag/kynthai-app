@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Send, Loader2, Bot, User, Trash2, Sparkles, ChevronDown, UserCheck } from 'lucide-react';
+import { Send, Loader2, Bot, User, Trash2, Sparkles, ChevronDown, UserCheck, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ContactEmail } from '@/components/kynthai/contact-email';
 import { MedicalDisclaimer } from '@/components/kynthai/medical-disclaimer';
 import { useAppStore } from '@/lib/store';
 import { getMedicineFromDb } from '@/lib/medicine-db-cache';
@@ -224,7 +223,7 @@ const QUICK_REPLIES = [
   { label: 'Sleep tips', query: 'How can I improve my sleep quality?' },
 ];
 
-export function AiChat() {
+export function AiChat({ onNavigate }: { onNavigate?: (tab: string) => void } = {}) {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -237,6 +236,7 @@ export function AiChat() {
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const [showQuickReplies, setShowQuickReplies] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>(SUGGESTIONS);
+  const [limitsDismissed, setLimitsDismissed] = useState(false);
   const { toast } = useToast();
   const { user } = useAppStore();
   const isDemo = !!user?.isDemo;
@@ -556,18 +556,30 @@ export function AiChat() {
           </div>
         </div>
 
-        {/* AI limits explainer */}
-        <div className="mb-3 rounded-xl border border-emerald-500/20 bg-emerald-50/60 px-3 py-2 dark:bg-emerald-950/30">
-          <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1">
-            What I can & can't do
-          </p>
-          <ul className="text-xs text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed space-y-0.5">
-            <li>✓ Answer questions about your medications, side effects, and interactions.</li>
-            <li>✓ Help you understand test results and health topics.</li>
-            <li>✗ Diagnose conditions — always check with your doctor.</li>
-            <li>✗ Replace professional medical advice or prescriptions.</li>
-          </ul>
-        </div>
+        {/* AI limits explainer — dismissible so it doesn't nag */}
+        {!limitsDismissed && (
+          <div className="mb-3 rounded-xl border border-emerald-500/20 bg-emerald-50/60 px-3 py-2 dark:bg-emerald-950/30">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1">
+                What I can & can't do
+              </p>
+              <button
+                type="button"
+                onClick={() => setLimitsDismissed(true)}
+                aria-label="Hide what I can and can't do"
+                className="rounded p-1 -mt-0.5 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <ul className="text-xs text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed space-y-0.5">
+              <li>✓ Answer questions about your medications, side effects, and interactions.</li>
+              <li>✓ Help you understand test results and health topics.</li>
+              <li>✗ Diagnose conditions — always check with your doctor.</li>
+              <li>✗ Replace professional medical advice or prescriptions.</li>
+            </ul>
+          </div>
+        )}
 
         {/* Initial suggestions (before first message) */}
         {messages.length <= 1 && (
@@ -630,14 +642,28 @@ export function AiChat() {
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-2 text-center leading-relaxed">
-          I'm an AI assistant — not a doctor. For a life-threatening emergency, call{' '}
-          <a href="tel:911" className="font-semibold text-emerald-600 hover:underline">911</a>.
-          For medical advice or a diagnosis, consult your doctor or a licensed
-          healthcare provider. For product support, email{' '}
-          <ContactEmail address="hello@kynthai.app" className="text-emerald-600 hover:underline" />
-          .
-        </p>
+        <div className="mt-2 border-t border-border/40 pt-2">
+          <p className="text-xs font-medium text-foreground/80">
+            I'm an AI assistant — not a doctor.
+          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <a href="tel:911" className="font-semibold text-emerald-600 hover:underline">
+              Call 9-1-1
+            </a>
+            {onNavigate && (
+              <button
+                type="button"
+                onClick={() => onNavigate('market')}
+                className="text-emerald-600 hover:underline"
+              >
+                Consult a doctor via Find Care
+              </button>
+            )}
+            <span>{/* video consultations happen through booked appointments */}
+              Consult a doctor via video call
+            </span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
