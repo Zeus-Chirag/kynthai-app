@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect } from "react"
+import { useEffect } from "react"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { loadPortal } from "../portal-loaders"
@@ -32,17 +32,13 @@ export default function CaretakerClient() {
     )
   }
 
+  // ponytail: the lazy portal component (loadPortal → dynamic()) already renders
+  // its own PortalSkeleton via its `loading` option, so an extra <Suspense>
+  // fallback here created a second, sequential loading flash on every portal
+  // navigation ("2 loading states"). Render the node directly instead.
   return (
     <ErrorBoundary>
-      <Suspense
-        fallback={
-          <div className="flex min-h-screen items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-          </div>
-        }
-      >
-        {node}
-      </Suspense>
+      {node}
     </ErrorBoundary>
   )
 }
