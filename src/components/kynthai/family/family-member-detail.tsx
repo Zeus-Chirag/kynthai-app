@@ -45,15 +45,13 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
   const [data, setData] = React.useState<MemberData | null>(null)
   const [loading, setLoading] = React.useState(true)
 
-  // ponytail: safe back — if browser history has entries from this
-  // session, go back; otherwise soft-navigate to the family page.
+  // ponytail: navigate back to the correct family circle page based on the
+  // user's role — never window.history.back(), which lands on whatever the
+  // previous page happened to be (caretaker portal, login, etc.).
   const goBack = React.useCallback(() => {
-    if (window.history.length > 1) {
-      window.history.back()
-    } else {
-      router.push('/family')
-    }
-  }, [router])
+    const dest = user.role === 'caretaker' ? '/family' : '/patient'
+    router.push(dest)
+  }, [router, user.role])
 
   const load = React.useCallback(async () => {
     setLoading(true)
