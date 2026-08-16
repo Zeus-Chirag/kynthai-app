@@ -4,6 +4,7 @@ import { useAppStore } from '@/lib/store'
 import FamilyPortalClient from '@/app/family/family-portal-client'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { AppLoader } from '@/components/kynthai/app-loader'
 
 // This is the entry point loaded by portal-loaders.tsx for family role users.
 export function FamilyPortal() {
@@ -29,11 +30,7 @@ export function FamilyPortal() {
   // Demo mode fallback: show portal even without server session
   const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true'
   if (!user && !isDemoMode) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-      </div>
-    )
+    return <AppLoader label="Loading…" />
   }
 
   return <main id="main-content"><FamilyPortalClient user={user as any} /></main>

@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
+import { AppLoader } from '@/components/kynthai/app-loader'
 import { ArrowLeft, Pill, Calendar, AlertTriangle, CheckCircle2, Clock, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -69,11 +70,7 @@ export default function FamilyMemberDetailClient({ memberId, user }: { memberId:
   React.useEffect(() => { void load() }, [load])
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-      </div>
-    )
+    return <AppLoader label="Loading…" />
   }
 
   if (!data) {

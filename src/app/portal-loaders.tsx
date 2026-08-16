@@ -12,17 +12,14 @@
 import dynamic from 'next/dynamic';
 import { type ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/kynthai/error-boundary';
+import { AppLoader } from '@/components/kynthai/app-loader';
 // Client-side CSRF interceptor — auto-attaches X-CSRF-Token to same-origin
 // mutating /api/ requests (fixes the recurring "CSRF token missing" 403s).
 import { installGlobalCsrf } from '@/lib/client-fetch';
 installGlobalCsrf();
 
 function PortalSkeleton() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-    </div>
-  );
+  return <AppLoader label="Loading…" />;
 }
 
 function PortalError({ error, reset }: { error: Error; reset: () => void }) {

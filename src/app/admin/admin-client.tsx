@@ -1,10 +1,11 @@
 'use client'
 
-import { Suspense, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
 import { useRouter } from 'next/navigation'
 import { loadPortal } from '../portal-loaders'
 import { ErrorBoundary } from '@/components/kynthai/error-boundary'
+import { AppLoader } from '@/components/kynthai/app-loader'
 
 export default function AdminClient() {
   const router = useRouter()
@@ -16,19 +17,16 @@ export default function AdminClient() {
     }
   }, [user, router])
 
-  if (!user || user.role !== 'admin') return null
+  if (!user || user.role !== 'admin') return <AppLoader label="Loading…" />
 
   const { node } = loadPortal('admin', user)
 
+  // ponytail: the lazy portal component (dynamic()) already renders its own
+  // PortalSkeleton, so the extra <Suspense> fallback only created a second
+  // loading flash. Render the node directly.
   return (
     <ErrorBoundary>
-      <Suspense fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-        </div>
-      }>
-        {node}
-      </Suspense>
+      {node}
     </ErrorBoundary>
   )
 }

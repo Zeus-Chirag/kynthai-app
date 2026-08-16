@@ -28,6 +28,7 @@ import {
   MedicalDisclaimer,
 } from '@/components/kynthai/legal/privacy-policy';
 import { ErrorBoundary } from '@/components/kynthai/error-boundary';
+import { AppLoader } from '@/components/kynthai/app-loader';
 import type { AppScreen, LoginPortal } from '@/lib/store';
 
 // ── Route → screen mapping ─────────────────────────────────────────────────
@@ -321,11 +322,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   if (isProtectedPath) {
     if (!user) {
       router.replace('/login');
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-        </div>
-      );
+      return <AppLoader label="Loading…" />;
     }
     // /dashboard is a legacy empty stub — send signed-in users to their portal.
     if (pathname === '/dashboard') {
@@ -338,11 +335,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
         admin: 'admin',
       };
       router.replace('/' + (portalFromRole[user.role] ?? 'family'));
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-        </div>
-      );
+      return <AppLoader label="Loading…" />;
     }
     return <ErrorBoundary>{children}</ErrorBoundary>;
   }
@@ -370,18 +363,13 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   }
 
   // ── Portal apps — loaded via portal-loaders.tsx ───────────────────────────
+  // ponytail: the lazy portal component (dynamic()) already renders its own
+  // PortalSkeleton, so the <Suspense> fallback here only added a second,
+  // mismatched loading flash. Render the node directly.
   const { key, node } = loadPortal(effectiveScreen, user);
   if (node) {
     return (
-      <Suspense
-        fallback={
-          <div className="flex min-h-screen items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-          </div>
-        }
-      >
-        <div key={key}>{node}</div>
-      </Suspense>
+      <div key={key}>{node}</div>
     );
   }
 

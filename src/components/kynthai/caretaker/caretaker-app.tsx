@@ -17,6 +17,7 @@ import {
   UserPlus,
   Activity,
   Clock,
+  Phone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -1034,6 +1035,16 @@ function SosTab({
 
           {stage === 'idle' && (
             <div className="mt-5 space-y-3">
+              {/* Always-available 911 call — never hidden behind the trigger
+                  state so a family member can always dial emergency services. */}
+              <a href="tel:911" aria-label="Call 911, the US emergency number" className="block">
+                <Button
+                  size="lg"
+                  className="w-full h-14 text-base bg-gradient-to-r from-rose-500 to-rose-700 text-white shadow-lg shadow-rose-600/30 hover:from-rose-600 hover:to-rose-800"
+                >
+                  <Phone className="h-5 w-5" /> Call 911 — US emergency number
+                </Button>
+              </a>
               <Button
                 size="lg"
                 onClick={() => trigger('critical')}

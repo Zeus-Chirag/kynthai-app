@@ -558,15 +558,15 @@ export function AiChat() {
 
         {/* AI limits explainer */}
         <div className="mb-3 rounded-xl border border-emerald-500/20 bg-emerald-50/60 px-3 py-2 dark:bg-emerald-950/30">
-          <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-300 mb-0.5">
+          <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1">
             What I can & can't do
           </p>
-          <p className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 leading-relaxed">
-            ✓ Answer questions about your medications, side effects, and interactions.
-            ✓ Help you understand test results and health topics.
-            ✗ Diagnose conditions — always check with your doctor.
-            ✗ Replace professional medical advice or prescriptions.
-          </p>
+          <ul className="text-xs text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed space-y-0.5">
+            <li>✓ Answer questions about your medications, side effects, and interactions.</li>
+            <li>✓ Help you understand test results and health topics.</li>
+            <li>✗ Diagnose conditions — always check with your doctor.</li>
+            <li>✗ Replace professional medical advice or prescriptions.</li>
+          </ul>
         </div>
 
         {/* Initial suggestions (before first message) */}
@@ -630,10 +630,13 @@ export function AiChat() {
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-2 text-center">
-          I'm an AI assistant — not a doctor. For medical concerns, email{' '}
+        <p className="text-xs text-muted-foreground mt-2 text-center leading-relaxed">
+          I'm an AI assistant — not a doctor. For a life-threatening emergency, call{' '}
+          <a href="tel:911" className="font-semibold text-emerald-600 hover:underline">911</a>.
+          For medical advice or a diagnosis, consult your doctor or a licensed
+          healthcare provider. For product support, email{' '}
           <ContactEmail address="hello@kynthai.app" className="text-emerald-600 hover:underline" />
-          {' '}or call 911 in an emergency.
+          .
         </p>
       </CardContent>
     </Card>

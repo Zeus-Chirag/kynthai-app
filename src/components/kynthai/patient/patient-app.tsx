@@ -409,12 +409,30 @@ function HomeTab({
   const showAchievement = achievement.show;
   const setShowAchievement = (v: boolean) => setAchievement(a => ({ ...a, show: v }));
 
-  // Trigger celebration on first render if adherence is good
+  // Trigger celebration only ONCE PER DAY — not on every mount. adherence is
+  // derived/demo data, so re-showing the same "achievement" every time the
+  // user opens the app (or returns to Home) is noise, not a reward. Persist
+  // the last celebration date so it can't nag day after day either.
+  const [celebratedDate, setCelebratedDate] = React.useState<string | null>(null);
   React.useEffect(() => {
-    if (adherence >= 80) {
-      setAchievement({ show: true, type: 'adherence', milestone: adherence });
-    }
+    if (adherence < 80) return;
+    const today = new Date().toISOString().slice(0, 10);
+    let last: string | null = null;
+    try {
+      last = window.localStorage.getItem('kynthai:lastAchievementShown');
+    } catch { /* storage unavailable */ }
+    if (last === today) return; // already celebrated today
+    setAchievement({ show: true, type: 'adherence' as const, milestone: adherence });
+    setCelebratedDate(today);
   }, [adherence]);
+
+  // Persist the celebration date the moment it actually appears (so a
+  // dismissed popup doesn't re-trigger on the next render in the same session).
+  React.useEffect(() => {
+    if (showAchievement && celebratedDate) {
+      try { window.localStorage.setItem('kynthai:lastAchievementShown', celebratedDate); } catch { /* ignore */ }
+    }
+  }, [showAchievement, celebratedDate]);
 
   return (
     <div className="space-y-5">
