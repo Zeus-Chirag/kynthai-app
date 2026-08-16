@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Send, Loader2, Bot, User, Trash2, Sparkles, ChevronDown, UserCheck, X } from 'lucide-react';
+import { Send, Loader2, Bot, User, Trash2, Sparkles, ChevronDown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -486,14 +486,6 @@ export function AiChat({ onNavigate }: { onNavigate?: (tab: string) => void } = 
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <a
-              href="mailto:hello@kynthai.app?subject=Talk+to+Human"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 shadow-sm transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-              title="Need to talk to a human? Email our support team"
-            >
-              <UserCheck className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Talk to human</span>
-            </a>
             <Button size="icon" variant="ghost" onClick={clearChat} title="Clear conversation">
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -642,27 +634,25 @@ export function AiChat({ onNavigate }: { onNavigate?: (tab: string) => void } = 
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <div className="mt-2 border-t border-border/40 pt-2">
-          <p className="text-xs font-medium text-foreground/80">
-            I'm an AI assistant — not a doctor.
+        <div className="mt-2 border-t border-border/40 pt-2 text-xs text-muted-foreground">
+          <p className="font-medium text-foreground/80">
+            I'm an AI assistant — not a doctor. For medical care:
           </p>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <a href="tel:911" className="font-semibold text-emerald-600 hover:underline">
-              Call 9-1-1
-            </a>
+          <ul className="mt-1 space-y-0.5 leading-relaxed">
+            <li><a href="tel:911" className="text-emerald-600 hover:underline">Call 9-1-1</a></li>
             {onNavigate && (
-              <button
-                type="button"
-                onClick={() => onNavigate('market')}
-                className="text-emerald-600 hover:underline"
-              >
-                Consult a doctor via Find Care
-              </button>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('market')}
+                  className="text-emerald-600 hover:underline"
+                >
+                  Consult a doctor via Find Care
+                </button>
+              </li>
             )}
-            <span>{/* video consultations happen through booked appointments */}
-              Consult a doctor via video call
-            </span>
-          </div>
+            <li>Consult a doctor via video call</li>
+          </ul>
         </div>
       </CardContent>
     </Card>
