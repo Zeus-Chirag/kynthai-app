@@ -656,13 +656,6 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
               <OfflineIndicator />
               {/* Online/Offline toggle */}
               <button
-                onClick={toggleLang}
-                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors bg-muted text-muted-foreground hover:bg-accent"
-                title={t('language')}
-              >
-                {lang === 'en' ? 'HI' : 'EN'}
-              </button>
-              <button
                 onClick={() => setDoctorOnline(!doctorOnline)}
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                   doctorOnline
@@ -746,14 +739,14 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
             <FadeIn key="overview">
               <>
                 {/* Hero */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 p-5 text-white shadow-lg shadow-emerald-600/20">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 p-5 text-white shadow-lg shadow-emerald-600/20 mb-4">
                   <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
                   <div className="relative">
                     <p className="text-sm opacity-90">
                       {profile.specialization} · {profile.city}
                     </p>
                     <h1 className="mt-1 text-2xl font-bold tracking-tight">
-                      Dr. {isDemo ? 'Guest' : user.name}
+                      Dr. {user.name?.split(' ').slice(-1)[0] ?? 'Doctor'}
                     </h1>
                     <p className="mt-1 text-sm opacity-90">
                       {upcoming} upcoming today · {completed} completed recently
@@ -762,7 +755,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
                   <StatCard
                     icon={<CalendarDays className="h-4 w-4" />}
                     label={t('appointments')}
@@ -792,7 +785,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                 {/* Subscription / paywall */}
                 <Card
                   className={cn(
-                    'overflow-hidden border-0',
+                    'mt-4 overflow-hidden border-0',
                     isPro ? 'ring-1 ring-amber-500/30' : nearCap && 'ring-1 ring-amber-500/30'
                   )}
                 >
