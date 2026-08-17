@@ -22,7 +22,7 @@ import { buildDeidentifiedContext } from '@/lib/phi-filter';
 import { safeAIResponse, normalizeMarkdownSpacing, enforceNsaidSafetyForAnticoagulatedPatients } from '@/lib/ai-output-filter';
 import { createChatCompletion, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia';
 import { needsRag, getSystemPromptWithRAG } from '@/lib/medical-rag';
-import { FEW_SHOT_EXAMPLES } from '@/lib/chat-system-prompt';
+import { FEW_SHOT_EXAMPLES, DOCTOR_FEW_SHOT } from '@/lib/chat-system-prompt';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
 import { guardAiScope } from '@/lib/ai-guard';
 import { logger } from '@/lib/logger';
@@ -84,6 +84,19 @@ HARD BOUNDARY — You ONLY give health information. You NEVER:
 If the request is not about the user's own medication/condition/symptoms/wellness or US healthcare navigation, decline with the refusal line above and do NOT comply.
 
 Respond in warm, supportive language. Use Markdown for readability.`;
+
+// Role-specific overrides appended when the user is a doctor.
+const DOCTOR_ADDENDUM = `You are currently assisting a licensed physician. Adjust your communication accordingly:
+
+CLINICAL MODE (activated for doctors):
+- Be concise, professional, and evidence-based. Skip patient-facing pleasantries.
+- Use medical terminology freely — doctors understand abbreviations (BP, HR, HbA1c, INR, CrCl, GFR, NYHA, etc.).
+- Focus on actionable clinical information: dosing adjustments, interaction severity, monitoring intervals, contraindications.
+- When discussing drug interactions, rank by clinical significance (major > moderate > minor) and note the time-to-effect window.
+- For lab results, provide the clinical interpretation immediately — reference ranges, trending, and what to monitor.
+- Flag anything that deviates from standard US guidelines (AHA, ACC, ADA, NCCN, etc.) with a brief rationale.
+- Keep responses to 3-6 sentences for quick clinical questions. Use structured lists for complex comparisons.
+- Never add disclaimers like "consult your doctor" to a doctor — they ARE the doctor. Only flag if the question requires patient-specific data you don't have.`;
 
 // Hard caps to prevent prompt-inflation / DoS via huge histories.
 const MAX_MESSAGE_LEN = 4000;
@@ -407,11 +420,18 @@ export async function POST(req: NextRequest) {
     // system prompt so the base model answers with grounded, specific
     // healthcare information. Skipped for simple greetings.
     let systemContent = SYSTEM_PROMPT + formattedContext + patientAlertBlock;
+
+    // Role-specific: append clinical mode instructions when the user is a doctor
+    if (u.role === 'doctor') {
+      systemContent += `\n\n${DOCTOR_ADDENDUM}`;
+    }
     if (needsRag(message)) {
       systemContent = getSystemPromptWithRAG(message, systemContent);
     }
     // Few-shot examples teach the expected depth, tone, and safety behavior.
-    const fewShotBlock = FEW_SHOT_EXAMPLES.map(
+    // Doctor users get clinical examples instead of patient-facing ones
+    const activeExamples = u.role === 'doctor' ? DOCTOR_FEW_SHOT : FEW_SHOT_EXAMPLES;
+    const fewShotBlock = activeExamples.map(
       (ex) =>
         `<example>\n<user_message>${ex.user}</user_message>\n<assistant_response>${ex.assistant}</assistant_response>\n</example>`
     ).join('\n');

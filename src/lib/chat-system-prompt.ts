@@ -64,6 +64,41 @@ export const FEW_SHOT_EXAMPLES: { user: string; assistant: string }[] = [
     assistant:
       "Yes, this is one worth flagging. Combining sertraline (an SSRI) with tramadol raises the risk of serotonin syndrome — a serious reaction. It can be done, but your prescriber should know about the sertraline before you start the tramadol, and they may want to pick a different pain med or monitor you closely.\n\nCan you call the prescriber's office today and let them know you're on sertraline?",
   },
+  // Doctor-mode examples — shorter, clinical, action-oriented
+  {
+    user: "What's the interaction profile between apixaban and fluconazole?",
+    assistant:
+      "Fluconazole is a moderate CYP3A4 inhibitor — it can raise apixaban levels. Monitor for signs of increased bleeding (bruising, epistaxis, prolonged INR if co-warfarinized). A 50% dose reduction of apixaban is recommended per the EMA; FDA labeling suggests caution without a specific reduction. Check renal function before co-prescribing, as both are renally cleared.\n\nAlternative antifungal: consider micafungin or anidulafungin for invasive candidiasis — no CYP interaction.",
+  },
+  {
+    user: "Patient on metformin 1000mg BID, HbA1c 8.2%, eGFR 45. What should I consider?",
+    assistant:
+      "At eGFR 45, metformin is still FDA-approved but monitor renal function closely (check q3 months). Consider dose reduction to 500mg BID per KDIGO guidelines. HbA1c 8.2% with current therapy suggests adding a second agent:\n- GLP-1 RA (semaglutide/liraglutide) — cardiorenal benefit, weight neutral\n- SGLT2 inhibitor (empagliflozin) — if eGFR stays ≥30\n- Avoid sulfonylureas given eGFR\n\nRepeat HbA1c in 3 months; if still above 7%, consider intensification.",
+  },
+];
+
+// Doctor-mode few-shot examples — added to the few-shot block when user.role === 'doctor'
+export const DOCTOR_FEW_SHOT: { user: string; assistant: string }[] = [
+  {
+    user: "What's the interaction between warfarin and amiodarone?",
+    assistant:
+      "Amiodarone inhibits CYP2C9/CYP3A4/CYP1A2 and P-gp — it potentiates warfarin significantly. INR can rise 2-5x over weeks. Practical approach: reduce warfarin dose by 30-50% empirically, recheck INR in 3-5 days, then weekly until stable. The interaction persists for weeks after amiodarone discontinuation due to its extremely long half-life (~40 days).",
+  },
+  {
+    user: "My patient has AKI and is on a few renally cleared drugs. What should I adjust?",
+    assistant:
+      "Prioritize these renally cleared agents and their GFR thresholds:\n- **Metformin**: discontinue if eGFR <30; reduce dose if eGFR 30-45\n- **DOACs (apixaban, rivaroxaban, dabigatran)**: hold if eGFR <15-30 (per agent); dose-adjust apixaban/rivaroxaban if CrCl 15-25\n- **Gabapentin/pregabalin**: reduce per CrCl; high seizure risk if not adjusted\n- **PPIs**: generally safe, but consider pantoprazole over omeprazole if multiple drug interactions\n- **NSAIDs**: discontinue immediately in AKI\n\nFor the rest, cross-reference each drug's renal dosing table. What's the current eGFR trend — acute on chronic, or a sudden drop?",
+  },
+  {
+    user: "Patient is on levothyroxine and I'm about to start amiodarone. Any concern?",
+    assistant:
+      "Yes — amiodarone reduces T4→T3 conversion and can cause both hypo- and hyperthyroidism. Monitor TSH every 6 weeks during the first 6 months. Increase levothyroxine dose by 30-50% empirically; expect to titrate based on TSH. Also: amiodarone has a ~40-day half-life, so thyroid effects may persist months after stopping.",
+  },
+  {
+    user: "My patient's A1c is 9.1% on max metformin. Renal function is normal. What next step?",
+    assistant:
+      "Max metformin alone is insufficient at 9.1%. Recommended escalation (ADA 2024):\n1. **First add:** GLP-1 RA (semaglutide 0.25mg weekly → titrate to 1mg) — proven CV benefit + weight loss\n2. **Alternative/add:** SGLT2i (empagliflozin 10mg) — cardiorenal protection\n3. **If still uncontrolled after 3 months:** consider basal insulin (glargine U-100) starting 10 units, titrate q3 days by 2-4 units\n\nAvoid adding sulfonylurea first-line (hypoglycemia risk, weight gain). Start the GLP-1 RA; it gives you the best A1c-lowering (~1.0-1.5%) with minimal hypoglycemia risk.",
+  },
 ];
 
 // ─────────────────────────────────────────────
