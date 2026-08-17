@@ -47,7 +47,10 @@ export async function runDemoLogin(role: DemoRole): Promise<boolean> {
       const meRes = await fetch('/api/auth/me', { credentials: 'include' })
       if (meRes.ok) {
         const me = await meRes.json()
-        if (me?.user) useAppStore.getState().login(me.user)
+        if (me?.user) {
+          me.user.isDemo = true
+          useAppStore.getState().login(me.user)
+        }
       }
     } catch { /* portal clients self-recover via /me */ }
 
