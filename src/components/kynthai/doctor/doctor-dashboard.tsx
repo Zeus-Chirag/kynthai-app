@@ -218,6 +218,39 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
   const [lang, setLangState] = React.useState('en');
   const [profileOpen, setProfileOpen] = React.useState(false);
   const greeting = useGreeting();
+  const { toast } = useToast();
+
+  // ── Consultation fee edit ──────────────────────────────────────────────────
+  const [editingFee, setEditingFee] = React.useState(false);
+  const [newFee, setNewFee] = React.useState(String(profile.consultationFee));
+  const [savingFee, setSavingFee] = React.useState(false);
+  const displayFee = editingFee ? Number(newFee) || 0 : profile.consultationFee;
+
+  const handleSaveFee = React.useCallback(async () => {
+    const fee = Number(newFee) || 0;
+    if (fee < 0) {
+      toast({ title: 'Invalid fee', description: 'Fee must be a positive number.', variant: 'destructive' });
+      return;
+    }
+    setSavingFee(true);
+    try {
+      const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
+      const csrf = (await csrfRes.json())?.token;
+      const res = await fetch(`/api/doctors/${profile.id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf || '' },
+        body: JSON.stringify({ consultationFee: fee }),
+      });
+      if (!res.ok) throw new Error('Failed to update fee');
+      setEditingFee(false);
+      toast({ title: 'Fee updated', description: `Consultation fee set to $${fee}` });
+    } catch {
+      toast({ title: 'Update failed', variant: 'destructive' });
+    } finally {
+      setSavingFee(false);
+    }
+  }, [newFee, profile.id, toast]);
 
   const handleLogout = React.useCallback(async () => {
     try {
@@ -237,7 +270,6 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
     setLanguage(next);
     setLangState(next);
   };
-  const { toast } = useToast();
   const [videoOn, setVideoOn] = React.useState(profile.videoCallEnabled);
   const [downloadingPdfId, setDownloadingPdfId] = React.useState<string | null>(null);
 
@@ -618,8 +650,8 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
   const loyaltySavingPct = baseFeePct - effectiveFee;
   const feeAmount = platformFee(grossEarnings, effectiveFee);
   const youReceive = partnerKeeps(grossEarnings, effectiveFee);
-  const perConsultFee = platformFee(profile.consultationFee, effectiveFee);
-  const perConsultKeeps = partnerKeeps(profile.consultationFee, effectiveFee);
+  const perConsultFee = platformFee(displayFee, effectiveFee);
+  const perConsultKeeps = partnerKeeps(displayFee, effectiveFee);
 
   // Paywall helpers
   const slotsUsed = Math.min(patientCount, FREE_PATIENT_CAP);
@@ -1102,7 +1134,31 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                     <div className="grid grid-cols-3 gap-2 sm:gap-3">
                       <div className="rounded-xl border border-border/60 p-2 sm:p-3 text-center">
                         <p className="text-[11px] text-muted-foreground">Consult fee</p>
-                        <p className="text-base sm:text-lg font-bold">${profile.consultationFee}</p>
+                        {editingFee ? (
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="text-sm">$</span>
+                            <input
+                              type="number"
+                              value={newFee}
+                              onChange={e => setNewFee(e.target.value)}
+                              className="w-16 text-base font-bold bg-transparent border-b border-primary outline-none text-center"
+                              min={0}
+                              autoFocus
+                            />
+                            <Button size="sm" variant="ghost" onClick={handleSaveFee} disabled={savingFee} className="h-7 text-xs">
+                              {savingFee ? 'Saving…' : '✓'}
+                            </Button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => { setEditingFee(true); setNewFee(String(profile.consultationFee)); }}
+                            className="flex items-center gap-1 justify-center mx-auto text-base sm:text-lg font-bold hover:opacity-70 transition-opacity"
+                            title="Edit consultation fee"
+                          >
+                            ${profile.consultationFee}
+                            <Edit3 className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        )}
                       </div>
                       <div className="rounded-xl border border-border/60 p-2 sm:p-3 text-center">
                         <p className="text-[11px] text-muted-foreground">
@@ -1113,7 +1169,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                         </p>
                         {loyaltySavingPct > 0 && (
                           <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">
-                            saving ${Math.round((profile.consultationFee * loyaltySavingPct) / 100)}
+                            saving ${Math.round((displayFee * loyaltySavingPct) / 100)}
                           </p>
                         )}
                       </div>
