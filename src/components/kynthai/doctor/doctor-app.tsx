@@ -133,7 +133,7 @@ export function DoctorApp({ user }: { user: AuthUser }) {
     );
   }
 
-  if (profile) return <DoctorDashboard user={user} profile={profile} />;
+  if (profile) return <DoctorDashboard user={user} profile={profile} isDemo={!!user.isDemo || user.email?.endsWith('@kynthai.app')} />;
 
   return null;
 }

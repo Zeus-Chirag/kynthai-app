@@ -212,10 +212,9 @@ const PRO_FEATURES = [
   'lower_commission',
 ] as const;
 
-export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: DoctorProfile }) {
+export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthUser; profile: DoctorProfile; isDemo?: boolean }) {
   const { logout, setScreen, doctorOnline, setDoctorOnline } = useAppStore();
   const router = useRouter();
-  const isDemo = !!user.isDemo;
   const [lang, setLangState] = React.useState('en');
   const [profileOpen, setProfileOpen] = React.useState(false);
   const greeting = useGreeting();
@@ -575,7 +574,8 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
   }, []);
 
   // Stats — use live data, sample only as demo fallback when API failed
-  const isRealData = dashboardData !== null;
+  // Demo accounts: skip API and use sample data directly
+  const isRealData = !isDemo && dashboardData !== null;
   const completed = isRealData
     ? (dashboardData?.stats?.completed ?? 0)
     : APPOINTMENTS.filter(a => a.status === 'completed').length;
