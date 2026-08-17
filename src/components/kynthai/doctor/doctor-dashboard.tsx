@@ -785,7 +785,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                 {/* Subscription / paywall */}
                 <Card
                   className={cn(
-                    'mt-4 overflow-hidden border-0',
+                    'mt-6 overflow-hidden border-0',
                     isPro ? 'ring-1 ring-amber-500/30' : nearCap && 'ring-1 ring-amber-500/30'
                   )}
                 >
@@ -908,7 +908,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                 </Card>
 
                 {/* Loyalty card */}
-                <Card className="overflow-hidden border-0">
+                <Card className="mt-6 overflow-hidden border-0">
                   <div className={cn('relative bg-gradient-to-br p-5 text-white', tierInfo.tint)}>
                     <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
                     <div className="relative flex items-start justify-between">
@@ -964,7 +964,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                 </Card>
 
                 {/* Quick Analytics */}
-                <Card>
+                <Card className="mt-6">
                   <CardContent className="p-4">
                     <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
                       <LayoutDashboard className="h-4 w-4 text-emerald-600" />
@@ -1004,7 +1004,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                 </Card>
 
                 {/* Video call toggle */}
-                <Card>
+                <Card className="mt-6">
                   <CardContent className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
@@ -1088,7 +1088,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                 </Card>
 
                 {/* Pricing */}
-                <Card>
+                <Card className="mt-6">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-semibold flex items-center gap-2">
