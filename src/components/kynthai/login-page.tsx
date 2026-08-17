@@ -152,6 +152,7 @@ export function LoginPage({
   const [dataConsent, setDataConsent] = React.useState(false);
   const [aiTrainingConsent, setAiTrainingConsent] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [demoBusy, setDemoBusy] = React.useState(false);
   const [invitesLoading, setInvitesLoading] = React.useState(false);
   const [emergencyContact1, setEmergencyContact1] = React.useState('');
   const [emergencyContact2, setEmergencyContact2] = React.useState('');
@@ -273,7 +274,9 @@ export function LoginPage({
       if (found) return found as typeof demoAccounts[number];
       return demoAccounts[0]!;
     })();
-    setLoading(true); // disable buttons while demo logs in
+    setDemoBusy(true); // disable buttons while demo logs in — no jittery button
+                       // spinner, since the demo instantly redirects to a portal
+                       // that shows its own single AppLoader.
     (async () => {
       try {
         const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
@@ -315,6 +318,7 @@ export function LoginPage({
           return;
         }
       } catch { /* fall through */ }
+      setDemoBusy(false);
       setLoading(false);
       setDemoBooting(false); // session failed — fall back to the sign-in form
     })();
@@ -922,7 +926,7 @@ export function LoginPage({
                   <Button
                     id="login-submit-btn"
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || demoBusy}
                     className="min-h-11 w-full gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-600 hover:to-teal-700"
                   >
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
