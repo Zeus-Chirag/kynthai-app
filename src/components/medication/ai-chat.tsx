@@ -639,13 +639,13 @@ export function AiChat({ onNavigate }: { onNavigate?: (tab: string) => void } = 
             I'm an AI assistant — not a doctor. For medical care:
           </p>
           <ul className="mt-1 space-y-0.5 leading-relaxed">
-            <li><a href="tel:911" className="text-emerald-600 hover:underline">Call 9-1-1</a></li>
+            <li><a href="tel:911" className="text-muted-foreground hover:underline">Call 9-1-1</a></li>
             {onNavigate && (
               <li>
                 <button
                   type="button"
                   onClick={() => onNavigate('market')}
-                  className="text-emerald-600 hover:underline"
+                  className="text-muted-foreground hover:underline"
                 >
                   Find Care — book a doctor
                 </button>
