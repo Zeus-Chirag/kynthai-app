@@ -599,34 +599,39 @@ export function LoginPage({
 
                 {process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
                   <div className="mb-5">
-                    <button
-                      type="button"
-                      disabled={demoBusy}
-                      onClick={async () => {
-                        // Inline demo login — NO page reload. Previously this did
-                        // window.location.assign('/login?demo=1…') which reloaded
-                        // the login page, then the auto-login effect ran again →
-                        // visible "login screen refreshes → spinner → portal".
-                        // Now we show a single branded AppLoader immediately and
-                        // log in directly, then hop to the portal.
-                        setDemoBusy(true);
-                        setDemoBooting(true);
-                        const role = ((Object.keys({ patient: 1, doctor: 1, caretaker: 1, lab: 1, admin: 1 }) as DemoRole[]).includes(loginPortal as DemoRole))
-                          ? (loginPortal as DemoRole)
-                          : 'patient';
-                        const ok = await runDemoLogin(role);
-                        if (ok) {
-                          window.location.replace(demoRolePath(role));
-                          return;
-                        }
-                        setDemoBooting(false);
-                        setDemoBusy(false);
-                      }}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300 disabled:opacity-60 disabled:pointer-events-none"
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      Try the demo — explore instantly, no sign-up needed
-                    </button>
+                    <p className="mb-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                      Explore instantly — no sign-up needed
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {([
+                        { role: 'caretaker', label: 'Family' },
+                        { role: 'patient', label: 'Patient' },
+                        { role: 'doctor', label: 'Doctor' },
+                        { role: 'lab', label: 'Lab' },
+                        { role: 'admin', label: 'Admin' },
+                      ] as { role: DemoRole; label: string }[]).map(d => (
+                        <button
+                          key={d.role}
+                          type="button"
+                          disabled={demoBusy}
+                          onClick={async () => {
+                            setDemoBusy(true);
+                            setDemoBooting(true);
+                            const ok = await runDemoLogin(d.role);
+                            if (ok) {
+                              window.location.replace(demoRolePath(d.role));
+                              return;
+                            }
+                            setDemoBooting(false);
+                            setDemoBusy(false);
+                          }}
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300 disabled:opacity-60 disabled:pointer-events-none"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {d.label} demo
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
