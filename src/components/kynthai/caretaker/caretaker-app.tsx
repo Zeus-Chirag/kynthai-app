@@ -40,6 +40,7 @@ import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { useGreeting } from '@/lib/greeting';
 import { useToast } from '@/hooks/use-toast';
+import { playProfessionalRingtone, stopAllRingtones } from '@/lib/alarm';
 import { logger } from '@/lib/logger';
 import { AiChat } from '@/components/medication/ai-chat';
 import { CareHub as CaretakerCareHub } from './care-hub';
@@ -268,6 +269,55 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
       cancelled = true;
     };
   }, []);
+
+  // ── Global reminder alert for family members ──────────────────────────
+  // The caretaker manages medications for the whole family. This ensures
+  // they are notified of pending reminders for ANY family member, regardless
+  // of which tab they are on.
+  React.useEffect(() => {
+    if (isDemo) return;
+    let cancelled = false;
+    let seen = new Set<string>();
+
+    async function check() {
+      if (cancelled) return;
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const memberPromises = family.map(async (m) => {
+          const res = await fetch(`/api/reminders?date=${today}&familyMemberId=${m.id}`, { credentials: 'include' });
+          if (!res.ok) return [];
+          const data = await res.json();
+          return (data.reminders ?? []).map((r: { id: string; time: string; status: string; medication?: { name?: string; dosage?: string } }) => ({
+            ...r,
+            memberName: m.name,
+          }));
+        });
+        const allReminders = (await Promise.all(memberPromises)).flat();
+        const now = new Date();
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        for (const r of allReminders) {
+          if (r.status !== 'pending') continue;
+          const [h = 0, m = 0] = r.time.split(':').map(Number);
+          const reminderMins = h * 60 + m;
+          if (reminderMins <= nowMins && nowMins - reminderMins < 15 && !seen.has(r.id)) {
+            seen.add(r.id);
+            const name = r.medication?.name ?? 'medication';
+            const member = r.memberName ?? 'family member';
+            playProfessionalRingtone();
+            toast({
+              title: `Reminder for ${member}: take ${name}`,
+              description: `${r.time} — open the Meds tab to mark taken or skipped.`,
+              duration: 30000,
+            });
+          }
+        }
+      } catch { /* best-effort */ }
+    }
+
+    check();
+    const interval = setInterval(check, 60_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [isDemo, family, toast, setTab]);
 
   // Load real medications for each family member from API
   // N+1 → parallel: fire all per-member reminder fetches simultaneously.
