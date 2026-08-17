@@ -44,7 +44,6 @@ import { logger } from '@/lib/logger';
 import { AiChat } from '@/components/medication/ai-chat';
 import { CareHub as CaretakerCareHub } from './care-hub';
 import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
-import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { FamilyMemberSchedule } from './member-schedule';
 import { MedicationsList } from '@/components/medication/medications-list';
 import { FamilyCircle } from '@/components/kynthai/family/family-circle';
@@ -544,7 +543,6 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
       </main>
 
       {/* Minimal legal footer */}
-      <PortalFooter />
 
       {/* Bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">

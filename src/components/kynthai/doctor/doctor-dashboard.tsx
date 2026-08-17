@@ -41,7 +41,6 @@ import { useRouter } from 'next/navigation';
 import { t, getLanguage, setLanguage, initLanguage } from '@/lib/i18n';
 import { useGreeting } from '@/lib/greeting';
 import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
-import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { PatientCare } from './patient-care';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { cn } from '@/lib/utils';
@@ -1476,7 +1475,6 @@ export function DoctorDashboard({ user, profile }: { user: AuthUser; profile: Do
       </main>
 
       {/* Minimal legal footer */}
-      <PortalFooter />
 
       <div className="h-24" />
 

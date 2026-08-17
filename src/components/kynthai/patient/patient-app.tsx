@@ -65,7 +65,6 @@ import { CareHub } from '@/components/kynthai/caretaker/care-hub';
 import { NotificationCenter } from '@/components/kynthai/notification-center';
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator';
 import { ProfileHub } from '@/components/kynthai/patient/profile-hub';
-import { PortalFooter } from '@/components/kynthai/portal-footer';
 import { ShareSheet } from '@/components/kynthai/share-sheet';
 import { FadeIn } from '@/components/kynthai/animations';
 import { LabResultsViewer } from '@/components/kynthai/patient/lab-results-viewer';
@@ -1266,7 +1265,6 @@ export function PatientApp({ user }: { user: AuthUser }) {
       </main>
 
       {/* Minimal legal footer */}
-      <PortalFooter />
 
       {/* Active video call overlay */}
       {joiningCallApptId && (

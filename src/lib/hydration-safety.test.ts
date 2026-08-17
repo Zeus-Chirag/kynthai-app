@@ -76,7 +76,9 @@ describe('hydration safety (React #418)', () => {
 
   it('footer year text is suppressHydrationWarning-marked', () => {
     const landing = read('src/components/kynthai/landing-footer.tsx')
-    const portal = read('src/components/kynthai/portal-footer.tsx')
+    // Legal footer was moved into the profile hub (no longer repeated on every
+    // portal screen); the year text there must stay hydration-safe too.
+    const portal = read('src/components/kynthai/patient/profile-hub.tsx')
     // The <p suppressHydrationWarning> opening tag may share the year line or
     // sit directly above it, so inspect a small window around the year text.
     const yearIsMarked = (src: string) => {

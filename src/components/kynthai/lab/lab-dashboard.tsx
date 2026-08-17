@@ -14,7 +14,6 @@ import {
   MapPin, Home,
 } from 'lucide-react'
 import { OfflineIndicator } from '@/components/kynthai/offline-indicator'
-import { PortalFooter } from '@/components/kynthai/portal-footer'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 
@@ -415,7 +414,6 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
     </main>
 
     {/* Minimal legal footer */}
-    <PortalFooter />
   </div>
   )
 }
