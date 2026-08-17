@@ -9,7 +9,25 @@
   "background_color": "#ffffff",
   "theme_color": "#10b981",
   "orientation": "portrait-primary",
+  "lang": "en-US",
+  "dir": "ltr",
   "categories": ["health", "medical", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/og-image.webp",
+      "sizes": "1200x630",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Kynthai: AI health companion for families"
+    },
+    {
+      "src": "/hero_9x16.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Smart medication reminders and health tracking"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Add Medication",

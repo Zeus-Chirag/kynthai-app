@@ -662,21 +662,15 @@ export function ProfileHub({
         </Card>
       </div>
 
-      {/* Legal — consolidated here so we don't repeat the full footer on
-          every portal screen. Keeps Privacy, Terms & CCPA reachable in one
-          known place (the profile sheet). */}
+      {/* Legal — users already consented at signup; one clean link. */}
       <div className="px-5 mt-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-          Legal
-        </h3>
-        <div className="flex flex-wrap gap-x-4 gap-y-2 px-1">
-          <a href="/privacy" className="text-xs text-muted-foreground hover:text-foreground hover:underline">Privacy</a>
-          <a href="/privacy-practices" className="text-xs text-muted-foreground hover:text-foreground hover:underline">Privacy Practices</a>
-          <a href="/patient-rights" className="text-xs text-muted-foreground hover:text-foreground hover:underline">Patient Rights</a>
-          <a href="/terms" className="text-xs text-muted-foreground hover:text-foreground hover:underline">Terms</a>
-          <a href="/ccpa" className="text-xs text-muted-foreground hover:text-foreground hover:underline">Do Not Sell (CCPA)</a>
-        </div>
-        <p suppressHydrationWarning className="mt-2 px-1 text-[11px] text-muted-foreground">
+        <a
+          href="/legal"
+          className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+        >
+          Legal & Privacy
+        </a>
+        <p suppressHydrationWarning className="mt-2 text-[11px] text-muted-foreground">
           © {new Date().getFullYear()} Kynthai™. All rights reserved.
         </p>
       </div>
