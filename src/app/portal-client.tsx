@@ -363,13 +363,12 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   }
 
   // ── Portal apps — loaded via portal-loaders.tsx ───────────────────────────
-  // ponytail: the lazy portal component (dynamic()) already renders its own
-  // PortalSkeleton, so the <Suspense> fallback here only added a second,
-  // mismatched loading flash. Render the node directly.
   const { key, node } = loadPortal(effectiveScreen, user);
   if (node) {
     return (
-      <div key={key}>{node}</div>
+      <Suspense fallback={<AppLoader label="Loading…" />}>
+        <div key={key}>{node}</div>
+      </Suspense>
     );
   }
 
