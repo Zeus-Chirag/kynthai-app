@@ -636,9 +636,10 @@ export function AiChat({ onNavigate }: { onNavigate?: (tab: string) => void } = 
         </div>
         <div className="mt-2 border-t border-border/40 pt-2 text-xs text-muted-foreground">
           <p className="font-medium text-foreground/80">
-            I'm an AI assistant — not a doctor. Consult a doctor here:
+            I'm an AI assistant — not a doctor. For medical care:
           </p>
           <ul className="mt-1 space-y-0.5 leading-relaxed">
+            <li><a href="tel:911" className="text-emerald-600 hover:underline">Call 9-1-1</a></li>
             {onNavigate && (
               <li>
                 <button
