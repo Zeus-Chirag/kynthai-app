@@ -21,6 +21,7 @@ import {
 } from '@/lib/schemas';
 import { computeCommission } from '@/lib/commission';
 import { sendNotification } from '@/lib/notifications';
+import { sendPushToUser } from '@/lib/push-server';
 // Prevent static generation — reads session + DB at runtime
 export const dynamic = 'force-dynamic';
 
@@ -190,6 +191,15 @@ export async function POST(req: NextRequest) {
     });
 
     await logAudit(u.id, 'appointment.created', `appointment=${appointment.id}`);
+
+    // Push: remind the patient their consultation is booked (non-blocking).
+    void sendPushToUser(u.id, {
+      title: 'Consultation booked',
+      body: `Your ${appointmentType} consultation is confirmed for ${date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.`,
+      tag: `appt-${appointment.id}`,
+      url: '/patient',
+    }).catch(() => {});
+
     return jsonOk(appointment, 201);
   } catch (error) {
     logger.phiSafeError(error);

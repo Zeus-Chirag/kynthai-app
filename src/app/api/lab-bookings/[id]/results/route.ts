@@ -4,6 +4,7 @@ import { logAudit } from '@/lib/auth'
 import { sanitizeText, rateLimit } from '@/lib/security'
 import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, readJson, audit, checkConsent } from '@/lib/api-helpers'
 import { sendNotification } from '@/lib/notifications'
+import { sendPushToUser } from '@/lib/push-server'
 export const dynamic = 'force-dynamic'
 
 /**
@@ -77,6 +78,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         data: { bookingId: updated.id },
       },
     )
+  } catch { /* best-effort */ }
+
+  // Push notification when the app is closed.
+  try {
+    await sendPushToUser(updated.patientId, {
+      title: 'Your lab test results are ready',
+      body: updated.resultsNote
+        ? `${updated.lab.labName}: ${updated.resultsNote.slice(0, 120)}`
+        : `Results from ${updated.lab.labName} have been uploaded.`,
+      tag: `lab-${updated.id}`,
+      url: '/patient',
+    })
   } catch { /* best-effort */ }
 
   await logAudit(u.id, 'lab-bookings.results', `booking=${id}`)

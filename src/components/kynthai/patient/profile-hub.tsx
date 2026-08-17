@@ -48,6 +48,7 @@ import { ResponsiveSheet } from '@/components/kynthai/responsive-sheet';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { apiFetch } from '@/lib/client-fetch';
 import { ReferralDashboard } from '@/components/kynthai/referral-dashboard';
+import { PushNotificationToggle } from '@/components/kynthai/push-notification-toggle';
 import { HealthPulseRing } from '@/components/kynthai/health-pulse-ring';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -645,6 +646,18 @@ export function ProfileHub({
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Notifications (push) */}
+      <div className="px-5 mt-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          Notifications
+        </h3>
+        <Card>
+          <CardContent className="p-0 divide-y divide-border/60">
+            <PushNotificationToggle />
           </CardContent>
         </Card>
       </div>

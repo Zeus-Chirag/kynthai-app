@@ -4,6 +4,7 @@ import { logAudit } from '@/lib/auth'
 import { rateLimit } from '@/lib/security'
 import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, audit, checkConsent } from '@/lib/api-helpers'
 import { sendEscalation, sendNotification } from '@/lib/notifications'
+import { sendPushToUser } from '@/lib/push-server'
 import { todayStr } from '@/lib/utils'
 export const dynamic = 'force-dynamic'
 
@@ -80,6 +81,16 @@ export async function POST(req: NextRequest) {
     // Best-effort: deliver the escalation by in-app/email only.
     // - If the medication belongs to a user (the patient), sendEscalation() also
     //   notifies the caretaker (the caller) when caretakerId differs from patientId.
+    try {
+      if (patientId) {
+        await sendPushToUser(patientId, {
+          title: 'Missed medication reminder',
+          body: `${medName} was scheduled at ${scheduledTime} — take it now or mark it as skipped.`,
+          tag: `missed-${r.id}`,
+          url: '/patient',
+        })
+      }
+    } catch { /* best-effort */ }
     // - If the medication belongs to a family member without a user account
     //   (patientId is null), fall back to notifying the caretaker directly by email.
     try {
