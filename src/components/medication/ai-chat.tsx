@@ -634,25 +634,27 @@ export function AiChat({ onNavigate }: { onNavigate?: (tab: string) => void } = 
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <div className="mt-2 border-t border-border/40 pt-2 text-xs text-muted-foreground">
-          <p className="font-medium text-foreground/80">
-            I'm an AI assistant — not a doctor. For medical care:
-          </p>
-          <ul className="mt-1 space-y-0.5 leading-relaxed">
-            <li><a href="tel:911" className="text-muted-foreground hover:underline">Call 9-1-1</a></li>
+        <div className="mt-2 border-t border-border/40 pt-2 text-xs leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground">
+            I'm an AI assistant — not a doctor.{' '}
+            <a href="tel:911" className="text-foreground/80 font-medium hover:underline">Call 9-1-1</a>{' '}
+            in an emergency.{' '}
             {onNavigate && (
-              <li>
+              <>
+                For medical care, book a doctor via{' '}
                 <button
                   type="button"
                   onClick={() => onNavigate('market')}
-                  className="text-muted-foreground hover:underline"
+                  className="text-foreground/80 font-medium hover:underline"
                 >
-                  Find Care — book a doctor
-                </button>
-              </li>
+                  Find Care
+                </button>{' '}
+                or a{' '}
+              </>
             )}
-            <li>Book a video consultation with a doctor</li>
-          </ul>
+            {!onNavigate && 'For medical care, book a doctor via Find Care or a '}
+            <span className="text-foreground/80 font-medium">video consultation</span>.
+          </p>
         </div>
       </CardContent>
     </Card>
