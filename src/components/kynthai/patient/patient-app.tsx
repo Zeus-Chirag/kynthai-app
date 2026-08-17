@@ -58,6 +58,7 @@ import { useRouter } from 'next/navigation';
 import { useGreeting } from '@/lib/greeting'
 import { AchievementCelebration } from '@/components/kynthai/achievement-celebration';
 import { useToast } from '@/hooks/use-toast';
+import { playProfessionalRingtone, stopAllRingtones } from '@/lib/alarm';
 import { TodayView } from '@/components/medication/today-view';
 import { MedicationsList } from '@/components/medication/medications-list';
 import { AiChat } from '@/components/medication/ai-chat';
@@ -1135,6 +1136,50 @@ export function PatientApp({ user }: { user: AuthUser }) {
       cancelled = true;
     };
   }, [user?.isDemo]);
+
+  // ── Global reminder alert: notify on ANY tab when a reminder is due ──
+  // TodayView's alarm only fires when the Meds tab is mounted. This effect
+  // ensures the user is reminded even when browsing Home / Care / AI etc.
+  React.useEffect(() => {
+    if (user?.isDemo) return;
+    let cancelled = false;
+    let seen = new Set<string>();
+
+    async function check() {
+      if (cancelled) return;
+      try {
+        const qs = new URLSearchParams({ date: new Date().toISOString().slice(0, 10) });
+        const res = await fetch(`/api/reminders?${qs}`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const pending: Array<{ id: string; time: string; status: string; medication?: { name: string; dosage?: string } }> = data.reminders ?? [];
+        const now = new Date();
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        for (const r of pending) {
+          if (r.status !== 'pending') continue;
+          const [h = 0, m = 0] = r.time.split(':').map(Number);
+          const reminderMins = h * 60 + m;
+          // Show once per reminder per check cycle (every 60s). Fire when
+          // current time is within a ±15-minute window of the scheduled time.
+          if (reminderMins <= nowMins && nowMins - reminderMins < 15 && !seen.has(r.id)) {
+            seen.add(r.id);
+            const name = r.medication?.name ?? 'your medication';
+            const dosage = r.medication?.dosage ? ` ${r.medication.dosage}` : '';
+            playProfessionalRingtone();
+            toast({
+              title: `Time for ${name}${dosage}`,
+              description: `${r.time} — go to Meds to take or skip.`,
+              duration: 30000,
+            });
+          }
+        }
+      } catch { /* best-effort */ }
+    }
+
+    check();
+    const interval = setInterval(check, 60_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [user?.isDemo, toast, setTab]);
 
   const handleCancelAppointment = React.useCallback(
     async (appointmentId: string) => {
