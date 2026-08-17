@@ -638,22 +638,18 @@ export function AiChat({ onNavigate }: { onNavigate?: (tab: string) => void } = 
           <p className="text-muted-foreground">
             I'm an AI assistant — not a doctor.{' '}
             <a href="tel:911" className="text-foreground/80 font-medium hover:underline">Call 9-1-1</a>{' '}
-            in an emergency.{' '}
-            {onNavigate && (
-              <>
-                For medical care, book a doctor via{' '}
-                <button
-                  type="button"
-                  onClick={() => onNavigate('market')}
-                  className="text-foreground/80 font-medium hover:underline"
-                >
-                  Find Care
-                </button>{' '}
-                or a{' '}
-              </>
-            )}
-            {!onNavigate && 'For medical care, book a doctor via Find Care or a '}
-            <span className="text-foreground/80 font-medium">video consultation</span>.
+            in an emergency. For medical care,{' '}
+            {onNavigate ? (
+              <button
+                type="button"
+                onClick={() => onNavigate('market')}
+                className="text-foreground/80 font-medium hover:underline"
+              >
+                book a doctor via Find Care
+              </button>
+            ) : (
+              'book a doctor via Find Care'
+            )}.
           </p>
         </div>
       </CardContent>
