@@ -599,39 +599,29 @@ export function LoginPage({
 
                 {process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && (
                   <div className="mb-5">
-                    <p className="mb-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                      Explore instantly — no sign-up needed
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {([
-                        { role: 'caretaker', label: 'Family' },
-                        { role: 'patient', label: 'Patient' },
-                        { role: 'doctor', label: 'Doctor' },
-                        { role: 'lab', label: 'Lab' },
-                        { role: 'admin', label: 'Admin' },
-                      ] as { role: DemoRole; label: string }[]).map(d => (
-                        <button
-                          key={d.role}
-                          type="button"
-                          disabled={demoBusy}
-                          onClick={async () => {
-                            setDemoBusy(true);
-                            setDemoBooting(true);
-                            const ok = await runDemoLogin(d.role);
-                            if (ok) {
-                              window.location.replace(demoRolePath(d.role));
-                              return;
-                            }
-                            setDemoBooting(false);
-                            setDemoBusy(false);
-                          }}
-                          className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300 disabled:opacity-60 disabled:pointer-events-none"
-                        >
-                          <Sparkles className="h-3.5 w-3.5" />
-                          {d.label} demo
-                        </button>
-                      ))}
-                    </div>
+                    <button
+                      type="button"
+                      disabled={demoBusy}
+                      onClick={async () => {
+                        // Inline demo login for the SELECTED portal tab — no page
+                        // reload. Pick a portal above (Family/Patient/Doctor/Lab)
+                        // then one tap enters that demo.
+                        setDemoBusy(true);
+                        setDemoBooting(true);
+                        const role = loginPortal as DemoRole;
+                        const ok = await runDemoLogin(role);
+                        if (ok) {
+                          window.location.replace(demoRolePath(role));
+                          return;
+                        }
+                        setDemoBooting(false);
+                        setDemoBusy(false);
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300 disabled:opacity-60 disabled:pointer-events-none"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Try the {active.label} demo — explore instantly
+                    </button>
                   </div>
                 )}
 
