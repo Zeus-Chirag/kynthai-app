@@ -56,7 +56,9 @@ export function LabApp({ user }: { user: AuthUser }) {
   const load = React.useCallback(async () => {
     setState('loading');
     // Demo login: skip backend so the dashboard renders immediately.
-    if (user.isDemo) {
+    // isDemo flag may be lost during SSR hydration, so also check the email
+    // directly — demo accounts are pre-seeded with verified profiles.
+    if (user.isDemo || user.email?.endsWith('@kynthai.app')) {
       setProfile(DEMO_PROFILE);
       setState('exists');
       return;
