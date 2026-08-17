@@ -31,6 +31,8 @@ import { cn } from '@/lib/utils';
 import { KynthaiBrand } from './logo';
 import { FadeIn } from './animations';
 import { TurnstileWidget, type TurnstileWidgetHandle } from './turnstile-widget';
+import { runDemoLogin, demoRolePath, type DemoRole, DEMO_ROLES } from '@/lib/demo-login';
+import { AppLoader } from '@/components/kynthai/app-loader';
 
 interface PortalConfig {
   id: LoginPortal;
@@ -244,14 +246,13 @@ export function LoginPage({
   React.useEffect(() => {
     if (process.env.NEXT_PUBLIC_ENABLE_DEMO !== 'true') return;
     if (user) return;
-    if (loading) return;
+    if (loading || demoBusy) return;
     if (typeof window === 'undefined') return;
     // Explicit opt-in gate — no URL marker, no auto-login.
     const qs = new URLSearchParams(window.location.search);
     const wantsDemo = qs.get('demo') === '1';
     const hashRole = (window.location.hash || '').replace('#', '').toLowerCase();
-    const DEMO_ROLES = ['patient', 'doctor', 'caretaker', 'lab', 'admin'];
-    if (!wantsDemo && !DEMO_ROLES.includes(hashRole)) return;
+    if (!wantsDemo && !(DEMO_ROLES as string[]).includes(hashRole)) return;
 
     // CONSUME the demo marker immediately: once we've decided to auto-login
     // from `?demo=1` / `#role`, strip it from the URL so a LATER visit to
@@ -262,65 +263,17 @@ export function LoginPage({
       window.history.replaceState({}, '', window.location.pathname);
     } catch { /* history may be unavailable; ignore */ }
 
-    const demoAccounts: Array<{ email: string; role: 'patient' | 'doctor' | 'caretaker' | 'lab' | 'admin' }> = [
-      { email: 'patient@kynthai.app',   role: 'patient'   },
-      { email: 'doctor@kynthai.app',    role: 'doctor'    },
-      { email: 'caretaker@kynthai.app', role: 'caretaker' },
-      { email: 'lab@kynthai.app',       role: 'lab'       },
-      { email: 'admin@kynthai.app',     role: 'admin'     },
-    ];
-    const pick = (() => {
-      const found = demoAccounts.find(a => a.role === hashRole);
-      if (found) return found as typeof demoAccounts[number];
-      return demoAccounts[0]!;
-    })();
-    setDemoBusy(true); // disable buttons while demo logs in — no jittery button
-                       // spinner, since the demo instantly redirects to a portal
-                       // that shows its own single AppLoader.
-    (async () => {
-      try {
-        const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
-        const { token: csrf } = await csrfRes.json();
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-          body: JSON.stringify({ email: pick.email, password: 'Demo@2024' }),
-        });
-        if (res.ok) {
-          // Mirror the real sign-in handler (submit → /auth/login → login(user))
-          // AND the portal clients' session recovery (patient-client fetches
-          // /api/auth/me when the store is empty): source the store user from
-          // /me, which returns the FULL profile including consent flags. The
-          // /auth/login response omits consent flags, so storing it directly
-          // trips the patient portal's ConsentGate on a fresh browser.
-          // The portal clients (admin-client, patient-client, …) gate on the
-          // STORE user — with it set, the hard reload below renders their
-          // portal instead of bouncing to /login (the pre-fix behavior on any
-          // browser without a persisted store user). Persisted via zustand
-          // persist, so it survives the reload.
-          try {
-            const meRes = await fetch('/api/auth/me', { credentials: 'include' });
-            if (meRes.ok) {
-              const me = await meRes.json();
-              if (me?.user) useAppStore.getState().login(me.user);
-            }
-          } catch { /* portal clients self-recover via /me on their own */ }
-          // Demo accounts are pre-seeded, pre-consented "returning users"
-          // (isDemo=false in DB, data + consent already present) — so mark
-          // onboarding complete client-side. Without this, a fresh visitor
-          // to the demo hits the 60-second first-run onboarding with a role
-          // picker (trap: user.role always wins over the picked role) and
-          // re-asks for consent that's already stored in the DB. This keeps
-          // the demo to the promised "explore instantly, no sign-up needed".
-          useAppStore.getState().completeOnboarding(pick.role);
-          window.location.replace(`/${pick.role}`);
-          return;
-        }
-      } catch { /* fall through */ }
-      setDemoBusy(false);
-      setLoading(false);
-      setDemoBooting(false); // session failed — fall back to the sign-in form
+    const role = (DEMO_ROLES as string[]).includes(hashRole)
+      ? (hashRole as DemoRole)
+      : 'patient';
+    setDemoBusy(true);
+    void (async () => {
+      const ok = await runDemoLogin(role);
+      if (ok) {
+        window.location.replace(demoRolePath(role));
+        return;
+      }
+      setDemoBusy(false); // session failed — fall back to the sign-in form
     })();
   }, []);
 
@@ -472,6 +425,13 @@ export function LoginPage({
   // ponytail: removed demoBooting loading screen — the form stays visible
   // with disabled buttons while the demo logs in, avoiding a double-loading
   // spinner (login page → target page).
+
+  // When the user clicks "Try the demo" (or arrives at /login?demo=1) show a
+  // single branded AppLoader for the whole sign-in, so the login form never
+  // flickers/reloads before the portal loads its own AppLoader.
+  if (demoBooting) {
+    return <AppLoader label="Preparing your demo…" />;
+  }
 
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background">
@@ -641,14 +601,28 @@ export function LoginPage({
                   <div className="mb-5">
                     <button
                       type="button"
-                      onClick={() => {
-                        // Full navigation (not router.push) so the page remounts
-                        // and the demo auto-login effect re-evaluates the URL.
-                        const hash = loginPortal !== 'patient' ? `#${loginPortal}` : '';
-                        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-                        window.location.assign(`/login?demo=1${hash}`);
+                      disabled={demoBusy}
+                      onClick={async () => {
+                        // Inline demo login — NO page reload. Previously this did
+                        // window.location.assign('/login?demo=1…') which reloaded
+                        // the login page, then the auto-login effect ran again →
+                        // visible "login screen refreshes → spinner → portal".
+                        // Now we show a single branded AppLoader immediately and
+                        // log in directly, then hop to the portal.
+                        setDemoBusy(true);
+                        setDemoBooting(true);
+                        const role = ((Object.keys({ patient: 1, doctor: 1, caretaker: 1, lab: 1, admin: 1 }) as DemoRole[]).includes(loginPortal as DemoRole))
+                          ? (loginPortal as DemoRole)
+                          : 'patient';
+                        const ok = await runDemoLogin(role);
+                        if (ok) {
+                          window.location.replace(demoRolePath(role));
+                          return;
+                        }
+                        setDemoBooting(false);
+                        setDemoBusy(false);
                       }}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300 disabled:opacity-60 disabled:pointer-events-none"
                     >
                       <Sparkles className="h-4 w-4" />
                       Try the demo — explore instantly, no sign-up needed
