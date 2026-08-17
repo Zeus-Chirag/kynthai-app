@@ -759,20 +759,6 @@ const CONSENT_ITEMS: {
   disabled?: boolean;
 }[] = [
   {
-    key: 'consentAccepted',
-    label: 'Terms of Service',
-    desc: 'Kynthai Terms & Privacy Policy',
-    icon: Shield,
-    tint: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  },
-  {
-    key: 'dataProcessingConsent',
-    label: 'Data processing',
-    desc: 'Store and process personal and health data for service delivery under US privacy',
-    icon: HeartPulse,
-    tint: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
-  },
-  {
     key: 'aiTrainingConsent',
     label: 'AI training data',
     desc: 'Allow de-identified data to improve AI features. Revoke any time.',
@@ -827,7 +813,7 @@ function ConsentManager({ consentFlags }: ConsentManagerProps) {
   return (
     <div className="px-5 mt-5">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-        Privacy & Consent
+        AI Preferences
       </h3>
       <Card>
         <CardContent className="p-0 divide-y divide-border/60">
