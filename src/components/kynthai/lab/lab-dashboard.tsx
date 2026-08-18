@@ -76,6 +76,12 @@ const STATUS_CFG: Record<string, { label: string; icon: any; bg: string; color: 
   },
 }
 
+const DEMO_BOOKINGS: BookingRow[] = [
+  { id: 'demo-b1', patientName: 'Sarah Johnson', tests: [{ name: 'Complete Blood Count', price: 3500 }], scheduledAt: '2026-07-20T09:00:00Z', status: 'pending', price: 3500, commission: 525, homeCollection: false },
+  { id: 'demo-b2', patientName: 'James Carter', tests: [{ name: 'Lipid Panel', price: 4900 }], scheduledAt: '2026-07-22T14:00:00Z', status: 'sample_collected', price: 4900, commission: 735, homeCollection: true },
+  { id: 'demo-b3', patientName: 'Mia Carter', tests: [{ name: 'HbA1c', price: 3900 }, { name: 'Vitamin D', price: 4500 }], scheduledAt: '2026-07-25T10:30:00Z', status: 'completed', price: 8400, commission: 1260, homeCollection: false, hasResultsFile: true },
+]
+
 export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
   const [labOnline, setLabOnline] = React.useState(true)
   const [tab, setTab] = React.useState<LabTab>('overview')
@@ -99,6 +105,13 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
   ]
 
   const fetchData = React.useCallback(async () => {
+    // Demo mode: use sample data directly — skip API calls that fail without a real DB
+    if (user.isDemo || user.email?.endsWith('@kynthai.app')) {
+      setStats({ bookingsTotal: 3, pending: 1, completed: 1, revenue: 2100 })
+      setBookings(DEMO_BOOKINGS)
+      setLoading(false)
+      return
+    }
     try {
       setLoading(true)
       const [dr, br] = await Promise.all([
@@ -113,7 +126,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
     } catch {
       toast({title: 'Failed to load data', variant: 'destructive'})
     } finally { setLoading(false) }
-  }, [toast])
+  }, [toast, user.isDemo, user.email])
 
   React.useEffect(() => { fetchData() }, [fetchData])
 
@@ -325,8 +338,8 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
                 </div>
               </>
             ) : (
-              <div className="rounded-xl border border-border/60 bg-card p-8 text-center">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+              <div className="rounded-xl border border-border/60 bg-card p-8 text-center text-sm text-muted-foreground">
+                No stats available yet.
               </div>
             )}
           </div>
