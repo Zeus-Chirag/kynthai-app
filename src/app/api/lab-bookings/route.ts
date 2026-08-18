@@ -74,6 +74,13 @@ export async function GET(req: NextRequest) {
       price: b.price,
       commission: b.commission,
       homeCollection: b.homeCollection,
+      deliveryAddress: b.deliveryAddress,
+      deliveryCity: b.deliveryCity,
+      deliveryZip: b.deliveryZip,
+      deliveryDistanceMi: b.deliveryDistanceMi,
+      deliveryFee: b.deliveryFee,
+      deliveryPlatformFee: b.deliveryPlatformFee,
+      paymentStatus: b.paymentStatus,
     })),
   )
 }
@@ -93,10 +100,21 @@ export async function POST(req: NextRequest) {
     scheduledAt?: string
     tests?: Array<{ name: string; price: number }>
     homeCollection?: boolean
+    deliveryAddress?: string
+    deliveryCity?: string
+    deliveryZip?: string
+    deliveryDistanceMi?: number
+    deliveryFee?: number      // cents
+    deliveryPlatformFee?: number // cents
+    stripePaymentIntentId?: string
+    paymentStatus?: string
   }>(req)
   if (!body) return jsonError('Invalid JSON', 400)
   if (!body.labId) return jsonError('labId is required', 400)
   if (!body.scheduledAt) return jsonError('scheduledAt is required', 400)
+  if (body.homeCollection && body.deliveryZip) {
+    if (!body.deliveryAddress) return jsonError('deliveryAddress is required for home collection', 400)
+  }
 
   const patientId = body.patientId || u.id
   if (u.role === 'patient' && patientId !== u.id) {
@@ -129,6 +147,14 @@ export async function POST(req: NextRequest) {
       commission,
       homeCollection: !!body.homeCollection,
       tests: JSON.stringify(tests),
+      deliveryAddress: body.deliveryAddress || null,
+      deliveryCity: body.deliveryCity || null,
+      deliveryZip: body.deliveryZip || null,
+      deliveryDistanceMi: body.deliveryDistanceMi ?? null,
+      deliveryFee: body.deliveryFee || 0,
+      deliveryPlatformFee: body.deliveryPlatformFee || 0,
+      stripePaymentIntentId: body.stripePaymentIntentId || null,
+      paymentStatus: body.paymentStatus || 'pending',
     },
   })
 
@@ -175,5 +201,12 @@ export async function POST(req: NextRequest) {
     commissionRatePct: feePct,
     tests: parseJsonCol(booking.tests, []),
     homeCollection: booking.homeCollection,
+    deliveryAddress: booking.deliveryAddress,
+    deliveryCity: booking.deliveryCity,
+    deliveryZip: booking.deliveryZip,
+    deliveryDistanceMi: booking.deliveryDistanceMi,
+    deliveryFee: booking.deliveryFee,
+    deliveryPlatformFee: booking.deliveryPlatformFee,
+    paymentStatus: booking.paymentStatus,
   })
 }

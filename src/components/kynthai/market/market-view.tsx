@@ -78,6 +78,7 @@ const LABS = [
     id: 'l1',
     name: 'HealthStreet Labs',
     city: 'Austin, TX',
+    zip: '78701',
     homeCollection: true,
     rating: 4.7,
     tests: [
@@ -91,6 +92,7 @@ const LABS = [
     id: 'l2',
     name: 'National Diagnostic Network',
     city: 'Dallas, TX',
+    zip: '75201',
     homeCollection: true,
     rating: 4.8,
     tests: [
@@ -103,6 +105,7 @@ const LABS = [
     id: 'l3',
     name: 'MediCore Reference Labs',
     city: 'Chicago, IL',
+    zip: '60601',
     homeCollection: false,
     rating: 4.6,
     tests: [
@@ -567,13 +570,13 @@ function LabsTab() {
           setSelectedTests((p) => (p.includes(name) ? p.filter((x) => x !== name) : [...p, name]))
         }
         onClose={() => setBookingLab(null)}
-        onConfirm={async () => {
+        onConfirm={async (deliveryInfo) => {
           if (!bookingLab) return
           try {
             const csrf = await fetch('/api/auth/csrf', { credentials: 'include' }).then(r => r.json()).then(d => d.token)
             const tests = bookingLab.tests
               .filter((t) => selectedTests.includes(t.name))
-              .map((t) => ({ name: t.name, price: t.price }))
+              .map((t) => ({ name: t.name, price: t.price * 100 })) // convert to cents
             const res = await fetch('/api/lab-bookings', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
@@ -582,7 +585,14 @@ function LabsTab() {
                 labId: bookingLab.id,
                 tests,
                 homeCollection: bookingLab.homeCollection,
-                scheduledAt: new Date(Date.now() + 86400000).toISOString(), // tomorrow default
+                scheduledAt: new Date(Date.now() + 86400000).toISOString(),
+                deliveryAddress: deliveryInfo?.address || null,
+                deliveryCity: deliveryInfo?.city || null,
+                deliveryZip: deliveryInfo?.zip || null,
+                deliveryDistanceMi: deliveryInfo?.distanceMi ?? null,
+                deliveryFee: deliveryInfo?.deliveryFeeCents || 0,
+                deliveryPlatformFee: deliveryInfo?.platformFeeCents || 0,
+                paymentStatus: deliveryInfo?.contactLab ? 'pending' : 'pending',
               }),
             })
             if (!res.ok) {
@@ -615,11 +625,48 @@ function LabBookingDialog({
   selected: string[]
   onToggle: (name: string) => void
   onClose: () => void
-  onConfirm: () => void
+  onConfirm: (deliveryInfo?: {
+    address: string
+    city: string
+    zip: string
+    distanceMi: number | null
+    deliveryFeeCents: number
+    platformFeeCents: number
+    contactLab: boolean
+  }) => void
 }) {
-  const total = lab
+  const [address, setAddress] = React.useState('')
+  const [city, setCity] = React.useState('')
+  const [zip, setZip] = React.useState('')
+  const [deliveryResult, setDeliveryResult] = React.useState<{
+    distanceMi: number | null
+    deliveryFeeCents: number
+    platformFeeCents: number
+    contactLab: boolean
+    distanceLabel: string
+  } | null>(null)
+
+  const testsTotal = lab
     ? lab.tests.filter((t) => selected.includes(t.name)).reduce((s, t) => s + t.price, 0)
     : 0
+
+  // Calculate delivery fee when zip changes
+  React.useEffect(() => {
+    if (!zip || zip.length !== 5 || !lab?.zip) {
+      setDeliveryResult(null)
+      return
+    }
+    // Client-side distance calculation using the same haversine logic
+    import('@/lib/delivery-fee').then(({ calculateDeliveryFee }) => {
+      const result = calculateDeliveryFee(zip, lab.zip)
+      setDeliveryResult(result)
+    })
+  }, [zip, lab?.zip])
+
+  const deliveryFeeDollars = deliveryResult ? deliveryResult.deliveryFeeCents / 100 : 0
+  const total = testsTotal + deliveryFeeDollars
+  const canBook = selected.length > 0 && (!lab?.homeCollection || deliveryResult?.contactLab === false || address.length > 0)
+
   return (
     <Dialog open={!!lab} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto custom-scroll">
@@ -629,6 +676,8 @@ function LabBookingDialog({
             {lab?.name} · {lab?.city}
           </DialogDescription>
         </DialogHeader>
+
+        {/* Test selection */}
         <div className="space-y-2 py-2">
           {lab?.tests.map((t) => {
             const checked = selected.includes(t.name)
@@ -659,14 +708,123 @@ function LabBookingDialog({
             )
           })}
         </div>
+
+        {/* Delivery address (home collection only) */}
+        {lab?.homeCollection && selected.length > 0 && (
+          <div className="space-y-3 rounded-xl border border-border/60 bg-muted/30 p-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-emerald-600" />
+              <p className="text-sm font-semibold">Home collection address</p>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Delivery fee is calculated based on distance from the lab.
+            </p>
+            <input
+              type="text"
+              placeholder="Street address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+              <input
+                type="text"
+                placeholder="Zip code"
+                value={zip}
+                onChange={(e) => setZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                maxLength={5}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+            {deliveryResult && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted-foreground">Distance:</span>
+                  <span className={cn('font-medium', deliveryResult.contactLab ? 'text-amber-600' : 'text-emerald-600')}>
+                    {deliveryResult.distanceLabel}
+                  </span>
+                </div>
+                {deliveryResult.contactLab && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    This location is outside our delivery area. Please contact the lab directly to arrange home collection.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Fee breakdown */}
+        {selected.length > 0 && (
+          <div className="space-y-2 rounded-xl border border-border/60 bg-card p-4">
+            <p className="text-sm font-semibold">Order summary</p>
+            <div className="space-y-1.5">
+              {lab?.tests.filter((t) => selected.includes(t.name)).map((t) => (
+                <div key={t.name} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{t.name}</span>
+                  <span>${t.price.toFixed(2)}</span>
+                </div>
+              ))}
+              {deliveryFeeDollars > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Delivery ({deliveryResult?.distanceLabel})</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">${deliveryFeeDollars.toFixed(2)}</span>
+                </div>
+              )}
+              {deliveryFeeDollars === 0 && lab?.homeCollection && deliveryResult && !deliveryResult.contactLab && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Delivery</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Free</span>
+                </div>
+              )}
+            </div>
+            <div className="border-t border-border/40 pt-2 mt-2">
+              <div className="flex items-center justify-between text-base font-bold">
+                <span>Total</span>
+                <span className="text-emerald-600 dark:text-emerald-400">${total.toFixed(2)}</span>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Payment processed securely via Stripe. Includes 18% platform fee on delivery charges.
+            </p>
+          </div>
+        )}
+
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button
-            disabled={selected.length === 0}
-            onClick={onConfirm}
+            disabled={!canBook}
+            onClick={() => {
+              if (deliveryResult && !deliveryResult.contactLab) {
+                onConfirm({
+                  address,
+                  city,
+                  zip,
+                  distanceMi: deliveryResult.distanceMi,
+                  deliveryFeeCents: deliveryResult.deliveryFeeCents,
+                  platformFeeCents: deliveryResult.platformFeeCents,
+                  contactLab: false,
+                })
+              } else if (!lab?.homeCollection) {
+                onConfirm() // in-lab pickup, no delivery
+              } else {
+                onConfirm()
+              }
+            }}
             className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
           >
-            {selected.length > 0 ? `Book · $${total}` : 'Select tests'}
+            {selected.length > 0
+              ? deliveryResult?.contactLab
+                ? 'Contact lab'
+                : `Pay $${total.toFixed(2)}`
+              : 'Select tests'}
           </Button>
         </DialogFooter>
       </DialogContent>
