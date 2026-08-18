@@ -774,13 +774,13 @@ function LabBookingDialog({
               ))}
               {deliveryFeeDollars > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery ({deliveryResult?.distanceLabel})</span>
+                  <span className="text-muted-foreground">Home collection ({deliveryResult?.distanceLabel})</span>
                   <span className="text-emerald-600 dark:text-emerald-400">${deliveryFeeDollars.toFixed(2)}</span>
                 </div>
               )}
               {deliveryFeeDollars === 0 && lab?.homeCollection && deliveryResult && !deliveryResult.contactLab && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery</span>
+                  <span className="text-muted-foreground">Home collection</span>
                   <span className="text-emerald-600 dark:text-emerald-400 font-medium">Free</span>
                 </div>
               )}
@@ -792,7 +792,7 @@ function LabBookingDialog({
               </div>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Payment processed securely via Stripe. Includes 18% platform fee on delivery charges.
+              Secure checkout · Pay through the app
             </p>
           </div>
         )}

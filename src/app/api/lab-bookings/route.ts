@@ -132,10 +132,11 @@ export async function POST(req: NextRequest) {
   const total = tests.reduce((s, t) => s + (Number(t.price) || 0), 0)
   if (total <= 0) return jsonError('Total price must be greater than 0', 400)
 
-  // BUSINESS LOGIC: use loyalty-tier-aware commission
+  // BUSINESS LOGIC: use loyalty-tier-aware commission on total (tests + delivery)
   const labTier = resolveTier(lab.reviewCount) // reviewCount as proxy for lifetime fulfilled
   const feePct = effectiveFeePct(LAB_BASE_FEE_PCT, labTier)
-  const commission = Math.round(total * (feePct / 100))
+  const totalWithDelivery = total + (body.deliveryFee || 0)
+  const commission = Math.round(totalWithDelivery * (feePct / 100))
 
   const booking = await db.labBooking.create({
     data: {
