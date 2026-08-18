@@ -22,7 +22,7 @@ import { buildDeidentifiedContext } from '@/lib/phi-filter';
 import { safeAIResponse, normalizeMarkdownSpacing, enforceNsaidSafetyForAnticoagulatedPatients } from '@/lib/ai-output-filter';
 import { createChatCompletion, NVIDIA_MODEL, isAiAvailable, choicesOf } from '@/lib/nvidia';
 import { needsRag, getSystemPromptWithRAG } from '@/lib/medical-rag';
-import { FEW_SHOT_EXAMPLES, DOCTOR_FEW_SHOT } from '@/lib/chat-system-prompt';
+import { FEW_SHOT_EXAMPLES, DOCTOR_FEW_SHOT, getEnhancedSystemPrompt } from '@/lib/chat-system-prompt';
 import { withAiTimeout, AiTimeoutError, AI_TIMEOUTS } from '@/lib/ai-timeout';
 import { guardAiScope } from '@/lib/ai-guard';
 import { logger } from '@/lib/logger';
@@ -419,7 +419,11 @@ export async function POST(req: NextRequest) {
     // protocols, guidelines) for this specific query and inject it into the
     // system prompt so the base model answers with grounded, specific
     // healthcare information. Skipped for simple greetings.
-    let systemContent = SYSTEM_PROMPT + formattedContext + patientAlertBlock;
+    let systemContent = getEnhancedSystemPrompt({
+      allergies: (() => { try { return u.allergies ? JSON.parse(u.allergies) : undefined } catch { return undefined } })(),
+      medications: (allCtx[0] ?? []).map((m: any) => m.name || m).filter(Boolean),
+      conditions: (allCtx[1] ?? []).map((c: any) => c.name || c).filter(Boolean),
+    }) + formattedContext + patientAlertBlock;
 
     // Role-specific: append clinical mode instructions when the user is a doctor
     if (u.role === 'doctor') {
