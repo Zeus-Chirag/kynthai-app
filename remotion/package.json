@@ -1,0 +1,22 @@
+{
+  "name": "kynthai-remotion",
+  "version": "0.1.0",
+  "description": "Remotion video compositions for Kynthai \u2014 Reels, ads, explainers",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render KynthaiLaunchSequence out/kynthai-launch.mp4",
+    "render-ad": "remotion render KynthaiAd out/kynthai-ad.mp4",
+    "still": "remotion still KynthaiAd out/kynthai-ad.png"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@remotion/cli": "^4.0.513",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "remotion": "^4.0.513"
+  }
+}

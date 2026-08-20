@@ -192,13 +192,37 @@ export async function POST(req: NextRequest) {
 
     await logAudit(u.id, 'appointment.created', `appointment=${appointment.id}`);
 
-    // Push: remind the patient their consultation is booked (non-blocking).
-    void sendPushToUser(u.id, {
-      title: 'Consultation booked',
-      body: `Your ${appointmentType} consultation is confirmed for ${date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.`,
-      tag: `appt-${appointment.id}`,
-      url: '/patient',
-    }).catch(() => {});
+    // Notify patient about the booked appointment (push + email).
+    const apptDate = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const apptType = appointmentType === 'video' ? 'Video consultation' : 'In-person visit';
+    
+    void sendNotification(
+      { userId: u.id, email: u.email },
+      {
+        title: 'Appointment request sent',
+        body: `Your ${apptType} request with Dr. ${appointment.doctor.user.name} for ${apptDate} has been sent.\n\n` +
+          `Reason: ${reason || 'General consultation'}\n` +
+          `Fee: $${doctor.consultationFee}\n\n` +
+          `Status: Pending — waiting for doctor to confirm\n\n` +
+          `You'll receive a notification once the doctor responds.\n\n` +
+          `Open Kynthai to view: ${process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'}/patient`,
+        type: 'appointment',
+        data: { appointmentId: appointment.id, doctorId, scheduledAt: date.toISOString() },
+      }
+    ).catch(() => {});
+
+    // Also notify the doctor about the new appointment.
+    void sendNotification(
+      { userId: doctor.userId },
+      {
+        title: 'New appointment booked',
+        body: `${u.name} booked a ${apptType} for ${apptDate}.\n\n` +
+          `Reason: ${reason || 'General consultation'}\n\n` +
+          `Open Kynthai to view: ${process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'}/doctor`,
+        type: 'appointment',
+        data: { appointmentId: appointment.id, patientId: u.id },
+      }
+    ).catch(() => {});
 
     return jsonOk(appointment, 201);
   } catch (error) {
@@ -228,7 +252,13 @@ export async function PUT(req: NextRequest) {
   const body = apptResult.data;
   const status = body.status;
 
-  const appt = await db.appointment.findUnique({ where: { id: body.id } });
+  const appt = await db.appointment.findUnique({
+    where: { id: body.id },
+    include: {
+      patient: { select: { id: true, name: true, email: true } },
+      doctor: { include: { user: { select: { id: true, name: true, email: true } } } },
+    },
+  });
   if (!appt) return jsonError('Appointment not found', 404);
 
   // IDOR: only the patient, the doctor (owner of doctorId profile), or admin can update.
@@ -240,14 +270,76 @@ export async function PUT(req: NextRequest) {
     return jsonError('Forbidden — you cannot modify this appointment', 403);
   }
 
+  // Validate status transitions
+  const validTransitions: Record<string, string[]> = {
+    pending: ['confirmed', 'cancelled'],
+    confirmed: ['completed', 'cancelled', 'no-show'],
+    cancelled: [],
+    completed: [],
+    'no-show': [],
+  };
+  const normalizedStatus = status === 'no-show' ? 'no_show' : status;
+  const allowed = validTransitions[appt.status] || [];
+  if (!allowed.includes(normalizedStatus)) {
+    return jsonError(`Cannot change status from '${appt.status}' to '${normalizedStatus}'`, 400);
+  }
+
   const updated = await db.appointment.update({
     where: { id: appt.id },
     data: {
-      status: status === 'no-show' ? 'no_show' : status,
+      status: normalizedStatus,
       notes: body.notes ? sanitizeText(body.notes, 1000) : undefined,
     },
   });
 
   await logAudit(u.id, 'appointment.update', `appt=${appt.id} status=${status}`);
+
+  // Notify the other party about the status change
+  const apptDate = appt.scheduledAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const apptType = appt.type === 'video' ? 'Video consultation' : 'In-person visit';
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app';
+
+  if (normalizedStatus === 'confirmed' && isDoctor) {
+    // Doctor confirmed → notify patient
+    void sendNotification(
+      { userId: appt.patientId, email: appt.patient.email },
+      {
+        title: '✅ Appointment confirmed!',
+        body: `Dr. ${appt.doctor.user.name} confirmed your ${apptType} for ${apptDate}.\n\n` +
+          `Please be ready at the scheduled time.\n\n` +
+          `Open Kynthai: ${APP_URL}/patient`,
+        type: 'appointment_confirmed',
+        data: { appointmentId: appt.id },
+      }
+    ).catch(() => {});
+  } else if (normalizedStatus === 'cancelled') {
+    // Notify the other party about cancellation
+    const cancelledBy = isDoctor ? 'doctor' : isPatient ? 'patient' : 'admin';
+    const notifyUserId = isDoctor ? appt.patientId : appt.doctor.userId;
+    const notifyEmail = isDoctor ? appt.patient.email : appt.doctor.user.email;
+    void sendNotification(
+      { userId: notifyUserId, email: notifyEmail },
+      {
+        title: '❌ Appointment cancelled',
+        body: `The ${apptType} on ${apptDate} has been cancelled by ${cancelledBy}.\n\n` +
+          `Open Kynthai to book a new appointment: ${APP_URL}`,
+        type: 'appointment_cancelled',
+        data: { appointmentId: appt.id },
+      }
+    ).catch(() => {});
+  } else if (normalizedStatus === 'completed' && isDoctor) {
+    // Doctor marked as completed → notify patient
+    void sendNotification(
+      { userId: appt.patientId, email: appt.patient.email },
+      {
+        title: '✅ Consultation completed',
+        body: `Your ${apptType} with Dr. ${appt.doctor.user.name} has been marked as completed.\n\n` +
+          `Open Kynthai to view your records: ${APP_URL}/patient`,
+        type: 'appointment_completed',
+        data: { appointmentId: appt.id },
+      }
+    ).catch(() => {});
+  }
+
   return jsonOk(updated);
 }

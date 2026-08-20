@@ -80,6 +80,38 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     )
   } catch { /* best-effort */ }
 
+  // Also notify family caretakers so they can help review results.
+  try {
+    const { db } = await import('@/lib/db')
+    const family = await db.family.findFirst({
+      where: { members: { some: { userId: updated.patientId } } },
+      include: {
+        members: {
+          where: { role: 'caretaker', inviteStatus: 'accepted', userId: { not: null } },
+          select: { userId: true },
+        },
+      },
+    })
+    if (family) {
+      const { sendNotification: sendNotif } = await import('@/lib/notifications')
+      for (const caretaker of family.members) {
+        if (caretaker.userId && caretaker.userId !== updated.patientId) {
+          await sendNotif(
+            { userId: caretaker.userId },
+            {
+              title: '🧪 Lab results ready for your family member',
+              body: updated.resultsNote
+                ? `${updated.lab.labName}: ${updated.resultsNote.slice(0, 120)}`
+                : `Results from ${updated.lab.labName} have been uploaded. Open the app to help review them.`,
+              type: 'lab_results',
+              data: { bookingId: updated.id, forUserId: updated.patientId },
+            },
+          )
+        }
+      }
+    }
+  } catch { /* best-effort */ }
+
   // Push notification when the app is closed.
   try {
     await sendPushToUser(updated.patientId, {

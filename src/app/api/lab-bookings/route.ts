@@ -6,6 +6,7 @@ import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, readJson, audit, p
 import { logAudit } from '@/lib/auth'
 import { sendNotification } from '@/lib/notifications'
 import { LAB_BASE_FEE_PCT, resolveTier, effectiveFeePct } from '@/lib/commission'
+import { DELIVERY_TIERS } from '@/lib/delivery-fee'
 import { logger } from '@/lib/logger'
 export const dynamic = 'force-dynamic'
 
@@ -132,10 +133,30 @@ export async function POST(req: NextRequest) {
   const total = tests.reduce((s, t) => s + (Number(t.price) || 0), 0)
   if (total <= 0) return jsonError('Total price must be greater than 0', 400)
 
+  // Server-side validation of delivery fee fields. The client computes these from
+  // distance, but a tampered client can claim free/negative delivery — sanitize to
+  // non-negative values and cap the fee at the highest bookable tier.
+  const toNonNegInt = (v: unknown): number => {
+    const n = Number(v)
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : 0
+  }
+  const toNonNegNum = (v: unknown): number | null => {
+    if (v === null || v === undefined || v === '') return null
+    const n = Number(v)
+    return Number.isFinite(n) && n >= 0 ? n : null
+  }
+  const maxDeliveryFeeCents = Math.max(...DELIVERY_TIERS.filter((t) => !t.contactLab).map((t) => t.feeCents))
+  const deliveryFee = Math.min(toNonNegInt(body.deliveryFee), maxDeliveryFeeCents)
+  const deliveryPlatformFee = toNonNegInt(body.deliveryPlatformFee)
+  const deliveryDistanceMi = toNonNegNum(body.deliveryDistanceMi)
+  const paymentStatus = ['pending', 'succeeded', 'failed', 'refunded'].includes(String(body.paymentStatus ?? ''))
+    ? String(body.paymentStatus)
+    : 'pending'
+
   // BUSINESS LOGIC: use loyalty-tier-aware commission on total (tests + delivery)
   const labTier = resolveTier(lab.reviewCount) // reviewCount as proxy for lifetime fulfilled
   const feePct = effectiveFeePct(LAB_BASE_FEE_PCT, labTier)
-  const totalWithDelivery = total + (body.deliveryFee || 0)
+  const totalWithDelivery = total + deliveryFee
   const commission = Math.round(totalWithDelivery * (feePct / 100))
 
   const booking = await db.labBooking.create({
@@ -151,11 +172,11 @@ export async function POST(req: NextRequest) {
       deliveryAddress: body.deliveryAddress || null,
       deliveryCity: body.deliveryCity || null,
       deliveryZip: body.deliveryZip || null,
-      deliveryDistanceMi: body.deliveryDistanceMi ?? null,
-      deliveryFee: body.deliveryFee || 0,
-      deliveryPlatformFee: body.deliveryPlatformFee || 0,
+      deliveryDistanceMi,
+      deliveryFee,
+      deliveryPlatformFee,
       stripePaymentIntentId: body.stripePaymentIntentId || null,
-      paymentStatus: body.paymentStatus || 'pending',
+      paymentStatus,
     },
   })
 
@@ -184,9 +205,27 @@ export async function POST(req: NextRequest) {
       { userId: lab.userId },
       {
         title: 'New lab test booking',
-        body: `${patient.name} booked ${tests.length > 1 ? `${tests.length} tests` : tests[0]?.name} for ${new Date(body.scheduledAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}.`,
+        body: `${patient.name} booked ${tests.length > 1 ? `${tests.length} tests` : tests[0]?.name} for ${new Date(body.scheduledAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}.\n\n` +
+          `Open Kynthai to view and confirm: ${process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'}/lab`,
         type: 'lab_booking',
         data: { bookingId: booking.id, labId: lab.id, patientId: patient.id },
+      },
+    )
+  } catch { /* best-effort */ }
+
+  // Notify the patient that their booking was submitted
+  try {
+    await sendNotification(
+      { userId: patient.id, email: patient.email },
+      {
+        title: 'Lab booking submitted',
+        body: `Your ${tests.length > 1 ? `${tests.length} tests` : tests[0]?.name} booking at ${lab.labName} has been submitted.\n\n` +
+          `Date: ${new Date(body.scheduledAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}\n` +
+          `Status: Pending — waiting for lab to confirm\n\n` +
+          `You'll receive a notification once the lab confirms.\n\n` +
+          `Open Kynthai: ${process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'}/patient`,
+        type: 'lab_booking',
+        data: { bookingId: booking.id, labId: lab.id },
       },
     )
   } catch { /* best-effort */ }

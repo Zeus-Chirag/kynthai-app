@@ -50,7 +50,8 @@ export async function PATCH(
   }
 
   const VALID_TRANSITIONS: Record<string, string[]> = {
-    pending: ['sample_collected', 'cancelled'],
+    pending: ['confirmed', 'cancelled'],
+    confirmed: ['sample_collected', 'cancelled'],
     sample_collected: ['processing', 'completed'],
     processing: ['completed', 'cancelled'],
     completed: [],
@@ -125,7 +126,7 @@ export async function PATCH(
     if (updated.status !== booking.status) {
       const statusMsg = updated.status === 'cancelled'
         ? `Your lab booking has been cancelled. Refund of $${((updated.price - updated.commission) / 100).toFixed(2)} has been processed.`
-        : `${booking.lab.labName}: Your test status updated to "${statusLabel(updated.status)}".`
+        : `${booking.lab.labName}: ${statusLabel(updated.status)}.`;
       await sendNotification(
         { userId: updated.patientId },
         {
@@ -133,6 +134,21 @@ export async function PATCH(
           body: statusMsg,
           type: 'lab_booking_update',
           data: { bookingId: updated.id, status: updated.status },
+        },
+      )
+    }
+  } catch { /* best-effort */ }
+
+  // Notify lab when patient cancels
+  try {
+    if (updated.status === 'cancelled' && booking.status !== 'cancelled' && isPatient) {
+      await sendNotification(
+        { userId: booking.lab.userId },
+        {
+          title: '❌ Lab booking cancelled by patient',
+          body: `The patient cancelled their lab booking for ${new Date(booking.scheduledAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}.`,
+          type: 'lab_booking_cancelled',
+          data: { bookingId: updated.id },
         },
       )
     }
@@ -201,9 +217,10 @@ export async function GET(
 
 function statusLabel(status: string): string {
   const map: Record<string, string> = {
-    pending: 'Booking confirmed',
+    pending: 'Booking submitted',
+    confirmed: 'Lab confirmed your booking',
     sample_collected: 'Sample collected',
-    processing: 'Processing',
+    processing: 'Results processing',
     completed: 'Results ready',
     cancelled: 'Booking cancelled',
   }

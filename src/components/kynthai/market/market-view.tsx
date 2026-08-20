@@ -665,7 +665,12 @@ function LabBookingDialog({
 
   const deliveryFeeDollars = deliveryResult ? deliveryResult.deliveryFeeCents / 100 : 0
   const total = testsTotal + deliveryFeeDollars
-  const canBook = selected.length > 0 && (!lab?.homeCollection || deliveryResult?.contactLab === false || address.length > 0)
+  // Home collection requires a computable delivery result inside the delivery
+  // area (0-30 mi). "Contact lab" (30+ mi or unknown zip) must NOT be bookable —
+  // otherwise the patient books with a $0 delivery fee, losing money on the run.
+  const canBook =
+    selected.length > 0 &&
+    (!lab?.homeCollection || (deliveryResult !== null && !deliveryResult.contactLab))
 
   return (
     <Dialog open={!!lab} onOpenChange={(o) => !o && onClose()}>
@@ -814,9 +819,8 @@ function LabBookingDialog({
                 })
               } else if (!lab?.homeCollection) {
                 onConfirm() // in-lab pickup, no delivery
-              } else {
-                onConfirm()
               }
+              // else: home collection outside delivery area — button is disabled; never book
             }}
             className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
           >

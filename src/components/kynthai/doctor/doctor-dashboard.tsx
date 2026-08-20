@@ -1244,7 +1244,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                     onChange={e => setAppointmentSearch(e.target.value)}
                     className="w-full rounded-xl border border-border/60 bg-background px-3.5 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 mb-3"
                   />
-                  <div className="space-y-2 max-h-96 overflow-y-auto custom-scroll pr-1">
+                  <div className="space-y-2 pr-1">
                     {liveAppointments
                       .filter(
                         a =>
@@ -1380,12 +1380,6 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
           <>
             {/* Patient Care — full prescribe + adherence + nudge + invite flow */}
             <div className="pt-2">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-base font-semibold flex items-center gap-2">
-                  <Users className="h-4 w-4 text-emerald-600" />
-                  {t('patient_care')}
-                </h2>
-              </div>
               <PatientCare
                 onPatientClick={p =>
                   setSelectedPatient({
@@ -1419,7 +1413,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                   {livePrescriptions.length} total
                 </Badge>
               </div>
-              <div className="space-y-2 max-h-96 overflow-y-auto custom-scroll pr-1">
+              <div className="space-y-2 pr-1">
                 {livePrescriptions.map(rx => (
                   <Card key={rx.id}>
                     <CardContent className="p-3 space-y-2">
@@ -1523,10 +1517,6 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
         )}
       </main>
 
-      {/* Minimal legal footer */}
-
-      <div className="h-24" />
-
       {/* Bottom tab navigation */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">
         <div className="mx-auto flex max-w-3xl items-stretch justify-around px-2 py-2">
@@ -1594,7 +1584,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
               <DialogTitle>{t('consultation_notes')}</DialogTitle>
               <DialogDescription>{t('view_add_notes')}</DialogDescription>
             </DialogHeader>
-            <div className="space-y-3 py-2 max-h-60 overflow-y-auto">
+            <div className="space-y-3 py-2 overflow-y-auto">
               {notesList.length > 0 ? (
                 notesList.map(n => (
                   <div key={n.id} className="rounded-lg border border-border/60 p-3">

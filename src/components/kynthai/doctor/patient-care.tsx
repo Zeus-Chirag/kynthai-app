@@ -169,7 +169,10 @@ export function PatientCare({ onPatientClick }: { onPatientClick?: (patient: Pat
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">{t('patient_care')}</h2>
+          <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+            <Users className="h-5 w-5 text-emerald-600" />
+            {t('patient_care')}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {t('prescribe_track_nudge')}
           </p>

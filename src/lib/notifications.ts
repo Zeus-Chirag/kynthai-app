@@ -66,12 +66,13 @@ export interface RouteResult {
   notificationLogId?: string
 }
 
-// Per-channel cost (USD). Push is always free; the others are vendor list prices.
+// Per-channel cost (USD). Push is always free; email is SendGrid pricing.
+// WhatsApp and SMS removed — Kynthai only uses Push + Email.
 export const CHANNEL_COST: Record<NotificationChannel, number> = {
   push: 0,
   email: 0.001,
-  whatsapp: 0.003,
-  sms: 0.02,
+  whatsapp: 0, // disabled
+  sms: 0, // disabled
 }
 
 // ---------------------------------------------------------------------------
@@ -144,11 +145,22 @@ export async function sendNotification(
       to: target.email,
       subject: payload.title,
       text: payload.body,
-      html: `<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:24px">
-        <h2 style="color:#10b981">${payload.title}</h2>
-        <p style="color:#374151;font-size:15px;line-height:1.5">${payload.body}</p>
+      html: `<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:24px;background:#f9fafb">
+        <div style="text-align:center;padding:16px 0">
+          <span style="font-size:24px;font-weight:bold;color:#10b981">Kynthai</span>
+        </div>
+        <div style="background:white;border-radius:12px;padding:24px;margin:16px 0;border:1px solid #e5e7eb">
+          <h2 style="color:#10b981;margin-top:0">${payload.title}</h2>
+          <p style="color:#374151;font-size:15px;line-height:1.6;white-space:pre-line">${payload.body}</p>
+        </div>
+        <div style="text-align:center;padding:16px 0">
+          <a href="${APP_URL}/patient" style="display:inline-block;background:#10b981;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Open Kynthai</a>
+        </div>
         <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb" />
-        <p style="font-size:11px;color:#9ca3af">Kynthai · AI Health Management</p>
+        <p style="font-size:11px;color:#9ca3af;text-align:center">
+          Kynthai · AI Health Management for US Families<br/>
+          <a href="${APP_URL}" style="color:#10b981;text-decoration:none">${APP_URL}</a>
+        </p>
       </div>`,
     })
     const cost = CHANNEL_COST.email
@@ -160,34 +172,11 @@ export async function sendNotification(
     }
   }
 
-  // 3. WHATSAPP ($0.003)
-  if (!delivered && (target.whatsapp || target.phone) && isWhatsAppEnabled()) {
-    const to = target.whatsapp || target.phone!
-    const r = await sendWhatsAppReal({ to, body: `${payload.title}\n\n${payload.body}` })
-    const cost = CHANNEL_COST.whatsapp
-    results.push({ channel: 'whatsapp', result: r, cost })
-    if (r.ok) {
-      delivered = true
-      usedChannel = 'whatsapp'
-      usedCost = cost
-    }
-  }
-
-  // 4. SMS ($0.02) — last resort
-  if (!delivered && target.phone && isSMSEnabled()) {
-    const r = await sendSMSReal({ to: target.phone, body: `${payload.title}: ${payload.body}` })
-    const cost = CHANNEL_COST.sms
-    results.push({ channel: 'sms', result: r, cost })
-    if (r.ok) {
-      delivered = true
-      usedChannel = 'sms'
-      usedCost = cost
-    }
-  }
+  // WhatsApp and SMS removed — Kynthai only uses Push + Email channels.
 
   // If no real channel could deliver, log a skipped/failed in-app row so we
   // always have an audit trail (recipient falls back to best identifier).
-  const recipient = target.pushToken || target.email || target.whatsapp || target.phone || target.userId || 'unknown'
+  const recipient = target.pushToken || target.email || target.userId || 'unknown'
   const logId = await logNotification({
     userId: target.userId,
     channel: delivered ? usedChannel : 'in-app',
@@ -295,7 +284,7 @@ export async function sendNudge(
   })
 }
 
-/** Send a prescription invite link to a patient. */
+/** Send a prescription invite link to a patient and their family caretakers. */
 export async function sendInvite(
   patientId: string,
   doctorName: string,
@@ -304,12 +293,42 @@ export async function sendInvite(
   overrides: Partial<NotificationTarget> = {},
 ): Promise<RouteResult> {
   const target = { ...(await loadUserTarget(patientId)), ...overrides }
-  return sendNotification(target, {
+  const r = await sendNotification(target, {
     title: `📩 Prescription from Dr. ${doctorName}`,
     body: `You have a new prescription with ${medCount} medication(s). Review and accept: ${inviteLink}`,
     type: 'invite',
     data: { inviteLink, doctorName },
   })
+
+  // Also notify family caretakers so they can help manage medications.
+  try {
+    const family = await db.family.findFirst({
+      where: { members: { some: { userId: patientId } } },
+      include: {
+        members: {
+          where: { role: 'caretaker', inviteStatus: 'accepted', userId: { not: null } },
+          select: { userId: true },
+        },
+      },
+    })
+    if (family) {
+      for (const caretaker of family.members) {
+        if (caretaker.userId && caretaker.userId !== patientId) {
+          const ct = { ...(await loadUserTarget(caretaker.userId)) }
+          await sendNotification(ct, {
+            title: `📩 New prescription for your family member`,
+            body: `Dr. ${doctorName} sent a prescription with ${medCount} medication(s). Help them review it: ${inviteLink}`,
+            type: 'invite',
+            data: { inviteLink, doctorName, forUserId: patientId },
+          })
+        }
+      }
+    }
+  } catch {
+    /* best-effort — don't fail the main notification */
+  }
+
+  return r
 }
 
 /** Send a follow-up appointment reminder. */

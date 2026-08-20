@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { ErrorBoundary } from '@/components/kynthai/error-boundary';
 import {
   ArrowLeft,
   User,
@@ -292,6 +293,7 @@ export default function SettingsClient() {
   // ── Render ──────────────────────────────────────────────────────────────
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/80 backdrop-blur-xl">
@@ -541,5 +543,6 @@ export default function SettingsClient() {
         </DialogContent>
       </Dialog>
     </div>
+    </ErrorBoundary>
   );
 }

@@ -257,6 +257,7 @@ model Appointment {
   notes           String?
   notes_enc       String?           @map("notes_enc")
   paymentCaptured Boolean           @default(false)
+  lastReminderSentAt DateTime?
   deletedAt       DateTime?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt

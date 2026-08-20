@@ -164,6 +164,20 @@ export interface DeliveryFeeResult {
 }
 
 /**
+ * Select the delivery tier for a distance in miles.
+ * Tiers are [minMi, maxMi); the last tier (30+ mi) is unbounded and means
+ * "contact the lab" — it is returned for any distance at or above its minMi.
+ */
+export function deliveryTierForDistance(distanceMi: number): DeliveryTier {
+  for (const t of DELIVERY_TIERS) {
+    if (t.maxMi !== null ? (distanceMi >= t.minMi && distanceMi < t.maxMi) : distanceMi >= t.minMi) {
+      return t
+    }
+  }
+  return DELIVERY_TIERS[DELIVERY_TIERS.length - 1]! // "Contact lab" fallback
+}
+
+/**
  * Calculate delivery fee for a home collection booking.
  * @param patientZip - Patient's zip code
  * @param labZip - Lab's zip code (from lab profile address)
@@ -191,13 +205,7 @@ export function calculateDeliveryFee(
   const distanceMi = Math.round(haversineMiles(pCoords[0], pCoords[1], lCoords[0], lCoords[1]) * 10) / 10
 
   // Find matching tier
-  let tier: DeliveryTier = DELIVERY_TIERS[DELIVERY_TIERS.length - 1]! // default to last (contact lab)
-  for (const t of DELIVERY_TIERS) {
-    if (t.maxMi !== null ? (distanceMi >= t.minMi && distanceMi < t.maxMi) : distanceMi >= t.minMi) {
-      tier = t
-      break
-    }
-  }
+  const tier = deliveryTierForDistance(distanceMi)
 
   const deliveryFeeCents = tier.contactLab ? 0 : tier.feeCents
   const platformFeeCents = Math.round(deliveryFeeCents * (DELIVERY_PLATFORM_FEE_PCT / 100))

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { FeedbackClient } from './feedback-client';
+import { ErrorBoundary } from '@/components/kynthai/error-boundary';
 
 export const metadata: Metadata = {
   title: 'Feedback | Kynthai',
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 
 export default function FeedbackPage() {
   return (
+    <ErrorBoundary>
     <main className="min-h-screen bg-background">
       <div className="container max-w-2xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-2">Feedback</h1>
@@ -18,5 +20,6 @@ export default function FeedbackPage() {
         <FeedbackClient />
       </div>
     </main>
+    </ErrorBoundary>
   );
 }

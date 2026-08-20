@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
+import Script from 'next/script';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
@@ -136,6 +137,22 @@ export default async function RootLayout({
         {process.env.NEXT_PUBLIC_STRIPE_PK &&
           !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(process.env.NEXT_PUBLIC_STRIPE_PK) && (
           <meta name="stripe-pk" content={process.env.NEXT_PUBLIC_STRIPE_PK} />
+        )}
+        {/* Google Analytics 4 — loaded only when consent is granted via analytics-consent.ts */}
+        {process.env.NEXT_PUBLIC_GA_ID &&
+          !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(process.env.NEXT_PUBLIC_GA_ID) && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">{`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', { send_page_view: false });
+            `}</Script>
+          </>
         )}
       </head>
       <body

@@ -114,13 +114,17 @@ export async function POST(req: NextRequest) {
     });
 
     try {
+      const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'}/invite?token=${token}&family=${family.id}`;
       await sendNotification(
         { email, userId: member.id },
         {
           title: `You've been invited to join ${u.name}'s family on Kynthai`,
-          body: `${u.name} invited you as "${body.relation}" to manage health together. Log in at Kynthai to accept the invite.`,
+          body: `${u.name} invited you as "${body.relation}" to manage health together.\n\n` +
+            `Accept the invite: ${inviteLink}\n\n` +
+            `If you don't have a Kynthai account yet, you can create one for free at ` +
+            `${process.env.NEXT_PUBLIC_APP_URL || 'https://kynthai.app'}/register — then use the link above to join the family.`,
           type: 'family_invite',
-          data: { familyId: family.id, memberId: member.id, relationToken },
+          data: { familyId: family.id, memberId: member.id, relationToken, inviteLink },
         }
       );
     } catch {
