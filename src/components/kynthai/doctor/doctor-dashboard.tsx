@@ -298,16 +298,28 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
         const html = await res.text();
         const blob = new Blob([html], { type: 'text/html; charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `prescription-${prescriptionId.slice(0, 8)}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+
+        // iOS Safari blocks document.createElement('a').click() for downloads.
+        // Use window.open() as a fallback — opens the prescription in a new tab
+        // where the user can use Share → Save to Files or Print → Save as PDF.
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+          window.open(url, '_blank');
+        } else {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `prescription-${prescriptionId.slice(0, 8)}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+        // Revoke after a delay to allow the new tab to load the blob
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
         toast({
           title: 'Prescription downloaded',
-          description: 'Open in browser and use Print → Save as PDF.',
+          description: isIOS
+            ? 'Opened in new tab — use Share → Save to Files or Print → Save as PDF.'
+            : 'Open in browser and use Print → Save as PDF.',
         });
       } catch (error) {
         toast({
