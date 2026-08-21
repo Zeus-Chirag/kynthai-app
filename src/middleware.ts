@@ -365,11 +365,11 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
         // static landing hero). Kept for parity with the app's dev CSP.
         // challenges.cloudflare.com: Cloudflare Turnstile script + iframe for CAPTCHA.
         // static.cloudflareinsights.com: Cloudflare Web Analytics beacon (injected as <script data-cf-beacon> by the CDN).
-        "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com https://static.cloudflareinsights.com",
+        "script-src 'self' 'unsafe-inline' https://js.stripe.com https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://cdn.mxpnl.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob: https: http:",
         "font-src 'self' data:",
-        "connect-src 'self' https://api.stripe.com https://checkout.stripe.com https://*.upstash.com wss: stun: turn:",
+        "connect-src 'self' https://api.stripe.com https://checkout.stripe.com https://*.upstash.com https://www.google-analytics.com https://analytics.google.com https://api.mixpanel.com wss: stun: turn:",
         "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://*.stripe.com https://challenges.cloudflare.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
@@ -380,7 +380,7 @@ function applyHeaders(res: NextResponse, pathname: string, requestId: string) {
       ].join('; ')
     : [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com https://static.cloudflareinsights.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://cdn.mxpnl.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob: http: https:",
         "font-src 'self' data:",

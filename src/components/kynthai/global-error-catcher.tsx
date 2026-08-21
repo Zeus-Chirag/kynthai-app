@@ -48,6 +48,11 @@ export function GlobalErrorCatcher() {
         // React already re-rendered the page client-side; nothing fatal.
         return
       }
+      // CSP-blocked cross-origin scripts fire "Script error." with no detail.
+      // These are not app errors — suppress the overlay to avoid false fatals.
+      if (event.message === 'Script error.' && !event.error) {
+        return
+      }
       console.error('[GLOBAL ERROR]', event.error)
       renderFatal(event.message, event.error?.stack)
     }
