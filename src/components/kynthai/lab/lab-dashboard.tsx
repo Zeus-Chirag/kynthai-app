@@ -211,7 +211,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
   )
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-dvh flex flex-col">
       {/* header */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl pt-safe">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
@@ -282,7 +282,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
         </div>
       </div>
 
-      <main className="mx-auto max-w-3xl px-4 pb-20 pt-4">
+      <main className="mx-auto max-w-3xl w-full flex-1 px-4 pb-20 pt-4">
         {/* OVERVIEW */}
         {tab === 'overview' && (
           <div className="space-y-4">

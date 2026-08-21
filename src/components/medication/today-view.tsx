@@ -54,7 +54,7 @@ function isUpcoming(time: string) {
   return target.getTime() >= now.getTime() - 60 * 1000;
 }
 
-export function TodayView({ userId, isDemo }: { userId?: string; isDemo?: boolean } = {}) {
+export function TodayView({ userId, isDemo, onLoaded }: { userId?: string; isDemo?: boolean; onLoaded?: () => void } = {}) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [stats, setStats] = useState<ReminderStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -152,8 +152,9 @@ export function TodayView({ userId, isDemo }: { userId?: string; isDemo?: boolea
       }
     } finally {
       setLoading(false);
+      onLoaded?.();
     }
-  }, [date, isDemo, toast, userId]);
+  }, [date, isDemo, toast, userId, onLoaded]);
 
   useEffect(() => {
     load();

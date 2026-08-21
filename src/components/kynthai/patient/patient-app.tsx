@@ -688,7 +688,6 @@ function MedsTab({ userId, isDemo }: { userId: string; isDemo: boolean }) {
       <h2 className="text-xl font-bold">My Medications</h2>
       <TodayView userId={userId} isDemo={isDemo} />
       <MedicationsList userId={userId} isDemo={isDemo} />
-
     </div>
   );
 }
@@ -1222,7 +1221,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
   }, [logout, router]);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
+    <div className="relative min-h-dvh flex flex-col bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl pt-safe">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <KynthaiBrand iconSize={30} />
@@ -1256,7 +1255,7 @@ export function PatientApp({ user }: { user: AuthUser }) {
         </div>
       </header>
 
-      <main id="main-content" className="mx-auto max-w-3xl px-4 pb-20 pt-4">
+      <main id="main-content" className="mx-auto max-w-3xl w-full flex-1 px-4 pb-20 pt-4">
         <AnimatePresence mode="wait">
           {tab === 'home' && (
             <FadeIn key="home">

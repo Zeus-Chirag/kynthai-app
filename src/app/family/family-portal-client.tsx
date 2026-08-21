@@ -79,6 +79,8 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
       setLoading(false)
       return
     }
+    // Safety timeout — never let loading state hang forever
+    const safetyTimer = setTimeout(() => setLoading(false), 5000);
     // Fetch real family data from API
     fetch('/api/family', { credentials: 'include' })
       .then((r) => r.json())
@@ -103,6 +105,7 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
         setLoading(false)
       })
       .catch(() => setLoading(false))
+      .finally(() => clearTimeout(safetyTimer))
   }, [])
 
   if (loading) {
@@ -111,7 +114,7 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <div className="min-h-dvh flex flex-col bg-gradient-to-b from-background to-muted/30">
           <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -150,7 +153,7 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
           </div>
         </div>
         </nav>
-        <main className="mx-auto max-w-6xl px-4 py-6">
+        <main className="mx-auto max-w-6xl w-full flex-1 px-4 py-6">
         {(() => {
           if (tab === "circle") return <div key="c"><FamilyCircle members={pulseData as any} /></div>
           if (tab === "pulse") return <div key="p"><FamilyHealthPulse onDataLoaded={handlePulseLoaded} /></div>

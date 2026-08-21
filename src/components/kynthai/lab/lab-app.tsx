@@ -81,7 +81,10 @@ export function LabApp({ user }: { user: AuthUser }) {
   }, [user.id, user.isDemo]);
 
   React.useEffect(() => {
+    // Safety timeout — never let loading state hang forever
+    const safetyTimer = setTimeout(() => setState(s => s === 'loading' ? 'none' : s), 5000);
     load();
+    return () => clearTimeout(safetyTimer);
   }, [load]);
 
   if (state === 'loading') {

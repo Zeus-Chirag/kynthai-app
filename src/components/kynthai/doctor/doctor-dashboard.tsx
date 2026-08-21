@@ -677,7 +677,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
   const nearCap = slotsUsed >= FREE_PATIENT_CAP - 2; // 3+/5 → prompt upgrade
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
+    <div className="min-h-dvh flex flex-col bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl pt-safe">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
@@ -750,7 +750,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
         </div>
       )}
 
-      <main className="mx-auto max-w-3xl px-4 pb-20 pt-4 space-y-5">
+      <main className="mx-auto max-w-3xl w-full flex-1 px-4 pb-20 pt-4 space-y-5">
         {/* API error banner */}
         {apiError && (
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-center gap-3">

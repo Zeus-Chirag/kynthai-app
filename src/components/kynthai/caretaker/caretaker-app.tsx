@@ -251,6 +251,8 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
   // Load family pulse data for the health circle
   React.useEffect(() => {
     let cancelled = false;
+    // Safety timeout — never let pulseLoading hang forever
+    const safetyTimer = setTimeout(() => { if (!cancelled) setPulseLoading(false); }, 5000);
     async function loadPulse() {
       try {
         const res = await fetch('/api/family/pulse', { credentials: 'include' });
@@ -267,6 +269,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
     loadPulse();
     return () => {
       cancelled = true;
+      clearTimeout(safetyTimer);
     };
   }, []);
 
@@ -462,7 +465,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
+    <div className="relative min-h-dvh flex flex-col bg-gradient-to-b from-emerald-50/40 via-background to-background dark:from-emerald-950/20">
       {/* Top app bar */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/70 backdrop-blur-xl pt-safe">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
@@ -498,7 +501,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
         </div>
       )}
 
-      <main id="main-content" className="mx-auto max-w-3xl px-4 pb-20 pt-4">
+      <main id="main-content" className="mx-auto max-w-3xl w-full flex-1 px-4 pb-20 pt-4">
         <AnimatePresence mode="wait">
           {tab === 'family' && (
             <FadeIn key="family">

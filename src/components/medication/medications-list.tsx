@@ -53,7 +53,8 @@ export function MedicationsList({
   userId,
   familyMemberId,
   isDemo,
-}: { userId?: string; familyMemberId?: string; isDemo?: boolean } = {}) {
+  onLoaded,
+}: { userId?: string; familyMemberId?: string; isDemo?: boolean; onLoaded?: () => void } = {}) {
   const [meds, setMeds] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -186,8 +187,9 @@ export function MedicationsList({
       setMeds([]);
     } finally {
       setLoading(false);
+      onLoaded?.();
     }
-  }, [isDemo, toast, userId, familyMemberId]);
+  }, [isDemo, toast, userId, familyMemberId, onLoaded]);
 
   useEffect(() => {
     load();
