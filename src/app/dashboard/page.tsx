@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
-const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true';
 
 export default async function DashboardPage() {
   const user = await getAuthUser()

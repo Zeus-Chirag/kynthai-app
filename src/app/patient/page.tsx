@@ -11,7 +11,7 @@ import PatientClient from './patient-client'
 import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
-const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true';
 
 export default async function PatientPage() {
   const user = await getAuthUser()

@@ -4,7 +4,7 @@ import FamilyMemberDetailClient from '@/components/kynthai/family/family-member-
 import { getAuthUser } from '@/lib/auth'
 import { notFound, redirect } from 'next/navigation'
 
-const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true';
 
 interface PageProps {
   params: Promise<{ id: string }>

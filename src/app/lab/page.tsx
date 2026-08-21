@@ -4,7 +4,7 @@ import LabClient from './lab-client'
 import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
-const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true';
 
 export default async function LabPage() {
   const user = await getAuthUser()
