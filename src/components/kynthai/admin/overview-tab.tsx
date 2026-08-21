@@ -36,6 +36,7 @@ import {
   Cell,
 } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
+import { LoadingState } from '@/components/kynthai/loading-state';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -166,11 +167,7 @@ export function OverviewTab({
   onNavigate: (tab: string) => void;
 }) {
   if (loading && !data) {
-    return (
-      <div className="flex h-64 items-center justify-center text-muted-foreground">
-        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading overview…
-      </div>
-    );
+    return <LoadingState label="Loading overview…" fullPage={false} />;
   }
   if (error && !data) {
     return (

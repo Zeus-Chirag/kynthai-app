@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { LoadingState } from '@/components/kynthai/loading-state';
 import { FadeIn } from '@/components/kynthai/animations';
 
 interface LabBooking {
@@ -152,9 +153,8 @@ export function LabResultsViewer({ isDemo }: { isDemo: boolean }) {
   if (loading) {
     return (
       <Card>
-        <CardContent className="flex items-center gap-3 p-4 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">Loading lab bookings…</span>
+        <CardContent className="p-4">
+          <LoadingState label="Loading lab bookings…" fullPage={false} />
         </CardContent>
       </Card>
     );

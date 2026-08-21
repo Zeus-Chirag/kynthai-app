@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAppStore, type AuthUser } from '@/lib/store';
 import { LabVerification } from './lab-verification';
 import { LabDashboard } from './lab-dashboard';
+import { AppLoader } from '@/components/kynthai/app-loader';
 
 type ProfileState = 'loading' | 'none' | 'exists';
 
@@ -84,17 +85,7 @@ export function LabApp({ user }: { user: AuthUser }) {
   }, [load]);
 
   if (state === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-          <p className="text-sm font-medium text-foreground">Loading your lab dashboard</p>
-          <p className="text-sm text-muted-foreground">
-            Checking verification status and bookings…
-          </p>
-        </div>
-      </div>
-    );
+    return <AppLoader label="Loading your lab dashboard…" />;
   }
 
   if (state === 'none' || !profile) {

@@ -12,6 +12,7 @@ import { FamilyAnalytics } from '@/components/kynthai/caretaker/family-analytics
 import { AiChat } from '@/components/medication/ai-chat'
 import { ErrorBoundary } from '@/components/kynthai/error-boundary'
 import { User } from 'lucide-react'
+import { AppLoader } from '@/components/kynthai/app-loader'
 import type { PulseMember } from '@/components/kynthai/family/family-circle'
 
 type Tab = 'circle' | 'pulse' | 'feed' | 'analytics' | 'ai'
@@ -105,14 +106,7 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted/30">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading family portal…</p>
-        </div>
-      </div>
-    )
+    return <AppLoader label="Loading family portal…" />
   }
 
   return (

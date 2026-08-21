@@ -10,6 +10,7 @@ import { useAppStore, type AuthUser } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { DoctorVerification } from './doctor-verification';
 import { DoctorDashboard } from './doctor-dashboard';
+import { AppLoader } from '@/components/kynthai/app-loader';
 
 type ProfileState = 'loading' | 'none' | 'pending' | 'verified' | 'rejected';
 
@@ -93,17 +94,7 @@ export function DoctorApp({ user }: { user: AuthUser }) {
   }, [load]);
 
   if (state === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-          <p className="text-sm font-medium text-foreground">Loading your dashboard</p>
-          <p className="text-sm text-muted-foreground">
-            Preparing verification status and schedules…
-          </p>
-        </div>
-      </div>
-    );
+    return <AppLoader label="Loading your dashboard…" />;
   }
 
   if (state === 'none' || state === 'rejected') {

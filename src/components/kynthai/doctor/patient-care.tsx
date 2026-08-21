@@ -28,6 +28,7 @@ import {
   AlertCircle,
   Stethoscope,
   FileText,
+
   BookOpen,
   Save,
 } from 'lucide-react'
@@ -50,6 +51,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { t, initLanguage } from '@/lib/i18n'
+import { LoadingState } from '@/components/kynthai/loading-state'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -195,9 +197,7 @@ export function PatientCare({ onPatientClick }: { onPatientClick?: (patient: Pat
       <div>
         <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t('your_patients')}</h3>
         {loading ? (
-          <div className="flex h-32 items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
-          </div>
+          <LoadingState label="Loading patients…" fullPage={false} />
         ) : patients.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center gap-3 p-8 text-center">

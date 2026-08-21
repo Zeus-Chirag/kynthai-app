@@ -17,6 +17,7 @@ import { OfflineIndicator } from '@/components/kynthai/offline-indicator'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 import { LAB_BASE_FEE_PCT } from '@/lib/commission'
+import { LoadingState } from '@/components/kynthai/loading-state'
 
 type LabTab = 'overview' | 'bookings' | 'results'
 
@@ -286,10 +287,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
         {tab === 'overview' && (
           <div className="space-y-4">
             {loading ? (
-              <div className="rounded-xl border border-border/60 bg-card p-6 text-center">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto text-emerald-600" />
-                <p className="text-sm text-muted-foreground mt-2">Loading stats...</p>
-              </div>
+              <LoadingState label="Loading stats…" fullPage={false} />
             ) : stats ? (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

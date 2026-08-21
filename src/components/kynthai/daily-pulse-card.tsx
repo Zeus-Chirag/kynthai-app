@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Flame, TrendingUp, TrendingDown, Minus, BookOpen, MessageSquare, Pill, ChevronUp, ChevronDown, Minus as MinusIcon } from 'lucide-react'
 import { HealthPulseRing } from './health-pulse-ring'
+import { InlineSpinner } from '@/components/kynthai/loading-state'
 import { cn } from '@/lib/utils'
 
 export interface PulseData {
@@ -98,7 +99,7 @@ export function DailyPulseCard({ data, loading, onAction, actionLabel }: DailyPu
     return (
       <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-card to-teal-500/5">
         <CardContent className="flex items-center justify-center p-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+          <InlineSpinner size={32} color="#10b981" />
         </CardContent>
       </Card>
     )

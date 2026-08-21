@@ -1,29 +1,14 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
-import { KynthaiBrand } from '@/components/kynthai/logo'
+import { AppLoader } from '@/components/kynthai/app-loader'
+import { LoadingState } from '@/components/kynthai/loading-state'
 
 export function LoadingSpinner() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-4">
-        <KynthaiBrand />
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
-    </div>
-  )
+  return <AppLoader label="Loading…" />
 }
 
 export function LoadingCard() {
-  return (
-    <div className="flex items-center justify-center p-8">
-      <div className="flex flex-col items-center gap-3">
-        <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
-    </div>
-  )
+  return <LoadingState label="Loading…" fullPage={false} />
 }
 
 export function LoadingSkeleton({ lines = 3 }: { lines?: number }) {

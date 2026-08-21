@@ -44,6 +44,7 @@ import {
   Cell,
 } from 'recharts'
 import { cn } from '@/lib/utils'
+import { LoadingState } from '@/components/kynthai/loading-state'
 
 // ---------------------------------------------------------------------------
 // Types — mirror the shape returned by /api/family/analytics
@@ -164,11 +165,7 @@ export function FamilyAnalytics() {
   }, [load])
 
   if (loading) {
-    return (
-      <div className="flex h-40 items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
-      </div>
-    )
+    return <LoadingState label="Loading analytics…" fullPage={false} />
   }
 
   if (error && !data) {
