@@ -1593,7 +1593,7 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                           })}
                         </p>
                       )}
-                      <div className="ml-12 flex gap-2 pt-1">
+                      <div className="ml-12 flex flex-wrap gap-1.5 pt-1 sm:gap-2">
                         <Button
                           size="sm"
                           variant="outline"
