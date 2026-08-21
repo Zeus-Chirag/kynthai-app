@@ -6,8 +6,6 @@ import { parseTimes } from '@/lib/parse-times'
 import { requireSystemToken, jsonOk, audit, jsonError } from '@/lib/api-helpers'
 import { logger } from '@/lib/logger'
 import { todayStr } from '@/lib/utils'
-import { sendPushToUser } from '@/lib/push-server'
-import { sendNotification } from '@/lib/notifications'
 // Prevent static generation — requires runtime context
 export const dynamic = 'force-dynamic'
 
@@ -119,38 +117,10 @@ export async function POST(req: NextRequest) {
           where: { medicationId_date_time: { medicationId: med.id, date: today, time: adjustedTime } },
         })
         if (!exists) {
-          const reminder = await db.reminder.create({
+          await db.reminder.create({
             data: { medicationId: med.id, date: today, time: adjustedTime, status: 'pending' },
           })
           created += 1
-
-          // Send push + email notification for this reminder
-          const userId = med.userId || med.familyMemberId
-          if (userId) {
-            try {
-              const medName = med.name || 'your medication'
-              // Best-effort push — don't block the cron on failure
-              await sendPushToUser(userId, {
-                title: `Time to take ${medName}`,
-                body: `${med.dosage || ''} ${med.frequency || ''}`.trim() || `Reminder: take ${medName} at ${adjustedTime}`,
-                tag: `reminder-${med.id}-${today}`,
-                url: '/patient',
-              })
-              // Also send via the smart router (handles email fallback)
-              await sendNotification(
-                { userId },
-                {
-                  title: `Time to take ${medName}`,
-                  body: `${med.dosage || ''} ${med.frequency || ''}`.trim() || `Reminder: take ${medName} at ${adjustedTime}`,
-                  type: 'reminder',
-                  data: { medicationId: med.id },
-                },
-              )
-            } catch (e) {
-              // Non-fatal — reminder is created, notification is best-effort
-              logger.phiSafeError(e, 'reminder.notification')
-            }
-          }
         }
       }
     }

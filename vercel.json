@@ -10,6 +10,10 @@
       "schedule": "15 0 * * *"
     },
     {
+      "path": "/api/reminders/send",
+      "schedule": "* * * * *"
+    },
+    {
       "path": "/api/chat/cleanup",
       "schedule": "30 3 * * *"
     },
