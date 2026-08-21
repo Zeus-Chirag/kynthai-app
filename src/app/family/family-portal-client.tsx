@@ -54,11 +54,12 @@ function normalizePulse(members: FamilyMemberPulse[]): PulseMember[] {
   })
 }
 
-export default function FamilyPortalClient({ user }: { user: { id: string; name?: string; email: string; role: string } }) {
+export default function FamilyPortalClient({ user }: { user: { id: string; name?: string; email: string; role: string; isDemo?: boolean } }) {
   const router = useRouter()
   const [tab, setTab] = React.useState<Tab>('circle')
   const [pulseData, setPulseData] = React.useState<PulseMember[]>([])
-  const [loading, setLoading] = React.useState(true)
+  const isDemoAccount = !!user.isDemo || user.email?.endsWith('@kynthai.app')
+  const [loading, setLoading] = React.useState(!isDemoAccount)
 
   const handlePulseLoaded = React.useCallback((members: FamilyMemberPulse[]) => {
     setPulseData(normalizePulse(members))
@@ -68,9 +69,8 @@ export default function FamilyPortalClient({ user }: { user: { id: string; name?
   // immediately — without this, pulseData stays empty until the user visits
   // the "pulse" tab (which triggers FamilyHealthPulse → onDataLoaded).
   React.useEffect(() => {
-    const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
-    if (isDemoMode) {
-      // In demo mode, use the seeded family data
+    // Demo accounts: use seeded data immediately — no API call, no loading state.
+    if (isDemoAccount) {
       setPulseData([
         { memberId: 'fm1', name: 'Robert Wilson', relation: 'Father', color: 'emerald', score: 85, adherence: 85, total: 4, taken: 3, missed: 1, status: 'all_taken', lastTaken: null, conditions: [] },
         { memberId: 'fm2', name: 'Emma Wilson', relation: 'Mother', color: 'teal', score: 78, adherence: 78, total: 2, taken: 1, missed: 1, status: 'in_progress', lastTaken: null, conditions: [] },

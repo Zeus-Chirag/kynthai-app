@@ -230,7 +230,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
   const { toast } = useToast();
   const [tab, setTab] = React.useState<Tab>('family');
   const greeting = useGreeting();
-  const isDemo = !!user.isDemo;
+  const isDemo = !!user.isDemo || user.email?.endsWith('@kynthai.app');
   const [profileOpen, setProfileOpen] = React.useState(false);
 
   const handleLogout = React.useCallback(async () => {
@@ -246,10 +246,19 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
   const [addOpen, setAddOpen] = React.useState(false);
   const [memberMeds, setMemberMeds] = React.useState<MemberMeds>({});
   const [familyPulse, setFamilyPulse] = React.useState<PulseMember[]>([]);
-  const [pulseLoading, setPulseLoading] = React.useState(true);
+  const [pulseLoading, setPulseLoading] = React.useState(!isDemo);
 
   // Load family pulse data for the health circle
   React.useEffect(() => {
+    // Demo accounts: use sample data immediately — no API call, no loading.
+    if (isDemo) {
+      setFamilyPulse([
+        { memberId: 'fm1', name: 'Robert Wilson', relation: 'Father', color: 'emerald', score: 85, adherence: 85, total: 4, taken: 3, missed: 1, status: 'all_taken', lastTaken: null, conditions: [] },
+        { memberId: 'fm2', name: 'Emma Wilson', relation: 'Mother', color: 'teal', score: 78, adherence: 78, total: 2, taken: 1, missed: 1, status: 'in_progress', lastTaken: null, conditions: [] },
+        { memberId: 'fm3', name: 'Noah Wilson', relation: 'Child', color: 'cyan', score: 100, adherence: 100, total: 1, taken: 1, missed: 0, status: 'all_taken', lastTaken: null, conditions: [] },
+      ]);
+      return;
+    }
     let cancelled = false;
     // Safety timeout — never let pulseLoading hang forever
     const safetyTimer = setTimeout(() => { if (!cancelled) setPulseLoading(false); }, 5000);

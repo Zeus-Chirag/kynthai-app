@@ -242,10 +242,11 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
             body: JSON.stringify({ email: pick.email, password: 'Demo@2024' }),
           });
           if (res.ok) {
-            // 3. Hard reload so server components (which read the session
-            //    cookie) pick up the real user and the portal renders with
-            //    real data on the first paint.
-            window.location.replace(pathname === '/' ? `/${pick.role}` : pathname);
+            // 3. Client-side navigation (no hard reload) — the store already
+            //    has the user from runDemoLogin, and portal clients recover
+            //    via /api/auth/me. This avoids the triple-loading-state flash
+            //    (login AppLoader → portal chunk AppLoader → portal-app AppLoader).
+            router.push(pathname === '/' ? `/${pick.role}` : pathname);
             return;
           }
         } catch { /* fall through to the client-side fallback below */ }

@@ -270,7 +270,7 @@ export function LoginPage({
     void (async () => {
       const ok = await runDemoLogin(role);
       if (ok) {
-        window.location.replace(demoRolePath(role));
+        router.push(demoRolePath(role));
         return;
       }
       setDemoBusy(false); // session failed — fall back to the sign-in form
@@ -607,14 +607,12 @@ export function LoginPage({
                         // reload. Pick a portal above (Family/Patient/Doctor/Lab)
                         // then one tap enters that demo.
                         setDemoBusy(true);
-                        setDemoBooting(true);
                         const role = loginPortal as DemoRole;
                         const ok = await runDemoLogin(role);
                         if (ok) {
-                          window.location.replace(demoRolePath(role));
+                          router.push(demoRolePath(role));
                           return;
                         }
-                        setDemoBooting(false);
                         setDemoBusy(false);
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-500/15 dark:text-emerald-300 disabled:opacity-60 disabled:pointer-events-none"
