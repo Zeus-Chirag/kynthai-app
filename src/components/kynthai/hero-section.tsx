@@ -137,13 +137,9 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           </div>
         </div>
 
-        {/* Right: phone mockup — visible on all screens.
-            The wrapper is a full-width flex row that centers the mockup; the
-            mockup itself owns its width (fluid clamp) so it scales with the
-            column and can never overflow the viewport. `min-w-0` lets the flex
-            child shrink when the column is tight (foldables / very narrow
-            landscape) instead of forcing a min-content width. */}
-        <div className="mt-4 flex w-full min-w-0 items-center justify-center lg:mt-0">
+        {/* Right: phone mockup — hidden on mobile (takes too much space),
+            visible on desktop where it looks good alongside the text. */}
+        <div className="hidden lg:flex mt-4 w-full min-w-0 items-center justify-center lg:mt-0">
           <PhoneMockup />
         </div>
       </div>
