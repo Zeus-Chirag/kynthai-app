@@ -281,7 +281,7 @@ export function LabDashboard({ user, profile, onLogout }: LabDashboardProps) {
         </div>
       </div>
 
-      <main className="mx-auto max-w-3xl px-4 pb-24 pt-4">
+      <main className="mx-auto max-w-3xl px-4 pb-20 pt-4">
         {/* OVERVIEW */}
         {tab === 'overview' && (
           <div className="space-y-4">

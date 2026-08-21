@@ -3,7 +3,8 @@
 /**
  * ServiceWorkerRegister
  *
- * Registers /sw.js in production only. Renders nothing.
+ * Registers /sw.js in production only. Also auto-subscribes to push
+ * notifications if the user has a session (non-blocking, best-effort).
  *
  * In development, Next.js runs HMR over websockets which conflicts with a
  * cached service worker, so we skip registration unless NODE_ENV=production.
@@ -30,8 +31,6 @@ export function ServiceWorkerRegister() {
         }, 60 * 60 * 1000)
 
         // When a new SW takes over, reload once so the latest UI is shown.
-        // Only reload if the page was already controlled — first-time visitors
-        // should not be bounced.
         let refreshing = false
         navigator.serviceWorker.addEventListener('controllerchange', () => {
           if (refreshing) return
@@ -40,6 +39,28 @@ export function ServiceWorkerRegister() {
             window.location.reload()
           }
         })
+
+        // Auto-subscribe to push notifications (best-effort, non-blocking)
+        // — checks for existing session cookie, then subscribes if push
+        // is supported and permission is granted/default.
+        try {
+          const authRes = await fetch('/api/auth/me', { credentials: 'include' })
+          if (authRes.ok) {
+            const authData = await authRes.json()
+            if (authData?.user) {
+              const { enablePush, pushSupported, permissionState } = await import('@/lib/push')
+              if (pushSupported()) {
+                const perm = permissionState()
+                if (perm === 'granted' || perm === 'default') {
+                  // Subscribe silently — user can disable in Settings
+                  await enablePush()
+                }
+              }
+            }
+          }
+        } catch {
+          // No session or push not supported — continue without push
+        }
       } catch (e) {
         console.warn('[sw] registration failed', e)
       }

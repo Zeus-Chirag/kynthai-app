@@ -498,7 +498,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
         </div>
       )}
 
-      <main id="main-content" className="mx-auto max-w-3xl px-4 pb-28 pt-4">
+      <main id="main-content" className="mx-auto max-w-3xl px-4 pb-20 pt-4">
         <AnimatePresence mode="wait">
           {tab === 'family' && (
             <FadeIn key="family">
