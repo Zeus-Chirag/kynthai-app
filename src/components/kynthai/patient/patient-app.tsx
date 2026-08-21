@@ -1170,6 +1170,22 @@ export function PatientApp({ user }: { user: AuthUser }) {
               description: `${r.time} — go to Meds to take or skip.`,
               duration: 30000,
             });
+            // Show OS-level notification via service worker (works when tab is
+            // backgrounded, and the SW can show notifications even without push)
+            if (typeof navigator !== 'undefined' && navigator.serviceWorker?.controller) {
+              try {
+                navigator.serviceWorker.ready.then(reg => {
+                  reg.showNotification(`Time to take ${name}`, {
+                    body: [dosage, r.time].filter(Boolean).join(' · ') || 'Tap to open Kynthai',
+                    icon: '/icon-192.png',
+                    badge: '/icon-192.png',
+                    tag: `reminder-${r.id}`,
+                    requireInteraction: true,
+                    data: { url: '/patient' },
+                  });
+                }).catch(() => {});
+              } catch { /* SW not available */ }
+            }
           }
         }
       } catch { /* best-effort */ }
