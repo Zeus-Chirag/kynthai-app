@@ -7,11 +7,16 @@ export const metadata: Metadata = {
   description: 'Your health management dashboard.',
 }
 
-import { requireSessionUser } from '@/lib/auth'
+import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
+const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+
 export default async function DashboardPage() {
-  const user = await requireSessionUser()
+  const user = await getAuthUser()
+
+  // Demo mode: redirect to patient portal by default
+  if (!user && isDemoMode) redirect('/patient')
   if (!user) redirect('/login')
   redirect(`/${user.role}`)
 }

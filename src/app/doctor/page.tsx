@@ -8,11 +8,19 @@ export const metadata: Metadata = {
 }
 
 import DoctorClient from './doctor-client'
-import { requireSessionUser } from '@/lib/auth'
+import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
+const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+
 export default async function DoctorPage() {
-  const user = await requireSessionUser()
-  if (!user || user.role !== 'doctor') redirect('/login')
+  const user = await getAuthUser()
+
+  const demoUser = isDemoMode
+    ? { id: 'demo-doctor', name: 'Dr. Demo', email: 'doctor@kynthai.app', role: 'doctor' }
+    : user;
+
+  if (!user && !isDemoMode) redirect('/login')
+  if (user && user.role !== 'doctor') redirect('/login')
   return <DoctorClient />
 }

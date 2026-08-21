@@ -8,11 +8,20 @@ export const metadata: Metadata = {
 }
 
 import PatientClient from './patient-client'
-import { requireSessionUser } from '@/lib/auth'
+import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
+const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
+
 export default async function PatientPage() {
-  const user = await requireSessionUser()
-  if (!user || user.role !== 'patient') redirect('/login')
+  const user = await getAuthUser()
+
+  // Demo mode: allow access without a real session
+  const demoUser = isDemoMode
+    ? { id: 'demo-patient', name: 'Demo Patient', email: 'patient@kynthai.app', role: 'patient' }
+    : user;
+
+  if (!user && !isDemoMode) redirect('/login')
+  if (user && user.role !== 'patient') redirect('/login')
   return <PatientClient />
 }

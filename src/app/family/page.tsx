@@ -8,11 +8,11 @@ export const metadata: Metadata = {
 }
 
 import FamilyPortalClient from './family-portal-client'
-import { requireSessionUser } from '@/lib/auth'
+import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
 export default async function FamilyPortalPage() {
-  const user = await requireSessionUser()
+  const user = await getAuthUser()
   // SECURITY-CRITICAL: only caretaker-role users may access the family portal.
   const isDemoMode = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' && process.env.NODE_ENV !== 'production';
 
