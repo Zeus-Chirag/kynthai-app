@@ -85,10 +85,14 @@ export function Onboarding({
   // error #418 (the same crash class as the login FadeIn regression).
   const slideControls = useAnimationControls()
   React.useEffect(() => {
-    const raf = requestAnimationFrame(() => {
+    // Start invisible, then animate in after hydration. Use setTimeout(0)
+    // instead of requestAnimationFrame — iOS Safari doesn't fire rAF
+    // reliably when the page is backgrounded or during fast navigations.
+    slideControls.set({ opacity: 0, x: 40 })
+    const timer = setTimeout(() => {
       slideControls.start({ opacity: 1, x: 0 })
-    })
-    return () => cancelAnimationFrame(raf)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [slideControls])
 
   // First-value moment: optional quick-add of a medication after consent.
