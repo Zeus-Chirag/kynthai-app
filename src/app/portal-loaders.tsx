@@ -18,6 +18,11 @@ import { AppLoader } from '@/components/kynthai/app-loader';
 import { installGlobalCsrf } from '@/lib/client-fetch';
 installGlobalCsrf();
 
+// Global fetch timeout — prevents stuck spinners on mobile by aborting
+// any fetch that takes longer than 8 seconds.
+import { installFetchTimeout } from '@/lib/fetch-timeout';
+installFetchTimeout();
+
 function PortalSkeleton() {
   return <AppLoader label="Loading…" />;
 }

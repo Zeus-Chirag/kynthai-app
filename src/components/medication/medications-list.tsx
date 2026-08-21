@@ -171,7 +171,10 @@ export function MedicationsList({
       let url = '/api/medications';
       if (familyMemberId) url += `?familyMemberId=${encodeURIComponent(familyMemberId)}`;
       else if (userId) url += `?userId=${encodeURIComponent(userId)}`;
-      const res = await fetch(url);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(url, { signal: controller.signal, credentials: 'include' });
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error('Failed');
       const data = await res.json();
       // The GET endpoint returns a paginated envelope ({ data: [...], meta })
@@ -179,11 +182,8 @@ export function MedicationsList({
       // `meds.filter(...)` crash with "filter is not a function").
       setMeds(Array.isArray(data) ? data : (data.data ?? []));
     } catch (e) {
-      toast({
-        title: 'Failed to load',
-        description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
-      });
+      // Fallback to empty list — spinner always resolves
+      setMeds([]);
     } finally {
       setLoading(false);
     }

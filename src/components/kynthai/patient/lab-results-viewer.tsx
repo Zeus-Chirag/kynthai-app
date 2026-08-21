@@ -77,7 +77,10 @@ export function LabResultsViewer({ isDemo }: { isDemo: boolean }) {
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/lab-bookings', { cache: 'no-store' });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch('/api/lab-bookings', { cache: 'no-store', signal: controller.signal, credentials: 'include' });
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setBookings(data);
