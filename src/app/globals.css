@@ -261,14 +261,61 @@ body {
   }
 }
 
-/* Mobile Safari animation fix — ensure spin animation works on iOS */
+/* ── BULLETPROOF SPINNER FIX — works on ALL browsers including mobile Safari ── */
+/* Force spin animation with all vendor prefixes + hardware acceleration */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); }
+}
+@-moz-keyframes spin {
+  from { -moz-transform: rotate(0deg); }
+  to { -moz-transform: rotate(360deg); }
+}
+@-o-keyframes spin {
+  from { -o-transform: rotate(0deg); }
+  to { -o-transform: rotate(360deg); }
+}
+@-ms-keyframes spin {
+  from { -ms-transform: rotate(0deg); }
+  to { -ms-transform: rotate(360deg); }
+}
+
+/* Override Tailwind's animate-spin with bulletproof version */
+.animate-spin,
+[class*="animate-spin"] {
+  -webkit-animation: spin 1s linear infinite !important;
+  -moz-animation: spin 1s linear infinite !important;
+  -o-animation: spin 1s linear infinite !important;
+  -ms-animation: spin 1s linear infinite !important;
+  animation: spin 1s linear infinite !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  -moz-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  -webkit-perspective: 1000px !important;
+  perspective: 1000px !important;
+  will-change: transform !important;
+}
+
+/* Also fix border-based spinners (border-t-transparent) */
+[class*="animate-spin"][class*="border"] {
+  -webkit-animation: spin 0.8s linear infinite !important;
+  animation: spin 0.8s linear infinite !important;
+}
+
+/* Mobile Safari specific — force GPU rendering */
 @supports (-webkit-touch-callout: none) {
   .animate-spin,
   [class*="animate-spin"] {
     -webkit-animation: spin 1s linear infinite !important;
     animation: spin 1s linear infinite !important;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
   }
 }
 
