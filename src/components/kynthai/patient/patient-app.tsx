@@ -686,7 +686,7 @@ function MedsTab({ userId, isDemo }: { userId: string; isDemo: boolean }) {
   return (
     <div className="space-y-5">
       <h2 className="text-xl font-bold">My Medications</h2>
-      <TodayView />
+      <TodayView userId={userId} isDemo={isDemo} />
       <MedicationsList userId={userId} isDemo={isDemo} />
 
     </div>
