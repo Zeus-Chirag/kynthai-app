@@ -106,11 +106,11 @@ export function AdminDashboard({ user }: { user: AuthUser }) {
   // /api/auth/me check would otherwise re-authenticate and bounce straight
   // back into the portal (the old onLogout={logout} only cleared the store).
   const handleLogout = React.useCallback(async () => {
+    router.replace('/login');
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch { /* ignore */ }
     logout();
-    router.replace('/login');
   }, [logout, router]);
   const [tab, setTab] = React.useState<AdminTab>('overview');
   const [profileOpen, setProfileOpen] = React.useState(false);

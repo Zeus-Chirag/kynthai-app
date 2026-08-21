@@ -1214,11 +1214,11 @@ export function PatientApp({ user }: { user: AuthUser }) {
   const initial = isDemo ? 'K' : (user?.name?.[0] ?? 'U').toUpperCase();
 
   const handleLogout = React.useCallback(async () => {
+    router.replace('/login');
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch { /* ignore */ }
     logout();
-    router.replace('/login');
   }, [logout, router]);
 
   return (

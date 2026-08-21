@@ -229,6 +229,7 @@ body {
 }
 
 /* Reduced motion accessibility for vestibular disorders */
+/* Exclude loading spinners and essential feedback animations */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -237,6 +238,37 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Allow loading spinners to animate — they provide essential UX feedback */
+  .animate-spin,
+  [class*="animate-spin"],
+  .loading-spinner,
+  [role="status"] > div {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+    -webkit-animation-duration: 1s !important;
+    -webkit-animation-iteration-count: infinite !important;
+  }
+
+  /* Allow pulse animations on loading text */
+  .animate-pulse,
+  [class*="animate-pulse"] {
+    animation-duration: 2s !important;
+    animation-iteration-count: infinite !important;
+    -webkit-animation-duration: 2s !important;
+    -webkit-animation-iteration-count: infinite !important;
+  }
+}
+
+/* Mobile Safari animation fix — ensure spin animation works on iOS */
+@supports (-webkit-touch-callout: none) {
+  .animate-spin,
+  [class*="animate-spin"] {
+    -webkit-animation: spin 1s linear infinite !important;
+    animation: spin 1s linear infinite !important;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 }
 

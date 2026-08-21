@@ -253,11 +253,12 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
   }, [newFee, profile.id, toast]);
 
   const handleLogout = React.useCallback(async () => {
+    // Navigate first to avoid landing page flash
+    router.replace('/login');
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch { /* ignore */ }
     logout();
-    router.replace('/login');
   }, [logout, router]);
 
   React.useEffect(() => {
@@ -277,9 +278,17 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
     async (prescriptionId: string) => {
       setDownloadingPdfId(prescriptionId);
       try {
+        // Fetch CSRF token first
+        const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
+        const csrf = (await csrfRes.json())?.token;
+        
         const res = await fetch('/api/doctors/prescription-pdf', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrf || '',
+          },
+          credentials: 'include',
           body: JSON.stringify({ prescriptionId }),
         });
         if (!res.ok) {
@@ -411,6 +420,10 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
     patients: { id: string; name: string }[];
     prescriptions: typeof PRESCRIPTIONS;
     stats: { completed: number; upcoming: number; grossEarnings: number };
+    revenue?: { thisMonth: number; lastMonth: number; total: number; changePercent: number };
+    alerts?: Array<{ type: string; severity: string; message: string; count: number }>;
+    priorityList?: Array<{ type: string; priority: string; patientName: string; message: string; scheduledAt: string }>;
+    subscription?: { tier: string; config: { patientSlotCap: number; priorityPlacement: boolean; advancedAnalytics: boolean } };
   } | null>(null);
   // Track whether API returned (even if empty) vs. still loading
   const [apiLoaded, setApiLoaded] = React.useState(false);
@@ -501,6 +514,10 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
         patients,
         prescriptions,
         stats: { completed, upcoming, grossEarnings },
+        revenue: (dashData as Record<string, unknown>).revenue as typeof dashboardData extends null ? never : NonNullable<typeof dashboardData>['revenue'],
+        alerts: (dashData as Record<string, unknown>).alerts as typeof dashboardData extends null ? never : NonNullable<typeof dashboardData>['alerts'],
+        priorityList: (dashData as Record<string, unknown>).priorityList as typeof dashboardData extends null ? never : NonNullable<typeof dashboardData>['priorityList'],
+        subscription: (dashData as Record<string, unknown>).subscription as typeof dashboardData extends null ? never : NonNullable<typeof dashboardData>['subscription'],
       });
       setPatientCount(patients.length);
 
@@ -813,6 +830,115 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
                     tint="amber"
                   />
                 </div>
+
+                {/* Alerts */}
+                {dashboardData?.alerts && dashboardData.alerts.length > 0 && (
+                  <Card className="mt-4 border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
+                    <CardContent className="p-4">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        Needs Attention
+                      </h3>
+                      <div className="space-y-2">
+                        {dashboardData.alerts.map((alert, i) => (
+                          <div
+                            key={i}
+                            className={cn(
+                              'flex items-center gap-2 text-sm p-2 rounded-lg',
+                              alert.severity === 'high' && 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300',
+                              alert.severity === 'medium' && 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300',
+                              alert.severity === 'low' && 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300',
+                            )}
+                          >
+                            <span className="font-semibold">{alert.count}</span>
+                            <span>{alert.message}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Today's Priority List */}
+                {dashboardData?.priorityList && dashboardData.priorityList.length > 0 && (
+                  <Card className="mt-4">
+                    <CardContent className="p-4">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                        <Clock className="h-4 w-4 text-emerald-600" />
+                        Today's Priority
+                      </h3>
+                      <div className="space-y-2">
+                        {dashboardData.priorityList.slice(0, 5).map((item, i) => (
+                          <div
+                            key={i}
+                            className={cn(
+                              'flex items-center gap-3 p-2 rounded-lg border',
+                              item.priority === 'high' && 'border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20',
+                              item.priority === 'medium' && 'border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20',
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                                item.priority === 'high' && 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+                                item.priority === 'medium' && 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+                              )}
+                            >
+                              {i + 1}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.message}</p>
+                              {item.scheduledAt && (
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(item.scheduledAt).toLocaleString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Revenue Card (Pro feature) */}
+                {dashboardData?.revenue && (
+                  <Card className="mt-4">
+                    <CardContent className="p-4">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                        <Wallet className="h-4 w-4 text-emerald-600" />
+                        Revenue
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-xs text-muted-foreground">This Month</p>
+                          <p className="text-xl font-bold text-emerald-600">
+                            ${(dashboardData.revenue.thisMonth / 100).toLocaleString('en-US')}
+                          </p>
+                          {dashboardData.revenue.changePercent !== 0 && (
+                            <p className={cn(
+                              'text-xs font-medium',
+                              dashboardData.revenue.changePercent > 0 ? 'text-emerald-600' : 'text-red-600',
+                            )}>
+                              {dashboardData.revenue.changePercent > 0 ? '↑' : '↓'} {Math.abs(dashboardData.revenue.changePercent)}% vs last month
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Total Earnings</p>
+                          <p className="text-xl font-bold">
+                            ${(dashboardData.revenue.total / 100).toLocaleString('en-US')}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Subscription / paywall */}
                 <Card

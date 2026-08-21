@@ -150,7 +150,7 @@ export const useAppStore = create<AppState>()(
                     ? 'admin'
                     : 'caretaker',
         }),
-      logout: () => set({ user: null, screen: 'landing', loginPortal: 'caretaker' }),
+      logout: () => set({ user: null, screen: 'login', loginPortal: 'caretaker' }),
       setHydrated: v => set({ _hydrated: v }),
       toggleAlarm: () => set(s => ({ alarmEnabled: !s.alarmEnabled })),
       setAlarmMode: alarmMode => set({ alarmMode }),

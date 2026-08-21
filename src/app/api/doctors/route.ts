@@ -73,9 +73,16 @@ export async function GET(req: NextRequest) {
   const doctors = await db.doctorProfile.findMany({
     where,
     include: { user: true },
-    orderBy: { rating: 'desc' },
     take: 100,
   });
+
+  // Sort by priority score (Pro doctors get +500 boost)
+  const { getPriorityScore } = await import('@/lib/doctor-subscription')
+  doctors.sort((a: any, b: any) => {
+    const scoreA = getPriorityScore(a.subscriptionTier, a.rating, a.reviewCount, a.lastActiveAt)
+    const scoreB = getPriorityScore(b.subscriptionTier, b.rating, b.reviewCount, b.lastActiveAt)
+    return scoreB - scoreA
+  })
 
   return jsonOk(
     doctors.map((d: any) => ({
@@ -91,6 +98,7 @@ export async function GET(req: NextRequest) {
       rating: d.rating,
       reviewCount: d.reviewCount,
       avatarColor: d.avatarColor,
+      subscriptionTier: d.subscriptionTier,
       available: true, // All verified doctors are available
     }))
   );

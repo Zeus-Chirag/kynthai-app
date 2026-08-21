@@ -67,11 +67,11 @@ export async function POST(req: NextRequest) {
   const alreadyLinked = existingPatients.some((p: any) => p.patientId === patient!.id)
 
   if (!alreadyLinked) {
-    const isPro = profile.subscriptionTier === 'pro' || profile.subscriptionTier === 'family_pro'
-    const cap = profile.patientSlotCap ?? 5
-    if (!isPro && existingPatients.length >= cap) {
+    const { canAddPatient } = await import('@/lib/doctor-subscription')
+    const capCheck = canAddPatient(existingPatients.length, profile.subscriptionTier, profile.patientSlotCap)
+    if (!capCheck.allowed) {
       return jsonError(
-        `Free-tier patient cap (${cap}) reached. Upgrade to Pro to add more patients.`,
+        `Free-tier patient cap (${capCheck.cap}) reached. Upgrade to Pro to add more patients.`,
         402,
       )
     }
