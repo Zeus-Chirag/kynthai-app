@@ -1643,6 +1643,9 @@ export function DoctorDashboard({ user, profile, isDemo = false }: { user: AuthU
         )}
       </main>
 
+      {/* Spacer pushes gradient to fill viewport behind fixed bottom nav */}
+      <div className="h-20 shrink-0" aria-hidden />
+
       {/* Bottom tab navigation */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe">
         <div className="mx-auto flex max-w-3xl items-stretch justify-around px-2 py-2">

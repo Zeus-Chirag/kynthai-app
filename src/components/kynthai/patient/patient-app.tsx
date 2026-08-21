@@ -1308,6 +1308,9 @@ export function PatientApp({ user }: { user: AuthUser }) {
         </AnimatePresence>
       </main>
 
+      {/* Spacer pushes gradient to fill viewport behind fixed bottom nav */}
+      <div className="h-20 shrink-0" aria-hidden />
+
       {/* Minimal legal footer */}
 
       {/* Active video call overlay */}
