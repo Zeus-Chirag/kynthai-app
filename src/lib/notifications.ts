@@ -25,13 +25,13 @@ import {
   sendEmailReal,
   sendSMSReal,
   sendWhatsAppReal,
-  sendPushReal,
   isEmailEnabled,
   isSMSEnabled,
   isWhatsAppEnabled,
   isPushEnabled,
   type SendResult,
 } from './integrations'
+import { sendPushToUser } from './push-server'
 
 // ponytail: email bodies need absolute links (mail clients can't navigate
 // relative paths); falls back to the production origin for local/dev.
@@ -122,17 +122,18 @@ export async function sendNotification(
   let usedChannel: NotificationChannel | 'none' = 'none'
   let usedCost = 0
 
-  // 1. PUSH (cheapest, $0)
-  if (target.pushToken && isPushEnabled()) {
-    const r = await sendPushReal({
-      token: target.pushToken,
+  // 1. PUSH (cheapest, $0) — uses VAPID web-push, not Firebase FCM
+  if (target.userId && isPushEnabled()) {
+    const r = await sendPushToUser(target.userId, {
       title: payload.title,
       body: payload.body,
-      data: payload.data,
+      tag: payload.data?.type as string | undefined,
+      url: payload.data?.url as string | undefined,
     })
     const cost = CHANNEL_COST.push
-    results.push({ channel: 'push', result: r, cost })
-    if (r.ok) {
+    const ok = r.sent > 0
+    results.push({ channel: 'push', result: { ok, provider: 'web-push', messageId: `push:${r.sent}` }, cost })
+    if (ok) {
       delivered = true
       usedChannel = 'push'
       usedCost = cost

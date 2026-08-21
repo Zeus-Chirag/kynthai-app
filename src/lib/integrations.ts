@@ -486,11 +486,9 @@ export function getFirebase(): unknown | null {
 }
 
 export function isPushEnabled(): boolean {
-  // The minimum documented env var is FIREBASE_PROJECT_ID. If the optional
-  // FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY are also set, the SDK will
-  // load; otherwise we still report enabled but the SDK will fall back to
-  // mock mode at send time.
-  return hasEnv('FIREBASE_PROJECT_ID')
+  // Web Push (VAPID) is the actual push mechanism. Check for VAPID keys,
+  // not Firebase — Firebase FCM is not configured for this app.
+  return hasEnv('NEXT_PUBLIC_VAPID_PUBLIC_KEY') && hasEnv('VAPID_PRIVATE_KEY')
 }
 
 export async function sendPushReal(p: PushPayload): Promise<SendResult> {
