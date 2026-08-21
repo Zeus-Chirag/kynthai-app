@@ -53,10 +53,25 @@ export async function POST(req: NextRequest) {
     })
   }
 
+  // SECURITY: validate prices server-side — never trust client-supplied amounts.
+  // Look up the booking from DB and compute the total from verified data.
+  const { db } = await import('@/lib/db')
+  const booking = await db.labBooking.findUnique({
+    where: { id: body.bookingId },
+    include: { lab: true },
+  })
+  if (!booking) return jsonError('Booking not found', 404)
+  if (booking.patientId !== user.id && user.role !== 'admin') {
+    return jsonError('Unauthorized', 403)
+  }
+
+  // Use server-side price — client prices are ignored for the checkout total
+  const serverTotalCents = booking.price
+  const serverDeliveryFee = booking.deliveryFee || 0
+
   const testsTotal = body.tests.reduce((s, t) => s + (t.price || 0), 0)
-  const deliveryFee = body.deliveryFee || 0
-  const platformFee = body.platformFee || 0
-  const totalCents = testsTotal + deliveryFee
+  const deliveryFee = serverDeliveryFee
+  const totalCents = serverTotalCents
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -96,7 +111,7 @@ export async function POST(req: NextRequest) {
         bookingId: body.bookingId,
         userId: user.id,
         deliveryFee: String(deliveryFee),
-        platformFee: String(platformFee),
+        totalAmount: String(totalCents),
       },
       success_url: `${APP_URL}/patient?booking=success&id=${body.bookingId}`,
       cancel_url: `${APP_URL}/patient?booking=cancelled&id=${body.bookingId}`,

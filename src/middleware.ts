@@ -566,9 +566,8 @@ export default async function middleware(req: NextRequest): Promise<NextResponse
 
   // ── Audit endpoint: session cookie required ─────────────────────────────
   if (pathname === '/api/audit' || pathname.startsWith('/api/audit/')) {
-    // Check for Supabase session cookies (sb-* prefix)
-    const hasSupabaseSession = req.cookies.getAll().some(c => c.name.startsWith('sb-'));
-    if (!hasSupabaseSession) {
+    // SECURITY: verify the JWT, not just cookie presence — prevents forged sb-* cookies
+    if (!supabaseUser) {
       // Edge-safe audit logging (no DB access at edge)
       console.log(`[AUDIT] audit_endpoint_unauthorized | method=${method} | path=${pathname} | ip=${ip} | req=${requestId}`);
       return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 });

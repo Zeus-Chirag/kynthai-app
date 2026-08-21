@@ -78,7 +78,7 @@ export function FamilyHealthPulse({ onDataLoaded }: { onDataLoaded?: (members: F
           setLoading(false)
           return
         }
-        console.warn('Family pulse fetch failed:', res.status)
+        logger.warn('Family pulse fetch failed:', res.status)
       }
       const familyData = await res.json()
 

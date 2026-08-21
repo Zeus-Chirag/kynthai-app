@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAuth, jsonError, jsonOk, readJson, checkConsent } from '@/lib/api-helpers';
+import { requireAuth, requireAuthWithCsrf, jsonError, jsonOk, readJson, checkConsent } from '@/lib/api-helpers';
 import { logAudit } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 // POST /api/payouts — create a payout record (triggered when doctor/lab marks complete)
 export async function POST(req: NextRequest) {
-  const { response, user } = await requireAuth(req);
+  const { response, user } = await requireAuthWithCsrf(req);
   if (response || !user) return response!;
   const consentErr = checkConsent(user);
   if (consentErr) return consentErr;

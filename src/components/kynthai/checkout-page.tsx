@@ -121,9 +121,17 @@ export function CheckoutPage({ tier }: { tier: 'plus' | 'family_pro' }) {
   } | null> {
     try {
       setIsProcessing(true);
+      // Fetch CSRF token before payment request
+      const csrfRes = await fetch('/api/auth/csrf', { credentials: 'include' });
+      const csrfData = await csrfRes.json().catch(() => ({}));
+      const csrf = csrfData.token || '';
       const intentRes = await fetch('/api/payments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
+        },
+        credentials: 'include',
         body: JSON.stringify({
           type: 'subscription',
           amount: total,

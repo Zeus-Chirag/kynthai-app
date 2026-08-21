@@ -47,10 +47,10 @@ export default function GlobalError({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#f8fafc',
+        background: 'var(--background, #f8fafc)',
         padding: '1.25rem',
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        color: '#0f172a',
+        color: 'var(--foreground, #0f172a)',
       }}
     >
       <div
@@ -59,9 +59,9 @@ export default function GlobalError({
           width: '100%',
           textAlign: 'center',
           borderRadius: '.75rem',
-          border: '1px solid #fecaca',
+          border: '1px solid var(--border, #fecaca)',
           padding: '2.5rem 2rem',
-          background: 'rgba(255,255,255,.94)',
+          background: 'var(--card, rgba(255,255,255,.94))',
           boxShadow: '0 1px 3px rgba(0,0,0,.06)',
         }}
       >

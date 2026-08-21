@@ -55,7 +55,11 @@ import { FadeIn } from '@/components/kynthai/animations';
 import type { PulseMember } from '@/components/kynthai/family/family-circle';
 
 const MarketView = dynamic(
-  () => import('@/components/kynthai/market/market-view').then(m => m.MarketView),
+  () => import('@/components/kynthai/market/market-view')
+    .then(m => m.MarketView)
+    .catch(() => ({
+      default: () => <div className="text-sm text-muted-foreground text-center py-8">Market unavailable.</div>,
+    })),
   { ssr: false, loading: () => <div className="h-40 rounded-xl bg-muted animate-pulse" /> }
 );
 
@@ -341,7 +345,7 @@ export function CaretakerApp({ user }: { user: AuthUser }) {
         if (!famRes.ok) {
           // Silently handle expected auth errors; surface other failures
           if (famRes.status === 403) return;
-          console.warn('Family fetch failed:', famRes.status);
+          logger.warn('Family fetch failed:', famRes.status);
           return;
         }
         const famData = await famRes.json();
