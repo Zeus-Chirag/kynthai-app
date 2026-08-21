@@ -142,6 +142,10 @@ export async function POST(req: NextRequest) {
               tier: tierKey,
             },
             description: sanitizeText(body.description, 300) || 'Kynthai.com subscription',
+            // Enable Apple Pay, Google Pay, and other wallets dynamically based
+            // on the user's device/browser. The Stripe Payment Element will
+            // render these automatically when this is set.
+            automatic_payment_methods: { enabled: true },
           },
           { idempotencyKey }
         );
