@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "unset DATABASE_URL && next dev -p 3000",
-    "prebuild": "sed -i '' 's/deploy-[0-9]*/deploy-'$(date +%s)'/' src/app/globals.css",
+    "prebuild": "node scripts/cache-bust.js",
     "build": "npx prisma generate && NODE_ENV=production next build",
     "start": "NODE_ENV=production next start",
     "lint": "eslint .",

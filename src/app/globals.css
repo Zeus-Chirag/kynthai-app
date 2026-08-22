@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* deploy-1787376164ts:1787376073 — forces new CSS hash on every deploy */
+/* deploy-1787376462692ts:1787376073 — forces new CSS hash on every deploy */
 
 @theme inline {
   --color-background: var(--background);
@@ -520,6 +520,6 @@ html:not(.dark) .phone-frame {
      hash and filename. Without this, Turbopack sometimes reuses the same
      CSS filename across deploys, and immutable CDN headers prevent browsers
      from fetching fresh styles. */
-  :root { --deploy-1787376164id: 3001560; }
+  :root { --deploy-1787376462692id: 3001560; }
 }
-.deploy-1787376164 { display: none !important; }
+.deploy-1787376462692 { display: none !important; }
