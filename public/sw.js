@@ -70,6 +70,23 @@ self.addEventListener('activate', (event) => {
 })
 
 // ---------------------------------------------------------------------------
+// Periodic cache cleanup: remove old cache entries periodically
+// ---------------------------------------------------------------------------
+setInterval(async () => {
+  const keys = await caches.keys()
+  for (const key of keys) {
+    if (!key.startsWith(VERSION)) {
+      await caches.delete(key)
+    }
+  }
+}, 60 * 60 * 1000) // Every hour
+      // Force all clients to reload immediately
+      await self.clients.claim()
+    })(),
+  )
+})
+
+// ---------------------------------------------------------------------------
 // Fetch strategy
 // ---------------------------------------------------------------------------
 self.addEventListener('fetch', (event) => {

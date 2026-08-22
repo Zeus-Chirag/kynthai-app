@@ -62,6 +62,8 @@ export function ServiceWorkerRegister() {
             window.location.reload()
           }
         }
+        // Additional: force SW update check immediately on load
+        void reg.update().catch(() => {})
 
         // Auto-subscribe to push notifications (best-effort, non-blocking)
         // — checks for existing session cookie, then subscribes if push
