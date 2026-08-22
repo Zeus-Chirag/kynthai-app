@@ -140,7 +140,8 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // 2. Static assets (_next/static, images, fonts, icons) → cache-first.
+  // 2. Static assets (_next/static, images, fonts, icons) → cache-first WITH revalidation.
+  // We MUST revalidate because Turbopack sometimes reuses filenames across deploys.
   const isStaticAsset =
     url.pathname.startsWith('/_next/static/') ||
     /\.(?:js|css|woff2?|ttf|otf|png|jpg|jpeg|gif|webp|svg|ico|manifest|json)$/i.test(url.pathname)
@@ -155,8 +156,24 @@ self.addEventListener('fetch', (event) => {
             cache.put(req, fresh.clone()).catch(() => {})
             return fresh
           }
+          // If network fails, try cache — but ONLY if version matches
           const cached = await caches.match(req)
-          if (cached) return cached
+          if (cached) {
+            // Check if cached asset has version mismatch
+            const cachedHeaders = cached.headers
+            const cachedETag = cachedHeaders.get('etag') || ''
+            const freshETag = fresh?.headers?.get('etag') || ''
+            if (cachedETag && freshETag && cachedETag !== freshETag) {
+              console.warn('[sw] Static asset version mismatch, fetching fresh')
+              const fresh = await fetch(req)
+              if (fresh && fresh.ok) {
+                const cache = await caches.open(RUNTIME_CACHE)
+                cache.put(req, fresh.clone()).catch(() => {})
+                return fresh
+              }
+            }
+            return cached
+          }
           return new Response('', { status: 504 })
         } catch (e) {
           const cached = await caches.match(req)

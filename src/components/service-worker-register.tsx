@@ -95,6 +95,15 @@ export function ServiceWorkerRegister() {
           const interval = setInterval(() => void checkVersion(), 60000)
           return () => clearInterval(interval)
         }, [pageVersion])
+        // Additional: Force hard reload if SW registration fails or times out
+        const updateTimeout = setTimeout(() => {
+          console.warn('[sw] Update check timeout, forcing reload')
+          window.location.reload()
+        }, 10000)
+        // Clean up timeout on successful update
+        reg.addEventListener('updatefound', () => {
+          clearTimeout(updateTimeout)
+        })
 
         // Auto-subscribe to push notifications (best-effort, non-blocking)
         // — checks for existing session cookie, then subscribes if push
