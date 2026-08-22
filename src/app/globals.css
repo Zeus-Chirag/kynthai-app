@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* deploy-1787376462692ts:1787376073 — forces new CSS hash on every deploy */
+/* deploy-1787383510580ts:1787376073 — forces new CSS hash on every deploy */
 
 @theme inline {
   --color-background: var(--background);
@@ -520,6 +520,54 @@ html:not(.dark) .phone-frame {
      hash and filename. Without this, Turbopack sometimes reuses the same
      CSS filename across deploys, and immutable CDN headers prevent browsers
      from fetching fresh styles. */
-  :root { --deploy-1787376462692id: 3001560; }
+  :root { --deploy-1787383510580id: 3001560; }
+
+  /* ── Switch toggle overrides ──────────────────────────────────────────
+     Forces correct thumb position and size on ALL devices, regardless of
+     which version of the Switch component is loaded. This overrides the
+     old Tailwind classes (h-6 w-11, size-5, translate-x-[calc(100%-2px)])
+     that were cached by browsers. */
+  @media (max-width: 639px) {
+    [data-slot="switch"] {
+      width: 40px !important;
+      height: 22px !important;
+    }
+    [data-slot="switch-thumb"] {
+      width: 18px !important;
+      height: 18px !important;
+    }
+    [data-slot="switch"][data-state="checked"] [data-slot="switch-thumb"] {
+      transform: translateX(20px) !important;
+    }
+    [data-slot="switch"][data-state="unchecked"] [data-slot="switch-thumb"] {
+      transform: translateX(2px) !important;
+    }
+  }
+  @media (min-width: 640px) {
+    [data-slot="switch"] {
+      width: 44px !important;
+      height: 24px !important;
+    }
+    [data-slot="switch-thumb"] {
+      width: 20px !important;
+      height: 20px !important;
+    }
+    [data-slot="switch"][data-state="checked"] [data-slot="switch-thumb"] {
+      transform: translateX(22px) !important;
+    }
+    [data-slot="switch"][data-state="unchecked"] [data-slot="switch-thumb"] {
+      transform: translateX(2px) !important;
+    }
+  }
+  /* Force white thumb with shadow */
+  [data-slot="switch-thumb"] {
+    background-color: white !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    [data-slot="switch-thumb"] {
+      background-color: var(--foreground) !important;
+    }
+  }
 }
-.deploy-1787376462692 { display: none !important; }
+.deploy-1787383510580 { display: none !important; }
