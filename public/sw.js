@@ -63,6 +63,7 @@ self.addEventListener('activate', (event) => {
       clients.forEach((client) => {
         client.postMessage({ type: 'SW_ACTIVATED', version: VERSION })
       })
+      // Force all clients to reload immediately
       await self.clients.claim()
     })(),
   )
@@ -84,7 +85,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/api/')
   ) return
 
-  // For navigation requests: ALWAYS try network first, never serve stale HTML.
+  // 1. Navigation requests: ALWAYS try network first, never serve stale HTML.
   // This prevents iOS Safari from restoring with an old cached HTML shell
   // whose JS chunk references no longer exist.
   if (req.mode === 'navigate') {
@@ -93,6 +94,14 @@ self.addEventListener('fetch', (event) => {
         try {
           const fresh = await fetch(req, { cache: 'no-cache' })
           if (fresh && fresh.ok) {
+            // Check if the HTML has the correct deploy version
+            const html = await fresh.clone().text()
+            const versionMatch = html.match(/data-deploy-version="([^"]*)"/)
+            const htmlVersion = versionMatch ? versionMatch[1] : null
+            if (htmlVersion && htmlVersion !== VERSION) {
+              console.warn('[sw] HTML version mismatch, forcing reload')
+              return new Response('', { status: 204 }) // Trigger reload
+            }
             // Only cache a fresh response for OFFLINE fallback — TTL is short
             const cache = await caches.open(RUNTIME_CACHE)
             cache.put(req, fresh.clone()).catch(() => {})

@@ -55,6 +55,12 @@ export function ServiceWorkerRegister() {
           if (swVersion && pageVersion && swVersion !== pageVersion) {
             window.location.reload()
           }
+          // If SW doesn't respond to GET_VERSION (old SW without handler),
+          // assume it's stale and force reload.
+          if (!swVersion && pageVersion) {
+            console.warn('[sw] Old SW detected (no GET_VERSION handler), forcing reload')
+            window.location.reload()
+          }
         }
 
         // Auto-subscribe to push notifications (best-effort, non-blocking)
