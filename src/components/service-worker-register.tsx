@@ -25,10 +25,10 @@ export function ServiceWorkerRegister() {
           scope: '/',
           updateViaCache: 'none',
         })
-        // Check for updates every 60 minutes.
-        setInterval(() => {
-          void reg.update().catch(() => {})
-        }, 60 * 60 * 1000)
+        // Force-check for SW update on every page load (not just every 60 min).
+        // New deploys change the DEPLOY_ID in sw.js, so update() detects it
+        // immediately instead of waiting up to an hour.
+        void reg.update().catch(() => {})
 
         // When a new SW takes over, reload once so the latest UI is shown.
         let refreshing = false
@@ -39,6 +39,23 @@ export function ServiceWorkerRegister() {
             window.location.reload()
           }
         })
+
+        // Force hard reload if SW version doesn't match page version.
+        // This catches cases where Chrome's HTTP cache serves stale HTML
+        // whose CSS references are outdated.
+        const pageVersion = document.documentElement.dataset.deployVersion
+        if (pageVersion && reg.active) {
+          const swMsg = new Promise<string>((resolve) => {
+            const ch = new MessageChannel()
+            ch.port1.onmessage = (e) => resolve(e.data)
+            reg.active!.postMessage({ type: 'GET_VERSION' }, [ch.port2])
+            setTimeout(() => resolve(''), 1000)
+          })
+          const swVersion = await swMsg
+          if (swVersion && pageVersion && swVersion !== pageVersion) {
+            window.location.reload()
+          }
+        }
 
         // Auto-subscribe to push notifications (best-effort, non-blocking)
         // — checks for existing session cookie, then subscribes if push

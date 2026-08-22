@@ -228,3 +228,12 @@ self.addEventListener('notificationclick', (event) => {
       }),
   )
 })
+
+// ---------------------------------------------------------------------------
+// Message handler — respond to version checks from the page.
+// ---------------------------------------------------------------------------
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'GET_VERSION' && event.ports?.[0]) {
+    event.ports[0].postMessage(VERSION)
+  }
+})

@@ -111,7 +111,7 @@ export default async function RootLayout({
   const pathname = headerStore.get('x-nextjs-url') || '/';
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-deploy-version={process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local'}>
       <head>
         <StructuredData pathname={pathname} />
         <meta name="theme-color" content="#10b981" />
