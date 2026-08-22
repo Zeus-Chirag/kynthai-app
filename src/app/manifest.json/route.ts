@@ -46,6 +46,7 @@ const manifest = {
       purpose: 'any maskable',
     },
   ],
+  version: 'f7209f3',
 };
 
 export async function GET() {
