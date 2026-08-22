@@ -133,14 +133,19 @@ export default async function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var d=document.documentElement;var dark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark)d.classList.add('dark');}catch(e){}})();`,
           }}
         />
-        {/* ponytail: inline switch sizing — runs from the HTML shell (no-cache)
-            so it ALWAYS executes with fresh code regardless of JS/CSS cache.
-            Forces the correct toggle size on every page load. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var m=window.matchMedia('(max-width:639px)');function s(){var w=m.matches?36:44,h=m.matches?20:24,tw=m.matches?16:20;document.querySelectorAll('[data-slot="switch"]').forEach(function(el){el.style.width=w+'px';el.style.height=h+'px';var th=el.querySelector('[data-slot="switch-thumb"]');if(th){th.style.width=tw+'px';th.style.height=tw+'px';}})}m.addEventListener('change',s);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',s)}else{s()}setInterval(s,2000);})();`,
-          }}
-        />
+        {/* ponytail: inline switch sizing via CSS — runs from the HTML shell
+            (no-cache) so it ALWAYS applies regardless of JS/CSS cache.
+            Uses !important to override any stale Tailwind classes. */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media (max-width: 639px) {
+            [data-slot="switch"] { width: 36px !important; height: 20px !important; }
+            [data-slot="switch-thumb"] { width: 16px !important; height: 16px !important; }
+          }
+          @media (min-width: 640px) {
+            [data-slot="switch"] { width: 44px !important; height: 24px !important; }
+            [data-slot="switch-thumb"] { width: 20px !important; height: 20px !important; }
+          }
+        `}} />
         {/* Stripe publishable key for frontend payment components */}
         {process.env.NEXT_PUBLIC_STRIPE_PK &&
           !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(process.env.NEXT_PUBLIC_STRIPE_PK) && (
