@@ -512,4 +512,11 @@ html:not(.dark) .phone-frame {
   @media all and (display-mode: browser) {
     .pwa-only { display: none !important; }
   }
+
+  /* ponytail: deploy cache-buster — this comment's content changes with each
+     deploy (via build env), forcing Turbopack to generate a new CSS content
+     hash and filename. Without this, Turbopack sometimes reuses the same
+     CSS filename across deploys, and immutable CDN headers prevent browsers
+     from fetching fresh styles. */
+  :root { --deploy-id: 3001558; }
 }
