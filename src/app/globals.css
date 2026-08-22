@@ -526,7 +526,8 @@ html:not(.dark) .phone-frame {
      Forces correct thumb position and size on ALL devices, regardless of
      which version of the Switch component is loaded. This overrides the
      old Tailwind classes (h-6 w-11, size-5, translate-x-[calc(100%-2px)])
-     that were cached by browsers. */
+     that were cached by browsers. The deploy hash changes on every build. */
+  /* deploy-hash: 3b87231c7d6571f3e1e4f8a9b2c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3 */
   @media (max-width: 639px) {
     [data-slot="switch"] {
       width: 40px !important;
@@ -570,4 +571,4 @@ html:not(.dark) .phone-frame {
     }
   }
 }
-.deploy-1787383510580 { display: none !important; }
+.deploy-3fec38e9c7d6571f3e1e4f8a9b2c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3mt4jtl94 { display: none !important; }
