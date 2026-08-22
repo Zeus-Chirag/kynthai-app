@@ -6,6 +6,7 @@
 /* deploy-1787383510580ts:1787376073 — forces new CSS hash on every deploy */
 
 @theme inline {
+  --deploy-hash: 3fec38e9c7d6571f3e1e4f8a9b2c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3mt4k0yud;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
