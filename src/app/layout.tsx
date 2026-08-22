@@ -133,19 +133,8 @@ export default async function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var d=document.documentElement;var dark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark)d.classList.add('dark');}catch(e){}})();`,
           }}
         />
-        {/* ponytail: inline switch sizing via CSS — runs from the HTML shell
-            (no-cache) so it ALWAYS applies regardless of JS/CSS cache.
-            Uses !important to override any stale Tailwind classes. */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          @media (max-width: 639px) {
-            [data-slot="switch"] { width: 36px !important; height: 20px !important; }
-            [data-slot="switch-thumb"] { width: 16px !important; height: 16px !important; }
-          }
-          @media (min-width: 640px) {
-            [data-slot="switch"] { width: 44px !important; height: 24px !important; }
-            [data-slot="switch-thumb"] { width: 20px !important; height: 20px !important; }
-          }
-        `}} />
+        {/* ponytail: switch sizing is now handled entirely by inline styles
+            in the Switch component — no CSS cache issues possible. */}
         {/* Stripe publishable key for frontend payment components */}
         {process.env.NEXT_PUBLIC_STRIPE_PK &&
           !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(process.env.NEXT_PUBLIC_STRIPE_PK) && (

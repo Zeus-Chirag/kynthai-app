@@ -18,31 +18,41 @@ function Switch({
     return () => window.removeEventListener('resize', check)
   }, [])
 
+  // ponytail: All dimensions via inline styles — immune to CSS cache.
+  // Track: mobile 40x22px, desktop 44x24px
+  // Thumb: mobile 18x18px, desktop 20x20px
+  // Thumb position: translateX(2px) when off, translateX(trackWidth - thumbWidth - 2px) when checked
+  const trackW = isMobile ? 40 : 44
+  const trackH = isMobile ? 22 : 24
+  const thumbSize = isMobile ? 18 : 20
+
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
       className={cn(
-        "peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/80 inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+        "peer relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-colors outline-none",
+        "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+        "dark:data-[state=unchecked]:bg-input/80",
+        "focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:border-ring",
+        "disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       style={{
-        // ponytail: inline style overrides any stale cached CSS.
-        // Mobile: 36×20px, Desktop: 44×24px
-        width: isMobile ? 36 : 44,
-        height: isMobile ? 20 : 24,
+        width: trackW,
+        height: trackH,
       }}
       {...props}
     >
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        className={cn(
-          "bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
-          className
-        )}
+        className="pointer-events-none block rounded-full ring-0 transition-transform"
         style={{
-          // ponytail: inline style for thumb — matches parent size
-          width: isMobile ? 16 : 20,
-          height: isMobile ? 16 : 20,
+          width: thumbSize,
+          height: thumbSize,
+          // When unchecked: thumb at left with 2px padding
+          // When checked: thumb at right with 2px padding
+          // Radix sets data-state="checked" or "unchecked" automatically
+          transform: props.checked ? `translateX(${trackW - thumbSize - 2}px)` : 'translateX(2px)',
         }}
       />
     </SwitchPrimitive.Root>
