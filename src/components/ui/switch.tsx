@@ -18,10 +18,6 @@ function Switch({
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // ponytail: All dimensions via inline styles — immune to CSS cache.
-  // Track: mobile 40x22px, desktop 44x24px
-  // Thumb: mobile 18x18px, desktop 20x20px
-  // Thumb position: translateX(2px) when off, translateX(trackWidth - thumbWidth - 2px) when checked
   const trackW = isMobile ? 40 : 44
   const trackH = isMobile ? 22 : 24
   const thumbSize = isMobile ? 18 : 20
@@ -45,13 +41,10 @@ function Switch({
     >
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        className="pointer-events-none block rounded-full ring-0 transition-transform"
+        className="pointer-events-none block rounded-full bg-white shadow-sm ring-0 transition-transform dark:bg-foreground"
         style={{
           width: thumbSize,
           height: thumbSize,
-          // When unchecked: thumb at left with 2px padding
-          // When checked: thumb at right with 2px padding
-          // Radix sets data-state="checked" or "unchecked" automatically
           transform: props.checked ? `translateX(${trackW - thumbSize - 2}px)` : 'translateX(2px)',
         }}
       />
