@@ -103,16 +103,11 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=86400' },
         ],
       },
-      // Prevent ad-blockers / extensions from blocking critical resources.
-      // Note: CSS/JS files are content-hashed by Next.js, so immutable is
-      // safe. But Turbopack sometimes reuses filenames across deploys, so
-      // we use a shorter max-age for revalidation safety.
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=3600, must-revalidate' },
-        ],
-      },
+      // ponytail: DO NOT add a _next/static catch-all here — it overrides
+      // the extension-based .js/.css rules above. The extension rules set
+      // max-age=0, must-revalidate which forces the browser to always
+      // check freshness. The catch-all was setting max-age=3600 which
+      // let the browser serve stale assets for up to an hour.
     ];
   },
 };

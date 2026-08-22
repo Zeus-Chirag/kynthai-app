@@ -518,5 +518,5 @@ html:not(.dark) .phone-frame {
      hash and filename. Without this, Turbopack sometimes reuses the same
      CSS filename across deploys, and immutable CDN headers prevent browsers
      from fetching fresh styles. */
-  :root { --deploy-id: 3001558; }
+  :root { --deploy-id: 3001560; }
 }
