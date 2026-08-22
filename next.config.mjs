@@ -84,7 +84,11 @@ const nextConfig = {
       {
         source: '/:path*.(js|css)',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          // ponytail: Next.js content-hashes JS/CSS filenames, so long cache
+          // is safe — but Turbopack sometimes keeps the same filename across
+          // deploys when only class names change. Use revalidate so the
+          // browser always checks with the server for freshness.
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
         ],
       },
       {
@@ -99,11 +103,14 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=86400' },
         ],
       },
-      // Prevent ad-blockers / extensions from blocking critical resources
+      // Prevent ad-blockers / extensions from blocking critical resources.
+      // Note: CSS/JS files are content-hashed by Next.js, so immutable is
+      // safe. But Turbopack sometimes reuses filenames across deploys, so
+      // we use a shorter max-age for revalidation safety.
       {
         source: '/_next/static/:path*',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Cache-Control', value: 'public, max-age=3600, must-revalidate' },
         ],
       },
     ];
