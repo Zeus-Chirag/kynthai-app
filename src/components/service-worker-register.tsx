@@ -64,6 +64,37 @@ export function ServiceWorkerRegister() {
         }
         // Additional: force SW update check immediately on load
         void reg.update().catch(() => {})
+        // Additional: check version on focus (catches PWA resume)
+        window.addEventListener('visibilitychange', () => {
+          if (!document.hidden && pageVersion && reg.active) {
+            void reg.update().catch(() => {})
+          }
+        })
+        // Additional: check version on page load (catches cold start)
+        // This runs after the initial render to verify version matches
+        React.useEffect(() => {
+          if (!pageVersion) return
+          const checkVersion = async () => {
+            try {
+              const response = await fetch('/manifest.json', { cache: 'no-cache' })
+              const manifest = await response.json()
+              const manifestVersion = manifest.version || manifest.id
+              if (manifestVersion && manifestVersion !== pageVersion) {
+                console.warn('[sw] Manifest version mismatch, forcing reload')
+                window.location.reload()
+              }
+            } catch {
+              // Ignore errors
+            }
+          }
+          // Check immediately
+          void checkVersion()
+          // Check again after a short delay (catches PWA cold start)
+          setTimeout(() => void checkVersion(), 1000)
+          // Check periodically (catches long-running PWA sessions)
+          const interval = setInterval(() => void checkVersion(), 60000)
+          return () => clearInterval(interval)
+        }, [pageVersion])
 
         // Auto-subscribe to push notifications (best-effort, non-blocking)
         // — checks for existing session cookie, then subscribes if push
