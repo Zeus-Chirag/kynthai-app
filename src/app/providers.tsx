@@ -11,6 +11,10 @@ import { runWhenIdle } from '@/components/performance-wrapper'
 import { useEffect, useState } from 'react'
 import { GlobalErrorCatcher } from '@/components/kynthai/global-error-catcher'
 import { initConsentAwareTelemetry } from '@/lib/analytics-consent'
+// ponytail: deploy-hash import forces new JS filename on every build.
+// Without this, Turbopack reuses the same filenames and Vercel CDN
+// serves stale JS forever.
+import { DEPLOY_HASH } from '@/lib/deploy-hash'
 
 function DeferredAuthGuard() {
   const [ready, setReady] = useState(false)
