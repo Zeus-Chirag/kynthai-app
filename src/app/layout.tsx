@@ -134,8 +134,34 @@ export default async function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var d=document.documentElement;var dark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark)d.classList.add('dark');}catch(e){}document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('kynthai-boot');if(b){requestAnimationFrame(function(){b.classList.add('done');setTimeout(function(){b.remove()},250);});}});})();`,
           }}
         />
-        {/* ponytail: switch sizing is now handled entirely by inline styles
-            in the Switch component — no CSS cache issues possible. */}
+        {/* ponytail: switch sizing via CSS in HTML shell — immune to JS/CSS cache.
+            The HTML has no-cache headers so this always loads fresh. */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media (max-width: 639px) {
+            [data-slot="switch"] { width: 40px !important; height: 22px !important; }
+            [data-slot="switch-thumb"] { width: 18px !important; height: 18px !important; }
+            [data-slot="switch"][data-state="checked"] [data-slot="switch-thumb"] { transform: translateX(20px) !important; }
+            [data-slot="switch"][data-state="unchecked"] [data-slot="switch-thumb"] { transform: translateX(2px) !important; }
+          }
+          @media (min-width: 640px) {
+            [data-slot="switch"] { width: 44px !important; height: 24px !important; }
+            [data-slot="switch-thumb"] { width: 20px !important; height: 20px !important; }
+            [data-slot="switch"][data-state="checked"] [data-slot="switch-thumb"] { transform: translateX(22px) !important; }
+            [data-slot="switch"][data-state="unchecked"] [data-slot="switch-thumb"] { transform: translateX(2px) !important; }
+          }
+          [data-slot="switch-thumb"] { background-color: white !important; box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important; }
+          @media (prefers-color-scheme: dark) {
+            [data-slot="switch-thumb"] { background-color: var(--foreground) !important; }
+          }
+        `}} />
+        {/* ponytail: deploy version check — forces reload when deploy changes.
+            This runs from the HTML shell (always fresh, no-cache) so it works
+            even when JS/CSS are cached. Catches stale service workers. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var v=document.documentElement.dataset.deployVersion;if(v){var k='kynthai-deploy-v';var o=localStorage.getItem(k);if(o&&o!==v){console.warn('[deploy] Version changed',o,'->',v,'reloading');localStorage.setItem(k,v);location.reload();}else{localStorage.setItem(k,v);}}}catch(e){}})();`,
+          }}
+        />
         {/* Stripe publishable key for frontend payment components */}
         {process.env.NEXT_PUBLIC_STRIPE_PK &&
           !/PLACEHOLDER|placeholder|REPLACE_WITH/i.test(process.env.NEXT_PUBLIC_STRIPE_PK) && (
