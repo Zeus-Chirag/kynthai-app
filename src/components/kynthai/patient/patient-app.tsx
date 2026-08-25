@@ -60,6 +60,7 @@ import { useGreeting } from '@/lib/greeting';
 import { AchievementCelebration } from '@/components/kynthai/achievement-celebration';
 import { useToast } from '@/hooks/use-toast';
 import { playProfessionalRingtone, stopAllRingtones } from '@/lib/alarm';
+import { scheduleNativeAlarm, ensureNativeNotificationPermission } from '@/lib/native-alarms';
 import { TodayView } from '@/components/medication/today-view';
 import { MedicationsList } from '@/components/medication/medications-list';
 import { MedicationAlarmHost } from '@/components/medication/medication-alarm-host'
@@ -1151,6 +1152,60 @@ export function PatientApp({ user }: { user: AuthUser }) {
     return () => {
       cancelled = true;
     };
+  }, [user]);
+
+  // ── Schedule native alarms for ALL future reminders ────────────────────
+  // This runs once when the dashboard loads. It fetches today's reminders
+  // and schedules native OS notifications for each one. This is the ONLY
+  // way to get notifications when the app is closed — the in-app alarm
+  // and service worker push only work when the app/browser is open.
+  React.useEffect(() => {
+    if (isDemoUser(user)) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        // Request notification permission first
+        await ensureNativeNotificationPermission();
+
+        const today = new Date().toISOString().slice(0, 10);
+        const res = await fetch(`/api/reminders?date=${today}`, { credentials: 'include' });
+        if (!res.ok || cancelled) return;
+
+        const data = await res.json();
+        const pending: Array<{
+          id: string; time: string; status: string;
+          medication?: { name: string; dosage?: string }
+        }> = data.reminders ?? [];
+
+        const now = new Date();
+
+        for (const r of pending) {
+          if (r.status !== 'pending' || cancelled) continue;
+          const [h = 0, m = 0] = r.time.split(':').map(Number);
+          const alarmTime = new Date();
+          alarmTime.setHours(h, m, 0, 0);
+
+          // Only schedule future reminders (at least 1 minute from now)
+          if (alarmTime.getTime() - now.getTime() < 60_000) continue;
+
+          const medName = r.medication?.name ?? 'your medication';
+          const dosage = r.medication?.dosage ?? '';
+
+          await scheduleNativeAlarm({
+            id: parseInt(r.id.slice(-8), 16) % 2147483647, // unique numeric ID
+            title: `Time to take ${medName}`,
+            body: dosage ? `${dosage} — tap to mark as taken` : `Tap to mark as taken`,
+            at: alarmTime,
+            medName,
+          }).catch(() => {}); // best-effort
+        }
+      } catch {
+        // best-effort — never crash the dashboard
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, [user]);
 
   // ── Global reminder alert: notify on ANY tab when a reminder is due ──
