@@ -264,12 +264,16 @@ function playProfessionalRingtoneOnce() {
     const ctx = getAudioCtx()
     if (!ctx) return
     const now = ctx.currentTime
+    // Medical alarm: urgent repeating double-beep pattern
+    // Two short beeps (high-low) then pause, repeat 8 cycles
     for (let cycle = 0; cycle < 8; cycle++) {
-      const t = now + cycle * 1.25
-      playTone(ctx, 523.25, t, 0.4, 0.35, 'sine')
-      playTone(ctx, 659.25, t + 0.15, 0.4, 0.35, 'sine')
-      playTone(ctx, 783.99, t + 0.3, 0.6, 0.35, 'sine')
-      playTone(ctx, 1046.5, t + 0.7, 0.5, 0.25, 'sine')
+      const t = now + cycle * 1.0
+      // First beep — high pitch, short
+      playTone(ctx, 880, t, 0.15, 0.5, 'square')
+      // Second beep — lower pitch, short
+      playTone(ctx, 660, t + 0.2, 0.15, 0.5, 'square')
+      // Third beep — high pitch again
+      playTone(ctx, 880, t + 0.4, 0.15, 0.5, 'square')
     }
   } catch {
     _isRinging = false
