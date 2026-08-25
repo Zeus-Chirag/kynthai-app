@@ -134,9 +134,8 @@ export function notifyReminder(title: string, body: string) {
       requireInteraction: true,
       silent: false,
       renotify: true,
-      // @ts-expect-error vibrate is widely supported but not in all TS libs
       vibrate: [400, 150, 400, 150, 400],
-    }
+    } as NotificationOptions & { renotify?: boolean; vibrate?: number[] }
     const n = new Notification(title, opts)
     n.onclick = () => {
       window.focus()
@@ -164,10 +163,9 @@ export async function notifyReminderViaSW(title: string, body: string) {
       requireInteraction: true,
       silent: false,
       renotify: true,
-      // @ts-expect-error vibrate
       vibrate: [400, 150, 400, 150, 400],
       data: { url: '/patient?alarm=1', isDose: true, isClinical: true },
-    })
+    } as NotificationOptions & { renotify?: boolean; vibrate?: number[]; data?: Record<string, unknown> })
   } catch {
     notifyReminder(title, body)
   }
