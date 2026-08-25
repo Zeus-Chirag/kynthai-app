@@ -11,24 +11,19 @@ bun.lockb
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
 # testing
 /coverage
-
 # next.js
 /.next/
 /out/
 /dist/
-
 # production
 /build
-
 # misc
 .DS_Store
 ._.DS_Store
 .AppleDouble
 .Trashes
-
 # env files (secrets)
 .env
 .env.local
@@ -37,50 +32,39 @@ bun.lockb
 .env.*.bak
 .env.vercel
 *.pem
-
 # editor / IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
 # databases
 /prisma/*.db
 /prisma/*.sqlite
 *.db
 *.sqlite
-
 # download directory
 /download/
-
 # coverage
 coverage/
 .nyc_output/
-
 # scratch diagnostic scripts (DB debugging — may contain connection strings; never commit)
 .db-*.sh
 .db-*.sql
 .sql-*.sql
 .verify-prod*.mjs
 .verify-prod2.mjs
-
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
 # env files (can opt-in for committing if needed)
 .env*
-
 # vercel
 .vercel
-
 # turborepo
 .turbo
-
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -92,19 +76,15 @@ dev.log
 dev.out.log
 test
 prompt
-
 server.log
 # Skills directory
 /skills/
 .gstack/
-
 # Test login scripts with hardcoded credentials (DO NOT COMMIT)
 test-login*.js
 e2e/quick-test.mjs
-
 # Claude Code session state
 .claude-flow/sessions/
-
 # Temporary reports and scripts
 BUG-REPORT.md
 CONTEXT-MANAGEMENT-FIX.md
@@ -114,25 +94,20 @@ review-screenshot.png
 run-kynthai-7000.sh
 start-server-godmode.sh
 verify-context-fix.sh
-
 # Local CLAUDE overrides (project root is the source of truth)
 CLAUDE.md
-
 # test artifacts
 test-results/
-.env.production
-.env.staging
-
 # Vercel env-var seed (secrets stay local)
 scripts/.vercel-env.local.json
 *.local.json
-
 # local env seed — never commit secrets
 scripts/.vercel-env-local.json
-
 # Reticle runtime session logs (dev artifacts)
 .reticle/sessions/
-
 # Reticle runtime session/ambient artifacts
 .reticle/ambient.json
-.reticle/sessions/
+android/key.properties
+android/app/kynthai-release.keystore
+google-services.json
+android/app/google-services.json
