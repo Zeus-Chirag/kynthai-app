@@ -1211,10 +1211,14 @@ export function PatientApp({ user }: { user: AuthUser }) {
   // ── Global reminder alert: notify on ANY tab when a reminder is due ──
   // TodayView's alarm only fires when the Meds tab is mounted. This effect
   // ensures the user is reminded even when browsing Home / Care / AI etc.
+  // Uses a ref for `seen` so it persists across re-renders. Stops alarm
+  // after 30 seconds. Cooldown: same reminder won't fire again for 30 min.
+  const seenRemindersRef = React.useRef<Set<string>>(new Set());
+  const alarmTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
   React.useEffect(() => {
     if (isDemoUser(user)) return;
     let cancelled = false;
-    let seen = new Set<string>();
 
     async function check() {
       if (cancelled) return;
@@ -1230,20 +1234,22 @@ export function PatientApp({ user }: { user: AuthUser }) {
           if (r.status !== 'pending') continue;
           const [h = 0, m = 0] = r.time.split(':').map(Number);
           const reminderMins = h * 60 + m;
-          // Show once per reminder per check cycle (every 60s). Fire when
-          // current time is within a ±15-minute window of the scheduled time.
-          if (reminderMins <= nowMins && nowMins - reminderMins < 15 && !seen.has(r.id)) {
-            seen.add(r.id);
+          // Fire when current time is within a ±15-minute window of the scheduled time.
+          // Use ref-based seen set so it persists across re-renders.
+          if (reminderMins <= nowMins && nowMins - reminderMins < 15 && !seenRemindersRef.current.has(r.id)) {
+            seenRemindersRef.current.add(r.id);
             const name = r.medication?.name ?? 'your medication';
             const dosage = r.medication?.dosage ? ` ${r.medication.dosage}` : '';
             playProfessionalRingtone();
+            // Auto-stop alarm after 30 seconds
+            if (alarmTimeoutRef.current) clearTimeout(alarmTimeoutRef.current);
+            alarmTimeoutRef.current = setTimeout(() => stopAllRingtones(), 30_000);
             toast({
               title: `Time for ${name}${dosage}`,
               description: `${r.time} — go to Meds to take or skip.`,
               duration: 30000,
             });
-            // Show OS-level notification via service worker (works when tab is
-            // backgrounded, and the SW can show notifications even without push)
+            // Show OS-level notification via service worker
             if (typeof navigator !== 'undefined' && navigator.serviceWorker?.controller) {
               try {
                 navigator.serviceWorker.ready.then(reg => {
