@@ -235,6 +235,10 @@ model LabProfile {
   rejectionReason     String?
   rejectionReason_enc String?      @map("rejectionReason_enc")
   submittedAt         DateTime?
+  gstNumber          String?
+  gstNumber_enc       String?       @map("gstNumber_enc")
+  accreditationType   String?
+  country             String         @default("India")
   bookings            LabBooking[]
 
   @@map("lab_profiles")

@@ -32,6 +32,18 @@ import { ErrorBoundary } from '@/components/kynthai/error-boundary';
 import { AppLoader } from '@/components/kynthai/app-loader';
 import type { AppScreen, LoginPortal } from '@/lib/store';
 
+// ponytail: router.replace() inside the render body triggers React's
+// "Cannot update a component (Router) while rendering a different component
+// (PortalClient)" error. All client-side redirects go through this component
+// so navigation happens in an effect instead of mid-render.
+function RedirectTo({ dest, label = 'Loading…' }: { dest: string; label?: string }) {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace(dest);
+  }, [dest, router]);
+  return <AppLoader label={label} />;
+}
+
 // ── Route → screen mapping ─────────────────────────────────────────────────
 const ROUTE_SCREEN: Record<string, AppScreen> = {
   '/': 'landing',
@@ -434,8 +446,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   // require a signed-in user before rendering.
   if (isProtectedPath) {
     if (!user) {
-      router.replace('/login');
-      return <AppLoader label="Loading…" />;
+      return <RedirectTo dest="/login" />;
     }
     // /dashboard is a legacy empty stub — send signed-in users to their portal.
     if (pathname === '/dashboard') {
@@ -447,8 +458,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
         lab: 'lab',
         admin: 'admin',
       };
-      router.replace('/' + (portalFromRole[user.role] ?? 'caretaker'));
-      return <AppLoader label="Loading…" />;
+      return <RedirectTo dest={'/' + (portalFromRole[user.role] ?? 'caretaker')} />;
     }
     return <ErrorBoundary>{children}</ErrorBoundary>;
   }
@@ -478,12 +488,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       admin: 'admin',
     };
     const dest = '/' + (portalFromRole[user.role] ?? 'caretaker');
-    router.replace(dest);
-    return (
-      <ErrorBoundary>
-        <AppLoader label="Opening your portal…" />
-      </ErrorBoundary>
-    );
+    return <RedirectTo dest={dest} label="Opening your portal…" />;
   }
 
   // Auth-aware screen resolution
@@ -521,12 +526,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
       pathname !== expectedPath &&
       ['patient', 'doctor', 'lab', 'caretaker', 'family', 'admin'].includes(userPortal)
     ) {
-      router.replace(expectedPath);
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-sm text-muted-foreground">Redirecting to your portal...</div>
-        </div>
-      );
+      return <RedirectTo dest={expectedPath} label="Redirecting to your portal..." />;
     }
   }
 

@@ -103,10 +103,13 @@ export async function POST(req: NextRequest) {
     return jsonError('You can only submit your own profile', 403)
   }
 
-  const labName = sanitizeText(body.labName, 120)
-  const licenseNumber = sanitizeText(body.licenseNumber, 60)
-  const city = sanitizeText(body.city, 60)
-  const address = sanitizeText(body.address, 500)
+  const country = body.country || 'India';
+  const accreditationType = body.accreditationType;
+  const gstNumber = body.gstNumber;
+  const labName = sanitizeText(body.labName, 120);
+  const licenseNumber = sanitizeText(body.licenseNumber, 60);
+  const city = sanitizeText(body.city, 60);
+  const address = sanitizeText(body.address, 500);
   const tests = Array.isArray(body.tests)
     ? body.tests
         .filter((t) => t && t.name)
@@ -160,6 +163,9 @@ export async function POST(req: NextRequest) {
     verified: false,
     rejectionReason: null,
     submittedAt: new Date(),
+    country,
+    accreditationType: accreditationType || null,
+    gstNumber: gstNumber || null,
   }
 
   let profile
@@ -169,7 +175,7 @@ export async function POST(req: NextRequest) {
     profile = await db.labProfile.create({ data: { userId: session.id, ...payload } })
   }
 
-  await logAudit(session.id, 'lab.profile.submit', `profile=${profile.id}`)
+  await logAudit(session.id, 'lab.profile.submit', `profile=${profile.id} country=${country} accreditationType=${accreditationType} gstNumber=${gstNumber ? 'provided' : 'not provided'}`)
   return jsonOk({
     id: profile.id,
     userId: profile.userId,

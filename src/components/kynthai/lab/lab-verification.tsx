@@ -43,7 +43,7 @@ interface TestEntry {
 
 const DOC_TYPES = [
   { id: 'license', label: 'Lab License' },
-  { id: 'clia', label: 'CLIA Certificate' },
+  { id: 'accreditation', label: 'Accreditation Certificate' },
   { id: 'business_insurance', label: 'Business Insurance' },
   { id: 'photo', label: 'Lab Photo' },
 ]
@@ -61,6 +61,9 @@ export function LabVerification({ user, onSubmitted, onLogout }: LabVerification
   ])
   const [documents, setDocuments] = React.useState<Record<string, File | undefined>>({})
   const [submitting, setSubmitting] = React.useState(false)
+  const [country, setCountry] = React.useState('India')
+  const [gstNumber, setGstNumber] = React.useState('')
+  const [accreditationType, setAccreditationType] = React.useState('')
 
   const addTest = () =>
     setTests((p) => [...p, { id: `t_${Date.now()}`, name: '', price: '' }])
@@ -104,6 +107,9 @@ export function LabVerification({ user, onSubmitted, onLogout }: LabVerification
           documents: Object.fromEntries(
             Object.entries(documents).map(([k, v]) => [k, v ? v.name : null])
           ),
+          country,
+          accreditationType,
+          gstNumber,
         }),
       })
       if (!res.ok && res.status !== 404) {
@@ -149,6 +155,21 @@ export function LabVerification({ user, onSubmitted, onLogout }: LabVerification
           </p>
         </div>
 
+        <div className="space-y-1.5">
+          <Label>Country</Label>
+          <select
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+          >
+            <option value="India">India</option>
+            <option value="United States">United States</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="European Union">European Union</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
         <Card className="mt-6">
           <CardContent className="p-5 space-y-5">
             <Section icon={FlaskConical} title="Lab details" tint="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
@@ -169,9 +190,28 @@ export function LabVerification({ user, onSubmitted, onLogout }: LabVerification
                       id="lab-license"
                       value={licenseNumber}
                       onChange={(e) => setLicenseNumber(e.target.value)}
-                      placeholder="CLIA-XXXXX or state lab license"
+                      placeholder="NABL / NABH license / CLIA / State lab license"
                     />
                   </div>
+                  <div className="space-y-1.5">
+                    <Label>Accreditation Type</Label>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={accreditationType}
+                      onChange={(e) => setAccreditationType(e.target.value)}
+                    >
+                      <option value="">Select accreditation</option>
+                      <option value="NABL">NABL (Iso 15189)</option>
+                      <option value="NABH">NABH</option>
+                      <option value="CAP">CAP</option>
+                      <option value="CLIA">CLIA</option>
+                      <option value="State">State Health Department</option>
+                      <option value="None">None / Unaccredited</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="lab-city">City</Label>
                     <div className="relative">
@@ -180,11 +220,22 @@ export function LabVerification({ user, onSubmitted, onLogout }: LabVerification
                         id="lab-city"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        placeholder="Austin, TX"
+                        placeholder="City"
                         className="pl-9"
                       />
                     </div>
                   </div>
+                  {country === 'India' && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="gstNumber">GST Number (India)</Label>
+                      <Input
+                        id="gstNumber"
+                        value={gstNumber}
+                        onChange={(e) => setGstNumber(e.target.value)}
+                        placeholder="27XXXXXXXC1Z5"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="lab-address">Address</Label>
@@ -227,7 +278,7 @@ export function LabVerification({ user, onSubmitted, onLogout }: LabVerification
                       className="flex-1"
                     />
                     <div className="relative w-28">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">{country === 'India' ? '₹' : '$'}</span>
                       <Input
                         type="number"
                         value={t.price}

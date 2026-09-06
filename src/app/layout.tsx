@@ -196,7 +196,10 @@ export default async function RootLayout({
         >
           Skip to main content
         </a>
-        <div id="kynthai-boot" aria-hidden="true">Kynthai</div>
+        {/* ponytail: the inline theme/boot script may mutate or remove this
+            splash before React hydrates (slow-load race), so hydration must
+            not diff it. Decorative + aria-hidden, removed ~250ms after boot. */}
+        <div id="kynthai-boot" aria-hidden="true" suppressHydrationWarning>Kynthai</div>
         <Providers>
           <PortalShell>{children}</PortalShell>
         </Providers>

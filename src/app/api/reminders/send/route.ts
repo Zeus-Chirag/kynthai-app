@@ -35,7 +35,7 @@ async function run(req: NextRequest) {
 
   try {
     const seen = new Set<string>()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const dueReminders: any[] = []
 
     for (const tz of ZONES) {

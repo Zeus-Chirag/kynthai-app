@@ -16,6 +16,7 @@ export const registerSchema = z.object({
   consentAccepted:         z.boolean().optional().default(false),
   dataProcessingConsent:   z.boolean().optional().default(false),
   aiTrainingConsent:       z.boolean().optional().default(false),
+  country:                z.string().optional().default('India'),
 })
 
 export const forgotPasswordSchema = z.object({

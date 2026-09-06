@@ -138,6 +138,7 @@ export async function POST(req: NextRequest) {
     degreeType?: string;
     medicalCouncil?: string;
     npiNumber?: string;
+    country?: string;
   }>(req);
   if (!body) return jsonError('Invalid JSON', 400);
 
@@ -159,9 +160,9 @@ export async function POST(req: NextRequest) {
   if (!licenseNumber) return jsonError('License number is required', 400);
   if (!city) return jsonError('City is required', 400);
 
-  // Verify NPI against the free CMS NPPES registry (when provided)
+  // Verify NPI against the free CMS NPPES registry (US doctors only)
   const npiNumber = sanitizeText(body.npiNumber, 20);
-  if (npiNumber) {
+  if (npiNumber && body.country === 'United States') {
     const npiResult = await verifyNpi(npiNumber);
     if (!npiResult.valid) {
       return jsonError(`NPI verification failed: ${npiResult.error}`, 400);
@@ -231,7 +232,7 @@ export async function POST(req: NextRequest) {
     profile = await db.doctorProfile.create({ data: { userId: session.id, ...payload } });
   }
 
-  await logAudit(session.id, 'doctor.profile.submit', `profile=${profile.id} status=pending`);
+  await logAudit(session.id, 'doctor.profile.submit', `profile=${profile.id} status=pending country=${body.country || 'India'}`);
 
   return jsonOk({
     id: profile.id,

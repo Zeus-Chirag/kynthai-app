@@ -13,6 +13,9 @@ export const labProfileSchema = z.object({
   price: z.number().nonnegative().optional().default(0),
 })).optional().default([]),
   documents:         z.record(z.string().max(200).nullable()).optional().default({}),
+  country:           z.string().optional().default('India'),
+  accreditationType: z.string().optional().nullable(),
+  gstNumber:         z.string().optional().nullable(),
 })
 
 /** GET /api/labs — query parameters */

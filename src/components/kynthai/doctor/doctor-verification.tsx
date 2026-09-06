@@ -70,6 +70,12 @@ const SPECIALIZATIONS = [
   'Oncologist',
   'Endocrinologist',
   'Gastroenterologist',
+  'Ayurveda Specialist',
+  'Homeopath',
+  'Dentist',
+  'Physiotherapist',
+  'Diabetologist',
+  'General Surgeon',
 ];
 
 interface UploadedDoc {
@@ -184,6 +190,7 @@ export function DoctorVerification({ user, existing, onSubmitted, onLogout }: Do
           npiNumber,
           taxId,
           state,
+          country: 'India',
         }),
       });
       // Even if the endpoint is not implemented, simulate success
@@ -310,7 +317,7 @@ export function DoctorVerification({ user, existing, onSubmitted, onLogout }: Do
                       id="license"
                       value={licenseNumber}
                       onChange={e => setLicenseNumber(e.target.value)}
-                      placeholder="USMD-XXXXX / NPI / State medical license"
+                      placeholder="MCI registration / State medical license / NPI / GMC"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -377,39 +384,38 @@ export function DoctorVerification({ user, existing, onSubmitted, onLogout }: Do
                       id="medicalCouncil"
                       value={medicalCouncil}
                       onChange={e => setMedicalCouncil(e.target.value)}
-                      placeholder="State medical board / council no."
+                      placeholder="MCI / NMC / State medical council / GMC / State board"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="npi">NPI Number</Label>
+                    <Label htmlFor="npi">Registration Number</Label>
                     <Input
                       id="npi"
                       value={npiNumber}
                       onChange={e => setNpiNumber(e.target.value)}
-                      placeholder="10-digit NPI"
-                      maxLength={10}
+                      placeholder="MCI / NPI / GMC registration no."
+                      maxLength={20}
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="state">State</Label>
+                    <Label htmlFor="state">State / Province / Region</Label>
                     <Input
                       id="state"
                       value={state}
                       onChange={e => setState(e.target.value)}
-                      placeholder="CA"
-                      maxLength={2}
+                      placeholder="State / Province / Region"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="taxId">Tax ID / EIN</Label>
+                    <Label htmlFor="taxId">Tax ID / EIN / GST Number</Label>
                     <Input
                       id="taxId"
                       value={taxId}
                       onChange={e => setTaxId(e.target.value.toUpperCase())}
-                      placeholder="XX-XXXXXXX"
+                      placeholder="XX-XXXXXXX / GSTINXXXXXXXXX"
                     />
                   </div>
                 </div>

@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    await logAudit(profile.id, 'auth.register', `role=${role}`);
+    await logAudit(profile.id, 'auth.register', `role=${role} country=${body.country || 'India'}`);
 
 
     const responseBody = {

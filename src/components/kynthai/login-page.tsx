@@ -161,6 +161,7 @@ export function LoginPage({
   const [termsConsent, setTermsConsent] = React.useState(false);
   const [dataConsent, setDataConsent] = React.useState(false);
   const [aiTrainingConsent, setAiTrainingConsent] = React.useState(false);
+  const [country, setCountry] = React.useState('India');
   const [loading, setLoading] = React.useState(false);
   const [demoBusy, setDemoBusy] = React.useState(false);
   const [invitesLoading, setInvitesLoading] = React.useState(false);
@@ -353,6 +354,7 @@ export function LoginPage({
           dataProcessingConsent: dataConsent,
           aiTrainingConsent,
           captchaToken: effectiveCaptcha,
+          country,
         });
         toast({ title: 'Account created', description: 'Welcome to Kynthai!' });
 
@@ -753,8 +755,23 @@ export function LoginPage({
                       />
                     </div>
                     <div className="space-y-1.5">
+                      <Label>Country</Label>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={country}
+                        onChange={e => setCountry(e.target.value)}
+                        disabled={mode !== 'register'}
+                      >
+                        <option value="India">India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="European Union">European Union</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
                       <Label htmlFor="emergency1">
-                        Emergency contact 1{' '}
+                        Emergency contact 1
                         {active.id === 'patient' || active.id === 'caretaker' ? (
                           <span className="text-rose-500">*</span>
                         ) : (

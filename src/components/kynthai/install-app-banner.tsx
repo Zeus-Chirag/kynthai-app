@@ -36,7 +36,10 @@ type BeforeInstallPromptEvent = Event & {
 export function InstallAppBanner({ className }: { className?: string }) {
   const [visible, setVisible] = React.useState(false)
   const [ios, setIos] = React.useState(false)
-  const deferred = React.useRef<BeforeInstallPromptEvent | null>(null)
+  // ponytail: must be STATE, not a ref — render branches on it (Install
+  // button vs manual instructions) and refs aren't reactive, so the banner
+  // could miss its own re-render when beforeinstallprompt arrives late.
+  const [deferred, setDeferred] = React.useState<BeforeInstallPromptEvent | null>(null)
 
   React.useEffect(() => {
     try {
@@ -50,7 +53,7 @@ export function InstallAppBanner({ className }: { className?: string }) {
 
     const onBip = (e: Event) => {
       e.preventDefault()
-      deferred.current = e as BeforeInstallPromptEvent
+      setDeferred(e as BeforeInstallPromptEvent)
       setVisible(true)
     }
     window.addEventListener('beforeinstallprompt', onBip)
@@ -69,7 +72,7 @@ export function InstallAppBanner({ className }: { className?: string }) {
   }
 
   const install = async () => {
-    const ev = deferred.current
+    const ev = deferred
     if (!ev) return
     try {
       await ev.prompt()
@@ -104,13 +107,13 @@ export function InstallAppBanner({ className }: { className?: string }) {
             </p>
           ) : (
             <div className="flex flex-wrap gap-2 pt-1">
-              {deferred.current && (
+              {deferred && (
                 <Button size="sm" className="h-9 gap-1.5" onClick={() => void install()}>
                   <Download className="h-3.5 w-3.5" />
                   Install app
                 </Button>
               )}
-              {!deferred.current && (
+              {!deferred && (
                 <p className="text-xs text-muted-foreground">
                   Chrome menu (⋮) → <strong>Install app</strong> or <strong>Add to Home screen</strong>.
                 </p>
