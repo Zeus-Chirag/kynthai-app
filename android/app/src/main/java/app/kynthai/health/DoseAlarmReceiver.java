@@ -18,9 +18,14 @@ import android.content.pm.PackageManager;
  * Fires at dose time: posts a notification with FULL-SCREEN INTENT so Android
  * can take over the entire phone (over other apps / lock screen) — not a tray ping.
  * 
- * Security: on Android 14 (API 33) and above, the system may silently degrade
- * full-screen intents to heads-up notifications. This checks
- * canUseFullScreenIntent() and falls back gracefully.
+ * HIPAA COMPLIANCE: Medication names are NEVER shown or spoken aloud.
+ * Only generic message: "Time for your medication"
+ * 
+ * Notification behavior:
+ *   • Shows generic reminder (no drug names visible)
+ *   • Plays ringtone alarm sound
+ *   • Vibrates pattern
+ *   • Opens full-screen alarm when tapped
  */
 public class DoseAlarmReceiver extends BroadcastReceiver {
   public static final String CHANNEL_ID = "kynthai_fullscreen_dose_v2";
@@ -28,10 +33,10 @@ public class DoseAlarmReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    String title = intent.getStringExtra("title");
-    String body = intent.getStringExtra("body");
-    if (title == null || title.trim().isEmpty()) title = "Time for your medication";
-    if (body == null || body.trim().isEmpty()) body = "Open Kynthai to mark Taken or Skip.";
+    // HIPAA COMPLIANCE: Never show medication name in notification
+    // Use GENERIC message only - do NOT include drug names
+    String title = "Time for your medication";
+    String body = "Open Kynthai to mark Taken or Skip.";
     int notifId = intent.getIntExtra("notifId", 9001);
 
     ensureChannel(context);
@@ -53,21 +58,11 @@ public class DoseAlarmReceiver extends BroadcastReceiver {
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
       );
     } else {
-      // Fall back: use a regular content intent; the notification will appear
-      // as a high-priority heads-up notification instead of taking over the phone.
+      // Fallback: just show a standard notification
       fullScreenPi = null;
     }
 
-    Intent openApp = new Intent(context, MainActivity.class);
-    openApp.putExtra("alarm", "1");
-    openApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    PendingIntent contentPi = PendingIntent.getActivity(
-      context,
-      notifId + 1,
-      openApp,
-      PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-    );
-
+    // Play alarm sound (ringtone only, no speech)
     Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
     if (sound == null) sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -75,77 +70,66 @@ public class DoseAlarmReceiver extends BroadcastReceiver {
       .setSmallIcon(context.getApplicationInfo().icon)
       .setContentTitle(title)
       .setContentText(body)
-      .setPriority(NotificationCompat.PRIORITY_MAX)
-      .setCategory(NotificationCompat.CATEGORY_ALARM)
+      .setPriority(NotificationCompat.PRIORITY_HIGH)
       .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
       .setAutoCancel(false)
       .setOngoing(true)
       .setSound(sound)
       .setVibrate(new long[]{0, 500, 200, 500, 200, 500})
-      .setContentIntent(contentPi)
+      .setContentIntent(fullScreenPi)
       .setFullScreenIntent(fullScreenPi, canUseFullScreen);
 
     NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     if (nm != null) {
       nm.notify(notifId, builder.build());
     }
-
-    // Also start activity directly when possible (foreground / some OEMs)
-    try {
-      context.startActivity(full);
-    } catch (Exception ignored) {}
   }
 
   /**
-   * Check whether the device can use full-screen intents for notifications.
-   * On Android 14 (API 33) with targetSdkVersion 36, the system may silently
-   * ignore FLAG_RECEIVER_FORGOT_URGENT if the manifest doesn't declare the
-   * foreground service permission or if the app's target SDK is too new without
-   * the proper opt-in. Return true only when we're confident the intent will work.
+   * Ensures the notification channel exists with high importance
+   * for full-screen intents on Android 13+.
    */
-  private static boolean canUseFullScreenIntent(Context context) {
-    // Android 13 and below: always support full-screen intents
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-      return true;
-    }
-    // Android 14 (API 33) and above: check the receiver export and permissions
-    // If the receiver is exported and the app has the proper permissions, full-screen
-    // intents should work. Otherwise, return false to fall back to heads-up.
-    try {
-      String receiverClass = context.getPackageName() + ".health.DoseAlarmReceiver";
-      int exportFlags = context.getPackageManager().getReceiverInfo(
-        new android.content.ComponentName(context.getPackageName(), receiverClass),
-        PackageManager.GET_META_DATA
-      ).exported;
-      // Only allow if explicitly exported and we have the right setup
-      return exportFlags;
-    } catch (Exception e) {
-      Log.w("DoseAlarmReceiver", "Could not determine full-screen intent capability", e);
-      return false;
+  private void ensureChannel(Context context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+      if (nm == null) return;
+
+      NotificationChannel ch = nm.getNotificationChannel(CHANNEL_ID);
+      if (ch == null) {
+        ch = new NotificationChannel(
+          CHANNEL_ID,
+          "Medication Reminders",
+          NotificationManager.IMPORTANCE_HIGH
+        );
+        ch.setDescription("Full-screen medication reminders with sound");
+        ch.setBypassDnd(true);
+        ch.enableVibration(true);
+        ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        
+        // Set alarm sound for the channel
+        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        if (sound != null) {
+          AudioAttributes aa = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build();
+          ch.setSound(sound, aa);
+        }
+        
+        nm.createNotificationChannel(ch);
+      }
     }
   }
 
-  private void ensureChannel(Context context) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
-    NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-    if (nm == null) return;
-    NotificationChannel ch = new NotificationChannel(
-      CHANNEL_ID,
-      "Medication reminders",
-      NotificationManager.IMPORTANCE_HIGH
-    );
-    ch.setDescription("Full-screen medication and emergency reminders with sound");
-    ch.setBypassDnd(true);
-    ch.enableVibration(true);
-    ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-    Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-    if (sound != null) {
-      AudioAttributes aa = new AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_ALARM)
-        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-        .build();
-      ch.setSound(sound, aa);
+  /**
+   * Checks whether full-screen intent permission is allowed.
+   * On Android 14 (API 33), this requires USE_FULL_SCREEN_INTENT permission.
+   */
+  private boolean canUseFullScreenIntent(Context context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+      return nm != null && nm.canUseFullScreenIntent();
     }
-    nm.createNotificationChannel(ch);
+    return true; // Allow on older Android versions
   }
 }
