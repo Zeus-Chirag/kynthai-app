@@ -37,9 +37,9 @@ function ensureEnvValidated(): void {
   }
   // Validate env vars on Vercel too — previously this was skipped because
   // VERCEL_ENV is always set, but that meant critical safety checks (DATABASE_URL
-  # sslmode, ENCRYPTION_KEY length, MIGRATION_SECRET, etc.) were silently
-  # bypassed in production. Now we validate and fail loudly if required vars
-  # are missing, even in production.
+  // sslmode, ENCRYPTION_KEY length, MIGRATION_SECRET, etc.) were silently
+  // bypassed in production. Now we validate and fail loudly if required vars
+  // are missing, even in production.
   validateEnv();
   envValidated = true;
 }

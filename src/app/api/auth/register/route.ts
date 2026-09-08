@@ -20,7 +20,7 @@ import { registerSchema } from '@/lib/schemas';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { syncSupabaseUser } from '@/lib/supabase/sync';
-import { verifyTurnstileToken, isCaptchaConfigured } from '@/lib/captcha';
+import { verifyTurnstileToken, isTurnstileConfigured } from '@/lib/captcha';
 import { checkEnrollmentGate } from '@/lib/fraud-guard';
 import { createSafeServerClient } from '@/lib/supabase/get-server-client';
 export const dynamic = 'force-dynamic';
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     if (!isValidEmail(email)) return jsonError('Valid email is required', 400);
 
     // ── CAPTCHA verification ──────────────────────────────────────────
-    if (isCaptchaConfigured()) {
+    if (isTurnstileConfigured()) {
       const raw = rawBody as Record<string, unknown>;
       const captchaToken = (raw.captchaToken || raw['cf-turnstile-response']) as string | undefined;
       if (!captchaToken) {

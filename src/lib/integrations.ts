@@ -342,7 +342,7 @@ export function isSMSEnabled(): boolean {
 // ── SMS disabled warning ────────────────────────────────────────────────
 // When Twilio vars are not configured, SMS is effectively disabled. We log a
 // warning once per session so developers know to configure TWILIO_ vars if they
-# need SMS functionality.
+// need SMS functionality.
 let smsWarned = false
 function warnSMSDisabled(): void {
   if (!smsWarned) {

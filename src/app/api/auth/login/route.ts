@@ -4,7 +4,7 @@ import { logAudit } from '@/lib/auth';
 import { isValidEmail, rateLimit, getIp } from '@/lib/security';
 import { checkCsrf, isSecureRequest } from '@/lib/csrf';
 import { signSessionToken } from '@/lib/session-signing';
-import { verifyTurnstileToken, isCaptchaConfigured } from '@/lib/captcha';
+import { verifyTurnstileToken, isTurnstileConfigured } from '@/lib/captcha';
 import { assessLoginRisk, logSuspiciousLogin, computeDeviceFingerprint } from '@/lib/login-anomaly';
 import {
   jsonError,
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const isDemoEmail = DEMO_EMAILS.has(email.toLowerCase());
 
     // ── CAPTCHA verification ──────────────────────────────────────────
-    if (isCaptchaConfigured() && !isDemoEmail) {
+    if (isTurnstileConfigured() && !isDemoEmail) {
       if (!captchaToken) {
         return jsonError('CAPTCHA verification is required. Please complete the security check.', 400, 'CAPTCHA_REQUIRED');
       }
