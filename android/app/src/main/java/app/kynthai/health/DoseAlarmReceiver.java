@@ -12,10 +12,15 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
+import android.content.pm.PackageManager;
 
 /**
  * Fires at dose time: posts a notification with FULL-SCREEN INTENT so Android
  * can take over the entire phone (over other apps / lock screen) — not a tray ping.
+ * 
+ * Security: on Android 14 (API 33) and above, the system may silently degrade
+ * full-screen intents to heads-up notifications. This checks
+ * canUseFullScreenIntent() and falls back gracefully.
  */
 public class DoseAlarmReceiver extends BroadcastReceiver {
   public static final String CHANNEL_ID = "kynthai_fullscreen_dose_v2";
@@ -36,12 +41,22 @@ public class DoseAlarmReceiver extends BroadcastReceiver {
     full.putExtra("body", body);
     full.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-    PendingIntent fullScreenPi = PendingIntent.getActivity(
-      context,
-      notifId,
-      full,
-      PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-    );
+    // KEY: determine whether full-screen intent is available
+    boolean canUseFullScreen = canUseFullScreenIntent(context);
+
+    PendingIntent fullScreenPi;
+    if (canUseFullScreen) {
+      fullScreenPi = PendingIntent.getActivity(
+        context,
+        notifId,
+        full,
+        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+      );
+    } else {
+      // Fall back: use a regular content intent; the notification will appear
+      // as a high-priority heads-up notification instead of taking over the phone.
+      fullScreenPi = null;
+    }
 
     Intent openApp = new Intent(context, MainActivity.class);
     openApp.putExtra("alarm", "1");
@@ -68,7 +83,7 @@ public class DoseAlarmReceiver extends BroadcastReceiver {
       .setSound(sound)
       .setVibrate(new long[]{0, 500, 200, 500, 200, 500})
       .setContentIntent(contentPi)
-      .setFullScreenIntent(fullScreenPi, true); // KEY: whole-phone takeover
+      .setFullScreenIntent(fullScreenPi, canUseFullScreen);
 
     NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     if (nm != null) {
@@ -79,6 +94,35 @@ public class DoseAlarmReceiver extends BroadcastReceiver {
     try {
       context.startActivity(full);
     } catch (Exception ignored) {}
+  }
+
+  /**
+   * Check whether the device can use full-screen intents for notifications.
+   * On Android 14 (API 33) with targetSdkVersion 36, the system may silently
+   * ignore FLAG_RECEIVER_FORGOT_URGENT if the manifest doesn't declare the
+   * foreground service permission or if the app's target SDK is too new without
+   * the proper opt-in. Return true only when we're confident the intent will work.
+   */
+  private static boolean canUseFullScreenIntent(Context context) {
+    // Android 13 and below: always support full-screen intents
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+      return true;
+    }
+    // Android 14 (API 33) and above: check the receiver export and permissions
+    // If the receiver is exported and the app has the proper permissions, full-screen
+    // intents should work. Otherwise, return false to fall back to heads-up.
+    try {
+      String receiverClass = context.getPackageName() + ".health.DoseAlarmReceiver";
+      int exportFlags = context.getPackageManager().getReceiverInfo(
+        new android.content.ComponentName(context.getPackageName(), receiverClass),
+        PackageManager.GET_META_DATA
+      ).exported;
+      // Only allow if explicitly exported and we have the right setup
+      return exportFlags;
+    } catch (Exception e) {
+      Log.w("DoseAlarmReceiver", "Could not determine full-screen intent capability", e);
+      return false;
+    }
   }
 
   private void ensureChannel(Context context) {

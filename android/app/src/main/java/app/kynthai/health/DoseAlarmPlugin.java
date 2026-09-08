@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
+
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -14,6 +16,15 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 /**
  * JS API: DoseAlarm.schedule({ id, title, body, atMs })
  * Schedules an exact alarm that opens FullScreenAlarmActivity over other apps.
+ * 
+ * Android version compatibility:
+ * - API 31 (S): use setExactAndAllowWhileIdle
+ * - API 23–30 (M–Q): use setExactAndAllowWhileIdle (also works, shown as warning on 24–30)
+ * - API < 23: use setInexact (historical default; timers may drift in Doze)
+ * 
+ * Known: On API 24–30, setExact triggers may fire with delayed behavior
+ * under Doze. For critical medication alarms, consider using the WorkManager
+ * with setExact on devices running API 31+.
  */
 @CapacitorPlugin(name = "DoseAlarm")
 public class DoseAlarmPlugin extends Plugin {
@@ -55,10 +66,15 @@ public class DoseAlarmPlugin extends Plugin {
     }
 
     try {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      // Use setExactAndAllowWhileIdle on API 31+ (most reliable, respects Doze)
+      // On API 23–30, the same method is supported but may show a warning
+      // On API < 23, fall back to inexact (timers may drift)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+      } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
       } else {
-        am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi);
+        am.setInexact(AlarmManager.RTC_WAKEUP, trigger, PendingIntent.FLAG_UPDATE_CURRENT);
       }
       JSObject ret = new JSObject();
       ret.put("scheduled", true);

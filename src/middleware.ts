@@ -35,17 +35,11 @@ function ensureEnvValidated(): void {
     envValidated = true;
     return;
   }
-  // Skip validation on Vercel Edge runtime where full env vars aren't available
-  // and the middleware runs at the edge (not Node.js server)
-  if (typeof process.env.VERCEL_ENV !== 'undefined' || process.env.NEXT_RUNTIME === 'edge') {
-    envValidated = true;
-    return;
-  }
-  // Also skip if we're not in a Node.js server context (e.g., edge function)
-  if (typeof globalThis.WebSocket !== 'undefined' && !process.env.DATABASE_URL) {
-    envValidated = true;
-    return;
-  }
+  // Validate env vars on Vercel too — previously this was skipped because
+  // VERCEL_ENV is always set, but that meant critical safety checks (DATABASE_URL
+  # sslmode, ENCRYPTION_KEY length, MIGRATION_SECRET, etc.) were silently
+  # bypassed in production. Now we validate and fail loudly if required vars
+  # are missing, even in production.
   validateEnv();
   envValidated = true;
 }
@@ -159,6 +153,7 @@ const SYSTEM_API_PATHS = new Set([
   '/api/auth/logout',
   '/api/system/seed-demo',
   '/api/system/test-dose',
+  '/api/notifications/fcm/register',
 ]);
 
 function isSystemApi(pathname: string): boolean {

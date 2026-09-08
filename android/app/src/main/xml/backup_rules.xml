@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<backup-rule mirrorAll="false">
+  <app-backup-package android:name="app.kynthai.health">
+    <!-- Don't back up any files for this app - prevents PHI leak -->
+    <data android:mask="everything" />
+  </app-backup-package>
+</backup-rule>

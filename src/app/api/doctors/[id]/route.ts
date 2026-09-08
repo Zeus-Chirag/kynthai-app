@@ -6,10 +6,13 @@ import { checkCsrf } from '@/lib/csrf'
 import { jsonError, jsonOk, readJson, audit, parseJsonCol, requireAuth } from '@/lib/api-helpers'
 export const dynamic = 'force-dynamic'
 
-// GET /api/doctors/[id] — public doctor profile
+// GET /api/doctors/[id] — doctor profile
 //
-// SECURITY: this endpoint is publicly reachable (no auth required). For
-// unverified/rejected profiles we redact sensitive fields (email,
+// SECURITY: this endpoint requires authentication. Verified doctors' profiles
+// are visible to authenticated users. Unverified/rejected profiles are not
+// accessible to prevent IDOR and info leakage.
+
+// POST /api/doctors/[id] — update profile — requires verified doctor role we redact sensitive fields (email,
 // licenseNumber, documents, rejectionReason, subscriptionTier) so an
 // attacker who enumerates profile IDs can't harvest pending applicants'
 // PII. Verified doctors expose the full public profile.

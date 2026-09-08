@@ -11,6 +11,7 @@ import { runWhenIdle } from '@/components/performance-wrapper'
 import { useEffect, useState } from 'react'
 import { GlobalErrorCatcher } from '@/components/kynthai/global-error-catcher'
 import { initConsentAwareTelemetry } from '@/lib/analytics-consent'
+import { useFcmTokenRegistration } from '@/hooks/use-fcm-token'
 // ponytail: deploy-hash import forces new JS filename on every build.
 // Without this, Turbopack reuses the same filenames and Vercel CDN
 // serves stale JS forever.
@@ -37,6 +38,11 @@ function DeferredAuthGuard() {
   return <AuthGuard disableMountCheck={!ready} />
 }
 
+function FcmTokenBootstrap() {
+  useFcmTokenRegistration()
+  return null
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     /* `reducedMotion="user"` makes every Framer Motion transform/layout
@@ -48,6 +54,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ServiceWorkerRegister />
       <AutoEnableNotifications />
       <DeferredAuthGuard />
+      <FcmTokenBootstrap />
       {children}
       <CookieConsent />
       <TelemetryBootstrap />

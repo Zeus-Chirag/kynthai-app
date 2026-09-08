@@ -3,25 +3,40 @@ package app.kynthai.health;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
-import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Button;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.util.TypedValue;
+import android.content.pm.PackageManager;
 
 /**
  * Full-phone takeover for medication / emergency alarms.
  * Shown via full-screen intent even when another app is in the foreground.
+ * 
+ * Security: validates the originating intent package to prevent unauthorized
+ * apps from launching a fake medication reminder screen over the lock screen.
  */
 public class FullScreenAlarmActivity extends Activity {
+  private static final String TAG = "FullScreenAlarmActivity";
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    // Security: validate the originating package name
+    String originatingPackage = getCallingPackage();
+    if (originatingPackage == null || !isValidOriginatingPackage(originatingPackage)) {
+      Log.e(TAG, "FullScreenAlarmActivity launched from untrusted package: " + originatingPackage);
+      // Don't show the alarm — reject it silently
+      finish();
+      return;
+    }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
       setShowWhenLocked(true);
@@ -64,7 +79,6 @@ public class FullScreenAlarmActivity extends Activity {
     label.setTextColor(Color.parseColor("#ecfdf5"));
     label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
     label.setGravity(Gravity.CENTER);
-    label.setPadding(0, 8, 0, 0);
     root.addView(label);
 
     TextView t = new TextView(this);
@@ -100,5 +114,20 @@ public class FullScreenAlarmActivity extends Activity {
     root.addView(open);
 
     setContentView(root);
+  }
+
+  /**
+   * Validate that the originating package is allowed to launch this activity.
+   * Currently only allows the app itself and system components.
+   */
+  private boolean isValidOriginatingPackage(String packageName) {
+    // Allow the app itself
+    String myPackage = getPackageName();
+    if (packageName.equals(myPackage)) {
+      return true;
+    }
+    // TODO: Add system package checks if needed (e.g., alarm management)
+    // For now, only the app's own components can launch this activity
+    return false;
   }
 }

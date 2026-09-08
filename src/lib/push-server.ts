@@ -38,7 +38,7 @@ export async function sendPushToUser(
     const message = JSON.stringify({
       title: payload.title || 'Kynthai',
       body: payload.body || '',
-      tag: payload.tag || 'kynthai-notification',
+      tag: 'push-user-' + userId + '-med-' + (payload.medName || 'default') + (payload.reminderId ? '-rem-' + payload.reminderId : '')
       type: payload.tag || 'kynthai',
       url: payload.url || '/',
       medName: payload.medName,

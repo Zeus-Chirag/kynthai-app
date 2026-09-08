@@ -1014,3 +1014,20 @@ model RevokedSession {
   @@index([expiresAt])
   @@map("revoked_sessions")
 }
+
+// ── Push Notification Models ────────────────────────────────────────────
+
+model FcmToken {
+  id         String   @id @default(cuid())
+  userId     String
+  token      String
+  platform   String   @default("android") // "android" | "ios"
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, token])
+  @@index([userId])
+  @@index([active])
+  @@map("fcm_tokens")
+}

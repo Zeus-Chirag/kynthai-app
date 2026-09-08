@@ -124,7 +124,7 @@ interface Prescription {
 
 const APPOINTMENTS: Appointment[] = [
   {
-    id: 'a1',
+    id: 'demo_a1',
     patientName: 'Alex Johnson',
     time: '10:30 AM',
     date: 'Today',
@@ -133,7 +133,7 @@ const APPOINTMENTS: Appointment[] = [
     fee: 75,
   },
   {
-    id: 'a2',
+    id: 'demo_a2',
     patientName: 'Jordan Smith',
     time: '12:00 PM',
     date: 'Today',
@@ -142,7 +142,7 @@ const APPOINTMENTS: Appointment[] = [
     fee: 75,
   },
   {
-    id: 'a3',
+    id: 'demo_a3',
     patientName: 'Casey Lee',
     time: '09:00 AM',
     date: 'Yesterday',
@@ -151,7 +151,7 @@ const APPOINTMENTS: Appointment[] = [
     fee: 75,
   },
   {
-    id: 'a4',
+    id: 'demo_a4',
     patientName: 'Taylor Reed',
     time: '02:00 PM',
     date: 'Yesterday',
@@ -160,7 +160,7 @@ const APPOINTMENTS: Appointment[] = [
     fee: 55,
   },
   {
-    id: 'a5',
+    id: 'demo_a5',
     patientName: 'Morgan Patel',
     time: '03:30 PM',
     date: 'Today',
@@ -172,7 +172,7 @@ const APPOINTMENTS: Appointment[] = [
 
 const PRESCRIPTIONS: Prescription[] = [
   {
-    id: 'rx1',
+    id: 'demo_rx1',
     patientId: 'p1',
     patientName: 'Alex Johnson',
     medication: 'Lisinopril 10mg',
@@ -182,7 +182,7 @@ const PRESCRIPTIONS: Prescription[] = [
     medications: [{ name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' }],
   },
   {
-    id: 'rx2',
+    id: 'demo_rx2',
     patientId: 'p2',
     patientName: 'Jordan Smith',
     medication: 'Atorvastatin 20mg',
@@ -192,7 +192,7 @@ const PRESCRIPTIONS: Prescription[] = [
     medications: [{ name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily' }],
   },
   {
-    id: 'rx3',
+    id: 'demo_rx3',
     patientId: 'p3',
     patientName: 'Casey Lee',
     medication: 'Amoxicillin 500mg',

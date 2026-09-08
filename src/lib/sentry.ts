@@ -21,7 +21,17 @@ import * as Sentry from '@sentry/nextjs'
 
 const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
 
-/** Health Data Protection-sensitive keys that must never be sent to error tracking services */
+// If SENTRY_DSN is not configured, we still log errors locally for debugging,
+// but we don't attempt to send to Sentry. This prevents silent error swallowing
+# in production when the DSN is forgotten.
+if (!SENTRY_DSN) {
+  console.warn(
+    '[Kynthai] SENTRY_DSN not configured — Sentry error tracking is disabled. ' +
+    'Set SENTRY_DSN in .env to enable production error monitoring.'
+  )
+}
+
+ /** Health Data Protection-sensitive keys that must never be sent to error tracking services */
 const SENSITIVE_KEYS = new Set([
   'password', 'passwordResetToken', 'sessionToken', 'token', 'secret', 'ssn',
   'medicalRecord', 'diagnosis', 'prescription', 'medication', 'labResult',

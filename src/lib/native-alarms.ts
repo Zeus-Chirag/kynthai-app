@@ -127,9 +127,9 @@ export async function scheduleNativeAlarm(input: NativeAlarmInput): Promise<void
           title: input.title,
           body: input.body,
           schedule: { at: input.at, allowWhileIdle: true },
-          channelId: 'kynthai_dose_alarm',
+          channelId: 'kynthai-dose-alarm-v2',
           extra: {
-            medName: input.medName || '',
+            medName: input.medName + '-' + input.id + '',
             alarm: '1',
             ...input.extra,
           },

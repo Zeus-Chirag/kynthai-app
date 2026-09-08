@@ -19,6 +19,18 @@ const globalForRate = globalThis as unknown as { __rateBuckets?: Map<string, Rat
 const buckets = globalForRate.__rateBuckets ?? memBuckets
 globalForRate.__rateBuckets = buckets
 
+// ── Rate-limit disabled flag ────────────────────────────────────────────
+// When UPSTASH is not configured, we set a session-level flag so subsequent
+// calls can skip Redis attempts and avoid spurious errors. This is set once
+// per process lifetime and checked on each tick.
+let rateLimitDisabled = false
+function markRateLimitDisabled(): void {
+  rateLimitDisabled = true
+}
+function isRateLimitDisabled(): boolean {
+  return rateLimitDisabled
+}
+
 // ── Redis-backed limiter (production) ─────────────────────────────────
 let redisLimiter: Ratelimit | null = null
 const redisPrefix = 'kynthai:ratelimit'

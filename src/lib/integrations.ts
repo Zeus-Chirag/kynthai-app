@@ -339,6 +339,22 @@ export function isSMSEnabled(): boolean {
   )
 }
 
+// ── SMS disabled warning ────────────────────────────────────────────────
+// When Twilio vars are not configured, SMS is effectively disabled. We log a
+// warning once per session so developers know to configure TWILIO_ vars if they
+# need SMS functionality.
+let smsWarned = false
+function warnSMSDisabled(): void {
+  if (!smsWarned) {
+    smsWarned = true
+    console.warn(
+      '[Kynthai] SMS (Twilio) not configured — TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, ' +
+      'TWILIO_FROM_NUMBER must be set in .env for SMS functionality. ' +
+      'SMS is currently disabled in this environment.'
+    )
+  }
+}
+
 export async function sendSMSReal(p: SmsPayload): Promise<SendResult> {
   // ── sensitive health data BOUNDARY ──────────────────────────────────────────────────────────
   // SMS (Twilio) is a high-risk channel for sensitive health data leakage. Only send
@@ -346,6 +362,7 @@ export async function sendSMSReal(p: SmsPayload): Promise<SendResult> {
   // or free-text health content unless a BAA and encryption are in place.
   // ──────────────────────────────────────────────────────────────────────────
   if (!isSMSEnabled()) {
+    warnSMSDisabled()
     // SMS disabled in this environment.
     return { ok: true, provider: 'mock-sms', messageId: `mock_${Date.now()}`, mock: true }
   }
@@ -486,9 +503,11 @@ export function getFirebase(): unknown | null {
 }
 
 export function isPushEnabled(): boolean {
-  // Web Push (VAPID) is the actual push mechanism. Check for VAPID keys,
-  // not Firebase — Firebase FCM is not configured for this app.
-  return hasEnv('NEXT_PUBLIC_VAPID_PUBLIC_KEY') && hasEnv('VAPID_PRIVATE_KEY')
+  // Web Push (VAPID) is the primary mechanism.
+  // Firebase FCM is optional — enabled if Admin SDK credentials are present.
+  const vapid = hasEnv('NEXT_PUBLIC_VAPID_PUBLIC_KEY') && hasEnv('VAPID_PRIVATE_KEY')
+  const firebase = hasEnv('FIREBASE_PROJECT_ID') && hasEnv('FIREBASE_CLIENT_EMAIL') && hasEnv('FIREBASE_PRIVATE_KEY')
+  return vapid || firebase
 }
 
 export async function sendPushReal(p: PushPayload): Promise<SendResult> {

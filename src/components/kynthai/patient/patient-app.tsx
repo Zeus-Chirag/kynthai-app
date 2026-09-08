@@ -222,7 +222,7 @@ interface Appointment {
 
 const DEMO_APPOINTMENTS: Appointment[] = [
   {
-    id: 'a1',
+    id: 'demo_a1',
     doctor: 'Dr. Sarah Chen',
     specialty: 'Cardiology',
     date: '2026-07-16',
@@ -231,7 +231,7 @@ const DEMO_APPOINTMENTS: Appointment[] = [
     status: 'confirmed',
   },
   {
-    id: 'a2',
+    id: 'demo_a2',
     doctor: 'Dr. James Miller',
     specialty: 'General Care',
     date: '2026-07-22',
@@ -240,7 +240,7 @@ const DEMO_APPOINTMENTS: Appointment[] = [
     status: 'upcoming',
   },
   {
-    id: 'a3',
+    id: 'demo_a3',
     doctor: 'Dr. Priya Gupta',
     specialty: 'Dermatology',
     date: '2026-07-25',
