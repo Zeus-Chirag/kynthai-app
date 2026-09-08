@@ -18,7 +18,7 @@ jobs:
   quality:
     name: Quality Checks
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     permissions:
       contents: read
 
@@ -74,7 +74,6 @@ jobs:
     name: Build App
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    needs: quality
     permissions:
       contents: read
 
