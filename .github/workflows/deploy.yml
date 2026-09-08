@@ -33,16 +33,13 @@ jobs:
       - name: Install dependencies (resilient — retries npm ci OOM)
         run: |
           set -euo pipefail
-          for attempt in 1 2 3; do
-            echo "npm ci attempt $attempt/3..."
-            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-              exit 0
-            fi
-            echo "npm ci attempt $attempt failed, retrying in 10s..."
-            sleep 10
-          done
-          echo "All npm ci attempts failed, trying npm install fallback..."
-          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          echo "Trying npm ci (90s timeout)..."
+          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+            echo "npm ci succeeded"
+          else
+            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
+            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          fi
 
       - name: Lockfile verification
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
@@ -102,16 +99,13 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          for attempt in 1 2 3; do
-            echo "npm ci attempt $attempt/3..."
-            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-              exit 0
-            fi
-            echo "npm ci attempt $attempt failed, retrying in 10s..."
-            sleep 10
-          done
-          echo "All npm ci attempts failed, trying npm install fallback..."
-          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          echo "Trying npm ci (90s timeout)..."
+          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+            echo "npm ci succeeded"
+          else
+            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
+            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          fi
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -184,16 +178,13 @@ jobs:
 
       - run: |
           set -euo pipefail
-          for attempt in 1 2 3; do
-            echo "npm ci attempt $attempt/3..."
-            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-              exit 0
-            fi
-            echo "npm ci attempt $attempt failed, retrying in 10s..."
-            sleep 10
-          done
-          echo "All npm ci attempts failed, trying npm install fallback..."
-          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          echo "Trying npm ci (90s timeout)..."
+          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+            echo "npm ci succeeded"
+          else
+            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
+            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          fi
 
       - run: npx prisma generate
 

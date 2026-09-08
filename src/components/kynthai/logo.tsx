@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
  * A heart shape with a pulse line — symbolizing life, health, and care.
  * The pulse represents the heartbeat of the family, monitored and protected.
  *
- * © Kynthai Health Technologies — original artistic work
+ * © Kynthai — original artistic work
  */
 
 export function KynthaiIcon({

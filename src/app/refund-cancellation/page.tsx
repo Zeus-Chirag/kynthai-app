@@ -57,7 +57,7 @@ export default function RefundCancellationPage() {
           </h1>
           <p className="mt-2 text-muted-foreground">
             Clear, fair terms for subscriptions, consultations, lab tests, and partner payouts.
-            Last updated: July 13, 2026.
+            Last updated: September 8, 2026.
           </p>
 
           {/* Request a refund CTA */}
@@ -127,7 +127,7 @@ export default function RefundCancellationPage() {
           </div>
 
           <footer className="mt-12 border-t border-border/60 pt-6 text-xs text-muted-foreground">
-            Last updated: July 13, 2026. Kynthai Health Technologies
+            Last updated: September 8, 2026. Kynthai
           </footer>
         </div>
       </div>

@@ -67,7 +67,7 @@ export function PrivacyPolicy() {
       <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
         <p className="text-sm">
           Kynthai is a health-management platform operated by{' '}
-          <strong>Kynthai Health Technologies</strong>.          Kynthai is not a HIPAA-covered entity or business associate and does
+          <strong>Kynthai</strong> — an early-stage product operated by its founders and not yet registered as a legal entity in any jurisdiction. Kynthai is not a HIPAA-covered entity or business associate and does
           not claim HIPAA compliance. We follow applicable US federal and state
           consumer privacy laws, including the FTC Health Breach Notification
           Rule and state consumer health privacy laws, and we apply strong
@@ -418,7 +418,7 @@ export function PrivacyPolicy() {
 
       <SectionTitle icon={Mail}>18. Contact & Privacy Officer</SectionTitle>
       <p>
-        <strong>Kynthai Health Technologies</strong><br />
+        <strong>Kynthai</strong> — early-stage product, not yet a registered legal entity (correspondence via email only)<br />
         <strong>Address (United States):</strong> United States (correspondence via email)<br />
 
         Email:{' '}
@@ -643,7 +643,7 @@ export function TermsOfService() {
         are <strong>independent practitioners</strong>. When you consult a doctor
         through Kynthai, you are entering into a direct doctor-patient
         relationship with that independent professional — <strong>not</strong>
-        with Kynthai Health Technologies. By using Kynthai, you acknowledge and
+        with Kynthai. By using Kynthai, you acknowledge and
         agree that:
       </p>
       <ul>
@@ -810,7 +810,7 @@ export function TermsOfService() {
       <SectionTitle icon={FileText}>10. Intellectual property</SectionTitle>
       <p>
         <strong>Trademarks.</strong> &quot;Kynthai&quot; and the Kynthai logo are
-        trademarks of Kynthai Health Technologies (trademark registration pending).
+        trademarks of Kynthai (trademark registration pending, entity not yet registered).
         The ™ symbol denotes a claimed trademark; it does not imply registration.
         All other trademarks, service marks, trade names, product names, and
         logos appearing in the service are the property of their respective
@@ -820,7 +820,7 @@ export function TermsOfService() {
       <p>
         <strong>Software &amp; content.</strong> Kynthai and all its software,
         design, branding, and original content are the intellectual property of
-        Kynthai Health Technologies. The software is built on open-source
+        Kynthai. The software is built on open-source
         components (Next.js, React, Prisma, shadcn/ui, Tailwind CSS, lucide-react)
         licensed under their respective MIT/Apache/ISC licenses. We acknowledge
         and comply with all open-source license terms.
@@ -976,7 +976,7 @@ export function TermsOfService() {
 
       <SectionTitle icon={Mail}>23. Contact</SectionTitle>
       <p>
-        <strong>Kynthai Health Technologies</strong><br />
+        <strong>Kynthai</strong> — early-stage product, not yet a registered legal entity<br />
         Email only (no public street address yet). Write to <ContactEmailText address="privacy@kynthai.app" /> for legal/privacy correspondence.<br />
         Email:{' '}
         <ContactEmail address="hello@kynthai.app" className="text-emerald-600 underline" />

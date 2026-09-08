@@ -89,7 +89,7 @@ function USTrust() {
 
         {/* Legal footnote */}
         <p className="mx-auto mt-6 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">
-          Kynthai Health Technologies operates secure data handling practices. Data is encrypted in
+          Kynthai operates secure data handling practices. Kynthai is an early-stage product not yet registered as a legal entity. Data is encrypted Data is encrypted in
           transit (TLS 1.3), and uploaded documents and prescription images are additionally encrypted
           at rest with AES-256-GCM. For questions: <ContactEmailText address="privacy@kynthai.app" />.
         </p>

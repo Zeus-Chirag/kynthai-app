@@ -79,7 +79,7 @@ export default function PatientRightsPage() {
       >
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 mb-6">
           <p className="text-sm text-emerald-800 dark:text-emerald-200">
-            <strong>Full rights statement:</strong> Kynthai Health Technologies is committed to
+            <strong>Full rights statement:</strong> Kynthai is committed to
             providing a respectful, safe, and transparent experience. These rights apply equally
             to patients, family members, caretakers, and legally authorized designees.
             Questions? Contact <ContactEmailText address="privacy@kynthai.app" />.

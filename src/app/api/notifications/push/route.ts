@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   }
 
   webpush.setVapidDetails(
-    'mailto:hello@kynthai.app',
+    'mailto:privacy@kynthai.app',
     publicKey,
     privateKey
   )
