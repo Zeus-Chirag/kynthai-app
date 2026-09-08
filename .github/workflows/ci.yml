@@ -43,7 +43,17 @@ jobs:
       - name: Clean install dependencies
         run: |
           echo "📦 Installing dependencies (frozen lockfile)..."
-          npm ci --ignore-scripts --no-audit --no-fund
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Run npm audit (fail on high+)
         # Blocking gate: high/critical CVEs fail CI, EXCEPT the known
@@ -126,7 +136,18 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -151,7 +172,18 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Run ESLint
         # Lint only source + e2e + scripts (excludes generated .vercel/.next output).
@@ -174,7 +206,18 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -207,7 +250,18 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium

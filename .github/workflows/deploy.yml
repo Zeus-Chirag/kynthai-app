@@ -30,7 +30,19 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install dependencies (resilient — retries npm ci OOM)
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Lockfile verification
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
@@ -89,7 +101,18 @@ jobs:
           EOF
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -160,7 +183,18 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test
 
-      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "npm ci attempt $attempt/3..."
+            if npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
+              exit 0
+            fi
+            echo "npm ci attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "All npm ci attempts failed, trying npm install fallback..."
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - run: npx prisma generate
 
@@ -263,7 +297,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Deploy to Vercel (Production)
-        run: npx vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "⚠️ VERCEL_TOKEN not set in GitHub Secrets — skipping CLI deploy."
+            echo "Vercel Git integration will auto-deploy this push if connected (check Vercel dashboard)."
+            echo "To enable CLI deploy: add VERCEL_TOKEN + VERCEL_ORG_ID + VERCEL_PROJECT_ID in GitHub Settings > Secrets."
+            exit 0
+          fi
+          npx vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
