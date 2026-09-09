@@ -44,7 +44,7 @@ jobs:
         run: |
           echo "📦 Installing dependencies (frozen lockfile)..."
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Run npm audit (fail on high+)
         # Blocking gate: high/critical CVEs fail CI, EXCEPT the known
@@ -129,7 +129,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -156,7 +156,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Run ESLint
         # Lint only source + e2e + scripts (excludes generated .vercel/.next output).
@@ -181,7 +181,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -216,7 +216,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium

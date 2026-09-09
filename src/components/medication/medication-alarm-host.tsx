@@ -528,7 +528,7 @@ export function MedicationAlarmHost({
             Medication reminder
           </p>
           <h2 id="dose-alarm-title" className="text-2xl font-bold tracking-tight text-white">
-            Time to take {medName}
+            Time for your medication
           </h2>
           <p id="dose-alarm-desc" className="text-sm text-emerald-100/80">
             {alarmTarget.time}

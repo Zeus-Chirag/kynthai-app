@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Lockfile verification
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
@@ -93,7 +93,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -166,7 +166,7 @@ jobs:
 
       - run: |
           set -euo pipefail
-          npm i -g npm@10 >/dev/null 2>&1; npm install --ignore-scripts --no-audit --no-fund --prefer-offline
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - run: npx prisma generate
 
