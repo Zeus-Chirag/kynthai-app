@@ -147,6 +147,5 @@
     "hyperid": {
       "uuid": "$uuid"
     }
-  },
-  "packageManager": "pnpm@9.12.3"
+  }
 }

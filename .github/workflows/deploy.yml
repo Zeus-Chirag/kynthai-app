@@ -25,18 +25,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Install dependencies
         run: |
           set -euo pipefail
-          pnpm install --ignore-scripts
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Lockfile verification
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
@@ -74,13 +71,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Create .env.local (build-time public vars only)
         # Build-time NEXT_PUBLIC_* are inlined into the client bundle, so the
@@ -99,7 +93,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          pnpm install --ignore-scripts
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -130,13 +124,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Start services
         run: |
@@ -175,7 +166,7 @@ jobs:
 
       - run: |
           set -euo pipefail
-          pnpm install --ignore-scripts
+          npm install --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - run: npx prisma generate
 
