@@ -68,10 +68,9 @@ export function PrivacyPolicy() {
         <p className="text-sm">
           Kynthai is a health-management platform operated by{' '}
           <strong>Kynthai</strong> — an early-stage product operated by its founders and not yet registered as a legal entity in any jurisdiction. Kynthai is not a HIPAA-covered entity or business associate and does
-          not claim HIPAA compliance. We follow applicable US federal and state
-          consumer privacy laws, including the FTC Health Breach Notification
-          Rule and state consumer health privacy laws, and we apply strong
-          safeguards to your sensitive health data.
+          not claim HIPAA compliance or any other health-regulatory certification (including outside the US). We follow applicable US federal and state
+          consumer privacy laws and apply strong
+          safeguards to your sensitive health data. For health-regulatory needs, consult qualified licensed professionals in your jurisdiction.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
           <strong>Note:</strong> We regularly review this policy to keep it aligned with applicable rules.
