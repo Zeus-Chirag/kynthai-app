@@ -7,6 +7,7 @@ on:
 
 env:
   NODE_VERSION: '22'
+  NODE_OPTIONS: '--max-old-space-size=3072'
   NEXT_PUBLIC_APP_URL: 'https://kynthai.app'
 
 concurrency:
@@ -33,13 +34,8 @@ jobs:
       - name: Install dependencies (resilient — retries npm ci OOM)
         run: |
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Lockfile verification
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
@@ -99,13 +95,8 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -178,13 +169,8 @@ jobs:
 
       - run: |
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - run: npx prisma generate
 

@@ -8,6 +8,7 @@ on:
 
 env:
   NODE_VERSION: '22'
+  NODE_OPTIONS: '--max-old-space-size=3072'
   # No secrets needed for lint/build/audit steps
   # Production secrets are injected by Vercel, not CI
 
@@ -44,13 +45,8 @@ jobs:
         run: |
           echo "📦 Installing dependencies (frozen lockfile)..."
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Run npm audit (fail on high+)
         # Blocking gate: high/critical CVEs fail CI, EXCEPT the known
@@ -135,13 +131,8 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -168,13 +159,8 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Run ESLint
         # Lint only source + e2e + scripts (excludes generated .vercel/.next output).
@@ -199,13 +185,8 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -240,13 +221,8 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          echo "Trying npm ci (90s timeout)..."
-          if timeout 90 npm ci --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1; then
-            echo "npm ci succeeded"
-          else
-            echo "npm ci failed/timed out — falling back to npm install (fast, no lockfile strict check)..."
-            npm install --ignore-scripts --no-audit --no-fund --prefer-offline
-          fi
+          npm install -g npm@10 >/dev/null 2>&1 || true
+          npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium
