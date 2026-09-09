@@ -8,7 +8,6 @@ on:
 
 env:
   NODE_VERSION: '22'
-  NODE_OPTIONS: '--max-old-space-size=3072'
   # No secrets needed for lint/build/audit steps
   # Production secrets are injected by Vercel, not CI
 
@@ -32,7 +31,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
           cache-dependency-path: package-lock.json
 
       - name: Verify lockfile integrity
@@ -45,7 +44,7 @@ jobs:
         run: |
           echo "📦 Installing dependencies (frozen lockfile)..."
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - name: Run npm audit (fail on high+)
         # Blocking gate: high/critical CVEs fail CI, EXCEPT the known
@@ -125,12 +124,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -152,12 +151,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - name: Run ESLint
         # Lint only source + e2e + scripts (excludes generated .vercel/.next output).
@@ -177,12 +176,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -212,12 +211,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium

@@ -7,7 +7,6 @@ on:
 
 env:
   NODE_VERSION: '22'
-  NODE_OPTIONS: '--max-old-space-size=3072'
   NEXT_PUBLIC_APP_URL: 'https://kynthai.app'
 
 concurrency:
@@ -26,15 +25,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - name: Lockfile verification
         run: git diff --exit-code package-lock.json || echo '⚠️ Lockfile modified — ensure integrity'
@@ -72,10 +74,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Create .env.local (build-time public vars only)
         # Build-time NEXT_PUBLIC_* are inlined into the client bundle, so the
@@ -94,7 +99,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -125,10 +130,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Start services
         run: |
@@ -167,7 +175,7 @@ jobs:
 
       - run: |
           set -euo pipefail
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+          pnpm install --ignore-scripts
 
       - run: npx prisma generate
 

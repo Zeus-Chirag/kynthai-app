@@ -241,8 +241,8 @@ export async function sendReminder(
 ): Promise<RouteResult> {
   const target = { ...(await loadUserTarget(userId)), ...overrides }
   return sendNotification(target, {
-    title: `Time to take ${medName}`,
-    body: `${dosage ? dosage + ' · ' : ''}${scheduledTime} — Open for full-screen alarm. Mark Taken or Skip.`,
+    title: `Time for your medication`,
+    body: `Time for your medication — open for full-screen alarm. Mark Taken or Skip.`,
     type: 'reminder',
     data: {
       medName,
@@ -265,7 +265,7 @@ export async function sendEscalation(
   const target = { ...(await loadUserTarget(userId)), ...overrides }
   const r = await sendNotification(target, {
     title: 'Missed dose — please take now',
-    body: `Your ${medName} reminder at ${scheduledTime} was missed. Please take it now or mark as skipped.`,
+    body: `Your medication reminder at ${scheduledTime} was missed. Please take it now or mark as skipped.`,
     type: 'escalation',
     data: { medName, scheduledTime, escalated: '1' },
   })
@@ -275,7 +275,7 @@ export async function sendEscalation(
     const ct = { ...(await loadUserTarget(caretakerId)) }
     await sendNotification(ct, {
       title: 'Family member missed a dose',
-      body: `Your family member missed ${medName} at ${scheduledTime}. You may want to reach out.`,
+      body: `Your family member missed a medication at ${scheduledTime}. You may want to reach out.`,
       type: 'escalation',
       data: { medName, scheduledTime, forUserId: userId },
     })
