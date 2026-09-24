@@ -154,48 +154,45 @@ You have the right to know what happens with your health data. Before signing up
     readingTime: '5 min',
   },
   {
-    slug: 'kynthai-whats-new-september-2025',
-    title: 'Kynthai: What\'s New in September 2025',
+    slug: 'why-we-built-kynthai',
+    title: 'Why We Built Kynthai: Health Management for Real Families',
     description:
-      'New features, improvements, and what\'s coming next for Kynthai health companion.',
+      'Managing medications, doctor visits, and lab tests for a family is chaotic. Here\'s why we\'re building Kynthai to fix that.',
     content: `
-## September Updates
+## The Problem We Saw
 
-We've been building. Here's what shipped this month:
+Every family has someone who manages the health of the household. A parent tracking their child's vaccinations. An adult ensuring grandma takes her blood pressure medication. A caregiver coordinating doctor visits for multiple family members.
 
-### Smart Alarm Improvements
+This person is overwhelmed. They juggle paper prescriptions, scattered app notifications, memory, and sticky notes. When something falls through the cracks — a missed dose, a forgotten appointment — the consequences range from inconvenient to dangerous.
 
-Our medication alarm system now features a medical-grade beep tone that gets your attention without the creepiness of old-school alarms. Alarms auto-stop after 30 seconds so they don't disrupt your day if you're away from your phone.
+## What We're Building
 
-### Family Coordination
+Kynthai is a health companion designed for this reality. Not another isolated tool, but a connected experience where:
 
-Caregivers can now see medication adherence across all family members in a single dashboard. No more guessing whether Mom took her blood pressure medication — the answer is right there.
+- **Medications get smart reminders** that adapt to your routine
+- **Family members stay connected** — caregivers see who took what, in real time
+- **Doctor consultations happen in one place** — no juggling separate telemedicine apps
+- **Lab tests are trackable** — results land in the same place as your medications
+- **Privacy is the default** — your health data is encrypted, never sold, and easy to export or delete
 
-### Doctor Consultations
+## What Makes This Different
 
-Video consultations with doctors are now available directly in the app. No need for separate telemedicine apps — your health companion handles everything from scheduling to the call itself.
+Most health apps solve one problem. A reminder app handles reminders. A telemedicine app handles video calls. A lab app handles test results. But families don't live in silos — they need all of it connected.
 
-### Lab Test Booking
+Kynthai brings medications, appointments, lab results, and family coordination into a single privacy-first experience. One place for everything.
 
-Book lab tests through the app and receive results directly. Your health data stays in one place, and your care team can review results alongside your medication history.
+## Our Principles
 
-### Privacy Enhancements
+1. **Simple enough to use daily** — if it takes 20 minutes to log a dose, you won't do it
+2. **Powerful enough to coordinate a household** — role-based access for every family member
+3. **Private enough to trust with sensitive data** — encryption, no data selling, transparent policies
+4. **Accessible everywhere** — web, iOS, Android, so you're never locked to one device
 
-- End-to-end encryption for all health data
-- Transparent data export and deletion
-- No third-party data sharing — ever
-- HIPAA-grade security practices (even though we're not a covered entity)
+## What's Next
 
-## What's Coming Next
+We're building toward a world where managing your family's health doesn't feel like a second job. If that resonates with you, we'd love your feedback.
 
-- **Voice health assistant** — ask health questions in natural language
-- **Insurance integration** — connect your insurance for automated claims
-- **Wearable sync** — connect Apple Watch, Fitbit, and other wearables
-- **Multi-language support** — Spanish, Hindi, and more
-
-## Thank You
-
-Every feature we build is driven by what families actually need. If you have feedback, reach out at hello@kynthai.app — we read every message.
+Reach out at hello@kynthai.app — we read every message.
 
 ---
 
@@ -204,7 +201,7 @@ Every feature we build is driven by what families actually need. If you have fee
     publishedAt: '2025-09-20',
     author: 'Kynthai Team',
     category: 'Product Updates',
-    readingTime: '3 min',
+    readingTime: '4 min',
   },
 ];
 
