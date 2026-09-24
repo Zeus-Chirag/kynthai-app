@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { posts } from '@/lib/blog/posts'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://kynthai.app'
@@ -19,6 +20,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/patient-rights`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${base}/ccpa`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${base}/grievance`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+    // Blog
+    { url: `${base}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    ...posts.map((post) => ({
+      url: `${base}/blog/${post.slug}`,
+      lastModified: new Date(post.updatedAt || post.publishedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
   ]
 
   return pages

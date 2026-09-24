@@ -108,6 +108,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
     '/privacy-practices',
     '/feedback',
     '/admin-login',
+    '/blog',
   ]);
   // Auth-protected real pages — need a signed-in user before rendering.
   const PROTECTED_PATHS = new Set(['/settings', '/dashboard']);
@@ -358,7 +359,7 @@ export function PortalClient({ children }: { children: React.ReactNode }) {
   // avoid "Rendered more hooks than during the previous render" errors.
   // Special case: landing page (/) renders via screen resolution logic below,
   // not via children, so don't block it on hydration.
-  const isPublicPath = PUBLIC_PATHS.has(pathname) || PASSTHROUGH_PATHS.has(pathname);
+  const isPublicPath = PUBLIC_PATHS.has(pathname) || PASSTHROUGH_PATHS.has(pathname) || pathname.startsWith('/blog');
   const isPortalPath = PORTAL_PATHS.has(pathname);
   const isProtectedPath =
     PROTECTED_PATHS.has(pathname) || pathname.startsWith('/family/members/');
