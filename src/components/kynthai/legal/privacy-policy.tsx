@@ -601,7 +601,7 @@ export function TermsOfService() {
         medical advice because of something you read or received from Kynthai.
       </p>
       <p>
-        In a medical emergency, call 911 (United States) immediately. Do not rely on Kynthai
+        In a medical emergency, call your local emergency number (e.g. 911 in the US) immediately. Do not rely on Kynthai
         for emergency response.
       </p>
 
@@ -1208,12 +1208,15 @@ export function MedicalDisclaimer() {
 
       <SectionTitle icon={AlertTriangle}>4. Emergency numbers</SectionTitle>
       <p>
-        In a medical emergency, call <strong>911 (United States)</strong> immediately.
+        In a medical emergency, call your local emergency number immediately.
         Do not rely on Kynthai for emergency response.
       </p>
       <ul>
-        <li><strong>US:</strong> 911 (emergency)</li>
+        <li><strong>US:</strong> 911</li>
         <li><strong>EU/UK:</strong> 112</li>
+        <li><strong>India:</strong> 108 / 112</li>
+        <li><strong>Australia:</strong> 000</li>
+        <li><strong>Canada:</strong> 911</li>
       </ul>
       <p>
         Kynthai&apos;s Emergency SOS feature notifies your contacts and doctors,

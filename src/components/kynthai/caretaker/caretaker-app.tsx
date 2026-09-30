@@ -1073,7 +1073,7 @@ function SosTab({
           data.summary ??
           (anyOk
             ? `${selected.name} — emergency SOS sent to your family and linked doctors.`
-            : 'SOS alert could not be sent. Call 911 or your local emergency number immediately.'),
+            : 'SOS alert could not be sent. Call your local emergency number immediately.'),
       });
       setStage('triggered');
       if (anyOk) {
@@ -1097,7 +1097,7 @@ function SosTab({
     } catch {
       setResponse({
         notifiedDoctors: [],
-        summary: `${selected.name} — SOS alert could not be sent. Call 911 yourself if life-threatening.`,
+        summary: `${selected.name} — SOS alert could not be sent. Call your local emergency number if life-threatening.`,
       });
       setStage('triggered');
     }

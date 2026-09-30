@@ -164,54 +164,54 @@ export function CookieConsent() {
       }
     >
       <Card className="mx-auto max-w-3xl border-emerald-500/30 shadow-2xl">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex items-start gap-3">
+        <CardContent className="p-2.5 sm:p-4">
+          <div className="flex items-start gap-2.5 sm:gap-3">
             <div className="hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
               <Cookie className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="text-sm font-semibold leading-6">We use cookies</h3>
+                <h3 className="text-xs sm:text-sm font-semibold leading-5 sm:leading-6">We use cookies</h3>
                 <button
                   onClick={reject}
-                  className="shrink-0 -mr-2 -mt-2 flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
+                  className="shrink-0 -mr-1 -mt-1 flex h-8 w-8 sm:h-11 sm:w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
                   aria-label="Close"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+              <p className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
                 Essential cookies keep Kynthai working. With your consent we
-                use analytics cookies. See our{' '}
+                use analytics. See our{' '}
                 <button
                   onClick={() => {
                     setVisible(false)
                     router.push('/privacy')
                   }}
-                  className="rounded-md px-1 -mx-1 py-2 -my-2 font-medium text-emerald-600 underline"
+                  className="rounded-md px-1 -mx-1 py-1.5 -my-1.5 font-medium text-emerald-600 underline"
                 >
                   Privacy Policy
                 </button>{' '}
-                for your CCPA/CPRA rights.
+                for your rights.
               </p>
-              <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-center">
+              <div className="mt-2 grid grid-cols-3 gap-1.5 sm:gap-2 sm:items-center">
                 <Button
                   onClick={accept}
-                  className="col-span-2 h-11 min-h-11 w-full text-xs sm:col-span-1 sm:text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                  className="h-9 sm:h-11 min-h-0 sm:min-h-11 w-full text-[11px] sm:text-sm bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
                 >
                   Accept all
                 </Button>
                 <Button
                   variant="outline"
                   onClick={reject}
-                  className="h-11 min-h-11 w-full text-xs sm:text-sm"
+                  className="h-9 sm:h-11 min-h-0 sm:min-h-11 w-full text-[11px] sm:text-sm"
                 >
                   Essential only
                 </Button>
                 <Button
                   variant="ghost"
                   onClick={manage}
-                  className="h-11 min-h-11 w-full text-xs sm:text-sm"
+                  className="h-9 sm:h-11 min-h-0 sm:min-h-11 w-full text-[11px] sm:text-sm"
                 >
                   Manage
                 </Button>

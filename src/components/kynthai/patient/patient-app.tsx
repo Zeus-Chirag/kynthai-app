@@ -995,7 +995,7 @@ function SosTab() {
           notifiedContacts: [],
           summary:
             (data.error as string) ||
-            'SOS alert could not be sent. Call 911 or your local emergency number immediately.',
+            'SOS alert could not be sent. Call your local emergency number immediately.',
         });
         setStage('triggered');
         return;
@@ -1007,7 +1007,7 @@ function SosTab() {
     } catch {
       setResponse({
         notifiedContacts: [],
-        summary: 'SOS alert could not be sent. Call 911 or your local emergency number immediately.',
+        summary: 'SOS alert could not be sent. Call your local emergency number immediately.',
       });
     }
     setStage('triggered');
@@ -1022,16 +1022,16 @@ function SosTab() {
           </div>
           <p className="text-sm text-muted-foreground text-center">
             Alerts your family and listed contacts, and sends them a reminder text with your
-            location. It does not replace calling 911.
+            location. It does not replace calling your local emergency number.
           </p>
           {/* Always-available call actions — never hidden behind the trigger state */}
           <div className="space-y-3">
-            <a href="tel:911" aria-label="Call 911, the US emergency number" className="block">
+            <a href="tel:911" aria-label="Call your local emergency number" className="block">
               <Button
                 size="lg"
                 className="w-full h-14 text-base bg-gradient-to-r from-rose-500 to-rose-700 text-white shadow-lg shadow-rose-600/30 hover:from-rose-600 hover:to-rose-800"
               >
-                <Phone className="h-5 w-5" /> Call 911 — US emergency number
+                <Phone className="h-5 w-5" /> Call emergency services
               </Button>
             </a>
             {callContact ? (
@@ -1090,8 +1090,8 @@ function SosTab() {
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  No family members with accounts were notified. If this is an emergency, call 911
-                  yourself.
+                  No family members with accounts were notified. If this is an emergency, call your
+                  local emergency number yourself.
                 </p>
               )}
             </div>
@@ -1100,7 +1100,7 @@ function SosTab() {
             <AlertTriangle className="h-3.5 w-3.5 inline-block -mt-0.5 mr-1 text-amber-600 dark:text-amber-400" />
             <span className="font-semibold text-amber-700 dark:text-amber-400">Important:</span>{' '}
             Kynthai cannot place calls or dispatch responders. In a life-threatening emergency,
-            always <span className="font-semibold text-foreground">call 911 (US) or your local emergency number yourself</span> and
+            always <span className="font-semibold text-foreground">call your local emergency number yourself</span> and
             call your hospital directly. Kynthai sends alerts and reminder texts to your listed
             contacts, but it is not a replacement for emergency services.
           </div>

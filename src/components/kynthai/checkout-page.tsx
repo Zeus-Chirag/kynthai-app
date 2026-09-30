@@ -74,8 +74,8 @@ const TIER_INFO: Record<'plus' | 'family_pro', TierInfo> = {
     features: [
       'Unlimited medications',
       'Unlimited AI Health Chat',
-      'Drug & food interaction checks',
-      'AI symptom analyzer',
+      'Drug & food interaction checks (informational only)',
+      'AI symptom analyzer — general guidance, not a diagnosis',
       'Weekly AI insights report',
       'Priority support',
     ],

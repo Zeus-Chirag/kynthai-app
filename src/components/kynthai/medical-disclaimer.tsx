@@ -24,7 +24,7 @@ export function MedicalDisclaimer({
     return (
       <p className={cn('text-[10px] text-muted-foreground italic', className)}>
         <AlertTriangle className="inline h-3 w-3 mr-1" />
-        AI-generated informational content only. Not medical advice. Consult a qualified healthcare professional. In a medical emergency, call 911 or your local emergency number immediately. Kynthai SOS is a separate in-app alert tool and does not connect to emergency dispatch services.
+        AI-generated informational content only. Not medical advice. Consult a qualified healthcare professional. In a medical emergency, call your local emergency number immediately (e.g. 911 in the US, 112 in the EU/UK). Kynthai SOS is a separate in-app alert tool and does not connect to emergency dispatch services.
       </p>
     )
   }
@@ -39,7 +39,7 @@ export function MedicalDisclaimer({
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
         <span>
-          <strong className="text-foreground">Medical disclaimer:</strong> This AI-generated information is for general guidance only and is not a substitute for professional medical advice, diagnosis, or treatment under applicable federal and state laws. Always consult a qualified healthcare professional licensed in your jurisdiction before making decisions about your health or medications. In a medical emergency, call 911 or your local emergency number immediately. Kynthai SOS is a separate in-app alert tool and does not connect to emergency dispatch services; do not rely on it for emergency response.
+          <strong className="text-foreground">Medical disclaimer:</strong> This AI-generated information is for general guidance only and is not a substitute for professional medical advice, diagnosis, or treatment under applicable federal and state laws. Always consult a qualified healthcare professional licensed in your jurisdiction before making decisions about your health or medications. In a medical emergency, call your local emergency number immediately (e.g. 911 in the US, 112 in the EU/UK). Kynthai SOS is a separate in-app alert tool and does not connect to emergency dispatch services; do not rely on it for emergency response.
         </span>
       </p>
     </div>

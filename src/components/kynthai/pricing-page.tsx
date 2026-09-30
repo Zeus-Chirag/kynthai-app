@@ -99,8 +99,8 @@ const TIERS: Tier[] = [
       'Unlimited AI Health Chat',
       'Unlimited medicine identification',
       'Unlimited prescription scanning',
-      'Drug & food interaction checks',
-      'AI symptom analyzer with red flags',
+      'Drug & food interaction checks (informational only)',
+      'AI symptom analyzer — general guidance, not a diagnosis',
       'Weekly AI insights report',
       'Chronic condition tracker',
       'Priority support (24h response)',
@@ -374,9 +374,11 @@ export function PricingPage() {
                       ? `Starting at $9/employee/mo · min 50 employees`
                       : tier.commissionOnly
                         ? `Platform fee · doctor / lab · no monthly fee`
-                        : cycle === 'yearly' && tier.id !== 'free'
-                          ? `Billed ${formatPrice(tierPrice(tier.id) ?? 0, currency)} once a year · cancel anytime`
-                          : `Billed monthly · cancel anytime`}
+                        : tier.id === 'free'
+                          ? `Free forever · no credit card required`
+                          : cycle === 'yearly'
+                            ? `Billed ${formatPrice(tierPrice(tier.id) ?? 0, currency)} once a year · cancel anytime`
+                            : `Billed ${formatPrice(tierPrice(tier.id) ?? 0, currency)}/mo · cancel anytime`}
                   </p>
 
                   <Separator className="my-5" />

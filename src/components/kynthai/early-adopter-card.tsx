@@ -92,11 +92,7 @@ export function EarlyAdopterCard({ onSelect }: EarlyAdopterCardProps) {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
             <Check className="h-4 w-4 text-emerald-500" />
-            <span>Early pricing in USD — cancel anytime from your account</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Check className="h-4 w-4 text-emerald-500" />
-            <span>Cancel anytime — contact support to manage your subscription</span>
+            <span>Early pricing in USD — cancel anytime from your account settings</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Check className="h-4 w-4 text-emerald-500" />
