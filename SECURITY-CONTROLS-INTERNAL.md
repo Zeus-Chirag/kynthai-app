@@ -5,12 +5,13 @@
 **Officer:** Privacy/Technical Contact = privacy@kynthai.app  
 **Scope:** Sensitive health data stored in the PostgreSQL database and file storage.
 
-> **Disclaimer (2026-08-02):** Kynthai is **not** a HIPAA-covered entity or business
-> associate and does **not** claim HIPAA compliance. This document describes internal
-> security controls (field-level encryption, audit logging) only; references to "PHI"
+> **Status (2026-10-11, owner-confirmed):** Kynthai is **not** HIPAA-registered,
+> is **not** a HIPAA-covered entity or business associate, and is **not compliant
+> with any health-regulatory scheme in the US or any other country at this time.**
+> This document describes internal security controls only; references to "PHI"
 > below are a security-classification label for sensitive health data, not PHI as
-> defined by HIPAA. User-facing privacy copy must not cite HIPAA or claim
-> covered-entity status.
+> defined by HIPAA. User-facing copy must not claim HIPAA, HITECH, or any
+> other health-regulatory compliance or certification, in any jurisdiction.
 
 ---
 
@@ -194,13 +195,13 @@ In transitional mode:
 
 ---
 
-## 8. Incident Response
+## 8. Incident Response (non-covered consumer app)
 
 1. Identify affected data scope.
 2. Rotate encryption keys (`scripts/rotate-encryption-key.ts`).
 3. Notify privacy officer: `privacy@kynthai.app`.
 4. Document breach in internal runbook.
-5. Notify affected users per HITECH breach notification rules.
+5. Notify affected users per the **FTC Health Breach Notification Rule** (16 CFR Part 318, for PHR vendors) **and applicable state consumer / health-privacy and breach-notification laws** (e.g. state AG notification, timelines per state of residence). Do **not** follow HITECH/HIPAA covered-entity procedures — they do not apply. Owner to confirm state-law matrix on the website privacy page.
 
 ---
 

@@ -6,8 +6,10 @@
  *
  * CALIFORNIA CONSUMER RIGHTS: California residents have the right to opt
  * out of the sale or sharing of personal information under CCPA/CPRA.
- * Health data is treated as Protected Health Information (sensitive health data) under
- * US privacy and the HITECH Act, which impose heightened security safeguards.
+ * Health data is treated as sensitive consumer health data under
+ * applicable US federal and state consumer privacy laws, which require
+ * heightened safeguards. Kynthai is not a HIPAA-covered entity and claims
+ * no health-regulatory compliance in any jurisdiction.
  *
  * FLOW: "Accept all" is explicit opt-in (enables analytics/marketing
  * cookies). "Essential only" opts the user out of non-essential cookies.

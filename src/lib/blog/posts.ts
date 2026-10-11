@@ -130,7 +130,7 @@ Before signing up for any health app, check for these warning signs:
 
 A health app that respects your privacy will:
 
-1. **Encrypt everything** — data in transit (TLS) and at rest (AES-256)
+1. **Encrypt in transit and at rest for stored files** — TLS in transit; uploaded documents/prescription images encrypted at rest (AES-256-GCM). DB field-level encryption is in progress and not yet live.
 2. **Minimize data collection** — only collect what's needed for the service
 3. **Never sell your data** — the business model is the service, not your information
 4. **Give you control** — export, delete, and manage your data easily
@@ -138,7 +138,7 @@ A health app that respects your privacy will:
 
 ## The HIPAA Question
 
-Many people ask "Is this app HIPAA compliant?" Here's the nuance: HIPAA applies to healthcare providers and their business associates. Most consumer health apps aren't covered entities. What matters is whether the app follows the same principles — encryption, access controls, audit logging — even when not legally required.
+Many people ask "Is this app HIPAA compliant?" Here's the nuance: HIPAA applies to healthcare providers and their business associates. Most consumer health apps aren't covered entities. Kynthai is not a HIPAA-covered entity or business associate and claims no health-regulatory compliance in the US or any other country. What matters is whether the app follows strong privacy principles — encryption, access controls, audit logging — even when not legally required.
 
 ## Your Right to Privacy
 

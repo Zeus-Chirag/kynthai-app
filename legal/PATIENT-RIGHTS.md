@@ -23,7 +23,7 @@ You have the right to participate in decisions regarding your healthcare, includ
 
 ## 4. Privacy and Confidentiality
 
-You have the right to privacy and confidentiality of your health information. PHI will only be shared for TPO purposes or with your explicit written authorization. You may request restrictions on certain disclosures and confidential communications as described in our Notice of Privacy Practices at kynthai.app/privacy-practices.
+You have the right to privacy and confidentiality of your health information. Sensitive health data will only be shared for the purposes described in our Privacy Policy or with your explicit consent. Kynthai is not a HIPAA-covered entity; HIPAA terms such as PHI/TPO do not apply. You may request restrictions on certain disclosures and confidential communications as described in our Notice of Privacy Practices at kynthai.app/privacy-practices.
 
 ## 5. Access to Your Health Information
 
