@@ -442,7 +442,7 @@ export function PrivacyPolicy() {
         Standard complaints are resolved within <strong>30 calendar days</strong>
         of acknowledgement. Where a complaint is complex or requires additional investigation, we will notify you
         in writing of any delay, the reason, and the expected final resolution date. Escalation:
-        unresolved complaints may be referred to the HHS Office for Civil Rights (OCR).
+        unresolved complaints may be referred to the Federal Trade Commission (ftc.gov/complaint) or your state attorney general.
       </p>
       <p>
         Correspondence is handled primarily via email at <ContactEmailText address="privacy@kynthai.app" />. We do not publish a physical mailing address; please use email for all legal and privacy correspondence.
