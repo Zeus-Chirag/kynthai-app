@@ -1,9 +1,11 @@
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import webpush from 'web-push'
+import { sendFcmToUser, isFcmConfigured } from '@/lib/fcm'
 
 /**
  * sendPushToUser — send a push notification to all devices subscribed by a user.
+ * Tries FCM first (wakes Android/iOS apps even when killed), then VAPID web-push (PWA).
  * Best-effort: never throws; failures are logged and expired subs are removed.
  */
 export async function sendPushToUser(
@@ -19,11 +21,22 @@ export async function sendPushToUser(
     reminderId?: string
   },
 ): Promise<{ sent: number; failed: number }> {
+  let totalSent = 0
+  let totalFailed = 0
+
+  // ── 1. FCM push (native Android/iOS apps — works when app is closed) ──
+  if (isFcmConfigured()) {
+    const fcmResult = await sendFcmToUser(userId, payload)
+    totalSent += fcmResult.sent
+    totalFailed += fcmResult.failed
+  }
+
+  // ── 2. VAPID web-push (PWA in browser — works when browser is open) ──
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
   const privateKey = process.env.VAPID_PRIVATE_KEY
   if (!publicKey || !privateKey) {
     // Push not configured — never throw, the app still works in-app.
-    return { sent: 0, failed: 0 }
+    return { sent: totalSent, failed: totalFailed }
   }
 
   try {
@@ -33,7 +46,7 @@ export async function sendPushToUser(
       where: { userId },
       select: { id: true, endpoint: true, p256dh: true, auth: true },
     })
-    if (subs.length === 0) return { sent: 0, failed: 0 }
+    if (subs.length === 0) return { sent: totalSent, failed: totalFailed }
 
     const message = JSON.stringify({
       title: payload.title || 'Kynthai',
@@ -84,9 +97,9 @@ export async function sendPushToUser(
         }
       }
     }
-    return { sent, failed }
+    return { sent: totalSent + sent, failed: totalFailed + failed }
   } catch (err) {
     logger.phiSafeError(err, 'push.send')
-    return { sent: 0, failed: 0 }
+    return { sent: totalSent, failed: totalFailed }
   }
 }
