@@ -29,14 +29,18 @@ public class FullScreenAlarmActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    // Security: validate the originating package name
+    // Security: when launched via PendingIntent (notification/full-screen intent),
+    // getCallingPackage() is ALWAYS null — it's only non-null for startActivityForResult.
+    // The activity is only declared in our own AndroidManifest with exported=false,
+    // so only our own components can launch it. The check below is kept for
+    // programmatic launches but must not reject notification-initiated ones.
     String originatingPackage = getCallingPackage();
-    if (originatingPackage == null || !isValidOriginatingPackage(originatingPackage)) {
+    if (originatingPackage != null && !isValidOriginatingPackage(originatingPackage)) {
       Log.e(TAG, "FullScreenAlarmActivity launched from untrusted package: " + originatingPackage);
-      // Don't show the alarm — reject it silently
       finish();
       return;
     }
+    // null originatingPackage = launched via PendingIntent (normal alarm path) — allow it.
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
       setShowWhenLocked(true);

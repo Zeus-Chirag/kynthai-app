@@ -109,7 +109,7 @@ export async function scheduleNativeAlarm(input: NativeAlarmInput): Promise<void
     const { LocalNotifications } = await import('@capacitor/local-notifications')
     try {
       await LocalNotifications.createChannel({
-        id: 'kynthai_dose_alarm_v2',
+        id: 'kynthai_fullscreen_dose_v2',
         name: 'Medication reminders',
         description: 'Dose and emergency alarms with sound',
         importance: 5,
@@ -127,7 +127,7 @@ export async function scheduleNativeAlarm(input: NativeAlarmInput): Promise<void
           title: input.title,
           body: input.body,
           schedule: { at: input.at, allowWhileIdle: true },
-          channelId: 'kynthai-dose-alarm-v2',
+          channelId: 'kynthai_fullscreen_dose_v2',
           extra: {
             medName: input.medName + '-' + input.id + '',
             alarm: '1',

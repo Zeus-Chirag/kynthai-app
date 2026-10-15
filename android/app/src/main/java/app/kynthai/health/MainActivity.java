@@ -106,6 +106,34 @@ public class MainActivity extends BridgeActivity {
     }
 
     /**
+     * Static getter used by BootReceiver to access the activity after reboot.
+     */
+    public static MainActivity currentInstanceForBoot() {
+        return currentInstance;
+    }
+
+    /**
+     * Static getter used by BootReceiver to access the activity after reboot.
+     */
+    public static MainActivity currentInstanceForBoot() {
+        return currentInstance;
+    }
+
+    /**
+     * Static getter used by BootReceiver to access the activity after reboot.
+     */
+    public static MainActivity currentInstanceForBoot() {
+        return currentInstance;
+    }
+
+    /**
+     * Static getter used by BootReceiver to access the activity after reboot.
+     */
+    public static MainActivity currentInstanceForBoot() {
+        return currentInstance;
+    }
+
+    /**
      * Pull-based JavaScript interface. The React hook calls getToken() on mount
      * (after auth is ready) to retrieve the cached FCM token. This eliminates
      * the race condition where the push-based token delivery fires before
