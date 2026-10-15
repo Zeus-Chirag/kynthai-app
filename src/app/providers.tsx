@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 import { GlobalErrorCatcher } from '@/components/kynthai/global-error-catcher'
 import { initConsentAwareTelemetry } from '@/lib/analytics-consent'
 import { useFcmTokenRegistration } from '@/hooks/use-fcm-token'
+import { installGlobalCsrf } from '@/lib/client-fetch'
 // ponytail: deploy-hash import forces new JS filename on every build.
 // Without this, Turbopack reuses the same filenames and Vercel CDN
 // serves stale JS forever.
@@ -44,6 +45,12 @@ function FcmTokenBootstrap() {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  // Install global CSRF interceptor once at app root so every fetch
+  // automatically includes the X-CSRF-Token header.
+  useEffect(() => {
+    installGlobalCsrf()
+  }, [])
+
   return (
     /* `reducedMotion="user"` makes every Framer Motion transform/layout
        animation app-wide respect prefers-reduced-motion (opacity still

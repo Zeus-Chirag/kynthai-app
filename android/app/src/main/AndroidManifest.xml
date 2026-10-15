@@ -62,6 +62,14 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <!-- FCM default notification channel — used when a message doesn't specify one -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="kynthai_fullscreen_dose_v2" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
     <permission android:name="app.kynthai.health.permission.ALARM" android:protectionLevel="signature" />
 </application>
 
